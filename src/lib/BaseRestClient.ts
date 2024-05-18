@@ -172,6 +172,14 @@ export abstract class BaseRestClient {
     return this._call('DELETE', endpoint, params, false);
   }
 
+  protected putPrivate(endpoint: string, params?: any) {
+    return this._call('PUT', endpoint, params, false);
+  }
+
+  protected patchPrivate(endpoint: string, params?: any) {
+    return this._call('PATCH', endpoint, params, false);
+  }
+
   /**
    * @private Make a HTTP request to a specific endpoint. Private endpoint API calls are automatically signed.
    */
