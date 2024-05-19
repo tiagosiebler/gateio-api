@@ -3793,6 +3793,384 @@ export class RestClient extends BaseRestClient {
    * MARGIN UNI
    * ==========================================================================================================================
    */
+  /**
+   * List lending markets
+   *
+   * @returns Promise<APIResponse<{
+   *   currency_pair: string;
+   *   base_min_borrow_amount: string;
+   *   quote_min_borrow_amount: string;
+   *   leverage: string;
+   * }[]>>
+   */
+  listLendingMarkets(): Promise<
+    APIResponse<
+      {
+        currency_pair: string;
+        base_min_borrow_amount: string;
+        quote_min_borrow_amount: string;
+        leverage: string;
+      }[]
+    >
+  > {
+    return this.get('/margin/uni/currency_pairs');
+  }
+
+  /**
+   * Get detail of lending market
+   *
+   * @param params Parameters containing the currency pair
+   * @returns Promise<APIResponse<{
+   *   currency_pair: string;
+   *   base_min_borrow_amount: string;
+   *   quote_min_borrow_amount: string;
+   *   leverage: string;
+   * }>>
+   */
+  getLendingMarketDetail(params: { currency_pair: string }): Promise<
+    APIResponse<{
+      currency_pair: string;
+      base_min_borrow_amount: string;
+      quote_min_borrow_amount: string;
+      leverage: string;
+    }>
+  > {
+    return this.get(`/margin/uni/currency_pairs/${params.currency_pair}`);
+  }
+
+  /**
+   * Estimate interest rate
+   *
+   * Please note that the interest rates are subject to change based on the borrowing and lending demand, and therefore, the provided rates may not be entirely accurate.
+   *
+   * @param params Parameters for retrieving estimated interest rates
+   * @returns Promise<APIResponse<Record<string, string>>>
+   */
+  estimateInterestRate(params: {
+    currencies: string[];
+  }): Promise<APIResponse<Record<string, string>>> {
+    return this.getPrivate('/margin/uni/estimate_rate', params);
+  }
+
+  /**
+   * Borrow or repay
+   *
+   * @param params Parameters for borrowing or repaying
+   * @returns Promise<void>
+   */
+  borrowOrRepayMarginUNI(params: {
+    currency: string;
+    type: 'borrow' | 'repay';
+    amount: string;
+    repaid_all?: boolean;
+    currency_pair: string;
+  }): Promise<void> {
+    return this.postPrivate('/margin/uni/loans', params);
+  }
+
+  /**
+   * List loans
+   *
+   * @param params Parameters for listing loans
+   * @returns Promise<APIResponse<{
+   *   currency: string;
+   *   currency_pair: string;
+   *   amount: string;
+   *   type: string;
+   *   create_time: number;
+   *   update_time: number;
+   * }[]>>
+   */
+  listLoansMarginUNI(params?: {
+    currency_pair?: string;
+    currency?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<
+    APIResponse<
+      {
+        currency: string;
+        currency_pair: string;
+        amount: string;
+        type: string;
+        create_time: number;
+        update_time: number;
+      }[]
+    >
+  > {
+    return this.getPrivate('/margin/uni/loans', params);
+  }
+
+  /**
+   * Get loan records
+   *
+   * @param params Parameters for retrieving loan records
+   * @returns Promise<APIResponse<{
+   *   type: string;
+   *   currency_pair: string;
+   *   currency: string;
+   *   amount: string;
+   *   create_time: number;
+   * }[]>>
+   */
+  getLoanRecordsMarginUNI(params?: {
+    type?: 'borrow' | 'repay';
+    currency?: string;
+    currency_pair?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<
+    APIResponse<
+      {
+        type: string;
+        currency_pair: string;
+        currency: string;
+        amount: string;
+        create_time: number;
+      }[]
+    >
+  > {
+    return this.getPrivate('/margin/uni/loan_records', params);
+  }
+
+  /**
+   * List interest records
+   *
+   * @param params Parameters for listing interest records
+   * @returns Promise<APIResponse<{
+   *   currency: string;
+   *   currency_pair: string;
+   *   actual_rate: string;
+   *   interest: string;
+   *   status: number;
+   *   type: string;
+   *   create_time: number;
+   * }[]>>
+   */
+  listInterestRecordsMarginUNI(params?: {
+    currency_pair?: string;
+    currency?: string;
+    page?: number;
+    limit?: number;
+    from?: number;
+    to?: number;
+  }): Promise<
+    APIResponse<
+      {
+        currency: string;
+        currency_pair: string;
+        actual_rate: string;
+        interest: string;
+        status: number;
+        type: string;
+        create_time: number;
+      }[]
+    >
+  > {
+    return this.getPrivate('/margin/uni/interest_records', params);
+  }
+
+  /**
+   * Get maximum borrowable
+   *
+   * @param params Parameters for retrieving the maximum borrowable amount
+   * @returns Promise<APIResponse<{
+   *   currency: string;
+   *   currency_pair: string;
+   *   borrowable: string;
+   * }>>
+   */
+  getMaxBorrowable(params: {
+    currency: string;
+    currency_pair: string;
+  }): Promise<
+    APIResponse<{
+      currency: string;
+      currency_pair: string;
+      borrowable: string;
+    }>
+  > {
+    return this.getPrivate('/margin/uni/borrowable', params);
+  }
+
+  /**==========================================================================================================================
+   * FLASH SWAP
+   * ==========================================================================================================================
+   */
+
+  /**
+   * List All Supported Currency Pairs In Flash Swap
+   *
+   * @param params Parameters for retrieving data of the specified currency
+   * @returns Promise<APIResponse<{
+   *   currency_pair: string;
+   *   sell_currency: string;
+   *   buy_currency: string;
+   *   sell_min_amount: string;
+   *   sell_max_amount: string;
+   *   buy_min_amount: string;
+   *   buy_max_amount: string;
+   * }[]>>
+   */
+  listFlashSwapCurrencyPairs(params?: { currency?: string }): Promise<
+    APIResponse<
+      {
+        currency_pair: string;
+        sell_currency: string;
+        buy_currency: string;
+        sell_min_amount: string;
+        sell_max_amount: string;
+        buy_min_amount: string;
+        buy_max_amount: string;
+      }[]
+    >
+  > {
+    return this.get('/flash_swap/currency_pairs', params);
+  }
+
+  /**
+   * Create a flash swap order
+   *
+   * Initiate a flash swap preview in advance because order creation requires a preview result.
+   *
+   * @param params Parameters for creating a flash swap order
+   * @returns Promise<APIResponse<{
+   *   id: number;
+   *   create_time: number;
+   *   user_id: number;
+   *   sell_currency: string;
+   *   sell_amount: string;
+   *   buy_currency: string;
+   *   buy_amount: string;
+   *   price: string;
+   *   status: number;
+   * }>>
+   */
+  createFlashSwapOrder(params: {
+    preview_id: string;
+    sell_currency: string;
+    sell_amount: string;
+    buy_currency: string;
+    buy_amount: string;
+  }): Promise<
+    APIResponse<{
+      id: number;
+      create_time: number;
+      user_id: number;
+      sell_currency: string;
+      sell_amount: string;
+      buy_currency: string;
+      buy_amount: string;
+      price: string;
+      status: number;
+    }>
+  > {
+    return this.postPrivate('/flash_swap/orders', params);
+  }
+
+  /**
+   * List all flash swap orders
+   *
+   * @param params Parameters for listing flash swap orders
+   * @returns Promise<APIResponse<{
+   *   id: number;
+   *   create_time: number;
+   *   user_id: number;
+   *   sell_currency: string;
+   *   sell_amount: string;
+   *   buy_currency: string;
+   *   buy_amount: string;
+   *   price: string;
+   *   status: number;
+   * }[]>>
+   */
+  listFlashSwapOrders(params?: {
+    status?: number;
+    sell_currency?: string;
+    buy_currency?: string;
+    reverse?: boolean;
+    limit?: number;
+    page?: number;
+  }): Promise<
+    APIResponse<
+      {
+        id: number;
+        create_time: number;
+        user_id: number;
+        sell_currency: string;
+        sell_amount: string;
+        buy_currency: string;
+        buy_amount: string;
+        price: string;
+        status: number;
+      }[]
+    >
+  > {
+    return this.getPrivate('/flash_swap/orders', params);
+  }
+
+  /**
+   * Get a single flash swap order's detail
+   *
+   * @param params Parameters containing the flash swap order ID
+   * @returns Promise<APIResponse<{
+   *   id: number;
+   *   create_time: number;
+   *   user_id: number;
+   *   sell_currency: string;
+   *   sell_amount: string;
+   *   buy_currency: string;
+   *   buy_amount: string;
+   *   price: string;
+   *   status: number;
+   * }>>
+   */
+  getFlashSwapOrderDetail(params: { order_id: number }): Promise<
+    APIResponse<{
+      id: number;
+      create_time: number;
+      user_id: number;
+      sell_currency: string;
+      sell_amount: string;
+      buy_currency: string;
+      buy_amount: string;
+      price: string;
+      status: number;
+    }>
+  > {
+    return this.getPrivate(`/flash_swap/orders/${params.order_id}`);
+  }
+
+  /**
+   * Initiate a flash swap order preview
+   *
+   * @param params Parameters for initiating a flash swap order preview
+   * @returns Promise<APIResponse<{
+   *   preview_id: string;
+   *   sell_currency: string;
+   *   sell_amount: string;
+   *   buy_currency: string;
+   *   buy_amount: string;
+   *   price: string;
+   * }>>
+   */
+  initiateFlashSwapOrderPreview(params: {
+    sell_currency: string;
+    sell_amount?: string;
+    buy_currency: string;
+    buy_amount?: string;
+  }): Promise<
+    APIResponse<{
+      preview_id: string;
+      sell_currency: string;
+      sell_amount: string;
+      buy_currency: string;
+      buy_amount: string;
+      price: string;
+    }>
+  > {
+    return this.postPrivate('/flash_swap/orders/preview', params);
+  }
   /**==========================================================================================================================
    * WALLET
    * ==========================================================================================================================
