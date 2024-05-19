@@ -19,7 +19,7 @@ async function start() {
       index: 'BTC_USDT',
     }); */
 
-    /* const res3 = await rest.portfolioMarginCalculator({
+    const res3 = await rest.portfolioMarginCalculator({
       body: {
         spot_balances: [
           {
@@ -63,14 +63,14 @@ async function start() {
         ],
         spot_hedge: false,
       },
-    }); */
+    });
 
-    const res4 = await rest.getDeliveryContract({
+    /* const res4 = await rest.getDeliveryContract({
       settle: 'usdt',
       contract: 'BTC_USDT',
-    });
+    }); */
     // const res1 = await rest.getSystemMaintenanceStatus();
-    console.log('res: ', JSON.stringify(res4, null, 2));
+    console.log('res: ', JSON.stringify(res3, null, 2));
   } catch (e) {
     console.error(`Error in execution: `, e);
   }

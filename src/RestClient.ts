@@ -1,4 +1,11 @@
 import { AxiosRequestConfig } from 'axios';
+import {
+  GetMainSubTransfersReq,
+  GetSavedAddressReq,
+  GetSmallBalanceHistoryReq,
+  GetWithdrawalDepositRecordsReq,
+  SubmitTransferReq,
+} from 'types/requests/shared.types.js';
 
 import {
   BaseRestClient,
@@ -6,7 +13,21 @@ import {
   RestClientType,
 } from './lib/BaseRestClient.js';
 import { RestClientOptions } from './lib/requestUtils.js';
-import { APIResponse } from './types/response/shared.types.js';
+import {
+  APIResponse,
+  CreateDepositAddressResp,
+  GetBalancesResp,
+  GetCurrencyChainsResp,
+  GetSavedAddressResp,
+  GetSmallBalanceHistoryResp,
+  GetSmallBalancesResp,
+  GetTradingFeesResp,
+  GetWithdrawalStatusResp,
+  SubAccountCrossMarginBalancesResp,
+  SubAccountFuturesBalancesResp,
+  SubAccountMarginBalancesResp,
+  SubAccountTransferRecordResp,
+} from './types/response/shared.types.js';
 
 // interfaces
 
@@ -407,31 +428,11 @@ export class RestClient extends BaseRestClient {
    * List chains supported for specified currency
    *
    * @param params Parameters containing the currency name
-   * @returns Promise<APIResponse< {
-        chain: string;
-        name_cn: string;
-        name_en: string;
-        contract_address: string;
-        is_disabled: number;
-        is_deposit_disabled: number;
-        is_withdraw_disabled: number;
-        decimal: string;
-      }[]>>
+   * @returns Promise<APIResponse< GetCurrencyChainsResp[][]>>
    */
-  getCurrencyChains(params: { currency: string }): Promise<
-    APIResponse<
-      {
-        chain: string;
-        name_cn: string;
-        name_en: string;
-        contract_address: string;
-        is_disabled: number;
-        is_deposit_disabled: number;
-        is_withdraw_disabled: number;
-        decimal: string;
-      }[]
-    >
-  > {
+  getCurrencyChains(params: {
+    currency: string;
+  }): Promise<APIResponse<GetCurrencyChainsResp[]>> {
     return this.get('/wallet/currency_chains', params);
   }
 
@@ -439,31 +440,11 @@ export class RestClient extends BaseRestClient {
    * Generate currency deposit address
    *
    * @param params Parameters containing the currency name
-   * @returns Promise<APIResponse<{
-      currency: string;
-      address: string;
-      multichain_addresses: {
-        chain: string;
-        address: string;
-        payment_id: string;
-        payment_name: string;
-        obtain_failed: number;
-      }[];
-    }>>
+   * @returns Promise<APIResponse<CreateDepositAddressResp>>
    */
-  createDepositAddress(params: { currency: string }): Promise<
-    APIResponse<{
-      currency: string;
-      address: string;
-      multichain_addresses: {
-        chain: string;
-        address: string;
-        payment_id: string;
-        payment_name: string;
-        obtain_failed: number;
-      }[];
-    }>
-  > {
+  createDepositAddress(params: {
+    currency: string;
+  }): Promise<APIResponse<CreateDepositAddressResp>> {
     return this.getPrivate('/wallet/deposit_address', params);
   }
 
@@ -475,13 +456,9 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for filtering withdrawal records
    * @returns Promise<APIResponse<Withdraw[]>>
    */
-  getWithdrawalRecords(params?: {
-    currency?: string;
-    from?: number;
-    to?: number;
-    limit?: number;
-    offset?: number;
-  }): Promise<APIResponse<Withdraw[]>> {
+  getWithdrawalRecords(
+    params?: GetWithdrawalDepositRecordsReq,
+  ): Promise<APIResponse<Withdraw[]>> {
     return this.getPrivate('/wallet/withdrawals', params);
   }
 
@@ -493,13 +470,9 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for filtering deposit records
    * @returns Promise<APIResponse<Withdraw[]>>
    */
-  getDepositRecords(params?: {
-    currency?: string;
-    from?: number;
-    to?: number;
-    limit?: number;
-    offset?: number;
-  }): Promise<APIResponse<Withdraw[]>> {
+  getDepositRecords(
+    params?: GetWithdrawalDepositRecordsReq,
+  ): Promise<APIResponse<Withdraw[]>> {
     return this.getPrivate('/wallet/deposits', params);
   }
 
@@ -516,32 +489,9 @@ export class RestClient extends BaseRestClient {
    * @param params Transfer parameters
    * @returns Promise<APIResponse<TransferResponse>>
    */
-  submitTransfer(params: {
-    body: {
-      currency: string;
-      from:
-        | 'spot'
-        | 'margin'
-        | 'futures'
-        | 'delivery'
-        | 'cross_margin'
-        | 'options';
-      to:
-        | 'spot'
-        | 'margin'
-        | 'futures'
-        | 'delivery'
-        | 'cross_margin'
-        | 'options';
-      amount: string;
-      currency_pair?: string;
-      settle?: string;
-    };
-  }): Promise<
-    APIResponse<{
-      tx_id: number;
-    }>
-  > {
+  submitTransfer(
+    params: SubmitTransferReq,
+  ): Promise<APIResponse<{ tx_id: number }>> {
     return this.postPrivate('/wallet/transfers', params);
   }
 
@@ -574,29 +524,11 @@ export class RestClient extends BaseRestClient {
    * Note: only records after 2020-04-10 can be retrieved
    *
    * @param params Parameters for filtering transfer records
-   * @returns Promise<APIResponse<SubAccountTransferRecordResponse[]>>
+   * @returns Promise<APIResponse<SubAccountTransferRecordResp[]>>
    */
-  getMainSubTransfers(params?: {
-    sub_uid?: string;
-    from?: number;
-    to?: number;
-    limit?: number;
-    offset?: number;
-  }): Promise<
-    APIResponse<
-      {
-        currency: string;
-        sub_account: string;
-        direction: 'to' | 'from';
-        amount: string;
-        uid: string;
-        client_order_id: string;
-        timest: string;
-        source: string;
-        sub_account_type: 'spot' | 'futures' | 'cross_margin' | 'delivery';
-      }[]
-    >
-  > {
+  getMainSubTransfers(
+    params?: GetMainSubTransfersReq,
+  ): Promise<APIResponse<SubAccountTransferRecordResp[]>> {
     return this.getPrivate('/wallet/sub_account_transfers', params);
   }
 
@@ -626,39 +558,11 @@ export class RestClient extends BaseRestClient {
    * Retrieve withdrawal status
    *
    * @param params Parameters for retrieving withdrawal status
-   * @returns Promise<APIResponse<{
-        currency: string;
-        name: string;
-        name_cn: string;
-        deposit: string;
-        withdraw_percent: string;
-        withdraw_fix: string;
-        withdraw_day_limit: string;
-        withdraw_amount_mini: string;
-        withdraw_day_limit_remain: string;
-        withdraw_eachtime_limit: string;
-        withdraw_fix_on_chains: { [key: string]: string };
-        withdraw_percent_on_chains: { [key: string]: string };
-      }[]>>
+   * @returns Promise<APIResponse<GetWithdrawalStatusResp[]>>
    */
-  getWithdrawalStatus(params?: { currency?: string }): Promise<
-    APIResponse<
-      {
-        currency: string;
-        name: string;
-        name_cn: string;
-        deposit: string;
-        withdraw_percent: string;
-        withdraw_fix: string;
-        withdraw_day_limit: string;
-        withdraw_amount_mini: string;
-        withdraw_day_limit_remain: string;
-        withdraw_eachtime_limit: string;
-        withdraw_fix_on_chains: { [key: string]: string };
-        withdraw_percent_on_chains: { [key: string]: string };
-      }[]
-    >
-  > {
+  getWithdrawalStatus(params?: {
+    currency?: string;
+  }): Promise<APIResponse<GetWithdrawalStatusResp[]>> {
     return this.getPrivate('/wallet/withdraw_status', params);
   }
 
@@ -686,34 +590,11 @@ export class RestClient extends BaseRestClient {
    * Query sub accounts' margin balances
    *
    * @param params Parameters for querying sub accounts' margin balances
-   * @returns Promise<APIResponse<SubAccountMarginBalancesResponse[]>>
+   * @returns Promise<APIResponse<SubAccountMarginBalancesResp[]>>
    */
-  getSubMarginBalances(params?: { sub_uid?: string }): Promise<
-    APIResponse<
-      {
-        uid: string;
-        available: {
-          currency_pair: string;
-          locked: boolean;
-          risk: string;
-          base: {
-            currency: string;
-            available: string;
-            locked: string;
-            borrowed: string;
-            interest: string;
-          };
-          quote: {
-            currency: string;
-            available: string;
-            locked: string;
-            borrowed: string;
-            interest: string;
-          };
-        }[];
-      }[]
-    >
-  > {
+  getSubMarginBalances(params?: {
+    sub_uid?: string;
+  }): Promise<APIResponse<SubAccountMarginBalancesResp[]>> {
     return this.getPrivate('/wallet/sub_account_margin_balances', params);
   }
 
@@ -721,47 +602,12 @@ export class RestClient extends BaseRestClient {
    * Query sub accounts' futures account balances
    *
    * @param params Parameters for querying sub accounts' futures account balances
-   * @returns Promise<APIResponse<SubAccountFuturesBalancesResponse[]>>
+   * @returns Promise<APIResponse<SubAccountFuturesBalancesResp[]>>
    */
   getSubFuturesBalances(params?: {
     sub_uid?: string;
     settle?: string;
-  }): Promise<
-    APIResponse<
-      {
-        uid: string;
-        available: {
-          [key: string]: {
-            total: string;
-            unrealised_pnl: string;
-            position_margin: string;
-            order_margin: string;
-            available: string;
-            point: string;
-            currency: string;
-            in_dual_mode: boolean;
-            enable_credit: boolean;
-            position_initial_margin: string;
-            maintenance_margin: string;
-            bonus: string;
-            enable_evolved_classic: boolean;
-            history: {
-              dnw: string;
-              pnl: string;
-              fee: string;
-              refr: string;
-              fund: string;
-              point_dnw: string;
-              point_fee: string;
-              point_refr: string;
-              bonus_dnw: string;
-              bonus_offset: string;
-            };
-          };
-        };
-      }[]
-    >
-  > {
+  }): Promise<APIResponse<SubAccountFuturesBalancesResp[]>> {
     return this.getPrivate('/wallet/sub_account_futures_balances', params);
   }
 
@@ -769,67 +615,11 @@ export class RestClient extends BaseRestClient {
    * Query subaccount's cross_margin account info
    *
    * @param params Parameters for querying subaccount's cross_margin account info
-   * @returns Promise<APIResponse<{
-   *   uid: string;
-   *   available: {
-   *     user_id: number;
-   *     locked: boolean;
-   *     balances: {
-   *       [key: string]: {
-   *         available: string;
-   *         freeze: string;
-   *         borrowed: string;
-   *         interest: string;
-   *       };
-   *     };
-   *     total: string;
-   *     borrowed: string;
-   *     borrowed_net: string;
-   *     net: string;
-   *     leverage: string;
-   *     interest: string;
-   *     risk: string;
-   *     total_initial_margin: string;
-   *     total_margin_balance: string;
-   *     total_maintenance_margin: string;
-   *     total_initial_margin_rate: string;
-   *     total_maintenance_margin_rate: string;
-   *     total_available_margin: string;
-   *   };
-   * }[]>>
+   * @returns Promise<APIResponse<SubAccountCrossMarginBalancesResp[]>>
    */
-  getSubCrossMarginBalances(params?: { sub_uid?: string }): Promise<
-    APIResponse<
-      {
-        uid: string;
-        available: {
-          user_id: number;
-          locked: boolean;
-          balances: {
-            [key: string]: {
-              available: string;
-              freeze: string;
-              borrowed: string;
-              interest: string;
-            };
-          };
-          total: string;
-          borrowed: string;
-          borrowed_net: string;
-          net: string;
-          leverage: string;
-          interest: string;
-          risk: string;
-          total_initial_margin: string;
-          total_margin_balance: string;
-          total_maintenance_margin: string;
-          total_initial_margin_rate: string;
-          total_maintenance_margin_rate: string;
-          total_available_margin: string;
-        };
-      }[]
-    >
-  > {
+  getSubCrossMarginBalances(params?: {
+    sub_uid?: string;
+  }): Promise<APIResponse<SubAccountCrossMarginBalancesResp[]>> {
     return this.getPrivate('/wallet/sub_account_cross_margin_balances', params);
   }
 
@@ -837,32 +627,11 @@ export class RestClient extends BaseRestClient {
    * Query saved address
    *
    * @param params Parameters for querying saved address
-   * @returns Promise<APIResponse<{
-   *   currency: string;
-   *   chain: string;
-   *   address: string;
-   *   name: string;
-   *   tag: string;
-   *   verified: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetSavedAddressResp[]>>
    */
-  getSavedAddress(params: {
-    currency: string;
-    chain?: string;
-    limit?: string;
-    page?: number;
-  }): Promise<
-    APIResponse<
-      {
-        currency: string;
-        chain: string;
-        address: string;
-        name: string;
-        tag: string;
-        verified: string;
-      }[]
-    >
-  > {
+  getSavedAddress(
+    params: GetSavedAddressReq,
+  ): Promise<APIResponse<GetSavedAddressResp[]>> {
     return this.getPrivate('/wallet/saved_address', params);
   }
 
@@ -870,42 +639,12 @@ export class RestClient extends BaseRestClient {
    * Retrieve personal trading fee
    *
    * @param params Parameters for retrieving personal trading fee
-   * @returns Promise<APIResponse<{
-   *   user_id: number;
-   *   taker_fee: string;
-   *   maker_fee: string;
-   *   gt_discount: boolean;
-   *   gt_taker_fee: string;
-   *   gt_maker_fee: string;
-   *   loan_fee: string;
-   *   point_type: string;
-   *   futures_taker_fee: string;
-   *   futures_maker_fee: string;
-   *   delivery_taker_fee: string;
-   *   delivery_maker_fee: string;
-   *   debit_fee: number;
-   * }>>
+   * @returns Promise<APIResponse<GetTradingFeesResp>>
    */
   getTradingFees(params?: {
     currency_pair?: string;
     settle?: 'BTC' | 'USDT' | 'USD';
-  }): Promise<
-    APIResponse<{
-      user_id: number;
-      taker_fee: string;
-      maker_fee: string;
-      gt_discount: boolean;
-      gt_taker_fee: string;
-      gt_maker_fee: string;
-      loan_fee: string;
-      point_type: string;
-      futures_taker_fee: string;
-      futures_maker_fee: string;
-      delivery_taker_fee: string;
-      delivery_maker_fee: string;
-      debit_fee: number;
-    }>
-  > {
+  }): Promise<APIResponse<GetTradingFeesResp>> {
     return this.getPrivate('/wallet/fee', params);
   }
 
@@ -921,62 +660,20 @@ export class RestClient extends BaseRestClient {
    * - GET /futures/{settle}/accounts to query futures account balance
    *
    * @param params Parameters for retrieving total balances
-   * @returns Promise<APIResponse<{
-   *   total: {
-   *     amount: string;
-   *     currency: string;
-   *     unrealised_pnl?: string;
-   *     borrowed?: string;
-   *   };
-   *   details: {
-   *     [key: string]: {
-   *       amount: string;
-   *       currency: string;
-   *       unrealised_pnl?: string;
-   *       borrowed?: string;
-   *     };
-   *   };
-   * }>>
+   * @returns Promise<APIResponse<GetBalancesResp>>
    */
-  getBalances(params?: { currency?: string }): Promise<
-    APIResponse<{
-      total: {
-        amount: string;
-        currency: string;
-        unrealised_pnl?: string;
-        borrowed?: string;
-      };
-      details: {
-        [key: string]: {
-          amount: string;
-          currency: string;
-          unrealised_pnl?: string;
-          borrowed?: string;
-        };
-      };
-    }>
-  > {
+  getBalances(params?: {
+    currency?: string;
+  }): Promise<APIResponse<GetBalancesResp>> {
     return this.getPrivate('/wallet/total_balance', params);
   }
 
   /**
    * List small balance
    *
-   * @returns Promise<APIResponse<{
-   *   currency: string;
-   *   available_balance: string;
-   *   estimated_as_btc: string;
-   *   convertible_to_gt: string;
-   * }>>
+   * @returns Promise<APIResponse<GetSmallBalancesResp>>
    */
-  getSmallBalances(): Promise<
-    APIResponse<{
-      currency: string;
-      available_balance: string;
-      estimated_as_btc: string;
-      convertible_to_gt: string;
-    }>
-  > {
+  getSmallBalances(): Promise<APIResponse<GetSmallBalancesResp>> {
     return this.getPrivate('/wallet/small_balance');
   }
 
@@ -998,29 +695,11 @@ export class RestClient extends BaseRestClient {
    * List small balance history
    *
    * @param params Parameters for listing small balance history
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   currency: string;
-   *   amount: string;
-   *   gt_amount: string;
-   *   create_time: number;
-   * }[]>>
+   * @returns Promise<APIResponse<GetSmallBalanceHistoryResp[]>>
    */
-  getSmallBalanceHistory(params?: {
-    currency?: string;
-    page?: number;
-    limit?: number;
-  }): Promise<
-    APIResponse<
-      {
-        id: string;
-        currency: string;
-        amount: string;
-        gt_amount: string;
-        create_time: number;
-      }[]
-    >
-  > {
+  getSmallBalanceHistory(
+    params?: GetSmallBalanceHistoryReq,
+  ): Promise<APIResponse<GetSmallBalanceHistoryResp[]>> {
     return this.getPrivate('/wallet/small_balance_history', params);
   }
 
