@@ -35,10 +35,6 @@ interface SubAccountKey {
   last_access?: number;
 }
 
-interface EstimateRate {
-  [key: string]: string;
-}
-
 interface CurrencyPair {
   id?: string;
   base?: string;
@@ -99,44 +95,6 @@ interface CancelBatchOrder {
   id: string;
   account?: 'cross_margin';
   action_mode?: 'ACK' | 'RESULT' | 'FULL';
-}
-
-interface Loan {
-  id?: string;
-  create_time?: string;
-  expire_time?: string;
-  status?: 'open' | 'loaned' | 'finished' | 'auto_repaid';
-  side: 'lend' | 'borrow';
-  currency: string;
-  rate?: string;
-  amount: string;
-  days?: number;
-  auto_renew?: boolean;
-  currency_pair?: string;
-  left?: string;
-  repaid?: string;
-  paid_interest?: string;
-  unpaid_interest?: string;
-  fee_rate?: string;
-  orig_id?: string;
-  text?: string;
-}
-
-interface LoanRecord {
-  id?: string;
-  loan_id?: string;
-  create_time?: string;
-  expire_time?: string;
-  status?: 'loaned' | 'finished';
-  borrow_user_id?: string;
-  currency?: string;
-  rate?: string;
-  amount?: string;
-  days?: number;
-  auto_renew?: boolean;
-  repaid?: string;
-  paid_interest?: string;
-  unpaid_interest?: string;
 }
 
 interface SpotPriceTriggeredOrder {
@@ -415,7 +373,7 @@ export class RestClient extends BaseRestClient {
    * @param params Withdrawal parameters
    * @returns Promise<APIResponse<Withdraw>>
    */
-  withdraw(params: {
+  submitWithdraw(params: {
     body: {
       withdraw_order_id?: string;
       amount: string;
@@ -460,7 +418,7 @@ export class RestClient extends BaseRestClient {
         decimal: string;
       }[]>>
    */
-  listCurrencyChains(params: { currency: string }): Promise<
+  getCurrencyChains(params: { currency: string }): Promise<
     APIResponse<
       {
         chain: string;
@@ -493,7 +451,7 @@ export class RestClient extends BaseRestClient {
       }[];
     }>>
    */
-  generateDepositAddress(params: { currency: string }): Promise<
+  createDepositAddress(params: { currency: string }): Promise<
     APIResponse<{
       currency: string;
       address: string;
@@ -517,7 +475,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for filtering withdrawal records
    * @returns Promise<APIResponse<Withdraw[]>>
    */
-  retrieveWithdrawalRecords(params?: {
+  getWithdrawalRecords(params?: {
     currency?: string;
     from?: number;
     to?: number;
@@ -535,7 +493,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for filtering deposit records
    * @returns Promise<APIResponse<Withdraw[]>>
    */
-  retrieveDepositRecords(params?: {
+  getDepositRecords(params?: {
     currency?: string;
     from?: number;
     to?: number;
@@ -558,7 +516,7 @@ export class RestClient extends BaseRestClient {
    * @param params Transfer parameters
    * @returns Promise<APIResponse<TransferResponse>>
    */
-  transferBetweenAccounts(params: {
+  submitTransfer(params: {
     body: {
       currency: string;
       from:
@@ -595,7 +553,7 @@ export class RestClient extends BaseRestClient {
    * @param params Transfer parameters
    * @returns Promise<APIResponse<any>>
    */
-  transferBetweenMainAndSubAccounts(params: {
+  submitMainSubTransfer(params: {
     body: {
       currency: string;
       sub_account: string;
@@ -618,7 +576,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for filtering transfer records
    * @returns Promise<APIResponse<SubAccountTransferRecordResponse[]>>
    */
-  retrieveSubAccountTransferRecords(params?: {
+  getMainSubTransfers(params?: {
     sub_uid?: string;
     from?: number;
     to?: number;
@@ -650,7 +608,7 @@ export class RestClient extends BaseRestClient {
    * @param params Transfer parameters
    * @returns Promise<APIResponse<any>>
    */
-  subAccountTransfersToSubAccount(params: {
+  getSubToSubTransfer(params: {
     body: {
       currency: string;
       sub_account_type?: string;
@@ -683,7 +641,7 @@ export class RestClient extends BaseRestClient {
         withdraw_percent_on_chains: { [key: string]: string };
       }[]>>
    */
-  retrieveWithdrawalStatus(params?: { currency?: string }): Promise<
+  getWithdrawalStatus(params?: { currency?: string }): Promise<
     APIResponse<
       {
         currency: string;
@@ -713,7 +671,7 @@ export class RestClient extends BaseRestClient {
         available: { [key: string]: string };
       }[]>>
    */
-  retrieveSubAccountBalances(params?: { sub_uid?: string }): Promise<
+  getSubBalance(params?: { sub_uid?: string }): Promise<
     APIResponse<
       {
         uid: string;
@@ -730,7 +688,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for querying sub accounts' margin balances
    * @returns Promise<APIResponse<SubAccountMarginBalancesResponse[]>>
    */
-  querySubAccountMarginBalances(params?: { sub_uid?: string }): Promise<
+  getSubMarginBalances(params?: { sub_uid?: string }): Promise<
     APIResponse<
       {
         uid: string;
@@ -765,7 +723,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for querying sub accounts' futures account balances
    * @returns Promise<APIResponse<SubAccountFuturesBalancesResponse[]>>
    */
-  querySubAccountFuturesBalances(params?: {
+  getSubFuturesBalances(params?: {
     sub_uid?: string;
     settle?: string;
   }): Promise<
@@ -840,7 +798,7 @@ export class RestClient extends BaseRestClient {
    *   };
    * }[]>>
    */
-  querySubAccountCrossMarginBalances(params?: { sub_uid?: string }): Promise<
+  getSubCrossMarginBalances(params?: { sub_uid?: string }): Promise<
     APIResponse<
       {
         uid: string;
@@ -888,7 +846,7 @@ export class RestClient extends BaseRestClient {
    *   verified: string;
    * }[]>>
    */
-  querySavedAddress(params: {
+  getSavedAddress(params: {
     currency: string;
     chain?: string;
     limit?: string;
@@ -928,7 +886,7 @@ export class RestClient extends BaseRestClient {
    *   debit_fee: number;
    * }>>
    */
-  retrievePersonalTradingFee(params?: {
+  getTradingFees(params?: {
     currency_pair?: string;
     settle?: 'BTC' | 'USDT' | 'USD';
   }): Promise<
@@ -1011,7 +969,7 @@ export class RestClient extends BaseRestClient {
    *   convertible_to_gt: string;
    * }>>
    */
-  listSmallBalance(): Promise<
+  getSmallBalances(): Promise<
     APIResponse<{
       currency: string;
       available_balance: string;
@@ -1048,7 +1006,7 @@ export class RestClient extends BaseRestClient {
    *   create_time: number;
    * }[]>>
    */
-  listSmallBalanceHistory(params?: {
+  getSmallBalanceHistory(params?: {
     currency?: string;
     page?: number;
     limit?: number;
@@ -1123,7 +1081,7 @@ export class RestClient extends BaseRestClient {
    *   create_time: number;
    * }[]>>
    */
-  listSubAccounts(params?: { type?: string }): Promise<
+  getSubAccounts(params?: { type?: string }): Promise<
     APIResponse<
       {
         remark?: string;
@@ -1228,7 +1186,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters containing the sub-account user ID
    * @returns Promise<APIResponse<SubAccountKey[]>>
    */
-  listSubAccountApiKeys(params: {
+  getSubAccountApiKeys(params: {
     user_id: number;
   }): Promise<APIResponse<SubAccountKey[]>> {
     return this.getPrivate(`/sub_accounts/${params.user_id}/keys`);
@@ -1390,7 +1348,7 @@ export class RestClient extends BaseRestClient {
    *   amount: string;
    * }>>
    */
-  queryUnifiedAccountMaxBorrowing(params: { currency: string }): Promise<
+  getUnifiedMaxBorrow(params: { currency: string }): Promise<
     APIResponse<{
       currency: string;
       amount: string;
@@ -1408,7 +1366,7 @@ export class RestClient extends BaseRestClient {
    *   amount: string;
    * }>>
    */
-  queryUnifiedAccountMaxTransferable(params: { currency: string }): Promise<
+  getUnifiedMaxTransferable(params: { currency: string }): Promise<
     APIResponse<{
       currency: string;
       amount: string;
@@ -1429,7 +1387,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for borrowing or repaying
    * @returns Promise<APIResponse<void>>
    */
-  borrowOrRepay(params: {
+  submitUnifiedBorrowOrRepay(params: {
     body: {
       currency: string;
       type: 'borrow' | 'repay';
@@ -1454,7 +1412,7 @@ export class RestClient extends BaseRestClient {
    *   update_time: number;
    * }[]>>
    */
-  listLoans(params?: {
+  getUnifiedLoans(params?: {
     currency?: string;
     page?: number;
     limit?: number;
@@ -1488,7 +1446,7 @@ export class RestClient extends BaseRestClient {
    *   create_time: number;
    * }[]>>
    */
-  getLoanRecords(params?: {
+  getUnifiedLoanRecords(params?: {
     type?: 'borrow' | 'repay';
     currency?: string;
     page?: number;
@@ -1527,7 +1485,7 @@ export class RestClient extends BaseRestClient {
    *   create_time: number;
    * }[]>>
    */
-  listInterestRecords(params?: {
+  getUnifiedInterestRecords(params?: {
     currency?: string;
     page?: number;
     limit?: number;
@@ -1566,7 +1524,7 @@ export class RestClient extends BaseRestClient {
    *   }[];
    * }>>
    */
-  retrieveUserRiskUnitDetails(): Promise<
+  getUnifiedRiskUnitDetails(): Promise<
     APIResponse<{
       user_id: number;
       spot_hedge: boolean;
@@ -1616,7 +1574,7 @@ export class RestClient extends BaseRestClient {
    *   };
    * }>>
    */
-  queryUnifiedAccountMode(): Promise<
+  getUnifiedAccountMode(): Promise<
     APIResponse<{
       mode: 'classic' | 'multi_currency' | 'portfolio';
       settings: {
@@ -1655,7 +1613,7 @@ export class RestClient extends BaseRestClient {
    *   }[];
    * }[]>>
    */
-  listCurrencyDiscountTiers(): Promise<
+  getUnifiedCurrencyDiscountTiers(): Promise<
     APIResponse<
       {
         currency: string;
@@ -1808,7 +1766,7 @@ export class RestClient extends BaseRestClient {
    *   chain: string;
    * }[]>>
    */
-  listAllCurrenciesDetails(): Promise<
+  getSpotCurrencies(): Promise<
     APIResponse<
       {
         currency: string;
@@ -1840,7 +1798,7 @@ export class RestClient extends BaseRestClient {
    *   chain: string;
    * }>>
    */
-  getCurrencyDetails(params: { currency: string }): Promise<
+  getSpotCurrency(params: { currency: string }): Promise<
     APIResponse<{
       currency: string;
       delisted: boolean;
@@ -1872,7 +1830,7 @@ export class RestClient extends BaseRestClient {
    *   buy_start: number;
    * }[]>>
    */
-  listAllCurrencyPairs(): Promise<APIResponse<CurrencyPair[]>> {
+  getSpotCurrencyPairs(): Promise<APIResponse<CurrencyPair[]>> {
     return this.get('/spot/currency_pairs');
   }
 
@@ -1894,7 +1852,7 @@ export class RestClient extends BaseRestClient {
    *   buy_start: number;
    * }>>
    */
-  getCurrencyPairDetails(params: {
+  getSpotCurrencyPair(params: {
     currency_pair: string;
   }): Promise<APIResponse<CurrencyPair>> {
     return this.get(`/spot/currency_pairs/${params.currency_pair}`);
@@ -1924,7 +1882,7 @@ export class RestClient extends BaseRestClient {
    *   etf_leverage: string | null;
    * }[]>>
    */
-  retrieveTickerInformation(params?: {
+  getSpotTicker(params?: {
     currency_pair?: string;
     timezone?: 'utc0' | 'utc8' | 'all';
   }): Promise<
@@ -1965,7 +1923,7 @@ export class RestClient extends BaseRestClient {
    *   bids: [string, string][];
    * }>>
    */
-  retrieveOrderBook(params: {
+  getSpotOrderBook(params: {
     currency_pair: string;
     interval?: string;
     limit?: number;
@@ -2008,7 +1966,7 @@ export class RestClient extends BaseRestClient {
    *   text: string;
    * }[]>>
    */
-  retrieveMarketTrades(params: {
+  getSpotTrades(params: {
     currency_pair: string;
     limit?: number;
     last_id?: string;
@@ -2058,7 +2016,7 @@ export class RestClient extends BaseRestClient {
    *   boolean // Whether the window is closed
    * ]]>>
    */
-  marketCandlesticks(params: {
+  getSpotCandlesticks(params: {
     currency_pair: string;
     limit?: number;
     from?: number;
@@ -2113,7 +2071,7 @@ export class RestClient extends BaseRestClient {
    *   debit_fee: number;
    * }>>
    */
-  queryUserTradingFeeRates(params?: { currency_pair?: string }): Promise<
+  getSpotFeeRates(params?: { currency_pair?: string }): Promise<
     APIResponse<{
       user_id: number;
       taker_fee: string;
@@ -2149,7 +2107,7 @@ export class RestClient extends BaseRestClient {
    *   };
    * }>>
    */
-  queryBatchUserTradingFeeRates(params: { currency_pairs: string }): Promise<
+  getSpotBatchFeeRates(params: { currency_pairs: string }): Promise<
     APIResponse<{
       [key: string]: {
         user_id: number;
@@ -2179,7 +2137,7 @@ export class RestClient extends BaseRestClient {
    *   update_id: number;
    * }[]>>
    */
-  listSpotAccounts(params?: { currency?: string }): Promise<
+  getSpotAccounts(params?: { currency?: string }): Promise<
     APIResponse<
       {
         currency: string;
@@ -2208,7 +2166,7 @@ export class RestClient extends BaseRestClient {
    *   text: string;
    * }[]>>
    */
-  queryAccountBook(params?: {
+  getSpotAccountBook(params?: {
     currency?: string;
     from?: number;
     to?: number;
@@ -2279,7 +2237,7 @@ export class RestClient extends BaseRestClient {
    *   finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
    * }[]>>
    */
-  createBatchOrders(params: { body: Order[] }): Promise<
+  submitSpotBatchOrders(params: { body: Order[] }): Promise<
     APIResponse<
       {
         order_id: string;
@@ -2373,7 +2331,7 @@ export class RestClient extends BaseRestClient {
    *   }[];
    * }[]>>
    */
-  listAllOpenOrders(params?: {
+  getSpotOpenOrders(params?: {
     page?: number;
     limit?: number;
     account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
@@ -2439,7 +2397,7 @@ export class RestClient extends BaseRestClient {
    *   action_mode?: 'ACK' | 'RESULT' | 'FULL';
    * }>>
    */
-  closePositionWhenCrossCurrencyDisabled(params: {
+  submitSpotClosePosCrossDisabled(params: {
     body: {
       text?: string;
       currency_pair: string;
@@ -2474,7 +2432,7 @@ export class RestClient extends BaseRestClient {
    *   action_mode?: 'ACK' | 'RESULT' | 'FULL';
    * }>>
    */
-  createOrder(params: { body: Order }): Promise<APIResponse<Order>> {
+  submitSpotOrder(params: { body: Order }): Promise<APIResponse<Order>> {
     return this.postPrivate('/spot/orders', params);
   }
 
@@ -2521,7 +2479,7 @@ export class RestClient extends BaseRestClient {
    *   finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
    * }[]>>
    */
-  listOrders(params: {
+  getSpotOrders(params: {
     currency_pair: string;
     status: 'open' | 'finished';
     page?: number;
@@ -2578,7 +2536,7 @@ export class RestClient extends BaseRestClient {
    *   finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
    * }[]>>
    */
-  cancelPairOpenOrders(params: {
+  deleteSpotPairOpenOrders(params: {
     currency_pair: string;
     side?: 'buy' | 'sell';
     account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
@@ -2602,7 +2560,7 @@ export class RestClient extends BaseRestClient {
    *   account: string;
    * }[]>>
    */
-  cancelBatchOrders(params: { body: CancelBatchOrder[] }): Promise<
+  deleteSpotBatchOrders(params: { body: CancelBatchOrder[] }): Promise<
     APIResponse<
       {
         currency_pair: string;
@@ -2660,7 +2618,7 @@ export class RestClient extends BaseRestClient {
    *   finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
    * }>>
    */
-  getSingleOrder(params: {
+  getSpotOrder(params: {
     order_id: string;
     currency_pair: string;
     account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
@@ -2713,7 +2671,7 @@ export class RestClient extends BaseRestClient {
    *   finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
    * }>>
    */
-  amendOrder(params: {
+  updateSpotOrder(params: {
     order_id: string;
     currency_pair: string;
     account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
@@ -2770,7 +2728,7 @@ export class RestClient extends BaseRestClient {
    *   finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
    * }>>
    */
-  cancelSingleOrder(params: {
+  deleteSpotOrder(params: {
     order_id: string;
     currency_pair: string;
     account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
@@ -2806,7 +2764,7 @@ export class RestClient extends BaseRestClient {
    *   text: string;
    * }[]>>
    */
-  listPersonalTradingHistory(params?: {
+  getSpotTradingHistory(params?: {
     currency_pair?: string;
     limit?: number;
     page?: number;
@@ -2864,7 +2822,7 @@ export class RestClient extends BaseRestClient {
    *   triggerTime: number;
    * }>>
    */
-  countdownCancelOrders(params: {
+  submitSpotCountdownOrders(params: {
     body: {
       timeout: number;
       currency_pair?: string;
@@ -2922,7 +2880,7 @@ export class RestClient extends BaseRestClient {
    *   finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
    * }[]>>
    */
-  amendBatchOrders(params: {
+  updateSpotBatchOrders(params: {
     body: {
       order_id?: string;
       currency_pair?: string;
@@ -2983,7 +2941,9 @@ export class RestClient extends BaseRestClient {
    *   id: number;
    * }>>
    */
-  createPriceTriggeredOrder(params: { body: SpotPriceTriggeredOrder }): Promise<
+  submitSpotPriceTriggerOrder(params: {
+    body: SpotPriceTriggeredOrder;
+  }): Promise<
     APIResponse<{
       id: number;
     }>
@@ -3015,7 +2975,7 @@ export class RestClient extends BaseRestClient {
    *   status: 'open' | 'finished';
    * }[]>>
    */
-  retrieveRunningAutoOrderList(params: {
+  getSpotAutoOrders(params: {
     status: 'open' | 'finished';
     market?: string;
     account?: 'normal' | 'margin' | 'cross_margin';
@@ -3048,7 +3008,7 @@ export class RestClient extends BaseRestClient {
    *   status: 'open' | 'finished';
    * }[]>>
    */
-  cancelAllOpenOrders(params?: {
+  deleteSpotAllOpenOrders(params?: {
     market?: string;
     account?: 'normal' | 'margin' | 'cross_margin';
   }): Promise<APIResponse<SpotPriceTriggeredOrder[]>> {
@@ -3109,7 +3069,7 @@ export class RestClient extends BaseRestClient {
    *   status: 'open' | 'finished';
    * }>>
    */
-  cancelPriceTriggeredOrder(params: {
+  deleteSpotPriceTriggeredOrder(params: {
     order_id: string;
   }): Promise<APIResponse<SpotPriceTriggeredOrder>> {
     return this.deletePrivate(`/spot/price_orders/${params.order_id}`, params);
@@ -3144,7 +3104,7 @@ export class RestClient extends BaseRestClient {
    *   };
    * }[]>>
    */
-  listMarginAccounts(params?: { currency_pair?: string }): Promise<
+  getMarginAccounts(params?: { currency_pair?: string }): Promise<
     APIResponse<
       {
         currency_pair: string;
@@ -3187,7 +3147,7 @@ export class RestClient extends BaseRestClient {
    *   type: string;
    * }[]>>
    */
-  listMarginAccountBalanceChangeHistory(params?: {
+  getMarginBalanceHistory(params?: {
     currency?: string;
     currency_pair?: string;
     type?: string;
@@ -3224,7 +3184,7 @@ export class RestClient extends BaseRestClient {
    *   total_lent: string;
    * }[]>>
    */
-  listFundingAccounts(params?: { currency?: string }): Promise<
+  getFundingAccounts(params?: { currency?: string }): Promise<
     APIResponse<
       {
         currency: string;
@@ -3255,9 +3215,7 @@ export class RestClient extends BaseRestClient {
    *
    * @returns Promise<APIResponse<{ status: 'on' | 'off' }>>
    */
-  retrieveAutoRepaymentSetting(): Promise<
-    APIResponse<{ status: 'on' | 'off' }>
-  > {
+  getAutoRepaymentSetting(): Promise<APIResponse<{ status: 'on' | 'off' }>> {
     return this.getPrivate('/margin/auto_repay');
   }
 
@@ -3300,7 +3258,7 @@ export class RestClient extends BaseRestClient {
    *   status: number;
    * }[]>>
    */
-  listCrossMarginCurrencies(): Promise<
+  getCrossMarginCurrencies(): Promise<
     APIResponse<
       {
         name: string;
@@ -3388,7 +3346,7 @@ export class RestClient extends BaseRestClient {
    *   portfolio_margin_total_equity: string;
    * }>>
    */
-  retrieveCrossMarginAccount(): Promise<
+  getCrossMarginAccount(): Promise<
     APIResponse<{
       user_id: number;
       refresh_time: number;
@@ -3439,7 +3397,7 @@ export class RestClient extends BaseRestClient {
    *   type: string;
    * }[]>>
    */
-  retrieveCrossMarginAccountChangeHistory(params?: {
+  getCrossMarginAccountHistory(params?: {
     currency?: string;
     from?: number;
     to?: number;
@@ -3480,7 +3438,7 @@ export class RestClient extends BaseRestClient {
    *   unpaid_interest: string;
    * }>>
    */
-  createCrossMarginBorrowLoan(params: {
+  submitCrossMarginBorrowLoan(params: {
     body: {
       currency: string;
       amount: string;
@@ -3522,7 +3480,7 @@ export class RestClient extends BaseRestClient {
    *   unpaid_interest: string;
    * }[]>>
    */
-  listCrossMarginBorrowHistory(params: {
+  getCrossMarginBorrowHistory(params: {
     status: number;
     currency?: string;
     limit?: number;
@@ -3564,7 +3522,7 @@ export class RestClient extends BaseRestClient {
    *   unpaid_interest: string;
    * }>>
    */
-  getSingleBorrowLoanDetail(params: { loan_id: string }): Promise<
+  getCrossMarginBorrowLoan(params: { loan_id: string }): Promise<
     APIResponse<{
       id: string;
       create_time: number;
@@ -3599,7 +3557,7 @@ export class RestClient extends BaseRestClient {
    *   unpaid_interest: string;
    * }[]>>
    */
-  crossMarginRepayments(params: {
+  submitCrossMarginRepayment(params: {
     body: { currency: string; amount: string };
   }): Promise<
     APIResponse<
@@ -3636,7 +3594,7 @@ export class RestClient extends BaseRestClient {
    *   repayment_type: string;
    * }[]>>
    */
-  retrieveCrossMarginRepayments(params?: {
+  getCrossMarginRepayments(params?: {
     currency?: string;
     loan_id?: string;
     limit?: number;
@@ -3758,7 +3716,7 @@ export class RestClient extends BaseRestClient {
    *   leverage: string;
    * }[]>>
    */
-  listLendingMarkets(): Promise<
+  getLendingMarkets(): Promise<
     APIResponse<
       {
         currency_pair: string;
@@ -3782,7 +3740,7 @@ export class RestClient extends BaseRestClient {
    *   leverage: string;
    * }>>
    */
-  getLendingMarketDetail(params: { currency_pair: string }): Promise<
+  getLendingMarket(params: { currency_pair: string }): Promise<
     APIResponse<{
       currency_pair: string;
       base_min_borrow_amount: string;
@@ -3813,7 +3771,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for borrowing or repaying
    * @returns Promise<void>
    */
-  borrowOrRepayMarginUNI(params: {
+  submitMarginUNIBorrowOrRepay(params: {
     body: {
       currency: string;
       type: 'borrow' | 'repay';
@@ -3838,7 +3796,7 @@ export class RestClient extends BaseRestClient {
    *   update_time: number;
    * }[]>>
    */
-  listLoansMarginUNI(params?: {
+  getMarginUNILoans(params?: {
     currency_pair?: string;
     currency?: string;
     page?: number;
@@ -3870,7 +3828,7 @@ export class RestClient extends BaseRestClient {
    *   create_time: number;
    * }[]>>
    */
-  getLoanRecordsMarginUNI(params?: {
+  getMarginUNILoanRecords(params?: {
     type?: 'borrow' | 'repay';
     currency?: string;
     currency_pair?: string;
@@ -3904,7 +3862,7 @@ export class RestClient extends BaseRestClient {
    *   create_time: number;
    * }[]>>
    */
-  listInterestRecordsMarginUNI(params?: {
+  getMarginUNIInterestRecords(params?: {
     currency_pair?: string;
     currency?: string;
     page?: number;
@@ -3937,7 +3895,7 @@ export class RestClient extends BaseRestClient {
    *   borrowable: string;
    * }>>
    */
-  getMaxBorrowable(params: {
+  getMarginUNIMaxBorrow(params: {
     currency: string;
     currency_pair: string;
   }): Promise<
@@ -3969,7 +3927,7 @@ export class RestClient extends BaseRestClient {
    *   buy_max_amount: string;
    * }[]>>
    */
-  listFlashSwapCurrencyPairs(params?: { currency?: string }): Promise<
+  getFlashSwapCurrencyPairs(params?: { currency?: string }): Promise<
     APIResponse<
       {
         currency_pair: string;
@@ -4003,7 +3961,7 @@ export class RestClient extends BaseRestClient {
    *   status: number;
    * }>>
    */
-  createFlashSwapOrder(params: {
+  submitFlashSwapOrder(params: {
     body: {
       preview_id: string;
       sell_currency: string;
@@ -4043,7 +4001,7 @@ export class RestClient extends BaseRestClient {
    *   status: number;
    * }[]>>
    */
-  listFlashSwapOrders(params?: {
+  getFlashSwapOrders(params?: {
     status?: number;
     sell_currency?: string;
     buy_currency?: string;
@@ -4084,7 +4042,7 @@ export class RestClient extends BaseRestClient {
    *   status: number;
    * }>>
    */
-  getFlashSwapOrderDetail(params: { order_id: number }): Promise<
+  getFlashSwapOrder(params: { order_id: number }): Promise<
     APIResponse<{
       id: number;
       create_time: number;
@@ -4113,7 +4071,7 @@ export class RestClient extends BaseRestClient {
    *   price: string;
    * }>>
    */
-  initiateFlashSwapOrderPreview(params: {
+  submitFlashSwapOrderPreview(params: {
     body: {
       sell_currency: string;
       sell_amount?: string;
@@ -4143,7 +4101,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for listing futures contracts
    * @returns Promise<APIResponse<Contract[]>>
    */
-  listFuturesContracts(params: {
+  getFuturesContracts(params: {
     settle: 'btc' | 'usdt' | 'usd';
     limit?: number;
     offset?: number;
@@ -4157,7 +4115,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for retrieving a single contract
    * @returns Promise<APIResponse<Contract>>
    */
-  getSingleContract(params: {
+  getFuturesContract(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
   }): Promise<APIResponse<Contract>> {
@@ -4213,7 +4171,7 @@ export class RestClient extends BaseRestClient {
    *   is_internal?: boolean;
    * }[]>>
    */
-  getFuturesTradingHistory(params: {
+  getFuturesTrades(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
     limit?: number;
@@ -4341,7 +4299,7 @@ export class RestClient extends BaseRestClient {
    *   highest_bid: string;
    * }[]>>
    */
-  listFuturesTickers(params: {
+  getFuturesTickers(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract?: string;
   }): Promise<
@@ -4383,7 +4341,7 @@ export class RestClient extends BaseRestClient {
    *   r: string;
    * }[]>>
    */
-  getFundingRateHistory(params: {
+  getFundingRates(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
     limit?: number;
@@ -4407,7 +4365,7 @@ export class RestClient extends BaseRestClient {
    *   b: string;
    * }[]>>
    */
-  getFuturesInsuranceBalanceHistory(params: {
+  getFuturesInsuranceBalance(params: {
     settle: 'btc' | 'usdt' | 'usd';
     limit?: number;
   }): Promise<
@@ -4552,7 +4510,7 @@ export class RestClient extends BaseRestClient {
    *   contract: string;
    * }[]>>
    */
-  listRiskLimitTiers(params: {
+  getRiskLimitTiers(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
     limit?: number;
@@ -4604,7 +4562,7 @@ export class RestClient extends BaseRestClient {
    *   };
    * }>>
    */
-  queryFuturesAccount(params: { settle: 'btc' | 'usdt' | 'usd' }): Promise<
+  getFuturesAccount(params: { settle: 'btc' | 'usdt' | 'usd' }): Promise<
     APIResponse<{
       total: string;
       unrealised_pnl: string;
@@ -4652,7 +4610,7 @@ export class RestClient extends BaseRestClient {
    *   trade_id: string;
    * }[]>>
    */
-  queryFuturesAccountBook(params: {
+  getFuturesAccountBook(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract?: string;
     limit?: number;
@@ -4691,7 +4649,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for listing all positions of a user
    * @returns Promise<APIResponse<Position[]>>
    */
-  listUserPositions(params: {
+  getFuturesPositions(params: {
     settle: 'btc' | 'usdt' | 'usd';
     holding?: boolean;
     limit?: number;
@@ -4706,7 +4664,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for retrieving a single position
    * @returns Promise<APIResponse<Position>>
    */
-  getFuturesSinglePosition(params: {
+  getFuturesPosition(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
   }): Promise<APIResponse<Position>> {
@@ -4722,7 +4680,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for updating position margin
    * @returns Promise<APIResponse<Position>>
    */
-  updatePositionMargin(params: {
+  updateFuturesMargin(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
     change: string;
@@ -4739,7 +4697,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for updating position leverage
    * @returns Promise<APIResponse<Position>>
    */
-  updatePositionLeverage(params: {
+  updateFuturesLeverage(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
     leverage: string;
@@ -4802,7 +4760,7 @@ export class RestClient extends BaseRestClient {
    *   };
    * }>>
    */
-  toggleDualMode(params: {
+  toggleFuturesDualMode(params: {
     settle: 'btc' | 'usdt' | 'usd';
     dual_mode: boolean;
   }): Promise<
@@ -4843,7 +4801,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for retrieving position detail in dual mode
    * @returns Promise<APIResponse<Position[]>>
    */
-  getDualModePositionDetail(params: {
+  getDualModePosition(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
   }): Promise<APIResponse<Position[]>> {
@@ -4919,7 +4877,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for creating a futures order
    * @returns Promise<APIResponse<FuturesOrder>>
    */
-  createFuturesOrder(params: {
+  submitFuturesOrder(params: {
     settle: 'btc' | 'usdt' | 'usd';
     body: FuturesOrder;
   }): Promise<APIResponse<FuturesOrder>> {
@@ -4935,7 +4893,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for listing futures orders
    * @returns Promise<APIResponse<FuturesOrder[]>>
    */
-  listFuturesOrders(params: {
+  getFuturesOrders(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract?: string;
     status: string;
@@ -4954,7 +4912,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling all open orders matched
    * @returns Promise<APIResponse<FuturesOrder[]>>
    */
-  cancelAllFuturesOpenOrders(params: {
+  deleteAllFuturesOrders(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
     side?: string;
@@ -4968,7 +4926,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for listing futures orders by time range
    * @returns Promise<APIResponse<FuturesOrder[]>>
    */
-  listFuturesOrdersByTimeRange(params: {
+  getFuturesOrdersByTimeRange(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract?: string;
     from?: number;
@@ -5022,7 +4980,7 @@ export class RestClient extends BaseRestClient {
    *   stp_id: number;
    * }[]>>
    */
-  createBatchFuturesOrders(params: {
+  submitFuturesBatchOrders(params: {
     settle: 'btc' | 'usdt' | 'usd';
     body: FuturesOrder[];
   }): Promise<
@@ -5068,7 +5026,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for retrieving a single order
    * @returns Promise<APIResponse<FuturesOrder>>
    */
-  getFuturesSingleOrder(params: {
+  getFuturesOrder(params: {
     settle: 'btc' | 'usdt' | 'usd';
     order_id: string;
   }): Promise<APIResponse<FuturesOrder>> {
@@ -5084,13 +5042,12 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling a single order
    * @returns Promise<APIResponse<FuturesOrder>>
    */
-  cancelFuturesSingleOrder(params: {
+  deleteFuturesOrder(params: {
     settle: 'btc' | 'usdt' | 'usd';
     order_id: string;
   }): Promise<APIResponse<FuturesOrder>> {
     return this.deletePrivate(
       `/futures/${params.settle}/orders/${params.order_id}`,
-      params,
     );
   }
 
@@ -5100,7 +5057,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for amending an order
    * @returns Promise<APIResponse<FuturesOrder>>
    */
-  amendFuturesOrder(params: {
+  updateFuturesOrder(params: {
     settle: 'btc' | 'usdt' | 'usd';
     order_id: string;
     body: {
@@ -5134,7 +5091,7 @@ export class RestClient extends BaseRestClient {
    *   point_fee: string;
    * }[]>>
    */
-  listFuturesPersonalTradingHistory(params: {
+  getFuturesTradingHistory(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract?: string;
     order?: number;
@@ -5179,7 +5136,7 @@ export class RestClient extends BaseRestClient {
    *   short_price: string;
    * }[]>>
    */
-  listPositionCloseHistory(params: {
+  getFuturesPositionHistory(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract?: string;
     limit?: number;
@@ -5228,7 +5185,7 @@ export class RestClient extends BaseRestClient {
    *   left: number;
    * }[]>>
    */
-  listLiquidationHistory(params: {
+  getFuturesLiquidationHistory(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract?: string;
     limit?: number;
@@ -5271,7 +5228,7 @@ export class RestClient extends BaseRestClient {
    *   position_size: number;
    * }[]>>
    */
-  listAutoDeleveragingHistory(params: {
+  getFuturesAutoDeleveragingHistory(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract?: string;
     limit?: number;
@@ -5308,7 +5265,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for setting countdown cancel orders
    * @returns Promise<APIResponse<{ triggerTime: number }>>
    */
-  countdownFuturesCancelOrders(params: {
+  deleteFuturesOrdersCountdown(params: {
     settle: 'btc' | 'usdt' | 'usd';
     body: {
       timeout: number;
@@ -5327,7 +5284,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for querying user trading fee rates
    * @returns Promise<APIResponse<Record<string, { taker_fee: string; maker_fee: string }>>>
    */
-  queryFuturesUserTradingFeeRates(params: {
+  getFuturesUserTradingFees(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract?: string;
   }): Promise<
@@ -5349,7 +5306,7 @@ export class RestClient extends BaseRestClient {
    *   message: string;
    * }[]>>
    */
-  cancelFuturesBatchOrders(params: {
+  deleteFuturesBatchOrders(params: {
     settle: 'btc' | 'usdt' | 'usd';
     body: string[];
   }): Promise<
@@ -5374,7 +5331,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for creating a price-triggered order
    * @returns Promise<APIResponse<{ id: number }>>
    */
-  createFuturesPriceTriggeredOrder(params: {
+  submitFuturesPriceTriggeredOrder(params: {
     settle: 'btc' | 'usdt' | 'usd';
     body: FuturesPriceTriggeredOrder;
   }): Promise<APIResponse<{ id: number }>> {
@@ -5387,7 +5344,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for listing all auto orders
    * @returns Promise<APIResponse<FuturesPriceTriggeredOrder[]>>
    */
-  listAllAutoOrders(params: {
+  getFuturesAutoOrders(params: {
     settle: 'btc' | 'usdt' | 'usd';
     status: 'open' | 'finished';
     contract?: string;
@@ -5403,7 +5360,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling all open orders
    * @returns Promise<APIResponse<FuturesPriceTriggeredOrder[]>>
    */
-  cancelFuturesAllOpenOrders(params: {
+  deleteFuturesAllOpenOrders(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
   }): Promise<APIResponse<FuturesPriceTriggeredOrder[]>> {
@@ -5432,7 +5389,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling a price-triggered order
    * @returns Promise<APIResponse<FuturesPriceTriggeredOrder>>
    */
-  cancelFuturesPriceTriggeredOrder(params: {
+  deleteFuturesPriceTriggeredOrder(params: {
     settle: 'btc' | 'usdt' | 'usd';
     order_id: string;
   }): Promise<APIResponse<FuturesPriceTriggeredOrder>> {
@@ -5520,7 +5477,7 @@ export class RestClient extends BaseRestClient {
    *   is_internal?: boolean;
    * }[]>>
    */
-  getDeliveryTradingHistory(params: {
+  getDeliveryTrades(params: {
     settle: 'usdt';
     contract: string;
     limit?: number;
@@ -5625,7 +5582,7 @@ export class RestClient extends BaseRestClient {
    *   highest_bid: string;
    * }[]>>
    */
-  listDeliveryTickers(params: { settle: 'usdt'; contract?: string }): Promise<
+  getDeliveryTickers(params: { settle: 'usdt'; contract?: string }): Promise<
     APIResponse<
       {
         contract: string;
@@ -5710,7 +5667,7 @@ export class RestClient extends BaseRestClient {
    *   };
    * }>>
    */
-  queryDeliveryAccount(params: { settle: 'usdt' }): Promise<
+  getDeliveryAccount(params: { settle: 'usdt' }): Promise<
     APIResponse<{
       total: string;
       unrealised_pnl: string;
@@ -5756,7 +5713,7 @@ export class RestClient extends BaseRestClient {
    *   trade_id?: string;
    * }[]>>
    */
-  queryDeliveryBook(params: {
+  getDeliveryBook(params: {
     settle: 'usdt';
     limit?: number;
     from?: number;
@@ -5883,7 +5840,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for creating a futures order
    * @returns Promise<APIResponse<FuturesOrder>>
    */
-  createDeliveryOrder(params: {
+  submitDeliveryOrder(params: {
     settle: 'usdt';
     body: FuturesOrder;
   }): Promise<APIResponse<FuturesOrder>> {
@@ -5898,7 +5855,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for listing futures orders
    * @returns Promise<APIResponse<FuturesOrder[]>>
    */
-  listDeliveryOrders(params: {
+  getDeliveryOrders(params: {
     settle: 'usdt';
     contract?: string;
     status: 'open' | 'finished';
@@ -5918,7 +5875,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling all open orders matched
    * @returns Promise<APIResponse<FuturesOrder[]>>
    */
-  cancelAllDeliveryOrders(params: {
+  deleteAllDeliveryOrders(params: {
     settle: 'usdt';
     contract: string;
     side?: 'ask' | 'bid';
@@ -5949,7 +5906,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling a single order
    * @returns Promise<APIResponse<FuturesOrder>>
    */
-  cancelDeliveryOrder(params: {
+  deleteDeliveryOrder(params: {
     settle: 'usdt';
     order_id: string;
   }): Promise<APIResponse<FuturesOrder>> {
@@ -5975,7 +5932,7 @@ export class RestClient extends BaseRestClient {
    *   point_fee: string;
    * }[]>>
    */
-  getDeliveryPersonalHistory(params: {
+  getDeliveryTradingHistory(params: {
     settle: 'usdt';
     contract?: string;
     order?: number;
@@ -6165,7 +6122,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling all open orders
    * @returns Promise<APIResponse<FuturesPriceTriggeredOrder[]>>
    */
-  cancelAllDeliveryOpenOrders(params: {
+  deleteDeliveryOrders(params: {
     settle: 'usdt';
     contract: string;
   }): Promise<APIResponse<FuturesPriceTriggeredOrder[]>> {
@@ -6207,7 +6164,7 @@ export class RestClient extends BaseRestClient {
   }
 
   /**==========================================================================================================================
-   * OPIONS
+   * OPTIONS
    * ==========================================================================================================================
    */
 
@@ -6895,7 +6852,7 @@ export class RestClient extends BaseRestClient {
   /**
    * Create an options order
    *
-   * @param body Body parameters for creating an options order
+   * @param params Parameters for creating an options order
    * @returns Promise<APIResponse<{
    *   id: number;
    *   user: number;
@@ -6920,15 +6877,17 @@ export class RestClient extends BaseRestClient {
    *   refr: string;
    * }>>
    */
-  submitOptionsOrder(body: {
-    contract: string;
-    size: number;
-    iceberg?: number;
-    price?: string;
-    close?: boolean;
-    reduce_only?: boolean;
-    tif?: 'gtc' | 'ioc' | 'poc';
-    text?: string;
+  submitOptionsOrder(params: {
+    body: {
+      contract: string;
+      size: number;
+      iceberg?: number;
+      price?: string;
+      close?: boolean;
+      reduce_only?: boolean;
+      tif?: 'gtc' | 'ioc' | 'poc';
+      text?: string;
+    };
   }): Promise<
     APIResponse<{
       id: number;
@@ -6961,7 +6920,7 @@ export class RestClient extends BaseRestClient {
       refr: string;
     }>
   > {
-    return this.post(`/options/orders`, body);
+    return this.postPrivate(`/options/orders`, params);
   }
 
   /**
@@ -7272,9 +7231,1487 @@ export class RestClient extends BaseRestClient {
   }
 
   /**==========================================================================================================================
-   * WALLET
+   * EARN UNI
    * ==========================================================================================================================
    */
+
+  /**
+   * List currencies for lending
+   *
+   * @returns Promise<APIResponse<{
+   *   currency: string;
+   *   min_lend_amount: string;
+   *   max_lend_amount: string;
+   *   max_rate: string;
+   *   min_rate: string;
+   * }[]>>
+   */
+  getLendingCurrencies(): Promise<
+    APIResponse<
+      {
+        currency: string;
+        min_lend_amount: string;
+        max_lend_amount: string;
+        max_rate: string;
+        min_rate: string;
+      }[]
+    >
+  > {
+    return this.get(`/earn/uni/currencies`);
+  }
+
+  /**
+   * Get currency detail for lending
+   *
+   * @param params Parameters for retrieving currency detail for lending
+   * @returns Promise<APIResponse<{
+   *   currency: string;
+   *   min_lend_amount: string;
+   *   max_lend_amount: string;
+   *   max_rate: string;
+   *   min_rate: string;
+   * }>>
+   */
+  getLendingCurrency(params: { currency: string }): Promise<
+    APIResponse<{
+      currency: string;
+      min_lend_amount: string;
+      max_lend_amount: string;
+      max_rate: string;
+      min_rate: string;
+    }>
+  > {
+    return this.get(`/earn/uni/currencies/${params.currency}`, params);
+  }
+
+  /**
+   * Lend or redeem
+   *
+   * @param params Parameters for lending or redeeming
+   * @returns Promise<APIResponse<void>>
+   */
+  submitLendOrRedeem(params: {
+    body: {
+      currency: string;
+      amount: string;
+      type: 'lend' | 'redeem';
+      min_rate?: string;
+    };
+  }): Promise<APIResponse<void>> {
+    return this.postPrivate(`/earn/uni/lends`, params);
+  }
+
+  /**
+   * List user's lending orders
+   *
+   * @param params Parameters for listing user's lending orders
+   * @returns Promise<APIResponse<{
+   *   currency: string;
+   *   current_amount: string;
+   *   amount: string;
+   *   lent_amount: string;
+   *   frozen_amount: string;
+   *   min_rate: string;
+   *   interest_status: string;
+   *   reinvest_left_amount: string;
+   *   create_time: number;
+   *   update_time: number;
+   * }[]>>
+   */
+  getLendingOrders(params?: {
+    currency?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<
+    APIResponse<
+      {
+        currency: string;
+        current_amount: string;
+        amount: string;
+        lent_amount: string;
+        frozen_amount: string;
+        min_rate: string;
+        interest_status: string;
+        reinvest_left_amount: string;
+        create_time: number;
+        update_time: number;
+      }[]
+    >
+  > {
+    return this.getPrivate(`/earn/uni/lends`, params);
+  }
+
+  /**
+   * Amend lending order
+   *
+   * Currently only supports amending the minimum interest rate (hour)
+   *
+   * @param params Parameters for amending lending order
+   * @returns Promise<APIResponse<void>>
+   */
+  updateLendingOrder(params: {
+    body: {
+      currency?: string;
+      min_rate?: string;
+    };
+  }): Promise<APIResponse<void>> {
+    return this.patchPrivate(`/earn/uni/lends`, params);
+  }
+
+  /**
+   * List records of lending
+   *
+   * @param params Parameters for listing records of lending
+   * @returns Promise<APIResponse<{
+   *   currency: string;
+   *   amount: string;
+   *   last_wallet_amount: string;
+   *   last_lent_amount: string;
+   *   last_frozen_amount: string;
+   *   type: 'lend' | 'redeem';
+   *   create_time: number;
+   * }[]>>
+   */
+  getLendingRecords(params?: {
+    currency?: string;
+    page?: number;
+    limit?: number;
+    from?: number;
+    to?: number;
+    type?: 'lend' | 'redeem';
+  }): Promise<
+    APIResponse<
+      {
+        currency: string;
+        amount: string;
+        last_wallet_amount: string;
+        last_lent_amount: string;
+        last_frozen_amount: string;
+        type: 'lend' | 'redeem';
+        create_time: number;
+      }[]
+    >
+  > {
+    return this.getPrivate(`/earn/uni/lend_records`, params);
+  }
+
+  /**
+   * Get the user's total interest income of specified currency
+   *
+   * @param params Parameters for retrieving the user's total interest income of specified currency
+   * @returns Promise<APIResponse<{
+   *   currency: string;
+   *   interest: string;
+   * }>>
+   */
+  getLendingTotalInterest(params: { currency: string }): Promise<
+    APIResponse<{
+      currency: string;
+      interest: string;
+    }>
+  > {
+    return this.getPrivate(`/earn/uni/interests/${params.currency}`);
+  }
+
+  /**
+   * List interest records
+   *
+   * @param params Parameters for listing interest records
+   * @returns Promise<APIResponse<{
+   *   status: number;
+   *   currency: string;
+   *   actual_rate: string;
+   *   interest: string;
+   *   interest_status: string;
+   *   create_time: number;
+   * }[]>>
+   */
+  getLendingInterestRecords(params?: {
+    currency?: string;
+    page?: number;
+    limit?: number;
+    from?: number;
+    to?: number;
+  }): Promise<
+    APIResponse<
+      {
+        status: number;
+        currency: string;
+        actual_rate: string;
+        interest: string;
+        interest_status: string;
+        create_time: number;
+      }[]
+    >
+  > {
+    return this.getPrivate(`/earn/uni/interest_records`, params);
+  }
+
+  /**
+   * Set interest reinvestment toggle
+   *
+   * @param params Parameters for setting interest reinvestment toggle
+   * @returns Promise<APIResponse<void>>
+   */
+  updateInterestReinvestment(params: {
+    body: {
+      currency: string;
+      status: boolean;
+    };
+  }): Promise<APIResponse<void>> {
+    return this.putPrivate(`/earn/uni/interest_reinvest`, params);
+  }
+
+  /**
+   * Query currency interest compounding status
+   *
+   * @param params Parameters for querying currency interest compounding status
+   * @returns Promise<APIResponse<{
+   *   currency: string;
+   *   interest_status: string;
+   * }>>
+   */
+  getLendingInterestStatus(params: { currency: string }): Promise<
+    APIResponse<{
+      currency: string;
+      interest_status: string;
+    }>
+  > {
+    return this.getPrivate(`/earn/uni/interest_status/${params.currency}`);
+  }
+
+  /**==========================================================================================================================
+   * COLLATERAL LOAN
+   * ==========================================================================================================================
+   */
+
+  /**
+   * Place order
+   *
+   * @param params Parameters for placing an order
+   * @returns Promise<APIResponse<{ order_id: number }>>
+   */
+  submitLoanOrder(params: {
+    body: {
+      collateral_amount: string;
+      collateral_currency: string;
+      borrow_amount: string;
+      borrow_currency: string;
+    };
+  }): Promise<APIResponse<{ order_id: number }>> {
+    return this.postPrivate(`/loan/collateral/orders`, params);
+  }
+
+  /**
+   * List Orders
+   *
+   * @param params Parameters for listing orders
+   * @returns Promise<APIResponse<{
+   *   order_id: number;
+   *   collateral_currency: string;
+   *   collateral_amount: string;
+   *   borrow_currency: string;
+   *   borrow_amount: string;
+   *   repaid_amount: string;
+   *   repaid_principal: string;
+   *   repaid_interest: string;
+   *   init_ltv: string;
+   *   current_ltv: string;
+   *   liquidate_ltv: string;
+   *   status: string;
+   *   borrow_time: number;
+   *   left_repay_total: string;
+   *   left_repay_principal: string;
+   *   left_repay_interest: string;
+   * }[]>>
+   */
+  getLoanOrders(params?: {
+    page?: number;
+    limit?: number;
+    collateral_currency?: string;
+    borrow_currency?: string;
+  }): Promise<
+    APIResponse<
+      {
+        order_id: number;
+        collateral_currency: string;
+        collateral_amount: string;
+        borrow_currency: string;
+        borrow_amount: string;
+        repaid_amount: string;
+        repaid_principal: string;
+        repaid_interest: string;
+        init_ltv: string;
+        current_ltv: string;
+        liquidate_ltv: string;
+        status: string;
+        borrow_time: number;
+        left_repay_total: string;
+        left_repay_principal: string;
+        left_repay_interest: string;
+      }[]
+    >
+  > {
+    return this.getPrivate(`/loan/collateral/orders`, params);
+  }
+
+  /**
+   * Get a single order
+   *
+   * @param params Parameters for retrieving a single order
+   * @returns Promise<APIResponse<{
+   *   order_id: number;
+   *   collateral_currency: string;
+   *   collateral_amount: string;
+   *   borrow_currency: string;
+   *   borrow_amount: string;
+   *   repaid_amount: string;
+   *   repaid_principal: string;
+   *   repaid_interest: string;
+   *   init_ltv: string;
+   *   current_ltv: string;
+   *   liquidate_ltv: string;
+   *   status: string;
+   *   borrow_time: number;
+   *   left_repay_total: string;
+   *   left_repay_principal: string;
+   *   left_repay_interest: string;
+   * }>>
+   */
+  getLoanOrder(params: { order_id: number }): Promise<
+    APIResponse<{
+      order_id: number;
+      collateral_currency: string;
+      collateral_amount: string;
+      borrow_currency: string;
+      borrow_amount: string;
+      repaid_amount: string;
+      repaid_principal: string;
+      repaid_interest: string;
+      init_ltv: string;
+      current_ltv: string;
+      liquidate_ltv: string;
+      status: string;
+      borrow_time: number;
+      left_repay_total: string;
+      left_repay_principal: string;
+      left_repay_interest: string;
+    }>
+  > {
+    return this.getPrivate(`/loan/collateral/orders/${params.order_id}`);
+  }
+
+  /**
+   * Repayment
+   *
+   * @param params Parameters for repayment
+   * @returns Promise<APIResponse<{
+   *   repaid_principal: string;
+   *   repaid_interest: string;
+   * }>>
+   */
+  submitLoanRepay(params: {
+    body: {
+      order_id: number;
+      repay_amount: string;
+      repaid_all: boolean;
+    };
+  }): Promise<
+    APIResponse<{
+      repaid_principal: string;
+      repaid_interest: string;
+    }>
+  > {
+    return this.postPrivate(`/loan/collateral/repay`, params);
+  }
+
+  /**
+   * Repayment history
+   *
+   * @param params Parameters for retrieving repayment history
+   * @returns Promise<APIResponse<{
+   *   order_id: number;
+   *   record_id: number;
+   *   repaid_amount: string;
+   *   borrow_currency: string;
+   *   collateral_currency: string;
+   *   init_ltv: string;
+   *   borrow_time: number;
+   *   repay_time: number;
+   *   total_interest: string;
+   *   before_left_principal: string;
+   *   after_left_principal: string;
+   *   before_left_collateral: string;
+   *   after_left_collateral: string;
+   * }[]>>
+   */
+  getLoanRepaymentHistory(params: {
+    source: 'repay' | 'liquidate';
+    borrow_currency?: string;
+    collateral_currency?: string;
+    page?: number;
+    limit?: number;
+    from?: number;
+    to?: number;
+  }): Promise<
+    APIResponse<
+      {
+        order_id: number;
+        record_id: number;
+        repaid_amount: string;
+        borrow_currency: string;
+        collateral_currency: string;
+        init_ltv: string;
+        borrow_time: number;
+        repay_time: number;
+        total_interest: string;
+        before_left_principal: string;
+        after_left_principal: string;
+        before_left_collateral: string;
+        after_left_collateral: string;
+      }[]
+    >
+  > {
+    return this.getPrivate(`/loan/collateral/repay_records`, params);
+  }
+
+  /**
+   * Increase or redeem collateral
+   *
+   * @param params Parameters for increasing or redeeming collateral
+   * @returns Promise<APIResponse<void>>
+   */
+  updateLoanCollateral(params: {
+    body: {
+      order_id: number;
+      collateral_currency: string;
+      collateral_amount: string;
+      type: 'append' | 'redeem';
+    };
+  }): Promise<APIResponse<void>> {
+    return this.postPrivate(`/loan/collateral/collaterals`, params);
+  }
+
+  /**
+   * Query collateral adjustment records
+   *
+   * @param params Parameters for querying collateral adjustment records
+   * @returns Promise<APIResponse<{
+   *   order_id: number;
+   *   record_id: number;
+   *   borrow_currency: string;
+   *   borrow_amount: string;
+   *   collateral_currency: string;
+   *   before_collateral: string;
+   *   after_collateral: string;
+   *   before_ltv: string;
+   *   after_ltv: string;
+   *   operate_time: number;
+   * }[]>>
+   */
+  getLoanCollateralRecords(params?: {
+    page?: number;
+    limit?: number;
+    from?: number;
+    to?: number;
+    borrow_currency?: string;
+    collateral_currency?: string;
+  }): Promise<
+    APIResponse<
+      {
+        order_id: number;
+        record_id: number;
+        borrow_currency: string;
+        borrow_amount: string;
+        collateral_currency: string;
+        before_collateral: string;
+        after_collateral: string;
+        before_ltv: string;
+        after_ltv: string;
+        operate_time: number;
+      }[]
+    >
+  > {
+    return this.getPrivate(`/loan/collateral/collaterals`, params);
+  }
+
+  /**
+   * Query the total borrowing and collateral amount for the user
+   *
+   * @returns Promise<APIResponse<{
+   *   borrow_amount: string;
+   *   collateral_amount: string;
+   * }>>
+   */
+  getLoanTotalAmount(): Promise<
+    APIResponse<{
+      borrow_amount: string;
+      collateral_amount: string;
+    }>
+  > {
+    return this.getPrivate(`/loan/collateral/total_amount`);
+  }
+
+  /**
+   * Query user's collateralization ratio
+   *
+   * @param params Parameters for querying user's collateralization ratio
+   * @returns Promise<APIResponse<{
+   *   collateral_currency: string;
+   *   borrow_currency: string;
+   *   init_ltv: string;
+   *   alert_ltv: string;
+   *   liquidate_ltv: string;
+   *   min_borrow_amount: string;
+   *   left_borrowable_amount: string;
+   * }>>
+   */
+  getLoanCollateralizationRatio(params: {
+    collateral_currency: string;
+    borrow_currency: string;
+  }): Promise<
+    APIResponse<{
+      collateral_currency: string;
+      borrow_currency: string;
+      init_ltv: string;
+      alert_ltv: string;
+      liquidate_ltv: string;
+      min_borrow_amount: string;
+      left_borrowable_amount: string;
+    }>
+  > {
+    return this.getPrivate(`/loan/collateral/ltv`, params);
+  }
+
+  /**
+   * Query supported borrowing and collateral currencies
+   *
+   * @param params Parameters for querying supported borrowing and collateral currencies
+   * @returns Promise<APIResponse<{
+   *   loan_currency: string;
+   *   collateral_currency: string[];
+   * }[]>>
+   */
+  getLoanSupportedCurrencies(params?: { loan_currency?: string }): Promise<
+    APIResponse<
+      {
+        loan_currency: string;
+        collateral_currency: string[];
+      }[]
+    >
+  > {
+    return this.get(`/loan/collateral/currencies`, params);
+  }
+
+  /**==========================================================================================================================
+   * MULTI COLLATERAL LOAN
+   * ==========================================================================================================================
+   */
+
+  /**
+   * Create Multi-Collateral Order
+   *
+   * @param params Parameters for creating a multi-collateral order
+   * @returns Promise<APIResponse<{ order_id: number }>>
+   */
+  submitMultiLoanOrder(params: {
+    body: {
+      order_id?: string;
+      order_type?: string;
+      fixed_type?: string;
+      fixed_rate?: string;
+      auto_renew?: boolean;
+      auto_repay?: boolean;
+      borrow_currency: string;
+      borrow_amount: string;
+      collateral_currencies?: {
+        currency?: string;
+        amount?: string;
+      }[];
+    };
+  }): Promise<APIResponse<{ order_id: number }>> {
+    return this.postPrivate(`/loan/multi_collateral/orders`, params);
+  }
+
+  /**
+   * List Multi-Collateral Orders
+   *
+   * @param params Parameters for listing multi-collateral orders
+   * @returns Promise<APIResponse<{
+   *   order_id: string;
+   *   order_type: string;
+   *   fixed_type: string;
+   *   fixed_rate: string;
+   *   expire_time: number;
+   *   auto_renew: boolean;
+   *   auto_repay: boolean;
+   *   current_ltv: string;
+   *   status: string;
+   *   borrow_time: number;
+   *   total_left_repay_usdt: string;
+   *   total_left_collateral_usdt: string;
+   *   borrow_currencies: {
+   *     currency: string;
+   *     index_price: string;
+   *     left_repay_principal: string;
+   *     left_repay_interest: string;
+   *     left_repay_usdt: string;
+   *   }[];
+   *   collateral_currencies: {
+   *     currency: string;
+   *     index_price: string;
+   *     left_collateral: string;
+   *     left_collateral_usdt: string;
+   *   }[];
+   * }[]>>
+   */
+  getMultiLoanOrders(params?: {
+    page?: number;
+    limit?: number;
+    sort?: string;
+    order_type?: string;
+  }): Promise<
+    APIResponse<
+      {
+        order_id: string;
+        order_type: string;
+        fixed_type: string;
+        fixed_rate: string;
+        expire_time: number;
+        auto_renew: boolean;
+        auto_repay: boolean;
+        current_ltv: string;
+        status: string;
+        borrow_time: number;
+        total_left_repay_usdt: string;
+        total_left_collateral_usdt: string;
+        borrow_currencies: {
+          currency: string;
+          index_price: string;
+          left_repay_principal: string;
+          left_repay_interest: string;
+          left_repay_usdt: string;
+        }[];
+        collateral_currencies: {
+          currency: string;
+          index_price: string;
+          left_collateral: string;
+          left_collateral_usdt: string;
+        }[];
+      }[]
+    >
+  > {
+    return this.getPrivate(`/loan/multi_collateral/orders`, params);
+  }
+
+  /**
+   * Get Multi-Collateral Order Detail
+   *
+   * @param params Parameters for retrieving a multi-collateral order detail
+   * @returns Promise<APIResponse<{
+   *   order_id: string;
+   *   order_type: string;
+   *   fixed_type: string;
+   *   fixed_rate: string;
+   *   expire_time: number;
+   *   auto_renew: boolean;
+   *   auto_repay: boolean;
+   *   current_ltv: string;
+   *   status: string;
+   *   borrow_time: number;
+   *   total_left_repay_usdt: string;
+   *   total_left_collateral_usdt: string;
+   *   borrow_currencies: {
+   *     currency: string;
+   *     index_price: string;
+   *     left_repay_principal: string;
+   *     left_repay_interest: string;
+   *     left_repay_usdt: string;
+   *   }[];
+   *   collateral_currencies: {
+   *     currency: string;
+   *     index_price: string;
+   *     left_collateral: string;
+   *     left_collateral_usdt: string;
+   *   }[];
+   * }>>
+   */
+  getMultiLoanOrder(params: { order_id: string }): Promise<
+    APIResponse<{
+      order_id: string;
+      order_type: string;
+      fixed_type: string;
+      fixed_rate: string;
+      expire_time: number;
+      auto_renew: boolean;
+      auto_repay: boolean;
+      current_ltv: string;
+      status: string;
+      borrow_time: number;
+      total_left_repay_usdt: string;
+      total_left_collateral_usdt: string;
+      borrow_currencies: {
+        currency: string;
+        index_price: string;
+        left_repay_principal: string;
+        left_repay_interest: string;
+        left_repay_usdt: string;
+      }[];
+      collateral_currencies: {
+        currency: string;
+        index_price: string;
+        left_collateral: string;
+        left_collateral_usdt: string;
+      }[];
+    }>
+  > {
+    return this.getPrivate(
+      `/loan/multi_collateral/orders/${params.order_id}`,
+      params,
+    );
+  }
+
+  /**
+   * Repay Multi-Collateral Loan
+   *
+   * @param params Parameters for repaying a multi-collateral loan
+   * @returns Promise<APIResponse<{
+   *   order_id: number;
+   *   repaid_currencies: {
+   *     succeeded: boolean;
+   *     label?: string;
+   *     message?: string;
+   *     currency: string;
+   *     repaid_principal: string;
+   *     repaid_interest: string;
+   *   }[];
+   * }>>
+   */
+  repayMultiLoan(params: {
+    body: {
+      order_id: number;
+      repay_items: {
+        currency?: string;
+        amount?: string;
+        repaid_all?: boolean;
+      }[];
+    };
+  }): Promise<
+    APIResponse<{
+      order_id: number;
+      repaid_currencies: {
+        succeeded: boolean;
+        label?: string;
+        message?: string;
+        currency: string;
+        repaid_principal: string;
+        repaid_interest: string;
+      }[];
+    }>
+  > {
+    return this.postPrivate(`/loan/multi_collateral/repay`, params);
+  }
+
+  /**
+   * List Multi-Collateral Repay Records
+   *
+   * @param params Parameters for listing multi-collateral repay records
+   * @returns Promise<APIResponse<{
+   *   order_id: number;
+   *   record_id: number;
+   *   init_ltv: string;
+   *   before_ltv: string;
+   *   after_ltv: string;
+   *   borrow_time: number;
+   *   repay_time: number;
+   *   borrow_currencies: {
+   *     currency: string;
+   *     index_price: string;
+   *     before_amount: string;
+   *     before_amount_usdt: string;
+   *     after_amount: string;
+   *     after_amount_usdt: string;
+   *   }[];
+   *   collateral_currencies: {
+   *     currency: string;
+   *     index_price: string;
+   *     before_amount: string;
+   *     before_amount_usdt: string;
+   *     after_amount: string;
+   *     after_amount_usdt: string;
+   *   }[];
+   *   repaid_currencies: {
+   *     currency: string;
+   *     index_price: string;
+   *     repaid_amount: string;
+   *     repaid_principal: string;
+   *     repaid_interest: string;
+   *     repaid_amount_usdt: string;
+   *   }[];
+   *   total_interest_list: {
+   *     currency: string;
+   *     index_price: string;
+   *     amount: string;
+   *     amount_usdt: string;
+   *   }[];
+   *   left_repay_interest_list: {
+   *     currency: string;
+   *     index_price: string;
+   *     before_amount: string;
+   *     before_amount_usdt: string;
+   *     after_amount: string;
+   *     after_amount_usdt: string;
+   *   }[];
+   * }[]>>
+   */
+  getMultiLoanRepayRecords(params: {
+    type: 'repay' | 'liquidate';
+    borrow_currency?: string;
+    page?: number;
+    limit?: number;
+    from?: number;
+    to?: number;
+  }): Promise<
+    APIResponse<
+      {
+        order_id: number;
+        record_id: number;
+        init_ltv: string;
+        before_ltv: string;
+        after_ltv: string;
+        borrow_time: number;
+        repay_time: number;
+        borrow_currencies: {
+          currency: string;
+          index_price: string;
+          before_amount: string;
+          before_amount_usdt: string;
+          after_amount: string;
+          after_amount_usdt: string;
+        }[];
+        collateral_currencies: {
+          currency: string;
+          index_price: string;
+          before_amount: string;
+          before_amount_usdt: string;
+          after_amount: string;
+          after_amount_usdt: string;
+        }[];
+        repaid_currencies: {
+          currency: string;
+          index_price: string;
+          repaid_amount: string;
+          repaid_principal: string;
+          repaid_interest: string;
+          repaid_amount_usdt: string;
+        }[];
+        total_interest_list: {
+          currency: string;
+          index_price: string;
+          amount: string;
+          amount_usdt: string;
+        }[];
+        left_repay_interest_list: {
+          currency: string;
+          index_price: string;
+          before_amount: string;
+          before_amount_usdt: string;
+          after_amount: string;
+          after_amount_usdt: string;
+        }[];
+      }[]
+    >
+  > {
+    return this.getPrivate(`/loan/multi_collateral/repay`, params);
+  }
+
+  /**
+   * Operate Multi-Collateral
+   *
+   * @param params Parameters for operating multi-collateral
+   * @returns Promise<APIResponse<{
+   *   order_id: number;
+   *   collateral_currencies: {
+   *     succeeded: boolean;
+   *     label?: string;
+   *     message?: string;
+   *     currency: string;
+   *     amount: string;
+   *   }[];
+   * }>>
+   */
+  operateMultiLoan(params: {
+    body: {
+      order_id: number;
+      type: 'append' | 'redeem';
+      collaterals?: {
+        currency?: string;
+        amount?: string;
+      }[];
+    };
+  }): Promise<
+    APIResponse<{
+      order_id: number;
+      collateral_currencies: {
+        succeeded: boolean;
+        label?: string;
+        message?: string;
+        currency: string;
+        amount: string;
+      }[];
+    }>
+  > {
+    return this.postPrivate(`/loan/multi_collateral/mortgage`, params);
+  }
+
+  /**
+   * Query collateral adjustment records
+   *
+   * @param params Parameters for querying collateral adjustment records
+   * @returns Promise<APIResponse<{
+   *   order_id: number;
+   *   record_id: number;
+   *   before_ltv: string;
+   *   after_ltv: string;
+   *   operate_time: number;
+   *   borrow_currencies: {
+   *     currency: string;
+   *     index_price: string;
+   *     before_amount: string;
+   *     before_amount_usdt: string;
+   *     after_amount: string;
+   *     after_amount_usdt: string;
+   *   }[];
+   *   collateral_currencies: {
+   *     currency: string;
+   *     index_price: string;
+   *     before_amount: string;
+   *     before_amount_usdt: string;
+   *     after_amount: string;
+   *     after_amount_usdt: string;
+   *   }[];
+   * }[]>>
+   */
+  getMultiLoanAdjustmentRecords(params?: {
+    page?: number;
+    limit?: number;
+    from?: number;
+    to?: number;
+    collateral_currency?: string;
+  }): Promise<
+    APIResponse<
+      {
+        order_id: number;
+        record_id: number;
+        before_ltv: string;
+        after_ltv: string;
+        operate_time: number;
+        borrow_currencies: {
+          currency: string;
+          index_price: string;
+          before_amount: string;
+          before_amount_usdt: string;
+          after_amount: string;
+          after_amount_usdt: string;
+        }[];
+        collateral_currencies: {
+          currency: string;
+          index_price: string;
+          before_amount: string;
+          before_amount_usdt: string;
+          after_amount: string;
+          after_amount_usdt: string;
+        }[];
+      }[]
+    >
+  > {
+    return this.getPrivate(`/loan/multi_collateral/mortgage`, params);
+  }
+
+  /**
+   * List User Currency Quota
+   *
+   * @param params Parameters for listing user currency quota
+   * @returns Promise<APIResponse<{
+   *   currency: string;
+   *   index_price: string;
+   *   min_quota: string;
+   *   left_quota: string;
+   *   left_quote_usdt: string;
+   * }[]>>
+   */
+  getMultiLoanCurrencyQuota(params: {
+    type: 'collateral' | 'borrow';
+    currency: string;
+  }): Promise<
+    APIResponse<
+      {
+        currency: string;
+        index_price: string;
+        min_quota: string;
+        left_quota: string;
+        left_quote_usdt: string;
+      }[]
+    >
+  > {
+    return this.getPrivate(`/loan/multi_collateral/currency_quota`, params);
+  }
+
+  /**
+   * Query supported borrowing and collateral currencies in Multi-Collateral
+   *
+   * @returns Promise<APIResponse<{
+   *   loan_currencies: {
+   *     currency: string;
+   *     price: string;
+   *   }[];
+   *   collateral_currencies: {
+   *     currency: string;
+   *     index_price: string;
+   *     discount: string;
+   *   }[];
+   * }>>
+   */
+  getMultiLoanSupportedCurrencies(): Promise<
+    APIResponse<{
+      loan_currencies: {
+        currency: string;
+        price: string;
+      }[];
+      collateral_currencies: {
+        currency: string;
+        index_price: string;
+        discount: string;
+      }[];
+    }>
+  > {
+    return this.get(`/loan/multi_collateral/currencies`);
+  }
+
+  /**
+   * Get Multi-Collateral ratio
+   *
+   * @returns Promise<APIResponse<{
+   *   init_ltv: string;
+   *   alert_ltv: string;
+   *   liquidate_ltv: string;
+   * }>>
+   */
+  getMultiLoanRatio(): Promise<
+    APIResponse<{
+      init_ltv: string;
+      alert_ltv: string;
+      liquidate_ltv: string;
+    }>
+  > {
+    return this.get(`/loan/multi_collateral/ltv`);
+  }
+
+  /**
+   * Query fixed interest rates for the currency for 7 days and 30 days
+   *
+   * @returns Promise<APIResponse<{
+   *   currency: string;
+   *   rate_7d: string;
+   *   rate_30d: string;
+   *   update_time: number;
+   * }[]>>
+   */
+  getMultiLoanFixedRates(): Promise<
+    APIResponse<
+      {
+        currency: string;
+        rate_7d: string;
+        rate_30d: string;
+        update_time: number;
+      }[]
+    >
+  > {
+    return this.get(`/loan/multi_collateral/fixed_rate`);
+  }
+
+  /**==========================================================================================================================
+   * EARN
+   * ==========================================================================================================================
+   */
+
+  /**
+   * ETH2 swap
+   *
+   * @param params Parameters for ETH2 swap
+   * @returns Promise<APIResponse<void>>
+   */
+  submitEth2Swap(params: {
+    body: {
+      side: '1' | '2';
+      amount: string;
+    };
+  }): Promise<APIResponse<void>> {
+    return this.postPrivate(`/earn/staking/eth2/swap`, params);
+  }
+
+  /**
+   * Dual Investment product list
+   *
+   * @returns Promise<APIResponse<{
+   *   id: number;
+   *   instrument_name: string;
+   *   invest_currency: string;
+   *   exercise_currency: string;
+   *   exercise_price: number;
+   *   delivery_time: number;
+   *   min_copies: number;
+   *   max_copies: number;
+   *   per_value: string;
+   *   apy_display: string;
+   *   start_time: number;
+   *   end_time: number;
+   *   status: 'NOTSTARTED' | 'ONGOING' | 'ENDED';
+   * }[]>>
+   */
+  getDualInvestmentProducts(): Promise<
+    APIResponse<
+      {
+        id: number;
+        instrument_name: string;
+        invest_currency: string;
+        exercise_currency: string;
+        exercise_price: number;
+        delivery_time: number;
+        min_copies: number;
+        max_copies: number;
+        per_value: string;
+        apy_display: string;
+        start_time: number;
+        end_time: number;
+        status: 'NOTSTARTED' | 'ONGOING' | 'ENDED';
+      }[]
+    >
+  > {
+    return this.get(`/earn/dual/investment_plan`);
+  }
+
+  /**
+   * Dual Investment order list
+   *
+   * @returns Promise<APIResponse<{
+   *   id: number;
+   *   plan_id: number;
+   *   copies: string;
+   *   invest_amount: string;
+   *   settlement_amount: string;
+   *   create_time: number;
+   *   complete_time: number;
+   *   status: 'INIT' | 'SETTLEMENT_SUCCESS' | 'SETTLEMENT_PROCESSING' | 'CANCELED' | 'FAILED';
+   *   invest_currency: string;
+   *   exercise_currency: string;
+   *   exercise_price: string;
+   *   settlement_price: string;
+   *   settlement_currency: string;
+   *   apy_display: string;
+   *   apy_settlement: string;
+   *   delivery_time: number;
+   * }[]>>
+   */
+  getDualInvestmentOrders(): Promise<
+    APIResponse<
+      {
+        id: number;
+        plan_id: number;
+        copies: string;
+        invest_amount: string;
+        settlement_amount: string;
+        create_time: number;
+        complete_time: number;
+        status:
+          | 'INIT'
+          | 'SETTLEMENT_SUCCESS'
+          | 'SETTLEMENT_PROCESSING'
+          | 'CANCELED'
+          | 'FAILED';
+        invest_currency: string;
+        exercise_currency: string;
+        exercise_price: string;
+        settlement_price: string;
+        settlement_currency: string;
+        apy_display: string;
+        apy_settlement: string;
+        delivery_time: number;
+      }[]
+    >
+  > {
+    return this.getPrivate(`/earn/dual/orders`);
+  }
+
+  /**
+   * Place Dual Investment order
+   *
+   * @param params Parameters for placing a dual investment order
+   * @returns Promise<APIResponse<void>>
+   */
+  submitDualInvestmentOrder(params: {
+    body: {
+      plan_id: string;
+      copies: string;
+    };
+  }): Promise<APIResponse<void>> {
+    return this.postPrivate(`/earn/dual/orders`, params);
+  }
+
+  /**
+   * Structured Product List
+   *
+   * @param params Parameters for listing structured products
+   * @returns Promise<APIResponse<{
+   *   id: number;
+   *   type: string;
+   *   name_en: string;
+   *   investment_coin: string;
+   *   investment_period: string;
+   *   min_annual_rate: string;
+   *   mid_annual_rate: string;
+   *   max_annual_rate: string;
+   *   watch_market: string;
+   *   start_time: number;
+   *   end_time: number;
+   *   status: 'in_process' | 'will_begin' | 'wait_settlement' | 'done';
+   * }[]>>
+   */
+  getStructuredProductList(params: {
+    status: string;
+    type?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<
+    APIResponse<
+      {
+        id: number;
+        type: string;
+        name_en: string;
+        investment_coin: string;
+        investment_period: string;
+        min_annual_rate: string;
+        mid_annual_rate: string;
+        max_annual_rate: string;
+        watch_market: string;
+        start_time: number;
+        end_time: number;
+        status: 'in_process' | 'will_begin' | 'wait_settlement' | 'done';
+      }[]
+    >
+  > {
+    return this.get(`/earn/structured/products`, params);
+  }
+
+  /**
+   * Structured Product Order List
+   *
+   * @param params Parameters for listing structured product orders
+   * @returns Promise<APIResponse<{
+   *   id: number;
+   *   pid: string;
+   *   lock_coin: string;
+   *   amount: string;
+   *   status: 'SUCCESS' | 'FAILED' | 'DONE';
+   *   income: string;
+   *   create_time: number;
+   * }[]>>
+   */
+  getStructuredProductOrders(params?: {
+    from?: number;
+    to?: number;
+    page?: number;
+    limit?: number;
+  }): Promise<
+    APIResponse<
+      {
+        id: number;
+        pid: string;
+        lock_coin: string;
+        amount: string;
+        status: 'SUCCESS' | 'FAILED' | 'DONE';
+        income: string;
+        create_time: number;
+      }[]
+    >
+  > {
+    return this.getPrivate(`/earn/structured/orders`, params);
+  }
+
+  /**
+   * Place Structured Product Order
+   *
+   * @param params Parameters for placing a structured product order
+   * @returns Promise<APIResponse<void>>
+   */
+  submitStructuredProductOrder(params: {
+    body: {
+      pid?: string;
+      amount?: string;
+    };
+  }): Promise<APIResponse<void>> {
+    return this.postPrivate(`/earn/structured/orders`, params);
+  }
+
+  /**==========================================================================================================================
+   * ACCOUNT
+   * ==========================================================================================================================
+   */
+
+  /**
+   * Get account detail
+   *
+   * @returns Promise<APIResponse<{
+   *   user_id: number;
+   *   ip_whitelist: string[];
+   *   currency_pairs: string[];
+   *   key: {
+   *     mode: number;
+   *   };
+   *   tier: number;
+   * }>>
+   */
+  getAccountDetail(): Promise<
+    APIResponse<{
+      user_id: number;
+      ip_whitelist: string[];
+      currency_pairs: string[];
+      key: {
+        mode: number;
+      };
+      tier: number;
+    }>
+  > {
+    return this.getPrivate(`/account/detail`);
+  }
+
+  /**
+   * Create STP Group
+   *
+   * @param params Parameters for creating an STP group
+   * @returns Promise<APIResponse<{
+   *   id: number;
+   *   name: string;
+   *   creator_id: number;
+   *   create_time: number;
+   * }>>
+   */
+  createStpGroup(params: {
+    body: {
+      id?: number;
+      name: string;
+      creator_id?: number;
+      create_time?: number;
+    };
+  }): Promise<
+    APIResponse<{
+      id: number;
+      name: string;
+      creator_id: number;
+      create_time: number;
+    }>
+  > {
+    return this.postPrivate(`/account/stp_groups`, params);
+  }
+
+  /**
+   * List STP Groups
+   *
+   * @param params Parameters for listing STP groups
+   * @returns Promise<APIResponse<{
+   *   id: number;
+   *   name: string;
+   *   creator_id: number;
+   *   create_time: number;
+   * }[]>>
+   */
+  getStpGroups(params?: { name?: string }): Promise<
+    APIResponse<
+      {
+        id: number;
+        name: string;
+        creator_id: number;
+        create_time: number;
+      }[]
+    >
+  > {
+    return this.getPrivate(`/account/stp_groups`, params);
+  }
+
+  /**
+   * List users of the STP group
+   *
+   * @param params Parameters for listing users of the STP group
+   * @returns Promise<APIResponse<{
+   *   user_id: number;
+   *   stp_id: number;
+   *   create_time: number;
+   * }[]>>
+   */
+  getStpGroupUsers(params: { stp_id: number }): Promise<
+    APIResponse<
+      {
+        user_id: number;
+        stp_id: number;
+        create_time: number;
+      }[]
+    >
+  > {
+    return this.getPrivate(
+      `/account/stp_groups/${params.stp_id}/users`,
+      params,
+    );
+  }
+
+  /**
+   * Add users to the STP group
+   *
+   * @param params Parameters for adding users to the STP group
+   * @returns Promise<APIResponse<{
+   *   user_id: number;
+   *   stp_id: number;
+   *   create_time: number;
+   * }[]>>
+   */
+  addUsersToStpGroup(params: { stp_id: number; body: number[] }): Promise<
+    APIResponse<
+      {
+        user_id: number;
+        stp_id: number;
+        create_time: number;
+      }[]
+    >
+  > {
+    return this.postPrivate(
+      `/account/stp_groups/${params.stp_id}/users`,
+      params,
+    );
+  }
+
+  /**
+   * Delete the user in the STP group
+   *
+   * @param params Parameters for deleting users from the STP group
+   * @returns Promise<APIResponse<{
+   *   user_id: number;
+   *   stp_id: number;
+   *   create_time: number;
+   * }[]>>
+   */
+  deleteUserFromStpGroup(params: { stp_id: number; user_id: number }): Promise<
+    APIResponse<
+      {
+        user_id: number;
+        stp_id: number;
+        create_time: number;
+      }[]
+    >
+  > {
+    return this.deletePrivate(
+      `/account/stp_groups/${params.stp_id}/users`,
+      params,
+    );
+  }
 
   /**
    *
