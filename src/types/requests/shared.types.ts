@@ -6,23 +6,6 @@ export interface GetWithdrawalDepositRecordsReq {
   offset?: number;
 }
 
-export interface SubmitTransferReq {
-  body: {
-    currency: string;
-    from:
-      | 'spot'
-      | 'margin'
-      | 'futures'
-      | 'delivery'
-      | 'cross_margin'
-      | 'options';
-    to: 'spot' | 'margin' | 'futures' | 'delivery' | 'cross_margin' | 'options';
-    amount: string;
-    currency_pair?: string;
-    settle?: string;
-  };
-}
-
 export interface GetMainSubTransfersReq {
   sub_uid?: string;
   from?: number;

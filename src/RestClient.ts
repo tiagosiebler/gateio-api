@@ -4,7 +4,6 @@ import {
   GetSavedAddressReq,
   GetSmallBalanceHistoryReq,
   GetWithdrawalDepositRecordsReq,
-  SubmitTransferReq,
 } from 'types/requests/shared.types.js';
 
 import {
@@ -489,9 +488,28 @@ export class RestClient extends BaseRestClient {
    * @param params Transfer parameters
    * @returns Promise<APIResponse<TransferResponse>>
    */
-  submitTransfer(
-    params: SubmitTransferReq,
-  ): Promise<APIResponse<{ tx_id: number }>> {
+  submitTransfer(params: {
+    body: {
+      currency: string;
+      from:
+        | 'spot'
+        | 'margin'
+        | 'futures'
+        | 'delivery'
+        | 'cross_margin'
+        | 'options';
+      to:
+        | 'spot'
+        | 'margin'
+        | 'futures'
+        | 'delivery'
+        | 'cross_margin'
+        | 'options';
+      amount: string;
+      currency_pair?: string;
+      settle?: string;
+    };
+  }): Promise<APIResponse<{ tx_id: number }>> {
     return this.postPrivate('/wallet/transfers', params);
   }
 
