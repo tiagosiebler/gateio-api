@@ -451,6 +451,7 @@ export class WebsocketClient extends BaseWebsocketClient<
         signMessageInput,
         this.options.apiSecret,
         'hex',
+        'SHA-512',
       );
     }
 
