@@ -12,6 +12,10 @@ import {
 import { RestClientOptions } from './lib/requestUtils.js';
 import {
   DeleteSpotOrderReq,
+  GetCrossMarginAccountHistoryReq,
+  GetCrossMarginBorrowHistoryReq,
+  GetCrossMarginInterestRecordsReq,
+  GetCrossMarginRepaymentsReq,
   GetMainSubTransfersReq,
   GetMarginBalanceHistoryReq,
   GetSavedAddressReq,
@@ -29,6 +33,7 @@ import {
   GetWithdrawalDepositRecordsReq,
   PortfolioMarginCalculatorReq,
   SetUnifiedAccountModeReq,
+  SubmitCrossMarginBorrowLoanReq,
   SubmitSpotClosePosCrossDisabledReq,
   SubmitSpotOrderReq,
   SubmitUnifiedBorrowOrRepayReq,
@@ -40,6 +45,8 @@ import {
   CreateSubAccountApiKeyResp,
   DeleteSpotBatchOrdersResp,
   GetBalancesResp,
+  GetCrossMarginAccountHistoryResp,
+  GetCrossMarginAccountResp,
   GetCrossMarginCurrenciesResp,
   GetCurrencyChainsResp,
   GetMarginAccountsResp,
@@ -72,6 +79,7 @@ import {
   SubAccountMarginBalancesResp,
   SubAccountResp,
   SubAccountTransferRecordResp,
+  SubmitCrossMarginBorrowLoanResp,
   SubmitSpotBatchOrdersResp,
 } from './types/response/shared.types.js';
 import {
@@ -1340,104 +1348,20 @@ export class RestClient extends BaseRestClient {
    * Retrieve detail of one single currency supported by cross margin
    *
    * @param params Parameters containing the currency name
-   * @returns Promise<APIResponse<{
-   *   name: string;
-   *   rate: string;
-   *   prec: string;
-   *   discount: string;
-   *   min_borrow_amount: string;
-   *   user_max_borrow_amount: string;
-   *   total_max_borrow_amount: string;
-   *   price: string;
-   *   loanable: boolean;
-   *   status: number;
-   * }>>
+   * @returns Promise<APIResponse<GetCrossMarginCurrenciesResp>>
    */
-  getCrossMarginCurrency(params: { currency: string }): Promise<
-    APIResponse<{
-      name: string;
-      rate: string;
-      prec: string;
-      discount: string;
-      min_borrow_amount: string;
-      user_max_borrow_amount: string;
-      total_max_borrow_amount: string;
-      price: string;
-      loanable: boolean;
-      status: number;
-    }>
-  > {
+  getCrossMarginCurrency(params: {
+    currency: string;
+  }): Promise<APIResponse<GetCrossMarginCurrenciesResp>> {
     return this.get(`/margin/cross/currencies/${params.currency}`);
   }
 
   /**
    * Retrieve cross margin account
    *
-   * @returns Promise<APIResponse<{
-   *   user_id: number;
-   *   refresh_time: number;
-   *   locked: boolean;
-   *   balances: {
-   *     [currency: string]: {
-   *       available: string;
-   *       freeze: string;
-   *       borrowed: string;
-   *       interest: string;
-   *       negative_liab: string;
-   *       futures_pos_liab: string;
-   *       equity: string;
-   *       total_freeze: string;
-   *       total_liab: string;
-   *     };
-   *   };
-   *   total: string;
-   *   borrowed: string;
-   *   interest: string;
-   *   risk: string;
-   *   total_initial_margin: string;
-   *   total_margin_balance: string;
-   *   total_maintenance_margin: string;
-   *   total_initial_margin_rate: string;
-   *   total_maintenance_margin_rate: string;
-   *   total_available_margin: string;
-   *   portfolio_margin_total: string;
-   *   portfolio_margin_total_liab: string;
-   *   portfolio_margin_total_equity: string;
-   * }>>
+   * @returns Promise<APIResponse<GetCrossMarginAccountResp>>
    */
-  getCrossMarginAccount(): Promise<
-    APIResponse<{
-      user_id: number;
-      refresh_time: number;
-      locked: boolean;
-      balances: {
-        [currency: string]: {
-          available: string;
-          freeze: string;
-          borrowed: string;
-          interest: string;
-          negative_liab: string;
-          futures_pos_liab: string;
-          equity: string;
-          total_freeze: string;
-          total_liab: string;
-        };
-      };
-      total: string;
-      borrowed: string;
-      interest: string;
-      risk: string;
-      total_initial_margin: string;
-      total_margin_balance: string;
-      total_maintenance_margin: string;
-      total_initial_margin_rate: string;
-      total_maintenance_margin_rate: string;
-      total_available_margin: string;
-      portfolio_margin_total: string;
-      portfolio_margin_total_liab: string;
-      portfolio_margin_total_equity: string;
-    }>
-  > {
+  getCrossMarginAccount(): Promise<APIResponse<GetCrossMarginAccountResp>> {
     return this.getPrivate('/margin/cross/accounts');
   }
 
@@ -1447,34 +1371,11 @@ export class RestClient extends BaseRestClient {
    * Record time range cannot exceed 30 days.
    *
    * @param params Parameters for retrieving cross margin account change history
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   time: number;
-   *   currency: string;
-   *   change: string;
-   *   balance: string;
-   *   type: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetCrossMarginAccountHistoryResp[]>>
    */
-  getCrossMarginAccountHistory(params?: {
-    currency?: string;
-    from?: number;
-    to?: number;
-    page?: number;
-    limit?: number;
-    type?: string;
-  }): Promise<
-    APIResponse<
-      {
-        id: string;
-        time: number;
-        currency: string;
-        change: string;
-        balance: string;
-        type: string;
-      }[]
-    >
-  > {
+  getCrossMarginAccountHistory(
+    params?: GetCrossMarginAccountHistoryReq,
+  ): Promise<APIResponse<GetCrossMarginAccountHistoryResp[]>> {
     return this.getPrivate('/margin/cross/account_book', params);
   }
 
@@ -1484,37 +1385,11 @@ export class RestClient extends BaseRestClient {
    * Borrow amount cannot be less than currency minimum borrow amount.
    *
    * @param params Parameters for creating a cross margin borrow loan
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   create_time: number;
-   *   update_time: number;
-   *   currency: string;
-   *   amount: string;
-   *   text?: string;
-   *   status: number;
-   *   repaid: string;
-   *   repaid_interest: string;
-   *   unpaid_interest: string;
-   * }>>
+   * @returns Promise<APIResponse<SubmitCrossMarginBorrowLoanResp>>
    */
-  submitCrossMarginBorrowLoan(body: {
-    currency: string;
-    amount: string;
-    text?: string;
-  }): Promise<
-    APIResponse<{
-      id: string;
-      create_time: number;
-      update_time: number;
-      currency: string;
-      amount: string;
-      text?: string;
-      status: number;
-      repaid: string;
-      repaid_interest: string;
-      unpaid_interest: string;
-    }>
-  > {
+  submitCrossMarginBorrowLoan(
+    body: SubmitCrossMarginBorrowLoanReq,
+  ): Promise<APIResponse<SubmitCrossMarginBorrowLoanResp>> {
     return this.postPrivate('/margin/cross/loans', body);
   }
 
@@ -1524,41 +1399,11 @@ export class RestClient extends BaseRestClient {
    * Sort by creation time in descending order by default. Set reverse=false to return ascending results.
    *
    * @param params Parameters for listing cross margin borrow history
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   create_time: number;
-   *   update_time: number;
-   *   currency: string;
-   *   amount: string;
-   *   text: string;
-   *   status: number;
-   *   repaid: string;
-   *   repaid_interest: string;
-   *   unpaid_interest: string;
-   * }[]>>
+   * @returns Promise<APIResponse<SubmitCrossMarginBorrowLoanResp[]>>
    */
-  getCrossMarginBorrowHistory(params: {
-    status: number;
-    currency?: string;
-    limit?: number;
-    offset?: number;
-    reverse?: boolean;
-  }): Promise<
-    APIResponse<
-      {
-        id: string;
-        create_time: number;
-        update_time: number;
-        currency: string;
-        amount: string;
-        text: string;
-        status: number;
-        repaid: string;
-        repaid_interest: string;
-        unpaid_interest: string;
-      }[]
-    >
-  > {
+  getCrossMarginBorrowHistory(
+    params: GetCrossMarginBorrowHistoryReq,
+  ): Promise<APIResponse<SubmitCrossMarginBorrowLoanResp[]>> {
     return this.getPrivate('/margin/cross/loans', params);
   }
 
@@ -1566,33 +1411,11 @@ export class RestClient extends BaseRestClient {
    * Retrieve single borrow loan detail
    *
    * @param params Parameters containing the borrow loan ID
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   create_time: number;
-   *   update_time: number;
-   *   currency: string;
-   *   amount: string;
-   *   text: string;
-   *   status: number;
-   *   repaid: string;
-   *   repaid_interest: string;
-   *   unpaid_interest: string;
-   * }>>
+   * @returns Promise<APIResponse<SubmitCrossMarginBorrowLoanResp>>
    */
-  getCrossMarginBorrowLoan(params: { loan_id: string }): Promise<
-    APIResponse<{
-      id: string;
-      create_time: number;
-      update_time: number;
-      currency: string;
-      amount: string;
-      text: string;
-      status: number;
-      repaid: string;
-      repaid_interest: string;
-      unpaid_interest: string;
-    }>
-  > {
+  getCrossMarginBorrowLoan(params: {
+    loan_id: string;
+  }): Promise<APIResponse<SubmitCrossMarginBorrowLoanResp>> {
     return this.getPrivate(`/margin/cross/loans/${params.loan_id}`);
   }
   /**
@@ -1601,38 +1424,12 @@ export class RestClient extends BaseRestClient {
    * When the liquidity of the currency is insufficient and the transaction risk is high, the currency will be disabled, and funds cannot be transferred. When the available balance of cross-margin is insufficient, the balance of the spot account can be used for repayment. Please ensure that the balance of the spot account is sufficient, and system uses cross-margin account for repayment first.
    *
    * @param params Parameters for cross margin repayments
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   create_time: number;
-   *   update_time: number;
-   *   currency: string;
-   *   amount: string;
-   *   text?: string;
-   *   status: number;
-   *   repaid: string;
-   *   repaid_interest: string;
-   *   unpaid_interest: string;
-   * }[]>>
+   * @returns Promise<APIResponse<SubmitCrossMarginBorrowLoanResp[]>>
    */
   submitCrossMarginRepayment(body: {
     currency: string;
     amount: string;
-  }): Promise<
-    APIResponse<
-      {
-        id: string;
-        create_time: number;
-        update_time: number;
-        currency: string;
-        amount: string;
-        text?: string;
-        status: number;
-        repaid: string;
-        repaid_interest: string;
-        unpaid_interest: string;
-      }[]
-    >
-  > {
+  }): Promise<APIResponse<SubmitCrossMarginBorrowLoanResp[]>> {
     return this.postPrivate('/margin/cross/repayments', body);
   }
 
@@ -1642,35 +1439,11 @@ export class RestClient extends BaseRestClient {
    * Sort by creation time in descending order by default. Set reverse=false to return ascending results.
    *
    * @param params Parameters for retrieving cross margin repayments
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   create_time: number;
-   *   loan_id: string;
-   *   currency: string;
-   *   principal: string;
-   *   interest: string;
-   *   repayment_type: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetCrossMarginRepaymentsResp[]>>
    */
-  getCrossMarginRepayments(params?: {
-    currency?: string;
-    loan_id?: string;
-    limit?: number;
-    offset?: number;
-    reverse?: boolean;
-  }): Promise<
-    APIResponse<
-      {
-        id: string;
-        create_time: number;
-        loan_id: string;
-        currency: string;
-        principal: string;
-        interest: string;
-        repayment_type: string;
-      }[]
-    >
-  > {
+  getCrossMarginRepayments(
+    params?: GetCrossMarginRepaymentsReq,
+  ): Promise<APIResponse<GetCrossMarginAccountResp[]>> {
     return this.getPrivate('/margin/cross/repayments', params);
   }
 
@@ -1678,35 +1451,11 @@ export class RestClient extends BaseRestClient {
    * Interest records for the cross margin account
    *
    * @param params Parameters for retrieving interest records
-   * @returns Promise<APIResponse<{
-   *   currency: string;
-   *   currency_pair: string;
-   *   actual_rate: string;
-   *   interest: string;
-   *   status: number;
-   *   type: string;
-   *   create_time: number;
-   * }[]>>
+   * @returns Promise<APIResponse<GetCrossMarginInterestRecordsResp[]>>
    */
-  getCrossMarginInterestRecords(params?: {
-    currency?: string;
-    page?: number;
-    limit?: number;
-    from?: number;
-    to?: number;
-  }): Promise<
-    APIResponse<
-      {
-        currency: string;
-        currency_pair: string;
-        actual_rate: string;
-        interest: string;
-        status: number;
-        type: string;
-        create_time: number;
-      }[]
-    >
-  > {
+  getCrossMarginInterestRecords(
+    params?: GetCrossMarginInterestRecordsReq,
+  ): Promise<APIResponse<GetCrossMarginInterestRecordsReq[]>> {
     return this.getPrivate('/margin/cross/interest_records', params);
   }
 
@@ -1734,11 +1483,11 @@ export class RestClient extends BaseRestClient {
    * Please note that the interest rates are subject to change based on the borrowing and lending demand, and therefore, the provided rates may not be entirely accurate.
    *
    * @param params Parameters for retrieving estimated interest rates
-   * @returns Promise<APIResponse<Record<string, string>>>
+   * @returns Promise<APIResponse<any>>
    */
   getEstimatedInterestRates(params: {
     currencies: string[];
-  }): Promise<APIResponse<Record<string, string>>> {
+  }): Promise<APIResponse<any>> {
     return this.getPrivate('/margin/cross/estimate_rate', params);
   }
 
