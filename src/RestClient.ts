@@ -1,3 +1,7 @@
+// double check if schemas are requests
+// double check if names are set to what the call represents(get, delete, update etc...)
+// check where query params and body is as it should be
+
 import { AxiosRequestConfig } from 'axios';
 
 import {
@@ -7,28 +11,60 @@ import {
 } from './lib/BaseRestClient.js';
 import { RestClientOptions } from './lib/requestUtils.js';
 import {
+  DeleteSpotOrderReq,
+  GetCrossMarginAccountHistoryReq,
+  GetCrossMarginBorrowHistoryReq,
+  GetCrossMarginInterestRecordsReq,
+  GetCrossMarginRepaymentsReq,
   GetMainSubTransfersReq,
+  GetMarginBalanceHistoryReq,
   GetSavedAddressReq,
   GetSmallBalanceHistoryReq,
+  GetSpotAccountBookReq,
+  GetSpotAutoOrdersReq,
+  GetSpotCandlesticksReq,
+  GetSpotOrderBookReq,
+  GetSpotOrdersReq,
+  GetSpotTradesReq,
+  GetSpotTradingHistoryReq,
   GetUnifiedInterestRecordsReq,
   GetUnifiedLoanRecordsReq,
   GetUnifiedLoansReq,
   GetWithdrawalDepositRecordsReq,
   PortfolioMarginCalculatorReq,
   SetUnifiedAccountModeReq,
+  SubmitCrossMarginBorrowLoanReq,
+  SubmitSpotClosePosCrossDisabledReq,
+  SubmitSpotOrderReq,
   SubmitUnifiedBorrowOrRepayReq,
+  UpdateSpotBatchOrdersReq,
 } from './types/requests/shared.types.js';
 import {
   APIResponse,
   CreateDepositAddressResp,
   CreateSubAccountApiKeyResp,
+  DeleteSpotBatchOrdersResp,
   GetBalancesResp,
+  GetCrossMarginAccountHistoryResp,
+  GetCrossMarginAccountResp,
+  GetCrossMarginCurrenciesResp,
   GetCurrencyChainsResp,
+  GetMarginAccountsResp,
+  GetMarginBalanceHistoryResp,
   GetSavedAddressResp,
   GetSmallBalanceHistoryResp,
   GetSmallBalancesResp,
+  GetSpotAccountBookResp,
+  GetSpotAccountsResp,
+  GetSpotBatchFeeRatesResp,
+  GetSpotCandlesticksResp,
   GetSpotCurrenciesResp,
+  GetSpotFeeRatesResp,
+  GetSpotOpenOrdersResp,
+  GetSpotOrderBookResp,
   GetSpotTickerResp,
+  GetSpotTradesResp,
+  GetSpotTradingHistoryResp,
   GetTradingFeesResp,
   GetUnifiedAccountInfoResp,
   GetUnifiedCurrencyDiscountTiersResp,
@@ -43,340 +79,23 @@ import {
   SubAccountMarginBalancesResp,
   SubAccountResp,
   SubAccountTransferRecordResp,
+  SubmitCrossMarginBorrowLoanResp,
+  SubmitSpotBatchOrdersResp,
 } from './types/response/shared.types.js';
+import {
+  CancelBatchOrder,
+  Contract,
+  CurrencyPair,
+  DeliveryContract,
+  FuturesOrder,
+  FuturesPriceTriggeredOrder,
+  Order,
+  Position,
+  SpotPriceTriggeredOrder,
+  SubAccountKey,
+  Withdraw,
+} from './types/shared.js';
 
-// interfaces
-
-interface SubAccountKey {
-  user_id?: string;
-  mode?: number;
-  name?: string;
-  perms?: {
-    name?:
-      | 'wallet'
-      | 'spot'
-      | 'futures'
-      | 'delivery'
-      | 'earn'
-      | 'options'
-      | 'account'
-      | 'unified'
-      | 'loan';
-    read_only?: boolean;
-  }[];
-  ip_whitelist?: string[];
-  key?: string;
-  state?: number;
-  created_at?: number;
-  updated_at?: number;
-  last_access?: number;
-}
-
-interface CurrencyPair {
-  id?: string;
-  base?: string;
-  quote?: string;
-  fee?: string;
-  min_base_amount?: string;
-  min_quote_amount?: string;
-  max_base_amount?: string;
-  max_quote_amount?: string;
-  amount_precision?: number;
-  precision?: number;
-  trade_status?: 'untradable' | 'buyable' | 'sellable' | 'tradable';
-  sell_start?: number;
-  buy_start?: number;
-}
-
-interface Order {
-  id?: string;
-  text?: string;
-  amend_text?: string;
-  create_time?: string;
-  update_time?: string;
-  create_time_ms?: number;
-  update_time_ms?: number;
-  status?: 'open' | 'closed' | 'cancelled';
-  currency_pair: string;
-  type?: 'limit' | 'market';
-  account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
-  side: 'buy' | 'sell';
-  amount: string;
-  price?: string;
-  time_in_force?: 'gtc' | 'ioc' | 'poc' | 'fok';
-  iceberg?: string;
-  auto_borrow?: boolean;
-  auto_repay?: boolean;
-  left?: string;
-  filled_amount?: string;
-  fill_price?: string;
-  filled_total?: string;
-  avg_deal_price?: string;
-  fee?: string;
-  fee_currency?: string;
-  point_fee?: string;
-  gt_fee?: string;
-  gt_maker_fee?: string;
-  gt_taker_fee?: string;
-  gt_discount?: boolean;
-  rebated_fee?: string;
-  rebated_fee_currency?: string;
-  stp_id?: number;
-  stp_act?: 'cn' | 'co' | 'cb' | '-';
-  finish_as?: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
-  action_mode?: 'ACK' | 'RESULT' | 'FULL';
-}
-
-interface CancelBatchOrder {
-  currency_pair: string;
-  id: string;
-  account?: 'cross_margin';
-  action_mode?: 'ACK' | 'RESULT' | 'FULL';
-}
-
-interface SpotPriceTriggeredOrder {
-  trigger: {
-    price: string;
-    rule: '>=' | '<=';
-    expiration: number;
-  };
-  put: {
-    type?: 'limit' | 'market';
-    side: 'buy' | 'sell';
-    price: string;
-    amount: string;
-    account: 'normal' | 'margin' | 'cross_margin';
-    time_in_force?: 'gtc' | 'ioc';
-    text?: string;
-  };
-  id?: number;
-  user?: number;
-  market: string;
-  ctime?: number;
-  ftime?: number;
-  fired_order_id?: number;
-  status?: 'open' | 'cancelled' | 'finish' | 'failed' | 'expired';
-  reason?: string;
-}
-
-interface Contract {
-  name?: string;
-  type?: 'inverse' | 'direct';
-  quanto_multiplier?: string;
-  leverage_min?: string;
-  leverage_max?: string;
-  maintenance_rate?: string;
-  mark_type?: 'internal' | 'index';
-  mark_price?: string;
-  index_price?: string;
-  last_price?: string;
-  maker_fee_rate?: string;
-  taker_fee_rate?: string;
-  order_price_round?: string;
-  mark_price_round?: string;
-  funding_rate?: string;
-  funding_interval?: number;
-  funding_next_apply?: number;
-  risk_limit_base?: string;
-  risk_limit_step?: string;
-  risk_limit_max?: string;
-  order_size_min?: number;
-  order_size_max?: number;
-  order_price_deviate?: string;
-  ref_discount_rate?: string;
-  ref_rebate_rate?: string;
-  orderbook_id?: number;
-  trade_id?: number;
-  trade_size?: number;
-  position_size?: number;
-  config_change_time?: number;
-  in_delisting?: boolean;
-  orders_limit?: number;
-  enable_bonus?: boolean;
-  enable_credit?: boolean;
-  create_time?: number;
-  funding_cap_ratio?: string;
-}
-
-interface Position {
-  user?: number;
-  contract?: string;
-  size?: number;
-  leverage?: string;
-  risk_limit?: string;
-  leverage_max?: string;
-  maintenance_rate?: string;
-  value?: string;
-  margin?: string;
-  entry_price?: string;
-  liq_price?: string;
-  mark_price?: string;
-  initial_margin?: string;
-  maintenance_margin?: string;
-  unrealised_pnl?: string;
-  realised_pnl?: string;
-  pnl_pnl?: string;
-  pnl_fund?: string;
-  pnl_fee?: string;
-  history_pnl?: string;
-  last_close_pnl?: string;
-  realised_point?: string;
-  history_point?: string;
-  adl_ranking?: number;
-  pending_orders?: number;
-  close_order?: {
-    id?: number;
-    price?: string;
-    is_liq?: boolean;
-  } | null;
-  mode?: 'single' | 'dual_long' | 'dual_short';
-  cross_leverage_limit?: string;
-  update_time?: number;
-  open_time?: number;
-}
-
-interface FuturesOrder {
-  id?: number;
-  user?: number;
-  create_time?: number;
-  finish_time?: number;
-  finish_as?:
-    | 'filled'
-    | 'cancelled'
-    | 'liquidated'
-    | 'ioc'
-    | 'auto_deleveraged'
-    | 'reduce_only'
-    | 'position_closed'
-    | 'stp';
-  status?: 'open' | 'finished';
-  contract: string;
-  size: number;
-  iceberg?: number;
-  price?: string;
-  close?: boolean;
-  is_close?: boolean;
-  reduce_only?: boolean;
-  is_reduce_only?: boolean;
-  is_liq?: boolean;
-  tif?: 'gtc' | 'ioc' | 'poc' | 'fok';
-  left?: number;
-  fill_price?: string;
-  text?: string;
-  tkfr?: string;
-  mkfr?: string;
-  refu?: number;
-  auto_size?: 'close_long' | 'close_short';
-  stp_id?: number;
-  stp_act?: 'cn' | 'co' | 'cb' | '-';
-  amend_text?: string;
-  biz_info?: string;
-}
-
-interface FuturesPriceTriggeredOrder {
-  initial: {
-    contract: string;
-    size?: number;
-    price?: string;
-    close?: boolean;
-    tif?: 'gtc' | 'ioc';
-    text?: string;
-    reduce_only?: boolean;
-    auto_size?: string;
-    is_reduce_only?: boolean;
-    is_close?: boolean;
-  };
-  trigger: {
-    strategy_type?: 0 | 1;
-    price_type?: 0 | 1 | 2;
-    price?: string;
-    rule?: 1 | 2;
-    expiration?: number;
-  };
-  id?: number;
-  user?: number;
-  create_time?: number;
-  finish_time?: number;
-  trade_id?: number;
-  status?: 'open' | 'finished' | 'inactive' | 'invalid';
-  finish_as?: 'cancelled' | 'succeeded' | 'failed' | 'expired';
-  reason?: string;
-  order_type?:
-    | 'close-long-order'
-    | 'close-short-order'
-    | 'close-long-position'
-    | 'close-short-position'
-    | 'plan-close-long-position'
-    | 'plan-close-short-position';
-  me_order_id?: number;
-}
-
-interface DeliveryContract {
-  name?: string;
-  underlying?: string;
-  cycle?: 'WEEKLY' | 'BI-WEEKLY' | 'QUARTERLY' | 'BI-QUARTERLY';
-  type?: 'inverse' | 'direct';
-  quanto_multiplier?: string;
-  leverage_min?: string;
-  leverage_max?: string;
-  maintenance_rate?: string;
-  mark_type?: 'internal' | 'index';
-  mark_price?: string;
-  index_price?: string;
-  last_price?: string;
-  maker_fee_rate?: string;
-  taker_fee_rate?: string;
-  order_price_round?: string;
-  mark_price_round?: string;
-  basis_rate?: string;
-  basis_value?: string;
-  basis_impact_value?: string;
-  settle_price?: string;
-  settle_price_interval?: number;
-  settle_price_duration?: number;
-  expire_time?: number;
-  risk_limit_base?: string;
-  risk_limit_step?: string;
-  risk_limit_max?: string;
-  order_size_min?: number;
-  order_size_max?: number;
-  order_price_deviate?: string;
-  ref_discount_rate?: string;
-  ref_rebate_rate?: string;
-  orderbook_id?: number;
-  trade_id?: number;
-  trade_size?: number;
-  position_size?: number;
-  config_change_time?: number;
-  in_delisting?: boolean;
-  orders_limit?: number;
-}
-
-interface Withdraw {
-  id: string;
-  txid: string;
-  withdraw_order_id: string;
-  timestamp: string;
-  amount: string;
-  currency: string;
-  address: string;
-  memo?: string;
-  status:
-    | 'DONE'
-    | 'CANCEL'
-    | 'REQUEST'
-    | 'MANUAL'
-    | 'BCODE'
-    | 'EXTPEND'
-    | 'FAIL'
-    | 'INVALID'
-    | 'VERIFY'
-    | 'PROCES'
-    | 'PEND'
-    | 'DMOVE'
-    | 'SPLITPEND';
-  chain: string;
-}
 /**
  * Unified REST API client for all of Gate's REST APIs
  */
@@ -563,7 +282,7 @@ export class RestClient extends BaseRestClient {
    * @param params Transfer parameters
    * @returns Promise<APIResponse<any>>
    */
-  getSubToSubTransfer(body: {
+  submitSubToSubTransfer(body: {
     currency: string;
     sub_account_type?: string;
     sub_account_from: string;
@@ -1133,28 +852,11 @@ export class RestClient extends BaseRestClient {
    * Order book will be sorted by price from high to low on bids; low to high on asks.
    *
    * @param params Parameters for retrieving order book
-   * @returns Promise<APIResponse<{
-   *   id?: number;
-   *   current: number;
-   *   update: number;
-   *   asks: [string, string][];
-   *   bids: [string, string][];
-   * }>>
+   * @returns Promise<APIResponse<GetSpotOrderBookResp>>
    */
-  getSpotOrderBook(params: {
-    currency_pair: string;
-    interval?: string;
-    limit?: number;
-    with_id?: boolean;
-  }): Promise<
-    APIResponse<{
-      id?: number;
-      current: number;
-      update: number;
-      asks: [string, string][];
-      bids: [string, string][];
-    }>
-  > {
+  getSpotOrderBook(
+    params: GetSpotOrderBookReq,
+  ): Promise<APIResponse<GetSpotOrderBookResp>> {
     return this.get('/spot/order_book', params);
   }
 
@@ -1165,55 +867,11 @@ export class RestClient extends BaseRestClient {
    * Scrolling query using last_id is not recommended any more. If last_id is specified, time range query parameters will be ignored.
    *
    * @param params Parameters for retrieving market trades
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   create_time: string;
-   *   create_time_ms: string;
-   *   currency_pair: string;
-   *   side: 'buy' | 'sell';
-   *   role: 'taker' | 'maker';
-   *   amount: string;
-   *   price: string;
-   *   order_id: string;
-   *   fee: string;
-   *   fee_currency: string;
-   *   point_fee: string;
-   *   gt_fee: string;
-   *   amend_text: string;
-   *   sequence_id: string;
-   *   text: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetSpotTradesResp[]>>
    */
-  getSpotTrades(params: {
-    currency_pair: string;
-    limit?: number;
-    last_id?: string;
-    reverse?: boolean;
-    from?: number;
-    to?: number;
-    page?: number;
-  }): Promise<
-    APIResponse<
-      {
-        id: string;
-        create_time: string;
-        create_time_ms: string;
-        currency_pair: string;
-        side: 'buy' | 'sell';
-        role: 'taker' | 'maker';
-        amount: string;
-        price: string;
-        order_id: string;
-        fee: string;
-        fee_currency: string;
-        point_fee: string;
-        gt_fee: string;
-        amend_text: string;
-        sequence_id: string;
-        text: string;
-      }[]
-    >
-  > {
+  getSpotTrades(
+    params: GetSpotTradesReq,
+  ): Promise<APIResponse<GetSpotTradesResp[]>> {
     return this.get('/spot/trades', params);
   }
 
@@ -1223,50 +881,11 @@ export class RestClient extends BaseRestClient {
    * Maximum of 1000 points can be returned in a query. Be sure not to exceed the limit when specifying from, to and interval.
    *
    * @param params Parameters for retrieving market candlesticks
-   * @returns Promise<APIResponse<[[
-   *   string, // Unix timestamp with second precision
-   *   string, // Trading volume in quote currency
-   *   string, // Closing price
-   *   string, // Highest price
-   *   string, // Lowest price
-   *   string, // Opening price
-   *   string, // Trading volume in base currency
-   *   boolean // Whether the window is closed
-   * ]]>>
+   * @returns Promise<APIResponse<GetSpotCandlesticksResp>>
    */
-  getSpotCandlesticks(params: {
-    currency_pair: string;
-    limit?: number;
-    from?: number;
-    to?: number;
-    interval?:
-      | '10s'
-      | '1m'
-      | '5m'
-      | '15m'
-      | '30m'
-      | '1h'
-      | '4h'
-      | '8h'
-      | '1d'
-      | '7d'
-      | '30d';
-  }): Promise<
-    APIResponse<
-      [
-        [
-          string, // Unix timestamp with second precision
-          string, // Trading volume in quote currency
-          string, // Closing price
-          string, // Highest price
-          string, // Lowest price
-          string, // Opening price
-          string, // Trading volume in base currency
-          boolean, // Whether the window is closed
-        ],
-      ]
-    >
-  > {
+  getSpotCandlesticks(
+    params: GetSpotCandlesticksReq,
+  ): Promise<APIResponse<GetSpotCandlesticksResp>> {
     return this.get('/spot/candlesticks', params);
   }
 
@@ -1276,33 +895,11 @@ export class RestClient extends BaseRestClient {
    * This API is deprecated in favour of new fee retrieving API /wallet/fee.
    *
    * @param params Parameters for querying user trading fee rates
-   * @returns Promise<APIResponse<{
-   *   user_id: number;
-   *   taker_fee: string;
-   *   maker_fee: string;
-   *   gt_discount: boolean;
-   *   gt_taker_fee: string;
-   *   gt_maker_fee: string;
-   *   loan_fee: string;
-   *   point_type: string;
-   *   currency_pair: string;
-   *   debit_fee: number;
-   * }>>
+   * @returns Promise<APIResponse<GetSpotFeeRatesResp>>
    */
-  getSpotFeeRates(params?: { currency_pair?: string }): Promise<
-    APIResponse<{
-      user_id: number;
-      taker_fee: string;
-      maker_fee: string;
-      gt_discount: boolean;
-      gt_taker_fee: string;
-      gt_maker_fee: string;
-      loan_fee: string;
-      point_type: string;
-      currency_pair: string;
-      debit_fee: number;
-    }>
-  > {
+  getSpotFeeRates(params?: {
+    currency_pair?: string;
+  }): Promise<APIResponse<GetSpotFeeRatesResp>> {
     return this.getPrivate('/spot/fee', params);
   }
 
@@ -1310,37 +907,11 @@ export class RestClient extends BaseRestClient {
    * Query a batch of user trading fee rates
    *
    * @param params Parameters for querying a batch of user trading fee rates
-   * @returns Promise<APIResponse<{
-   *   [key: string]: {
-   *     user_id: number;
-   *     taker_fee: string;
-   *     maker_fee: string;
-   *     gt_discount: boolean;
-   *     gt_taker_fee: string;
-   *     gt_maker_fee: string;
-   *     loan_fee: string;
-   *     point_type: string;
-   *     currency_pair: string;
-   *     debit_fee: number;
-   *   };
-   * }>>
+   * @returns Promise<APIResponse<GetSpotBatchFeeRatesResp>>
    */
-  getSpotBatchFeeRates(params: { currency_pairs: string }): Promise<
-    APIResponse<{
-      [key: string]: {
-        user_id: number;
-        taker_fee: string;
-        maker_fee: string;
-        gt_discount: boolean;
-        gt_taker_fee: string;
-        gt_maker_fee: string;
-        loan_fee: string;
-        point_type: string;
-        currency_pair: string;
-        debit_fee: number;
-      };
-    }>
-  > {
+  getSpotBatchFeeRates(params: {
+    currency_pairs: string;
+  }): Promise<APIResponse<GetSpotBatchFeeRatesResp>> {
     return this.getPrivate('/spot/batch_fee', params);
   }
 
@@ -1348,23 +919,11 @@ export class RestClient extends BaseRestClient {
    * List spot accounts
    *
    * @param params Parameters for listing spot accounts
-   * @returns Promise<APIResponse<{
-   *   currency: string;
-   *   available: string;
-   *   locked: string;
-   *   update_id: number;
-   * }[]>>
+   * @returns Promise<APIResponse<GetSpotAccountsResp[]>>
    */
-  getSpotAccounts(params?: { currency?: string }): Promise<
-    APIResponse<
-      {
-        currency: string;
-        available: string;
-        locked: string;
-        update_id: number;
-      }[]
-    >
-  > {
+  getSpotAccounts(params?: {
+    currency?: string;
+  }): Promise<APIResponse<GetSpotAccountsResp[]>> {
     return this.getPrivate('/spot/accounts', params);
   }
 
@@ -1374,36 +933,11 @@ export class RestClient extends BaseRestClient {
    * Record time range cannot exceed 30 days.
    *
    * @param params Parameters for querying account book
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   time: number;
-   *   currency: string;
-   *   change: string;
-   *   balance: string;
-   *   type: string;
-   *   text: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetSpotAccountBookResp[]>>
    */
-  getSpotAccountBook(params?: {
-    currency?: string;
-    from?: number;
-    to?: number;
-    page?: number;
-    limit?: number;
-    type?: string;
-  }): Promise<
-    APIResponse<
-      {
-        id: string;
-        time: number;
-        currency: string;
-        change: string;
-        balance: string;
-        type: string;
-        text: string;
-      }[]
-    >
-  > {
+  getSpotAccountBook(
+    params?: GetSpotAccountBookReq,
+  ): Promise<APIResponse<GetSpotAccountBookResp[]>> {
     return this.getPrivate('/spot/account_book', params);
   }
 
@@ -1416,87 +950,11 @@ export class RestClient extends BaseRestClient {
    * - No mixture of spot orders and margin orders, i.e. account must be identical for all orders
    *
    * @param params Parameters for creating a batch of orders
-   * @returns Promise<APIResponse<{
-   *   order_id: string;
-   *   amend_text: string;
-   *   text: string;
-   *   succeeded: boolean;
-   *   label: string;
-   *   message: string;
-   *   id: string;
-   *   create_time: string;
-   *   update_time: string;
-   *   create_time_ms: number;
-   *   update_time_ms: number;
-   *   status: 'open' | 'closed' | 'cancelled';
-   *   currency_pair: string;
-   *   type: 'limit' | 'market';
-   *   account: 'spot' | 'margin' | 'cross_margin' | 'unified';
-   *   side: 'buy' | 'sell';
-   *   amount: string;
-   *   price: string;
-   *   time_in_force: 'gtc' | 'ioc' | 'poc' | 'fok';
-   *   iceberg: string;
-   *   auto_repay: boolean;
-   *   left: string;
-   *   filled_amount: string;
-   *   fill_price: string;
-   *   filled_total: string;
-   *   avg_deal_price: string;
-   *   fee: string;
-   *   fee_currency: string;
-   *   point_fee: string;
-   *   gt_fee: string;
-   *   gt_discount: boolean;
-   *   rebated_fee: string;
-   *   rebated_fee_currency: string;
-   *   stp_id: number;
-   *   stp_act: 'cn' | 'co' | 'cb' | '-';
-   *   finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
-   * }[]>>
+   * @returns Promise<APIResponse<SubmitSpotBatchOrdersResp[]>>
    */
-  submitSpotBatchOrders(body: Order[]): Promise<
-    APIResponse<
-      {
-        order_id: string;
-        amend_text: string;
-        text: string;
-        succeeded: boolean;
-        label: string;
-        message: string;
-        id: string;
-        create_time: string;
-        update_time: string;
-        create_time_ms: number;
-        update_time_ms: number;
-        status: 'open' | 'closed' | 'cancelled';
-        currency_pair: string;
-        type: 'limit' | 'market';
-        account: 'spot' | 'margin' | 'cross_margin' | 'unified';
-        side: 'buy' | 'sell';
-        amount: string;
-        price: string;
-        time_in_force: 'gtc' | 'ioc' | 'poc' | 'fok';
-        iceberg: string;
-        auto_repay: boolean;
-        left: string;
-        filled_amount: string;
-        fill_price: string;
-        filled_total: string;
-        avg_deal_price: string;
-        fee: string;
-        fee_currency: string;
-        point_fee: string;
-        gt_fee: string;
-        gt_discount: boolean;
-        rebated_fee: string;
-        rebated_fee_currency: string;
-        stp_id: number;
-        stp_act: 'cn' | 'co' | 'cb' | '-';
-        finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
-      }[]
-    >
-  > {
+  submitSpotBatchOrders(
+    body: Order[],
+  ): Promise<APIResponse<SubmitSpotBatchOrdersResp[]>> {
     return this.postPrivate('/spot/batch_orders', { body });
   }
 
@@ -1508,95 +966,13 @@ export class RestClient extends BaseRestClient {
    * Spot, portfolio, and margin orders are returned by default. To list cross margin orders, account must be set to cross_margin.
    *
    * @param params Parameters for listing all open orders
-   * @returns Promise<APIResponse<{
-   *   currency_pair: string;
-   *   total: number;
-   *   orders: {
-   *     id: string;
-   *     text: string;
-   *     amend_text: string;
-   *     create_time: string;
-   *     update_time: string;
-   *     create_time_ms: number;
-   *     update_time_ms: number;
-   *     status: 'open' | 'closed' | 'cancelled';
-   *     currency_pair: string;
-   *     type: 'limit' | 'market';
-   *     account: 'spot' | 'margin' | 'cross_margin' | 'unified';
-   *     side: 'buy' | 'sell';
-   *     amount: string;
-   *     price: string;
-   *     time_in_force: 'gtc' | 'ioc' | 'poc' | 'fok';
-   *     iceberg: string;
-   *     auto_repay: boolean;
-   *     left: string;
-   *     filled_amount: string;
-   *     fill_price: string;
-   *     filled_total: string;
-   *     avg_deal_price: string;
-   *     fee: string;
-   *     fee_currency: string;
-   *     point_fee: string;
-   *     gt_fee: string;
-   *     gt_maker_fee: string;
-   *     gt_taker_fee: string;
-   *     gt_discount: boolean;
-   *     rebated_fee: string;
-   *     rebated_fee_currency: string;
-   *     stp_id: number;
-   *     stp_act: 'cn' | 'co' | 'cb' | '-';
-   *     finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
-   *   }[];
-   * }[]>>
+   * @returns Promise<APIResponse<GetSpotOpenOrdersResp[]>>
    */
   getSpotOpenOrders(params?: {
     page?: number;
     limit?: number;
     account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
-  }): Promise<
-    APIResponse<
-      {
-        currency_pair: string;
-        total: number;
-        orders: {
-          id: string;
-          text: string;
-          amend_text: string;
-          create_time: string;
-          update_time: string;
-          create_time_ms: number;
-          update_time_ms: number;
-          status: 'open' | 'closed' | 'cancelled';
-          currency_pair: string;
-          type: 'limit' | 'market';
-          account: 'spot' | 'margin' | 'cross_margin' | 'unified';
-          side: 'buy' | 'sell';
-          amount: string;
-          price: string;
-          time_in_force: 'gtc' | 'ioc' | 'poc' | 'fok';
-          iceberg: string;
-          auto_repay: boolean;
-          left: string;
-          filled_amount: string;
-          fill_price: string;
-          filled_total: string;
-          avg_deal_price: string;
-          fee: string;
-          fee_currency: string;
-          point_fee: string;
-          gt_fee: string;
-          gt_maker_fee: string;
-          gt_taker_fee: string;
-          gt_discount: boolean;
-          rebated_fee: string;
-          rebated_fee_currency: string;
-          stp_id: number;
-          stp_act: 'cn' | 'co' | 'cb' | '-';
-          finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
-        }[];
-      }[]
-    >
-  > {
+  }): Promise<APIResponse<GetSpotOpenOrdersResp[]>> {
     return this.getPrivate('/spot/open_orders', params);
   }
 
@@ -1606,22 +982,11 @@ export class RestClient extends BaseRestClient {
    * Currently, only cross-margin accounts are supported to close position when cross currencies are disabled. Maximum buy quantity = (unpaid principal and interest - currency balance - the amount of the currency in the order book) / 0.998
    *
    * @param params Parameters for closing position when cross-currency is disabled
-   * @returns Promise<APIResponse<{
-   *   order_id: string;
-   *   text: string;
-   *   currency_pair: string;
-   *   amount: string;
-   *   price: string;
-   *   action_mode?: 'ACK' | 'RESULT' | 'FULL';
-   * }>>
+   * @returns Promise<APIResponse<Order>>
    */
-  submitSpotClosePosCrossDisabled(body: {
-    text?: string;
-    currency_pair: string;
-    amount: string;
-    price: string;
-    action_mode?: 'ACK' | 'RESULT' | 'FULL';
-  }): Promise<APIResponse<Order>> {
+  submitSpotClosePosCrossDisabled(
+    body: SubmitSpotClosePosCrossDisabledReq,
+  ): Promise<APIResponse<Order>> {
     return this.postPrivate('/spot/cross_liquidate_orders', { body });
   }
 
@@ -1631,24 +996,9 @@ export class RestClient extends BaseRestClient {
    * You can place orders with spot, portfolio, margin or cross margin account through setting the account field. It defaults to spot, which means spot account is used to place orders. If the user is using unified account, it defaults to the unified account.
    *
    * @param params Parameters for creating an order
-   * @returns Promise<APIResponse<{
-   *   order_id: string;
-   *   text: string;
-   *   currency_pair: string;
-   *   type: 'limit' | 'market';
-   *   account: 'spot' | 'margin' | 'cross_margin' | 'unified';
-   *   side: 'buy' | 'sell';
-   *   amount: string;
-   *   price?: string;
-   *   time_in_force?: 'gtc' | 'ioc' | 'poc' | 'fok';
-   *   iceberg?: string;
-   *   auto_borrow?: boolean;
-   *   auto_repay?: boolean;
-   *   stp_act?: 'cn' | 'co' | 'cb' | '-';
-   *   action_mode?: 'ACK' | 'RESULT' | 'FULL';
-   * }>>
+   * @returns Promise<APIResponse<Order>>
    */
-  submitSpotOrder(body: Order): Promise<APIResponse<Order>> {
+  submitSpotOrder(body: SubmitSpotOrderReq): Promise<APIResponse<Order>> {
     return this.postPrivate('/spot/orders', { body });
   }
 
@@ -1658,53 +1008,9 @@ export class RestClient extends BaseRestClient {
    * Spot, portfolio and margin orders are returned by default. If cross margin orders are needed, account must be set to cross_margin.
    *
    * @param params Parameters for listing orders
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   text: string;
-   *   amend_text: string;
-   *   create_time: string;
-   *   update_time: string;
-   *   create_time_ms: number;
-   *   update_time_ms: number;
-   *   status: 'open' | 'closed' | 'cancelled';
-   *   currency_pair: string;
-   *   type: 'limit' | 'market';
-   *   account: 'spot' | 'margin' | 'cross_margin' | 'unified';
-   *   side: 'buy' | 'sell';
-   *   amount: string;
-   *   price: string;
-   *   time_in_force: 'gtc' | 'ioc' | 'poc' | 'fok';
-   *   iceberg: string;
-   *   auto_repay: boolean;
-   *   left: string;
-   *   filled_amount: string;
-   *   fill_price: string;
-   *   filled_total: string;
-   *   avg_deal_price: string;
-   *   fee: string;
-   *   fee_currency: string;
-   *   point_fee: string;
-   *   gt_fee: string;
-   *   gt_maker_fee: string;
-   *   gt_taker_fee: string;
-   *   gt_discount: boolean;
-   *   rebated_fee: string;
-   *   rebated_fee_currency: string;
-   *   stp_id: number;
-   *   stp_act: 'cn' | 'co' | 'cb' | '-';
-   *   finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
-   * }[]>>
+   * @returns Promise<APIResponse<Order[]>>
    */
-  getSpotOrders(params: {
-    currency_pair: string;
-    status: 'open' | 'finished';
-    page?: number;
-    limit?: number;
-    account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
-    from?: number;
-    to?: number;
-    side?: 'buy' | 'sell';
-  }): Promise<APIResponse<Order[]>> {
+  getSpotOrders(params: GetSpotOrdersReq): Promise<APIResponse<Order[]>> {
     return this.getPrivate('/spot/orders', params);
   }
 
@@ -1715,42 +1021,7 @@ export class RestClient extends BaseRestClient {
    * You can set account to cancel only orders within the specified account.
    *
    * @param params Parameters for cancelling all open orders in specified currency pair
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   text: string;
-   *   amend_text: string;
-   *   create_time: string;
-   *   update_time: string;
-   *   create_time_ms: number;
-   *   update_time_ms: number;
-   *   status: 'open' | 'closed' | 'cancelled';
-   *   currency_pair: string;
-   *   type: 'limit' | 'market';
-   *   account: 'spot' | 'margin' | 'cross_margin' | 'unified';
-   *   side: 'buy' | 'sell';
-   *   amount: string;
-   *   price: string;
-   *   time_in_force: 'gtc' | 'ioc' | 'poc' | 'fok';
-   *   iceberg: string;
-   *   auto_repay: boolean;
-   *   left: string;
-   *   filled_amount: string;
-   *   fill_price: string;
-   *   filled_total: string;
-   *   avg_deal_price: string;
-   *   fee: string;
-   *   fee_currency: string;
-   *   point_fee: string;
-   *   gt_fee: string;
-   *   gt_maker_fee: string;
-   *   gt_taker_fee: string;
-   *   gt_discount: boolean;
-   *   rebated_fee: string;
-   *   rebated_fee_currency: string;
-   *   stp_id: number;
-   *   stp_act: 'cn' | 'co' | 'cb' | '-';
-   *   finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
-   * }[]>>
+   * @returns Promise<APIResponse<Order[]>>
    */
   deleteSpotPairOpenOrders(params: {
     currency_pair: string;
@@ -1767,27 +1038,11 @@ export class RestClient extends BaseRestClient {
    * Multiple currency pairs can be specified, but maximum 20 orders are allowed per request.
    *
    * @param params Parameters for cancelling a batch of orders
-   * @returns Promise<APIResponse<{
-   *   currency_pair: string;
-   *   id: string;
-   *   succeeded: boolean;
-   *   label: string;
-   *   message: string;
-   *   account: string;
-   * }[]>>
+   * @returns Promise<APIResponse<DeleteSpotBatchOrdersResp[]>>
    */
-  deleteSpotBatchOrders(body: CancelBatchOrder[]): Promise<
-    APIResponse<
-      {
-        currency_pair: string;
-        id: string;
-        succeeded: boolean;
-        label: string;
-        message: string;
-        account: string;
-      }[]
-    >
-  > {
+  deleteSpotBatchOrders(
+    body: CancelBatchOrder[],
+  ): Promise<APIResponse<DeleteSpotBatchOrdersResp[]>> {
     return this.postPrivate('/spot/cancel_batch_orders', { body });
   }
 
@@ -1797,42 +1052,7 @@ export class RestClient extends BaseRestClient {
    * Spot, portfolio and margin orders are queried by default. If cross margin orders are needed or portfolio margin account are used, account must be set to cross_margin.
    *
    * @param params Parameters for getting a single order
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   text: string;
-   *   amend_text: string;
-   *   create_time: string;
-   *   update_time: string;
-   *   create_time_ms: number;
-   *   update_time_ms: number;
-   *   status: 'open' | 'closed' | 'cancelled';
-   *   currency_pair: string;
-   *   type: 'limit' | 'market';
-   *   account: 'spot' | 'margin' | 'cross_margin' | 'unified';
-   *   side: 'buy' | 'sell';
-   *   amount: string;
-   *   price: string;
-   *   time_in_force: 'gtc' | 'ioc' | 'poc' | 'fok';
-   *   iceberg: string;
-   *   auto_repay: boolean;
-   *   left: string;
-   *   filled_amount: string;
-   *   fill_price: string;
-   *   filled_total: string;
-   *   avg_deal_price: string;
-   *   fee: string;
-   *   fee_currency: string;
-   *   point_fee: string;
-   *   gt_fee: string;
-   *   gt_maker_fee: string;
-   *   gt_taker_fee: string;
-   *   gt_discount: boolean;
-   *   rebated_fee: string;
-   *   rebated_fee_currency: string;
-   *   stp_id: number;
-   *   stp_act: 'cn' | 'co' | 'cb' | '-';
-   *   finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
-   * }>>
+   * @returns Promise<APIResponse<Order>>
    */
   getSpotOrder(params: {
     order_id: string;
@@ -1850,42 +1070,7 @@ export class RestClient extends BaseRestClient {
    * Currently, only supports modification of price or amount fields.
    *
    * @param params Parameters for amending an order
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   text: string;
-   *   amend_text: string;
-   *   create_time: string;
-   *   update_time: string;
-   *   create_time_ms: number;
-   *   update_time_ms: number;
-   *   status: 'open' | 'closed' | 'cancelled';
-   *   currency_pair: string;
-   *   type: 'limit' | 'market';
-   *   account: 'spot' | 'margin' | 'cross_margin' | 'unified';
-   *   side: 'buy' | 'sell';
-   *   amount: string;
-   *   price: string;
-   *   time_in_force: 'gtc' | 'ioc' | 'poc' | 'fok';
-   *   iceberg: string;
-   *   auto_repay: boolean;
-   *   left: string;
-   *   filled_amount: string;
-   *   fill_price: string;
-   *   filled_total: string;
-   *   avg_deal_price: string;
-   *   fee: string;
-   *   fee_currency: string;
-   *   point_fee: string;
-   *   gt_fee: string;
-   *   gt_maker_fee: string;
-   *   gt_taker_fee: string;
-   *   gt_discount: boolean;
-   *   rebated_fee: string;
-   *   rebated_fee_currency: string;
-   *   stp_id: number;
-   *   stp_act: 'cn' | 'co' | 'cb' | '-';
-   *   finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
-   * }>>
+   * @returns Promise<APIResponse<Order>>
    */
   updateSpotOrder(params: {
     order_id: string;
@@ -1915,49 +1100,9 @@ export class RestClient extends BaseRestClient {
    * Spot, portfolio and margin orders are cancelled by default. If trying to cancel cross margin orders or portfolio margin account are used, account must be set to cross_margin.
    *
    * @param params Parameters for cancelling a single order
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   text: string;
-   *   amend_text: string;
-   *   create_time: string;
-   *   update_time: string;
-   *   create_time_ms: number;
-   *   update_time_ms: number;
-   *   status: 'open' | 'closed' | 'cancelled';
-   *   currency_pair: string;
-   *   type: 'limit' | 'market';
-   *   account: 'spot' | 'margin' | 'cross_margin' | 'unified';
-   *   side: 'buy' | 'sell';
-   *   amount: string;
-   *   price: string;
-   *   time_in_force: 'gtc' | 'ioc' | 'poc' | 'fok';
-   *   iceberg: string;
-   *   auto_repay: boolean;
-   *   left: string;
-   *   filled_amount: string;
-   *   fill_price: string;
-   *   filled_total: string;
-   *   avg_deal_price: string;
-   *   fee: string;
-   *   fee_currency: string;
-   *   point_fee: string;
-   *   gt_fee: string;
-   *   gt_maker_fee: string;
-   *   gt_taker_fee: string;
-   *   gt_discount: boolean;
-   *   rebated_fee: string;
-   *   rebated_fee_currency: string;
-   *   stp_id: number;
-   *   stp_act: 'cn' | 'co' | 'cb' | '-';
-   *   finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
-   * }>>
+   * @returns Promise<APIResponse<Order>>
    */
-  deleteSpotOrder(params: {
-    order_id: string;
-    currency_pair: string;
-    account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
-    action_mode?: 'ACK' | 'RESULT' | 'FULL';
-  }): Promise<APIResponse<Order>> {
+  deleteSpotOrder(params: DeleteSpotOrderReq): Promise<APIResponse<Order>> {
     return this.deletePrivate(`/spot/orders/${params.order_id}`, {
       body: params,
     });
@@ -1971,55 +1116,11 @@ export class RestClient extends BaseRestClient {
    * You can also set from and/or to to query by time range. If you don't specify from and/or to parameters, only the last 7 days of data will be returned. The range of from and to is not allowed to exceed 30 days. Time range parameters are handled as order finish time.
    *
    * @param params Parameters for listing personal trading history
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   create_time: string;
-   *   create_time_ms: string;
-   *   currency_pair: string;
-   *   side: 'buy' | 'sell';
-   *   role: 'taker' | 'maker';
-   *   amount: string;
-   *   price: string;
-   *   order_id: string;
-   *   fee: string;
-   *   fee_currency: string;
-   *   point_fee: string;
-   *   gt_fee: string;
-   *   amend_text: string;
-   *   sequence_id: string;
-   *   text: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetSpotTradingHistoryResp[]>>
    */
-  getSpotTradingHistory(params?: {
-    currency_pair?: string;
-    limit?: number;
-    page?: number;
-    order_id?: string;
-    account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
-    from?: number;
-    to?: number;
-  }): Promise<
-    APIResponse<
-      {
-        id: string;
-        create_time: string;
-        create_time_ms: string;
-        currency_pair: string;
-        side: 'buy' | 'sell';
-        role: 'taker' | 'maker';
-        amount: string;
-        price: string;
-        order_id: string;
-        fee: string;
-        fee_currency: string;
-        point_fee: string;
-        gt_fee: string;
-        amend_text: string;
-        sequence_id: string;
-        text: string;
-      }[]
-    >
-  > {
+  getSpotTradingHistory(
+    params?: GetSpotTradingHistoryReq,
+  ): Promise<APIResponse<GetSpotTradingHistoryResp[]>> {
     return this.getPrivate('/spot/my_trades', params);
   }
 
@@ -2065,95 +1166,11 @@ export class RestClient extends BaseRestClient {
    * Default modification of orders for spot, portfolio, and margin accounts. To modify orders for a cross margin account, the account parameter must be specified as cross_margin. For portfolio margin accounts, the account parameter can only be specified as cross_margin. Currently, only modifications to price or quantity (choose one) are supported.
    *
    * @param params Parameters for batch modification of orders
-   * @returns Promise<APIResponse<{
-   *   order_id: string;
-   *   amend_text: string;
-   *   text: string;
-   *   succeeded: boolean;
-   *   label: string;
-   *   message: string;
-   *   id: string;
-   *   create_time: string;
-   *   update_time: string;
-   *   create_time_ms: number;
-   *   update_time_ms: number;
-   *   status: 'open' | 'closed' | 'cancelled';
-   *   currency_pair: string;
-   *   type: 'limit' | 'market';
-   *   account: 'spot' | 'margin' | 'cross_margin' | 'unified';
-   *   side: 'buy' | 'sell';
-   *   amount: string;
-   *   price: string;
-   *   time_in_force: 'gtc' | 'ioc' | 'poc' | 'fok';
-   *   iceberg: string;
-   *   auto_repay: boolean;
-   *   left: string;
-   *   filled_amount: string;
-   *   fill_price: string;
-   *   filled_total: string;
-   *   avg_deal_price: string;
-   *   fee: string;
-   *   fee_currency: string;
-   *   point_fee: string;
-   *   gt_fee: string;
-   *   gt_discount: boolean;
-   *   rebated_fee: string;
-   *   rebated_fee_currency: string;
-   *   stp_id: number;
-   *   stp_act: 'cn' | 'co' | 'cb' | '-';
-   *   finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
-   * }[]>>
+   * @returns Promise<APIResponse<Order[]>>
    */
   updateSpotBatchOrders(
-    body: {
-      order_id?: string;
-      currency_pair?: string;
-      amount?: string;
-      price?: string;
-      amend_text?: string;
-    }[],
-  ): Promise<
-    APIResponse<
-      {
-        order_id: string;
-        amend_text: string;
-        text: string;
-        succeeded: boolean;
-        label: string;
-        message: string;
-        id: string;
-        create_time: string;
-        update_time: string;
-        create_time_ms: number;
-        update_time_ms: number;
-        status: 'open' | 'closed' | 'cancelled';
-        currency_pair: string;
-        type: 'limit' | 'market';
-        account: 'spot' | 'margin' | 'cross_margin' | 'unified';
-        side: 'buy' | 'sell';
-        amount: string;
-        price: string;
-        time_in_force: 'gtc' | 'ioc' | 'poc' | 'fok';
-        iceberg: string;
-        auto_repay: boolean;
-        left: string;
-        filled_amount: string;
-        fill_price: string;
-        filled_total: string;
-        avg_deal_price: string;
-        fee: string;
-        fee_currency: string;
-        point_fee: string;
-        gt_fee: string;
-        gt_discount: boolean;
-        rebated_fee: string;
-        rebated_fee_currency: string;
-        stp_id: number;
-        stp_act: 'cn' | 'co' | 'cb' | '-';
-        finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
-      }[]
-    >
-  > {
+    body: UpdateSpotBatchOrdersReq[],
+  ): Promise<APIResponse<Order[]>> {
     return this.postPrivate('/spot/amend_batch_orders', { body });
   }
 
@@ -2177,58 +1194,19 @@ export class RestClient extends BaseRestClient {
    * Retrieve running auto order list
    *
    * @param params Parameters for retrieving running auto order list
-   * @returns Promise<APIResponse<{
-   *   id: number;
-   *   trigger: {
-   *     price: string;
-   *     rule: '>=' | '<=';
-   *     expiration: number;
-   *   };
-   *   put: {
-   *     type: 'limit' | 'market';
-   *     side: 'buy' | 'sell';
-   *     price: string;
-   *     amount: string;
-   *     account: 'normal' | 'margin' | 'cross_margin';
-   *     time_in_force: 'gtc' | 'ioc';
-   *     text: string;
-   *   };
-   *   market: string;
-   *   status: 'open' | 'finished';
-   * }[]>>
+   * @returns Promise<APIResponse<SpotPriceTriggeredOrder[]>>
    */
-  getSpotAutoOrders(params: {
-    status: 'open' | 'finished';
-    market?: string;
-    account?: 'normal' | 'margin' | 'cross_margin';
-    limit?: number;
-    offset?: number;
-  }): Promise<APIResponse<SpotPriceTriggeredOrder[]>> {
+  getSpotAutoOrders(
+    params: GetSpotAutoOrdersReq,
+  ): Promise<APIResponse<SpotPriceTriggeredOrder[]>> {
     return this.getPrivate('/spot/price_orders', params);
   }
+
   /**
    * Cancel all open orders
    *
    * @param params Parameters for cancelling all open orders
-   * @returns Promise<APIResponse<{
-   *   id: number;
-   *   trigger: {
-   *     price: string;
-   *     rule: '>=' | '<=';
-   *     expiration: number;
-   *   };
-   *   put: {
-   *     type: 'limit' | 'market';
-   *     side: 'buy' | 'sell';
-   *     price: string;
-   *     amount: string;
-   *     account: 'normal' | 'margin' | 'cross_margin';
-   *     time_in_force: 'gtc' | 'ioc';
-   *     text: string;
-   *   };
-   *   market: string;
-   *   status: 'open' | 'finished';
-   * }[]>>
+   * @returns Promise<APIResponse<SpotPriceTriggeredOrder[]>>
    */
   deleteSpotAllOpenOrders(params?: {
     market?: string;
@@ -2241,25 +1219,7 @@ export class RestClient extends BaseRestClient {
    * Get a price-triggered order
    *
    * @param params Parameters for getting a price-triggered order
-   * @returns Promise<APIResponse<{
-   *   id: number;
-   *   trigger: {
-   *     price: string;
-   *     rule: '>=' | '<=';
-   *     expiration: number;
-   *   };
-   *   put: {
-   *     type: 'limit' | 'market';
-   *     side: 'buy' | 'sell';
-   *     price: string;
-   *     amount: string;
-   *     account: 'normal' | 'margin' | 'cross_margin';
-   *     time_in_force: 'gtc' | 'ioc';
-   *     text: string;
-   *   };
-   *   market: string;
-   *   status: 'open' | 'finished';
-   * }>>
+   * @returns Promise<APIResponse<SpotPriceTriggeredOrder>>
    */
   getPriceTriggeredOrder(params: {
     order_id: string;
@@ -2271,25 +1231,7 @@ export class RestClient extends BaseRestClient {
    * Cancel a price-triggered order
    *
    * @param params Parameters for cancelling a price-triggered order
-   * @returns Promise<APIResponse<{
-   *   id: number;
-   *   trigger: {
-   *     price: string;
-   *     rule: '>=' | '<=';
-   *     expiration: number;
-   *   };
-   *   put: {
-   *     type: 'limit' | 'market';
-   *     side: 'buy' | 'sell';
-   *     price: string;
-   *     amount: string;
-   *     account: 'normal' | 'margin' | 'cross_margin';
-   *     time_in_force: 'gtc' | 'ioc';
-   *     text: string;
-   *   };
-   *   market: string;
-   *   status: 'open' | 'finished';
-   * }>>
+   * @returns Promise<APIResponse<SpotPriceTriggeredOrder>>
    */
   deleteSpotPriceTriggeredOrder(params: {
     order_id: string;
@@ -2308,49 +1250,11 @@ export class RestClient extends BaseRestClient {
    * Margin account list
    *
    * @param params Parameters for listing margin accounts
-   * @returns Promise<APIResponse<{
-   *   currency_pair: string;
-   *   locked: boolean;
-   *   risk: string;
-   *   base: {
-   *     currency: string;
-   *     available: string;
-   *     locked: string;
-   *     borrowed: string;
-   *     interest: string;
-   *   };
-   *   quote: {
-   *     currency: string;
-   *     available: string;
-   *     locked: string;
-   *     borrowed: string;
-   *     interest: string;
-   *   };
-   * }[]>>
+   * @returns Promise<APIResponse<GetMarginAccountsResp[]>>
    */
-  getMarginAccounts(params?: { currency_pair?: string }): Promise<
-    APIResponse<
-      {
-        currency_pair: string;
-        locked: boolean;
-        risk: string;
-        base: {
-          currency: string;
-          available: string;
-          locked: string;
-          borrowed: string;
-          interest: string;
-        };
-        quote: {
-          currency: string;
-          available: string;
-          locked: string;
-          borrowed: string;
-          interest: string;
-        };
-      }[]
-    >
-  > {
+  getMarginAccounts(params?: {
+    currency_pair?: string;
+  }): Promise<APIResponse<GetMarginAccountsResp[]>> {
     return this.getPrivate('/margin/accounts', params);
   }
 
@@ -2360,39 +1264,11 @@ export class RestClient extends BaseRestClient {
    * Only transferals from and to margin account are provided for now. Time range allows 30 days at most.
    *
    * @param params Parameters for listing margin account balance change history
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   time: string;
-   *   time_ms: number;
-   *   currency: string;
-   *   currency_pair: string;
-   *   change: string;
-   *   balance: string;
-   *   type: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetMarginBalanceHistoryResp[]>>
    */
-  getMarginBalanceHistory(params?: {
-    currency?: string;
-    currency_pair?: string;
-    type?: string;
-    from?: number;
-    to?: number;
-    page?: number;
-    limit?: number;
-  }): Promise<
-    APIResponse<
-      {
-        id: string;
-        time: string;
-        time_ms: number;
-        currency: string;
-        currency_pair: string;
-        change: string;
-        balance: string;
-        type: string;
-      }[]
-    >
-  > {
+  getMarginBalanceHistory(
+    params?: GetMarginBalanceHistoryReq,
+  ): Promise<APIResponse<GetMarginBalanceHistoryResp[]>> {
     return this.getPrivate('/margin/account_book', params);
   }
 
@@ -2469,34 +1345,10 @@ export class RestClient extends BaseRestClient {
   /**
    * Currencies supported by cross margin
    *
-   * @returns Promise<APIResponse<{
-   *   name: string;
-   *   rate: string;
-   *   prec: string;
-   *   discount: string;
-   *   min_borrow_amount: string;
-   *   user_max_borrow_amount: string;
-   *   total_max_borrow_amount: string;
-   *   price: string;
-   *   loanable: boolean;
-   *   status: number;
-   * }[]>>
+   * @returns Promise<APIResponse<GetCrossMarginCurrenciesResp[]>>
    */
   getCrossMarginCurrencies(): Promise<
-    APIResponse<
-      {
-        name: string;
-        rate: string;
-        prec: string;
-        discount: string;
-        min_borrow_amount: string;
-        user_max_borrow_amount: string;
-        total_max_borrow_amount: string;
-        price: string;
-        loanable: boolean;
-        status: number;
-      }[]
-    >
+    APIResponse<GetCrossMarginCurrenciesResp[]>
   > {
     return this.get('/margin/cross/currencies');
   }
@@ -2505,104 +1357,20 @@ export class RestClient extends BaseRestClient {
    * Retrieve detail of one single currency supported by cross margin
    *
    * @param params Parameters containing the currency name
-   * @returns Promise<APIResponse<{
-   *   name: string;
-   *   rate: string;
-   *   prec: string;
-   *   discount: string;
-   *   min_borrow_amount: string;
-   *   user_max_borrow_amount: string;
-   *   total_max_borrow_amount: string;
-   *   price: string;
-   *   loanable: boolean;
-   *   status: number;
-   * }>>
+   * @returns Promise<APIResponse<GetCrossMarginCurrenciesResp>>
    */
-  getCrossMarginCurrency(params: { currency: string }): Promise<
-    APIResponse<{
-      name: string;
-      rate: string;
-      prec: string;
-      discount: string;
-      min_borrow_amount: string;
-      user_max_borrow_amount: string;
-      total_max_borrow_amount: string;
-      price: string;
-      loanable: boolean;
-      status: number;
-    }>
-  > {
+  getCrossMarginCurrency(params: {
+    currency: string;
+  }): Promise<APIResponse<GetCrossMarginCurrenciesResp>> {
     return this.get(`/margin/cross/currencies/${params.currency}`);
   }
 
   /**
    * Retrieve cross margin account
    *
-   * @returns Promise<APIResponse<{
-   *   user_id: number;
-   *   refresh_time: number;
-   *   locked: boolean;
-   *   balances: {
-   *     [currency: string]: {
-   *       available: string;
-   *       freeze: string;
-   *       borrowed: string;
-   *       interest: string;
-   *       negative_liab: string;
-   *       futures_pos_liab: string;
-   *       equity: string;
-   *       total_freeze: string;
-   *       total_liab: string;
-   *     };
-   *   };
-   *   total: string;
-   *   borrowed: string;
-   *   interest: string;
-   *   risk: string;
-   *   total_initial_margin: string;
-   *   total_margin_balance: string;
-   *   total_maintenance_margin: string;
-   *   total_initial_margin_rate: string;
-   *   total_maintenance_margin_rate: string;
-   *   total_available_margin: string;
-   *   portfolio_margin_total: string;
-   *   portfolio_margin_total_liab: string;
-   *   portfolio_margin_total_equity: string;
-   * }>>
+   * @returns Promise<APIResponse<GetCrossMarginAccountResp>>
    */
-  getCrossMarginAccount(): Promise<
-    APIResponse<{
-      user_id: number;
-      refresh_time: number;
-      locked: boolean;
-      balances: {
-        [currency: string]: {
-          available: string;
-          freeze: string;
-          borrowed: string;
-          interest: string;
-          negative_liab: string;
-          futures_pos_liab: string;
-          equity: string;
-          total_freeze: string;
-          total_liab: string;
-        };
-      };
-      total: string;
-      borrowed: string;
-      interest: string;
-      risk: string;
-      total_initial_margin: string;
-      total_margin_balance: string;
-      total_maintenance_margin: string;
-      total_initial_margin_rate: string;
-      total_maintenance_margin_rate: string;
-      total_available_margin: string;
-      portfolio_margin_total: string;
-      portfolio_margin_total_liab: string;
-      portfolio_margin_total_equity: string;
-    }>
-  > {
+  getCrossMarginAccount(): Promise<APIResponse<GetCrossMarginAccountResp>> {
     return this.getPrivate('/margin/cross/accounts');
   }
 
@@ -2612,34 +1380,11 @@ export class RestClient extends BaseRestClient {
    * Record time range cannot exceed 30 days.
    *
    * @param params Parameters for retrieving cross margin account change history
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   time: number;
-   *   currency: string;
-   *   change: string;
-   *   balance: string;
-   *   type: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetCrossMarginAccountHistoryResp[]>>
    */
-  getCrossMarginAccountHistory(params?: {
-    currency?: string;
-    from?: number;
-    to?: number;
-    page?: number;
-    limit?: number;
-    type?: string;
-  }): Promise<
-    APIResponse<
-      {
-        id: string;
-        time: number;
-        currency: string;
-        change: string;
-        balance: string;
-        type: string;
-      }[]
-    >
-  > {
+  getCrossMarginAccountHistory(
+    params?: GetCrossMarginAccountHistoryReq,
+  ): Promise<APIResponse<GetCrossMarginAccountHistoryResp[]>> {
     return this.getPrivate('/margin/cross/account_book', params);
   }
 
@@ -2649,37 +1394,11 @@ export class RestClient extends BaseRestClient {
    * Borrow amount cannot be less than currency minimum borrow amount.
    *
    * @param params Parameters for creating a cross margin borrow loan
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   create_time: number;
-   *   update_time: number;
-   *   currency: string;
-   *   amount: string;
-   *   text?: string;
-   *   status: number;
-   *   repaid: string;
-   *   repaid_interest: string;
-   *   unpaid_interest: string;
-   * }>>
+   * @returns Promise<APIResponse<SubmitCrossMarginBorrowLoanResp>>
    */
-  submitCrossMarginBorrowLoan(body: {
-    currency: string;
-    amount: string;
-    text?: string;
-  }): Promise<
-    APIResponse<{
-      id: string;
-      create_time: number;
-      update_time: number;
-      currency: string;
-      amount: string;
-      text?: string;
-      status: number;
-      repaid: string;
-      repaid_interest: string;
-      unpaid_interest: string;
-    }>
-  > {
+  submitCrossMarginBorrowLoan(
+    body: SubmitCrossMarginBorrowLoanReq,
+  ): Promise<APIResponse<SubmitCrossMarginBorrowLoanResp>> {
     return this.postPrivate('/margin/cross/loans', { body });
   }
 
@@ -2689,41 +1408,11 @@ export class RestClient extends BaseRestClient {
    * Sort by creation time in descending order by default. Set reverse=false to return ascending results.
    *
    * @param params Parameters for listing cross margin borrow history
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   create_time: number;
-   *   update_time: number;
-   *   currency: string;
-   *   amount: string;
-   *   text: string;
-   *   status: number;
-   *   repaid: string;
-   *   repaid_interest: string;
-   *   unpaid_interest: string;
-   * }[]>>
+   * @returns Promise<APIResponse<SubmitCrossMarginBorrowLoanResp[]>>
    */
-  getCrossMarginBorrowHistory(params: {
-    status: number;
-    currency?: string;
-    limit?: number;
-    offset?: number;
-    reverse?: boolean;
-  }): Promise<
-    APIResponse<
-      {
-        id: string;
-        create_time: number;
-        update_time: number;
-        currency: string;
-        amount: string;
-        text: string;
-        status: number;
-        repaid: string;
-        repaid_interest: string;
-        unpaid_interest: string;
-      }[]
-    >
-  > {
+  getCrossMarginBorrowHistory(
+    params: GetCrossMarginBorrowHistoryReq,
+  ): Promise<APIResponse<SubmitCrossMarginBorrowLoanResp[]>> {
     return this.getPrivate('/margin/cross/loans', params);
   }
 
@@ -2731,33 +1420,11 @@ export class RestClient extends BaseRestClient {
    * Retrieve single borrow loan detail
    *
    * @param params Parameters containing the borrow loan ID
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   create_time: number;
-   *   update_time: number;
-   *   currency: string;
-   *   amount: string;
-   *   text: string;
-   *   status: number;
-   *   repaid: string;
-   *   repaid_interest: string;
-   *   unpaid_interest: string;
-   * }>>
+   * @returns Promise<APIResponse<SubmitCrossMarginBorrowLoanResp>>
    */
-  getCrossMarginBorrowLoan(params: { loan_id: string }): Promise<
-    APIResponse<{
-      id: string;
-      create_time: number;
-      update_time: number;
-      currency: string;
-      amount: string;
-      text: string;
-      status: number;
-      repaid: string;
-      repaid_interest: string;
-      unpaid_interest: string;
-    }>
-  > {
+  getCrossMarginBorrowLoan(params: {
+    loan_id: string;
+  }): Promise<APIResponse<SubmitCrossMarginBorrowLoanResp>> {
     return this.getPrivate(`/margin/cross/loans/${params.loan_id}`);
   }
   /**
@@ -2766,38 +1433,12 @@ export class RestClient extends BaseRestClient {
    * When the liquidity of the currency is insufficient and the transaction risk is high, the currency will be disabled, and funds cannot be transferred. When the available balance of cross-margin is insufficient, the balance of the spot account can be used for repayment. Please ensure that the balance of the spot account is sufficient, and system uses cross-margin account for repayment first.
    *
    * @param params Parameters for cross margin repayments
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   create_time: number;
-   *   update_time: number;
-   *   currency: string;
-   *   amount: string;
-   *   text?: string;
-   *   status: number;
-   *   repaid: string;
-   *   repaid_interest: string;
-   *   unpaid_interest: string;
-   * }[]>>
+   * @returns Promise<APIResponse<SubmitCrossMarginBorrowLoanResp[]>>
    */
   submitCrossMarginRepayment(body: {
     currency: string;
     amount: string;
-  }): Promise<
-    APIResponse<
-      {
-        id: string;
-        create_time: number;
-        update_time: number;
-        currency: string;
-        amount: string;
-        text?: string;
-        status: number;
-        repaid: string;
-        repaid_interest: string;
-        unpaid_interest: string;
-      }[]
-    >
-  > {
+  }): Promise<APIResponse<SubmitCrossMarginBorrowLoanResp[]>> {
     return this.postPrivate('/margin/cross/repayments', { body });
   }
 
@@ -2807,35 +1448,11 @@ export class RestClient extends BaseRestClient {
    * Sort by creation time in descending order by default. Set reverse=false to return ascending results.
    *
    * @param params Parameters for retrieving cross margin repayments
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   create_time: number;
-   *   loan_id: string;
-   *   currency: string;
-   *   principal: string;
-   *   interest: string;
-   *   repayment_type: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetCrossMarginRepaymentsResp[]>>
    */
-  getCrossMarginRepayments(params?: {
-    currency?: string;
-    loan_id?: string;
-    limit?: number;
-    offset?: number;
-    reverse?: boolean;
-  }): Promise<
-    APIResponse<
-      {
-        id: string;
-        create_time: number;
-        loan_id: string;
-        currency: string;
-        principal: string;
-        interest: string;
-        repayment_type: string;
-      }[]
-    >
-  > {
+  getCrossMarginRepayments(
+    params?: GetCrossMarginRepaymentsReq,
+  ): Promise<APIResponse<GetCrossMarginAccountResp[]>> {
     return this.getPrivate('/margin/cross/repayments', params);
   }
 
@@ -2843,35 +1460,11 @@ export class RestClient extends BaseRestClient {
    * Interest records for the cross margin account
    *
    * @param params Parameters for retrieving interest records
-   * @returns Promise<APIResponse<{
-   *   currency: string;
-   *   currency_pair: string;
-   *   actual_rate: string;
-   *   interest: string;
-   *   status: number;
-   *   type: string;
-   *   create_time: number;
-   * }[]>>
+   * @returns Promise<APIResponse<GetCrossMarginInterestRecordsResp[]>>
    */
-  getCrossMarginInterestRecords(params?: {
-    currency?: string;
-    page?: number;
-    limit?: number;
-    from?: number;
-    to?: number;
-  }): Promise<
-    APIResponse<
-      {
-        currency: string;
-        currency_pair: string;
-        actual_rate: string;
-        interest: string;
-        status: number;
-        type: string;
-        create_time: number;
-      }[]
-    >
-  > {
+  getCrossMarginInterestRecords(
+    params?: GetCrossMarginInterestRecordsReq,
+  ): Promise<APIResponse<GetCrossMarginInterestRecordsReq[]>> {
     return this.getPrivate('/margin/cross/interest_records', params);
   }
 
@@ -2899,11 +1492,11 @@ export class RestClient extends BaseRestClient {
    * Please note that the interest rates are subject to change based on the borrowing and lending demand, and therefore, the provided rates may not be entirely accurate.
    *
    * @param params Parameters for retrieving estimated interest rates
-   * @returns Promise<APIResponse<Record<string, string>>>
+   * @returns Promise<APIResponse<any>>
    */
   getEstimatedInterestRates(params: {
     currencies: string[];
-  }): Promise<APIResponse<Record<string, string>>> {
+  }): Promise<APIResponse<any>> {
     return this.getPrivate('/margin/cross/estimate_rate', params);
   }
 

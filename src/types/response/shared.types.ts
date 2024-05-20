@@ -1,3 +1,5 @@
+import { Order } from '../shared';
+
 export interface APIResponse<TData = {}> {
   success: boolean;
   data: TData;
@@ -387,3 +389,269 @@ export interface GetSpotTickerResp {
   etf_pre_timestamp: number | null;
   etf_leverage: string | null;
 }
+
+export interface GetSpotOrderBookResp {
+  id?: number;
+  current: number;
+  update: number;
+  asks: [string, string][];
+  bids: [string, string][];
+}
+
+export interface GetSpotTradesResp {
+  id: string;
+  create_time: string;
+  create_time_ms: string;
+  currency_pair: string;
+  side: 'buy' | 'sell';
+  role: 'taker' | 'maker';
+  amount: string;
+  price: string;
+  order_id: string;
+  fee: string;
+  fee_currency: string;
+  point_fee: string;
+  gt_fee: string;
+  amend_text: string;
+  sequence_id: string;
+  text: string;
+}
+
+export type GetSpotCandlesticksResp = [
+  [
+    string, // Unix timestamp with second precision
+    string, // Trading volume in quote currency
+    string, // Closing price
+    string, // Highest price
+    string, // Lowest price
+    string, // Opening price
+    string, // Trading volume in base currency
+    boolean, // Whether the window is closed
+  ],
+];
+
+export interface GetSpotFeeRatesResp {
+  user_id: number;
+  taker_fee: string;
+  maker_fee: string;
+  gt_discount: boolean;
+  gt_taker_fee: string;
+  gt_maker_fee: string;
+  loan_fee: string;
+  point_type: string;
+  currency_pair: string;
+  debit_fee: number;
+}
+
+export interface GetSpotBatchFeeRatesResp {
+  [key: string]: {
+    user_id: number;
+    taker_fee: string;
+    maker_fee: string;
+    gt_discount: boolean;
+    gt_taker_fee: string;
+    gt_maker_fee: string;
+    loan_fee: string;
+    point_type: string;
+    currency_pair: string;
+    debit_fee: number;
+  };
+}
+
+export interface GetSpotAccountsResp {
+  currency: string;
+  available: string;
+  locked: string;
+  update_id: number;
+}
+
+export interface GetSpotAccountBookResp {
+  id: string;
+  time: number;
+  currency: string;
+  change: string;
+  balance: string;
+  type: string;
+  text: string;
+}
+
+export interface SubmitSpotBatchOrdersResp {
+  order_id: string;
+  amend_text: string;
+  text: string;
+  succeeded: boolean;
+  label: string;
+  message: string;
+  id: string;
+  create_time: string;
+  update_time: string;
+  create_time_ms: number;
+  update_time_ms: number;
+  status: 'open' | 'closed' | 'cancelled';
+  currency_pair: string;
+  type: 'limit' | 'market';
+  account: 'spot' | 'margin' | 'cross_margin' | 'unified';
+  side: 'buy' | 'sell';
+  amount: string;
+  price: string;
+  time_in_force: 'gtc' | 'ioc' | 'poc' | 'fok';
+  iceberg: string;
+  auto_repay: boolean;
+  left: string;
+  filled_amount: string;
+  fill_price: string;
+  filled_total: string;
+  avg_deal_price: string;
+  fee: string;
+  fee_currency: string;
+  point_fee: string;
+  gt_fee: string;
+  gt_discount: boolean;
+  rebated_fee: string;
+  rebated_fee_currency: string;
+  stp_id: number;
+  stp_act: 'cn' | 'co' | 'cb' | '-';
+  finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
+}
+
+export interface GetSpotOpenOrdersResp {
+  currency_pair: string;
+  total: number;
+  orders: Order[];
+}
+
+export interface DeleteSpotBatchOrdersResp {
+  currency_pair: string;
+  id: string;
+  succeeded: boolean;
+  label: string;
+  message: string;
+  account: string;
+}
+
+export interface GetSpotTradingHistoryResp {
+  id: string;
+  create_time: string;
+  create_time_ms: string;
+  currency_pair: string;
+  side: 'buy' | 'sell';
+  role: 'taker' | 'maker';
+  amount: string;
+  price: string;
+  order_id: string;
+  fee: string;
+  fee_currency: string;
+  point_fee: string;
+  gt_fee: string;
+  amend_text: string;
+  sequence_id: string;
+  text: string;
+}
+
+/**==========================================================================================================================
+ * MARGIN
+ * ==========================================================================================================================
+ */
+
+export interface GetMarginAccountsResp {
+  currency_pair: string;
+  locked: boolean;
+  risk: string;
+  base: {
+    currency: string;
+    available: string;
+    locked: string;
+    borrowed: string;
+    interest: string;
+  };
+  quote: {
+    currency: string;
+    available: string;
+    locked: string;
+    borrowed: string;
+    interest: string;
+  };
+}
+
+export interface GetMarginBalanceHistoryResp {
+  id: string;
+  time: string;
+  time_ms: number;
+  currency: string;
+  currency_pair: string;
+  change: string;
+  balance: string;
+  type: string;
+}
+
+export interface GetCrossMarginCurrenciesResp {
+  name: string;
+  rate: string;
+  prec: string;
+  discount: string;
+  min_borrow_amount: string;
+  user_max_borrow_amount: string;
+  total_max_borrow_amount: string;
+  price: string;
+  loanable: boolean;
+  status: number;
+}
+
+export interface GetCrossMarginAccountResp {
+  user_id: number;
+  refresh_time: number;
+  locked: boolean;
+  balances: {
+    [currency: string]: {
+      available: string;
+      freeze: string;
+      borrowed: string;
+      interest: string;
+      negative_liab: string;
+      futures_pos_liab: string;
+      equity: string;
+      total_freeze: string;
+      total_liab: string;
+    };
+  };
+  total: string;
+  borrowed: string;
+  interest: string;
+  risk: string;
+  total_initial_margin: string;
+  total_margin_balance: string;
+  total_maintenance_margin: string;
+  total_initial_margin_rate: string;
+  total_maintenance_margin_rate: string;
+  total_available_margin: string;
+  portfolio_margin_total: string;
+  portfolio_margin_total_liab: string;
+  portfolio_margin_total_equity: string;
+}
+
+export interface GetCrossMarginAccountHistoryResp {
+  id: string;
+  time: number;
+  currency: string;
+  change: string;
+  balance: string;
+  type: string;
+}
+
+export interface SubmitCrossMarginBorrowLoanResp {
+  id: string;
+  create_time: number;
+  update_time: number;
+  currency: string;
+  amount: string;
+  text?: string;
+  status: number;
+  repaid: string;
+  repaid_interest: string;
+  unpaid_interest: string;
+}
+
+/**==========================================================================================================================
+ * MARGIN UNI
+ * ==========================================================================================================================
+ */
