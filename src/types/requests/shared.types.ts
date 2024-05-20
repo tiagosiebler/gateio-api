@@ -26,3 +26,31 @@ export interface GetSmallBalanceHistoryReq {
   page?: number;
   limit?: number;
 }
+
+export interface SubmitUnifiedBorrowOrRepayReq {
+  currency: string;
+  type: 'borrow' | 'repay';
+  amount: string;
+  repaid_all?: boolean;
+  text?: string;
+}
+
+export interface GetUnifiedLoansReq {
+  currency?: string;
+  page?: number;
+  limit?: number;
+  type?: 'platform' | 'margin';
+}
+
+export interface GetUnifiedLoanRecordsReq {
+  type?: 'borrow' | 'repay';
+  currency?: string;
+  page?: number;
+  limit?: number;
+}
+export interface GetUnifiedInterestRecordsReq {
+  currency?: string;
+  page?: number;
+  limit?: number;
+  type?: 'platform' | 'margin';
+}

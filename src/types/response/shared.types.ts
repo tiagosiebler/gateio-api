@@ -195,3 +195,100 @@ export interface GetSmallBalanceHistoryResp {
   gt_amount: string;
   create_time: number;
 }
+
+export interface SubAccountResp {
+  remark?: string;
+  login_name: string;
+  password?: string;
+  email?: string;
+  state: number;
+  type: number;
+  user_id: number;
+  create_time: number;
+}
+
+export interface CreateSubAccountApiKeyResp {
+  user_id: string;
+  mode?: number;
+  name?: string;
+  perms?: {
+    name?:
+      | 'wallet'
+      | 'spot'
+      | 'futures'
+      | 'delivery'
+      | 'earn'
+      | 'options'
+      | 'account'
+      | 'unified'
+      | 'loan';
+    read_only?: boolean;
+  }[];
+  ip_whitelist?: string[];
+  key: string;
+  state: number;
+  created_at: number;
+  updated_at: number;
+  last_access: number;
+}
+
+export interface GetUnifiedAccountInfoResp {
+  user_id: number;
+  refresh_time: number;
+  locked: boolean;
+  balances: {
+    [key: string]: {
+      available: string;
+      freeze: string;
+      borrowed: string;
+      negative_liab: string;
+      futures_pos_liab: string;
+      equity: string;
+      total_freeze: string;
+      total_liab: string;
+      spot_in_use: string;
+    };
+  };
+  total: string;
+  borrowed: string;
+  total_initial_margin: string;
+  total_margin_balance: string;
+  total_maintenance_margin: string;
+  total_initial_margin_rate: string;
+  total_maintenance_margin_rate: string;
+  total_available_margin: string;
+  unified_account_total: string;
+  unified_account_total_liab: string;
+  unified_account_total_equity: string;
+  leverage: string;
+  spot_order_loss: string;
+  spot_hedge: boolean;
+}
+
+export interface GetUnifiedLoansResp {
+  currency: string;
+  currency_pair: string;
+  amount: string;
+  type: 'platform' | 'margin';
+  create_time: number;
+  update_time: number;
+}
+
+export interface GetUnifiedLoanRecordsResp {
+  id: number;
+  type: 'borrow' | 'repay';
+  repayment_type: 'none' | 'manual_repay' | 'auto_repay' | 'cancel_auto_repay';
+  currency_pair: string;
+  currency: string;
+  amount: string;
+  create_time: number;
+}
+export interface GetUnifiedInterestRecordsResp {
+  currency: string;
+  currency_pair: string;
+  actual_rate: string;
+  interest: string;
+  status: number;
+  type: 'platform' | 'margin';
+  create_time: number;
+}
