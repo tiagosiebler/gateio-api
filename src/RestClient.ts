@@ -1,4 +1,11 @@
 import { AxiosRequestConfig } from 'axios';
+
+import {
+  BaseRestClient,
+  REST_CLIENT_TYPE_ENUM,
+  RestClientType,
+} from './lib/BaseRestClient.js';
+import { RestClientOptions } from './lib/requestUtils.js';
 import {
   GetMainSubTransfersReq,
   GetSavedAddressReq,
@@ -7,15 +14,10 @@ import {
   GetUnifiedLoanRecordsReq,
   GetUnifiedLoansReq,
   GetWithdrawalDepositRecordsReq,
+  PortfolioMarginCalculatorReq,
+  SetUnifiedAccountModeReq,
   SubmitUnifiedBorrowOrRepayReq,
-} from 'types/requests/shared.types.js';
-
-import {
-  BaseRestClient,
-  REST_CLIENT_TYPE_ENUM,
-  RestClientType,
-} from './lib/BaseRestClient.js';
-import { RestClientOptions } from './lib/requestUtils.js';
+} from './types/requests/shared.types.js';
 import {
   APIResponse,
   CreateDepositAddressResp,
@@ -25,12 +27,17 @@ import {
   GetSavedAddressResp,
   GetSmallBalanceHistoryResp,
   GetSmallBalancesResp,
+  GetSpotCurrenciesResp,
+  GetSpotTickerResp,
   GetTradingFeesResp,
   GetUnifiedAccountInfoResp,
+  GetUnifiedCurrencyDiscountTiersResp,
   GetUnifiedInterestRecordsResp,
   GetUnifiedLoanRecordsResp,
   GetUnifiedLoansResp,
+  GetUnifiedRiskUnitDetailsResp,
   GetWithdrawalStatusResp,
+  PortfolioMarginCalculatorResp,
   SubAccountCrossMarginBalancesResp,
   SubAccountFuturesBalancesResp,
   SubAccountMarginBalancesResp,
@@ -967,36 +974,10 @@ export class RestClient extends BaseRestClient {
   /**
    * Retrieve user risk unit details, only valid in portfolio margin mode
    *
-   * @returns Promise<APIResponse<{
-   *   user_id: number;
-   *   spot_hedge: boolean;
-   *   risk_units: {
-   *     symbol: string;
-   *     spot_in_use: string;
-   *     maintain_margin: string;
-   *     initial_margin: string;
-   *     delta: string;
-   *     gamma: string;
-   *     theta: string;
-   *     vega: string;
-   *   }[];
-   * }>>
+   * @returns Promise<APIResponse<GetUnifiedRiskUnitDetailsResp>>
    */
   getUnifiedRiskUnitDetails(): Promise<
-    APIResponse<{
-      user_id: number;
-      spot_hedge: boolean;
-      risk_units: {
-        symbol: string;
-        spot_in_use: string;
-        maintain_margin: string;
-        initial_margin: string;
-        delta: string;
-        gamma: string;
-        theta: string;
-        vega: string;
-      }[];
-    }>
+    APIResponse<GetUnifiedRiskUnitDetailsResp>
   > {
     return this.getPrivate('/unified/risk_units');
   }
@@ -1009,13 +990,9 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for setting the mode of the unified account
    * @returns Promise<APIResponse<void>>
    */
-  setUnifiedAccountMode(body: {
-    mode: 'classic' | 'multi_currency' | 'portfolio';
-    settings?: {
-      usdt_futures?: boolean;
-      spot_hedge?: boolean;
-    };
-  }): Promise<APIResponse<void>> {
+  setUnifiedAccountMode(
+    body: SetUnifiedAccountModeReq,
+  ): Promise<APIResponse<void>> {
     return this.putPrivate('/unified/unified_mode', body);
   }
 
@@ -1030,15 +1007,7 @@ export class RestClient extends BaseRestClient {
    *   };
    * }>>
    */
-  getUnifiedAccountMode(): Promise<
-    APIResponse<{
-      mode: 'classic' | 'multi_currency' | 'portfolio';
-      settings: {
-        usdt_futures?: boolean;
-        spot_hedge?: boolean;
-      };
-    }>
-  > {
+  getUnifiedAccountMode(): Promise<APIResponse<SetUnifiedAccountModeReq>> {
     return this.getPrivate('/unified/unified_mode');
   }
 
@@ -1059,28 +1028,10 @@ export class RestClient extends BaseRestClient {
   /**
    * List currency discount tiers
    *
-   * @returns Promise<APIResponse<{
-   *   currency: string;
-   *   discount_tiers: {
-   *     tier: string;
-   *     discount: string;
-   *     lower_limit: string;
-   *     upper_limit: string;
-   *   }[];
-   * }[]>>
+   * @returns Promise<APIResponse<GetUnifiedCurrencyDiscountTiersResp[]>>
    */
   getUnifiedCurrencyDiscountTiers(): Promise<
-    APIResponse<
-      {
-        currency: string;
-        discount_tiers: {
-          tier: string;
-          discount: string;
-          lower_limit: string;
-          upper_limit: string;
-        }[];
-      }[]
-    >
+    APIResponse<GetUnifiedCurrencyDiscountTiersResp[]>
   > {
     return this.get('/unified/currency_discount_tiers');
   }
@@ -1091,107 +1042,11 @@ export class RestClient extends BaseRestClient {
    * Portfolio Margin Calculator When inputting a simulated position portfolio, each position includes the position name and quantity held, supporting markets within the range of BTC and ETH perpetual contracts, options, and spot markets. When inputting simulated orders, each order includes the market identifier, order price, and order quantity, supporting markets within the range of BTC and ETH perpetual contracts, options, and spot markets. Market orders are not included.
    *
    * @param params Parameters for portfolio margin calculator
-   * @returns Promise<APIResponse<{
-   *   maintain_margin_total: string;
-   *   initial_margin_total: string;
-   *   calculate_time: number;
-   *   risk_unit: {
-   *     symbol: string;
-   *     spot_in_use: string;
-   *     maintain_margin: string;
-   *     initial_margin: string;
-   *     margin_result: {
-   *       type: 'original_position' | 'long_delta_original_position' | 'short_delta_original_position';
-   *       profit_loss_ranges: {
-   *         price_percentage: string;
-   *         implied_volatility_percentage: string;
-   *         profit_loss: string;
-   *       }[];
-   *       max_loss: {
-   *         price_percentage: string;
-   *         implied_volatility_percentage: string;
-   *         profit_loss: string;
-   *       };
-   *       mr1: string;
-   *       mr2: string;
-   *       mr3: string;
-   *       mr4: string;
-   *       delta: string;
-   *       gamma: string;
-   *       theta: string;
-   *       vega: string;
-   *     }[];
-   *   }[];
-   * }>>
+   * @returns Promise<APIResponse<PortfolioMarginCalculatorResp>>
    */
-  portfolioMarginCalculator(body: {
-    spot_balances?: {
-      currency: string;
-      equity: string;
-    }[];
-    spot_orders?: {
-      currency_pairs: string;
-      order_price: string;
-      count?: string;
-      left: string;
-      type: 'sell' | 'buy';
-    }[];
-    futures_positions?: {
-      contract: string;
-      size: string;
-    }[];
-    futures_orders?: {
-      contract: string;
-      size: string;
-      left: string;
-    }[];
-    options_positions?: {
-      options_name: string;
-      size: string;
-    }[];
-    options_orders?: {
-      options_name: string;
-      size: string;
-      left: string;
-    }[];
-    spot_hedge?: boolean;
-  }): Promise<
-    APIResponse<{
-      maintain_margin_total: string;
-      initial_margin_total: string;
-      calculate_time: number;
-      risk_unit: {
-        symbol: string;
-        spot_in_use: string;
-        maintain_margin: string;
-        initial_margin: string;
-        margin_result: {
-          type:
-            | 'original_position'
-            | 'long_delta_original_position'
-            | 'short_delta_original_position';
-          profit_loss_ranges: {
-            price_percentage: string;
-            implied_volatility_percentage: string;
-            profit_loss: string;
-          }[];
-          max_loss: {
-            price_percentage: string;
-            implied_volatility_percentage: string;
-            profit_loss: string;
-          };
-          mr1: string;
-          mr2: string;
-          mr3: string;
-          mr4: string;
-          delta: string;
-          gamma: string;
-          theta: string;
-          vega: string;
-        }[];
-      }[];
-    }>
-  > {
+  portfolioMarginCalculator(
+    body: PortfolioMarginCalculatorReq,
+  ): Promise<APIResponse<PortfolioMarginCalculatorResp>> {
     return this.post('/unified/portfolio_calculator', body);
   }
 
@@ -1209,31 +1064,9 @@ export class RestClient extends BaseRestClient {
    *
    * The latter one occurs when one currency has multiple chains. Currency detail contains a chain field whatever the form is. To retrieve all chains of one currency, you can use all the details which have the name of the currency or name starting with <currency>_.
    *
-   * @returns Promise<APIResponse<{
-   *   currency: string;
-   *   delisted: boolean;
-   *   withdraw_disabled: boolean;
-   *   withdraw_delayed: boolean;
-   *   deposit_disabled: boolean;
-   *   trade_disabled: boolean;
-   *   fixed_rate: string;
-   *   chain: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetSpotCurrenciesResp[]>>
    */
-  getSpotCurrencies(): Promise<
-    APIResponse<
-      {
-        currency: string;
-        delisted: boolean;
-        withdraw_disabled: boolean;
-        withdraw_delayed: boolean;
-        deposit_disabled: boolean;
-        trade_disabled: boolean;
-        fixed_rate: string;
-        chain: string;
-      }[]
-    >
-  > {
+  getSpotCurrencies(): Promise<APIResponse<GetSpotCurrenciesResp[]>> {
     return this.get('/spot/currencies');
   }
 
@@ -1252,37 +1085,16 @@ export class RestClient extends BaseRestClient {
    *   chain: string;
    * }>>
    */
-  getSpotCurrency(params: { currency: string }): Promise<
-    APIResponse<{
-      currency: string;
-      delisted: boolean;
-      withdraw_disabled: boolean;
-      withdraw_delayed: boolean;
-      deposit_disabled: boolean;
-      trade_disabled: boolean;
-      fixed_rate: string;
-      chain: string;
-    }>
-  > {
+  getSpotCurrency(params: {
+    currency: string;
+  }): Promise<APIResponse<GetSpotCurrenciesResp>> {
     return this.get(`/spot/currencies/${params.currency}`);
   }
 
   /**
    * List all currency pairs supported
    *
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   base: string;
-   *   quote: string;
-   *   fee: string;
-   *   min_quote_amount: string;
-   *   min_base_amount: string;
-   *   amount_precision: number;
-   *   precision: number;
-   *   trade_status: string;
-   *   sell_start: number;
-   *   buy_start: number;
-   * }[]>>
+   * @returns Promise<APIResponse<CurrencyPair[]>>
    */
   getSpotCurrencyPairs(): Promise<APIResponse<CurrencyPair[]>> {
     return this.get('/spot/currency_pairs');
@@ -1292,19 +1104,7 @@ export class RestClient extends BaseRestClient {
    * Get details of a specific currency pair
    *
    * @param params Parameters for retrieving details of a specific currency pair
-   * @returns Promise<APIResponse<{
-   *   id: string;
-   *   base: string;
-   *   quote: string;
-   *   fee: string;
-   *   min_quote_amount: string;
-   *   min_base_amount: string;
-   *   amount_precision: number;
-   *   precision: number;
-   *   trade_status: string;
-   *   sell_start: number;
-   *   buy_start: number;
-   * }>>
+   * @returns Promise<APIResponse<CurrencyPair>>
    */
   getSpotCurrencyPair(params: {
     currency_pair: string;
@@ -1318,48 +1118,12 @@ export class RestClient extends BaseRestClient {
    * Return only related data if currency_pair is specified; otherwise return all of them.
    *
    * @param params Parameters for retrieving ticker information
-   * @returns Promise<APIResponse<{
-   *   currency_pair: string;
-   *   last: string;
-   *   lowest_ask: string;
-   *   highest_bid: string;
-   *   change_percentage: string;
-   *   change_utc0: string;
-   *   change_utc8: string;
-   *   base_volume: string;
-   *   quote_volume: string;
-   *   high_24h: string;
-   *   low_24h: string;
-   *   etf_net_value: string;
-   *   etf_pre_net_value: string | null;
-   *   etf_pre_timestamp: number | null;
-   *   etf_leverage: string | null;
-   * }[]>>
+   * @returns Promise<APIResponse<GetSpotTickerResp[]>>
    */
   getSpotTicker(params?: {
     currency_pair?: string;
     timezone?: 'utc0' | 'utc8' | 'all';
-  }): Promise<
-    APIResponse<
-      {
-        currency_pair: string;
-        last: string;
-        lowest_ask: string;
-        highest_bid: string;
-        change_percentage: string;
-        change_utc0: string;
-        change_utc8: string;
-        base_volume: string;
-        quote_volume: string;
-        high_24h: string;
-        low_24h: string;
-        etf_net_value: string;
-        etf_pre_net_value: string | null;
-        etf_pre_timestamp: number | null;
-        etf_leverage: string | null;
-      }[]
-    >
-  > {
+  }): Promise<APIResponse<GetSpotTickerResp[]>> {
     return this.get('/spot/tickers', params);
   }
 

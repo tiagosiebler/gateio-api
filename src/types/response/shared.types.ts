@@ -292,3 +292,98 @@ export interface GetUnifiedInterestRecordsResp {
   type: 'platform' | 'margin';
   create_time: number;
 }
+
+export interface GetUnifiedRiskUnitDetailsResp {
+  user_id: number;
+  spot_hedge: boolean;
+  risk_units: {
+    symbol: string;
+    spot_in_use: string;
+    maintain_margin: string;
+    initial_margin: string;
+    delta: string;
+    gamma: string;
+    theta: string;
+    vega: string;
+  }[];
+}
+
+export interface GetUnifiedCurrencyDiscountTiersResp {
+  currency: string;
+  discount_tiers: {
+    tier: string;
+    discount: string;
+    lower_limit: string;
+    upper_limit: string;
+  }[];
+}
+
+export interface PortfolioMarginCalculatorResp {
+  maintain_margin_total: string;
+  initial_margin_total: string;
+  calculate_time: number;
+  risk_unit: {
+    symbol: string;
+    spot_in_use: string;
+    maintain_margin: string;
+    initial_margin: string;
+    margin_result: {
+      type:
+        | 'original_position'
+        | 'long_delta_original_position'
+        | 'short_delta_original_position';
+      profit_loss_ranges: {
+        price_percentage: string;
+        implied_volatility_percentage: string;
+        profit_loss: string;
+      }[];
+      max_loss: {
+        price_percentage: string;
+        implied_volatility_percentage: string;
+        profit_loss: string;
+      };
+      mr1: string;
+      mr2: string;
+      mr3: string;
+      mr4: string;
+      delta: string;
+      gamma: string;
+      theta: string;
+      vega: string;
+    }[];
+  }[];
+}
+
+/**==========================================================================================================================
+ * SPOT
+ * ==========================================================================================================================
+ */
+
+export interface GetSpotCurrenciesResp {
+  currency: string;
+  delisted: boolean;
+  withdraw_disabled: boolean;
+  withdraw_delayed: boolean;
+  deposit_disabled: boolean;
+  trade_disabled: boolean;
+  fixed_rate: string;
+  chain: string;
+}
+
+export interface GetSpotTickerResp {
+  currency_pair: string;
+  last: string;
+  lowest_ask: string;
+  highest_bid: string;
+  change_percentage: string;
+  change_utc0: string;
+  change_utc8: string;
+  base_volume: string;
+  quote_volume: string;
+  high_24h: string;
+  low_24h: string;
+  etf_net_value: string;
+  etf_pre_net_value: string | null;
+  etf_pre_timestamp: number | null;
+  etf_leverage: string | null;
+}
