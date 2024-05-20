@@ -4146,9 +4146,13 @@ export class RestClient extends BaseRestClient {
     leverage: string;
     cross_leverage_limit?: string;
   }): Promise<APIResponse<Position>> {
+    const paramsAsQuery = true;
+
+    const { settle, contract, ...remainingParams } = params;
     return this.postPrivate(
-      `/futures/${params.settle}/positions/${params.contract}/leverage`,
-      params,
+      `/futures/${settle}/positions/${contract}/leverage`,
+      remainingParams,
+      paramsAsQuery,
     );
   }
 
