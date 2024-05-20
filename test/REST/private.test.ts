@@ -56,7 +56,7 @@ describe('REST PRIVATE', () => {
 
       test('with params as request body', async () => {
         try {
-          const res = await rest.getSubToSubTransfer({
+          const res = await rest.submitSubToSubTransfer({
             currency: 'BTC',
             sub_account_from: 'notReal1',
             sub_account_from_type: 'spot',
