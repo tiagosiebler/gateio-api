@@ -304,7 +304,7 @@ export abstract class BaseRestClient {
               res.originalParams,
               strictParamValidation,
               encodeQueryStringValues,
-              '?',
+              '',
             )
           : JSON.stringify(res.originalParams) || '';
 
@@ -443,7 +443,7 @@ export abstract class BaseRestClient {
           ...authHeaders,
           ...options.headers,
         },
-        url: options.url + signResult.queryParamsWithSign,
+        url: options.url + '?' + signResult.queryParamsWithSign,
       };
     }
 
