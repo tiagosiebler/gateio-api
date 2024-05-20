@@ -583,3 +583,16 @@ export interface GetMarginBalanceHistoryResp {
   balance: string;
   type: string;
 }
+
+export interface GetCrossMarginCurrenciesResp {
+  name: string;
+  rate: string;
+  prec: string;
+  discount: string;
+  min_borrow_amount: string;
+  user_max_borrow_amount: string;
+  total_max_borrow_amount: string;
+  price: string;
+  loanable: boolean;
+  status: number;
+}

@@ -40,6 +40,7 @@ import {
   CreateSubAccountApiKeyResp,
   DeleteSpotBatchOrdersResp,
   GetBalancesResp,
+  GetCrossMarginCurrenciesResp,
   GetCurrencyChainsResp,
   GetMarginAccountsResp,
   GetMarginBalanceHistoryResp,
@@ -1327,34 +1328,10 @@ export class RestClient extends BaseRestClient {
   /**
    * Currencies supported by cross margin
    *
-   * @returns Promise<APIResponse<{
-   *   name: string;
-   *   rate: string;
-   *   prec: string;
-   *   discount: string;
-   *   min_borrow_amount: string;
-   *   user_max_borrow_amount: string;
-   *   total_max_borrow_amount: string;
-   *   price: string;
-   *   loanable: boolean;
-   *   status: number;
-   * }[]>>
+   * @returns Promise<APIResponse<GetCrossMarginCurrenciesResp[]>>
    */
   getCrossMarginCurrencies(): Promise<
-    APIResponse<
-      {
-        name: string;
-        rate: string;
-        prec: string;
-        discount: string;
-        min_borrow_amount: string;
-        user_max_borrow_amount: string;
-        total_max_borrow_amount: string;
-        price: string;
-        loanable: boolean;
-        status: number;
-      }[]
-    >
+    APIResponse<GetCrossMarginCurrenciesResp[]>
   > {
     return this.get('/margin/cross/currencies');
   }
