@@ -129,7 +129,7 @@ export class RestClient extends BaseRestClient {
    * @param params Withdrawal parameters
    * @returns Promise<APIResponse<Withdraw>>
    */
-  submitWithdraw(body: {
+  submitWithdraw(params: {
     withdraw_order_id?: string;
     amount: string;
     currency: string;
@@ -137,7 +137,7 @@ export class RestClient extends BaseRestClient {
     memo?: string;
     chain: string;
   }): Promise<APIResponse<Withdraw>> {
-    return this.postPrivate('/withdrawals', { body });
+    return this.postPrivate('/withdrawals', { query: params });
   }
 
   /**
@@ -1029,7 +1029,7 @@ export class RestClient extends BaseRestClient {
     account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
     action_mode?: 'ACK' | 'RESULT' | 'FULL';
   }): Promise<APIResponse<Order[]>> {
-    return this.deletePrivate('/spot/orders', { body: params });
+    return this.deletePrivate('/spot/orders', { query: params });
   }
 
   /**
@@ -1104,7 +1104,7 @@ export class RestClient extends BaseRestClient {
    */
   deleteSpotOrder(params: DeleteSpotOrderReq): Promise<APIResponse<Order>> {
     return this.deletePrivate(`/spot/orders/${params.order_id}`, {
-      body: params,
+      query: params,
     });
   }
 
@@ -1212,7 +1212,7 @@ export class RestClient extends BaseRestClient {
     market?: string;
     account?: 'normal' | 'margin' | 'cross_margin';
   }): Promise<APIResponse<SpotPriceTriggeredOrder[]>> {
-    return this.deletePrivate('/spot/price_orders', { body: params });
+    return this.deletePrivate('/spot/price_orders', { query: params });
   }
 
   /**
@@ -1237,7 +1237,7 @@ export class RestClient extends BaseRestClient {
     order_id: string;
   }): Promise<APIResponse<SpotPriceTriggeredOrder>> {
     return this.deletePrivate(`/spot/price_orders/${params.order_id}`, {
-      body: params,
+      query: params,
     });
   }
 
@@ -2497,7 +2497,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<Position>> {
     return this.postPrivate(
       `/futures/${params.settle}/positions/${params.contract}/margin`,
-      { body: params },
+      { query: params },
     );
   }
 
@@ -2533,7 +2533,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<Position>> {
     return this.postPrivate(
       `/futures/${params.settle}/positions/${params.contract}/risk_limit`,
-      { body: params },
+      { query: params },
     );
   }
 
@@ -2604,7 +2604,7 @@ export class RestClient extends BaseRestClient {
     }>
   > {
     return this.postPrivate(`/futures/${params.settle}/dual_mode`, {
-      body: params,
+      query: params,
     });
   }
 
@@ -2638,7 +2638,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<Position[]>> {
     return this.postPrivate(
       `/futures/${params.settle}/dual_comp/positions/${params.contract}/margin`,
-      { body: params },
+      { query: params },
     );
   }
 
@@ -2656,7 +2656,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<Position[]>> {
     return this.postPrivate(
       `/futures/${params.settle}/dual_comp/positions/${params.contract}/leverage`,
-      { body: params },
+      { query: params },
     );
   }
 
@@ -2673,7 +2673,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<Position[]>> {
     return this.postPrivate(
       `/futures/${params.settle}/dual_comp/positions/${params.contract}/risk_limit`,
-      { body: params },
+      { query: params },
     );
   }
 
@@ -2733,7 +2733,7 @@ export class RestClient extends BaseRestClient {
     side?: string;
   }): Promise<APIResponse<FuturesOrder[]>> {
     return this.deletePrivate(`/futures/${params.settle}/orders`, {
-      body: params,
+      query: params,
     });
   }
 
@@ -3190,7 +3190,7 @@ export class RestClient extends BaseRestClient {
     contract: string;
   }): Promise<APIResponse<FuturesPriceTriggeredOrder[]>> {
     return this.deletePrivate(`/futures/${params.settle}/price_orders`, {
-      body: params,
+      query: params,
     });
   }
 
@@ -3222,7 +3222,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<FuturesPriceTriggeredOrder>> {
     return this.deletePrivate(
       `/futures/${params.settle}/price_orders/${params.order_id}`,
-      { body: params },
+      { query: params },
     );
   }
   /**==========================================================================================================================
@@ -3621,7 +3621,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<Position>> {
     return this.postPrivate(
       `/delivery/${params.settle}/positions/${params.contract}/margin`,
-      { body: params },
+      { query: params },
     );
   }
 
@@ -3638,7 +3638,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<Position>> {
     return this.postPrivate(
       `/delivery/${params.settle}/positions/${params.contract}/leverage`,
-      { body: params },
+      { query: params },
     );
   }
 
@@ -3655,7 +3655,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<Position>> {
     return this.postPrivate(
       `/delivery/${params.settle}/positions/${params.contract}/risk_limit`,
-      { body: params },
+      { query: params },
     );
   }
 
@@ -3710,7 +3710,7 @@ export class RestClient extends BaseRestClient {
     side?: 'ask' | 'bid';
   }): Promise<APIResponse<FuturesOrder[]>> {
     return this.deletePrivate(`/delivery/${params.settle}/orders`, {
-      body: params,
+      query: params,
     });
   }
 
@@ -3963,7 +3963,7 @@ export class RestClient extends BaseRestClient {
     contract: string;
   }): Promise<APIResponse<FuturesPriceTriggeredOrder[]>> {
     return this.deletePrivate(`/delivery/${params.settle}/price_orders`, {
-      body: params,
+      query: params,
     });
   }
 
@@ -4895,7 +4895,7 @@ export class RestClient extends BaseRestClient {
       }[]
     >
   > {
-    return this.deletePrivate(`/options/orders`, { body: params });
+    return this.deletePrivate(`/options/orders`, { query: params });
   }
 
   /**
@@ -5184,7 +5184,7 @@ export class RestClient extends BaseRestClient {
     currency?: string;
     min_rate?: string;
   }): Promise<APIResponse<void>> {
-    return this.patchPrivate(`/earn/uni/lends`, { body: params });
+    return this.patchPrivate(`/earn/uni/lends`, { query: params });
   }
 
   /**
@@ -6517,7 +6517,7 @@ export class RestClient extends BaseRestClient {
     >
   > {
     return this.deletePrivate(`/account/stp_groups/${params.stp_id}/users`, {
-      body: params,
+      query: params,
     });
   }
 
