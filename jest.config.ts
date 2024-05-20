@@ -53,6 +53,8 @@ const config: Config = {
   // Make calling deprecated APIs throw helpful error messages
   // errorOnDeprecated: false,
 
+  extensionsToTreatAsEsm: ['.ts'],
+
   // The default configuration for fake timers
   // fakeTimers: {
   //   "enableGlobally": false
@@ -95,6 +97,9 @@ const config: Config = {
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   // moduleNameMapper: {},
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],
@@ -184,10 +189,11 @@ const config: Config = {
   // transform: undefined,
 
   transform: {
-    '^.+\\.(t|j)s$': [
+    '^.+\\.m?[tj]sx?$': [
       'ts-jest',
       {
         tsconfig: 'test/tsconfig.test.json',
+        useESM: true,
       },
     ],
   },
