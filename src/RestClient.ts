@@ -1,6 +1,7 @@
 // double check if schemas are requests
 // double check if names are set to what the call represents(get, delete, update etc...)
 // check where query params and body is as it should be
+// check all inputs where we have a link
 
 import { AxiosRequestConfig } from 'axios';
 
@@ -11,6 +12,7 @@ import {
 } from './lib/BaseRestClient.js';
 import { RestClientOptions } from './lib/requestUtils.js';
 import {
+  CreateSubAccountApiKeyReq,
   DeleteSpotOrderReq,
   GetCrossMarginAccountHistoryReq,
   GetCrossMarginBorrowHistoryReq,
@@ -38,6 +40,8 @@ import {
   SubmitSpotOrderReq,
   SubmitUnifiedBorrowOrRepayReq,
   UpdateSpotBatchOrdersReq,
+  UpdateSpotOrderReq,
+  UpdateSubAccountApiKeyReq,
 } from './types/requests/shared.types.js';
 import {
   APIResponse,
@@ -236,7 +240,7 @@ export class RestClient extends BaseRestClient {
     currency_pair?: string;
     settle?: string;
   }): Promise<APIResponse<{ tx_id: number }>> {
-    return this.postPrivate('/wallet/transfers', { body });
+    return this.postPrivate('/wallet/transfers', { body: body });
   }
 
   /**
@@ -255,7 +259,7 @@ export class RestClient extends BaseRestClient {
     client_order_id?: string;
     sub_account_type?: 'spot' | 'futures' | 'cross_margin' | 'delivery';
   }): Promise<APIResponse<any>> {
-    return this.postPrivate('/wallet/sub_account_transfers', { body });
+    return this.postPrivate('/wallet/sub_account_transfers', { body: body });
   }
 
   /**
@@ -291,7 +295,9 @@ export class RestClient extends BaseRestClient {
     sub_account_to_type: 'spot' | 'futures' | 'delivery' | 'cross_margin';
     amount: string;
   }): Promise<APIResponse<any>> {
-    return this.postPrivate('/wallet/sub_account_to_sub_account', { body });
+    return this.postPrivate('/wallet/sub_account_to_sub_account', {
+      body: body,
+    });
   }
 
   /**
@@ -423,10 +429,10 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for converting small balance
    * @returns Promise<APIResponse<void>>
    */
-  convertSmallBalance(body: {
+  convertSmallBalance(body?: {
     currency?: string[];
   }): Promise<APIResponse<void>> {
-    return this.postPrivate('/wallet/small_balance', { body });
+    return this.postPrivate('/wallet/small_balance', { body: body });
   }
 
   /**
@@ -458,7 +464,7 @@ export class RestClient extends BaseRestClient {
     password?: string;
     email?: string;
   }): Promise<APIResponse<SubAccountResp>> {
-    return this.postPrivate('/sub_accounts', { body });
+    return this.postPrivate('/sub_accounts', { body: body });
   }
 
   /**
@@ -492,14 +498,11 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for creating API Key of the sub-account
    * @returns Promise<APIResponse<CreateSubAccountApiKeyResp>>
    */
-
   createSubAccountApiKey(
-    params: {
-      user_id: number;
-    },
-    body: SubAccountKey,
+    params: CreateSubAccountApiKeyReq,
   ): Promise<APIResponse<CreateSubAccountApiKeyResp>> {
-    return this.postPrivate(`/sub_accounts/${params.user_id}/keys`, { body });
+    const { user_id, ...body } = params;
+    return this.postPrivate(`/sub_accounts/${user_id}/keys`, { body: body });
   }
   /**
    * List all API Key of the sub-account
@@ -520,16 +523,10 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<APIResponse<any>>
    */
   updateSubAccountApiKey(
-    params: {
-      user_id: number;
-      key: string;
-    },
-    body: SubAccountKey,
+    params: UpdateSubAccountApiKeyReq,
   ): Promise<APIResponse<any>> {
-    return this.putPrivate(
-      `/sub_accounts/${params.user_id}/keys/${params.key}`,
-      { body },
-    );
+    const { user_id, key, ...body } = params;
+    return this.putPrivate(`/sub_accounts/${user_id}/keys/${key}`, { body });
   }
 
   /**
@@ -651,7 +648,7 @@ export class RestClient extends BaseRestClient {
   submitUnifiedBorrowOrRepay(
     body: SubmitUnifiedBorrowOrRepayReq,
   ): Promise<APIResponse<void>> {
-    return this.postPrivate('/unified/loans', { body });
+    return this.postPrivate('/unified/loans', { body: body });
   }
 
   /**
@@ -712,7 +709,7 @@ export class RestClient extends BaseRestClient {
   setUnifiedAccountMode(
     body: SetUnifiedAccountModeReq,
   ): Promise<APIResponse<void>> {
-    return this.putPrivate('/unified/unified_mode', { body });
+    return this.putPrivate('/unified/unified_mode', { body: body });
   }
 
   /**
@@ -766,7 +763,7 @@ export class RestClient extends BaseRestClient {
   portfolioMarginCalculator(
     body: PortfolioMarginCalculatorReq,
   ): Promise<APIResponse<PortfolioMarginCalculatorResp>> {
-    return this.post('/unified/portfolio_calculator', { body });
+    return this.post('/unified/portfolio_calculator', { body: body });
   }
 
   /**==========================================================================================================================
@@ -955,7 +952,7 @@ export class RestClient extends BaseRestClient {
   submitSpotBatchOrders(
     body: Order[],
   ): Promise<APIResponse<SubmitSpotBatchOrdersResp[]>> {
-    return this.postPrivate('/spot/batch_orders', { body });
+    return this.postPrivate('/spot/batch_orders', { body: body });
   }
 
   /**
@@ -987,7 +984,7 @@ export class RestClient extends BaseRestClient {
   submitSpotClosePosCrossDisabled(
     body: SubmitSpotClosePosCrossDisabledReq,
   ): Promise<APIResponse<Order>> {
-    return this.postPrivate('/spot/cross_liquidate_orders', { body });
+    return this.postPrivate('/spot/cross_liquidate_orders', { body: body });
   }
 
   /**
@@ -999,7 +996,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<APIResponse<Order>>
    */
   submitSpotOrder(body: SubmitSpotOrderReq): Promise<APIResponse<Order>> {
-    return this.postPrivate('/spot/orders', { body });
+    return this.postPrivate('/spot/orders', { body: body });
   }
 
   /**
@@ -1043,7 +1040,7 @@ export class RestClient extends BaseRestClient {
   deleteSpotBatchOrders(
     body: CancelBatchOrder[],
   ): Promise<APIResponse<DeleteSpotBatchOrdersResp[]>> {
-    return this.postPrivate('/spot/cancel_batch_orders', { body });
+    return this.postPrivate('/spot/cancel_batch_orders', { body: body });
   }
 
   /**
@@ -1072,15 +1069,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for amending an order
    * @returns Promise<APIResponse<Order>>
    */
-  updateSpotOrder(params: {
-    order_id: string;
-    currency_pair: string;
-    account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
-    amount?: string;
-    price?: string;
-    amend_text?: string;
-    action_mode?: 'ACK' | 'RESULT' | 'FULL';
-  }): Promise<APIResponse<Order>> {
+  updateSpotOrder(params: UpdateSpotOrderReq): Promise<APIResponse<Order>> {
     const { order_id, currency_pair, account, ...body } = params;
 
     const query = {
@@ -1089,8 +1078,8 @@ export class RestClient extends BaseRestClient {
     };
 
     return this.patchPrivate(`/spot/orders/${order_id}`, {
-      query,
-      body,
+      query: query,
+      body: body,
     });
   }
 
@@ -1103,8 +1092,9 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<APIResponse<Order>>
    */
   deleteSpotOrder(params: DeleteSpotOrderReq): Promise<APIResponse<Order>> {
-    return this.deletePrivate(`/spot/orders/${params.order_id}`, {
-      query: params,
+    const { order_id, ...query } = params;
+    return this.deletePrivate(`/spot/orders/${order_id}`, {
+      query: query,
     });
   }
 
@@ -1157,7 +1147,7 @@ export class RestClient extends BaseRestClient {
       triggerTime: number;
     }>
   > {
-    return this.postPrivate('/spot/countdown_cancel_all', { body });
+    return this.postPrivate('/spot/countdown_cancel_all', { body: body });
   }
 
   /**
@@ -1171,7 +1161,7 @@ export class RestClient extends BaseRestClient {
   updateSpotBatchOrders(
     body: UpdateSpotBatchOrdersReq[],
   ): Promise<APIResponse<Order[]>> {
-    return this.postPrivate('/spot/amend_batch_orders', { body });
+    return this.postPrivate('/spot/amend_batch_orders', { body: body });
   }
 
   /**
@@ -1187,7 +1177,7 @@ export class RestClient extends BaseRestClient {
       id: number;
     }>
   > {
-    return this.postPrivate('/spot/price_orders', { body });
+    return this.postPrivate('/spot/price_orders', { body: body });
   }
 
   /**
@@ -1224,7 +1214,7 @@ export class RestClient extends BaseRestClient {
   getPriceTriggeredOrder(params: {
     order_id: string;
   }): Promise<APIResponse<SpotPriceTriggeredOrder>> {
-    return this.getPrivate(`/spot/price_orders/${params.order_id}`, params);
+    return this.getPrivate(`/spot/price_orders/${params.order_id}`);
   }
 
   /**
@@ -1236,9 +1226,7 @@ export class RestClient extends BaseRestClient {
   deleteSpotPriceTriggeredOrder(params: {
     order_id: string;
   }): Promise<APIResponse<SpotPriceTriggeredOrder>> {
-    return this.deletePrivate(`/spot/price_orders/${params.order_id}`, {
-      query: params,
-    });
+    return this.deletePrivate(`/spot/price_orders/${params.order_id}`);
   }
 
   /**==========================================================================================================================
@@ -1399,7 +1387,7 @@ export class RestClient extends BaseRestClient {
   submitCrossMarginBorrowLoan(
     body: SubmitCrossMarginBorrowLoanReq,
   ): Promise<APIResponse<SubmitCrossMarginBorrowLoanResp>> {
-    return this.postPrivate('/margin/cross/loans', { body });
+    return this.postPrivate('/margin/cross/loans', { body: body });
   }
 
   /**
@@ -1439,7 +1427,7 @@ export class RestClient extends BaseRestClient {
     currency: string;
     amount: string;
   }): Promise<APIResponse<SubmitCrossMarginBorrowLoanResp[]>> {
-    return this.postPrivate('/margin/cross/repayments', { body });
+    return this.postPrivate('/margin/cross/repayments', { body: body });
   }
 
   /**

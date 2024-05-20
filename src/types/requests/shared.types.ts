@@ -14,6 +14,30 @@ export interface GetMainSubTransfersReq {
   offset?: number;
 }
 
+export interface CreateSubAccountApiKeyReq {
+  user_id: number;
+  mode?: number; // Mode: 1 - classic, 2 - portfolio account
+  name?: string; // API key name
+  perms?: {
+    name?:
+      | 'wallet'
+      | 'spot'
+      | 'futures'
+      | 'delivery'
+      | 'earn'
+      | 'options'
+      | 'account'
+      | 'unified'
+      | 'loan'; // Permission name
+    read_only?: boolean; // Read only
+  }[];
+  ip_whitelist?: string[]; // IP white list
+}
+
+export interface UpdateSubAccountApiKeyReq extends CreateSubAccountApiKeyReq {
+  key: string;
+}
+
 export interface GetSavedAddressReq {
   currency: string;
   chain?: string;
@@ -212,6 +236,16 @@ export interface SubmitSpotOrderReq {
   auto_repay?: boolean;
   stp_act?: string;
   action_mode?: string;
+}
+
+export interface UpdateSpotOrderReq {
+  order_id: string;
+  currency_pair: string;
+  account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
+  amount?: string;
+  price?: string;
+  amend_text?: string;
+  action_mode?: 'ACK' | 'RESULT' | 'FULL';
 }
 /**==========================================================================================================================
  * MARGIN
