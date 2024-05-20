@@ -44,6 +44,14 @@ interface UnsignedRequest<T extends object | undefined = {}> {
 type SignMethod = 'gateV4';
 
 /**
+ * Some requests require some params to be in the query string and some in the body.
+ * This type anticipates both are possible in any combination.
+ *
+ * The request builder will automatically handle where parameters should go.
+ */
+type ParamsInQueryAndOrBody = { query?: object; body?: object };
+
+/**
  * Enables:
  * - Detailed request/response logging
  * - Full request dump in any exceptions thrown from API responses
@@ -88,6 +96,22 @@ if (ENABLE_HTTP_TRACE) {
     });
     return response;
   });
+}
+
+/**
+ * Impure, mutates params to remove any values that have a key but are undefined.
+ */
+function deleteUndefinedValues(params?: any): void {
+  if (!params) {
+    return;
+  }
+
+  for (const key in params) {
+    const value = params[key];
+    if (typeof value === 'undefined') {
+      delete params[key];
+    }
+  }
 }
 
 export abstract class BaseRestClient {
@@ -152,41 +176,40 @@ export abstract class BaseRestClient {
     return Date.now();
   }
 
-  protected get(endpoint: string, params?: any) {
+  protected get(endpoint: string, params?: object) {
     const isPublicAPI = true;
-    return this._call('GET', endpoint, params, isPublicAPI);
+    // GET only supports params in the query string
+    return this._call('GET', endpoint, { query: params }, isPublicAPI);
   }
 
-  protected post(endpoint: string, params?: any) {
+  protected post(endpoint: string, params?: ParamsInQueryAndOrBody) {
     const isPublicAPI = true;
     return this._call('POST', endpoint, params, isPublicAPI);
   }
 
-  protected getPrivate(endpoint: string, params?: any) {
+  protected getPrivate(endpoint: string, params?: object) {
     const isPublicAPI = false;
-    return this._call('GET', endpoint, params, isPublicAPI);
+    // GET only supports params in the query string
+    return this._call('GET', endpoint, { query: params }, isPublicAPI);
   }
 
-  protected postPrivate(
-    endpoint: string,
-    params?: any,
-    paramsAsQuery?: boolean,
-  ) {
+  protected postPrivate(endpoint: string, params?: ParamsInQueryAndOrBody) {
     const isPublicAPI = false;
-    return this._call('POST', endpoint, params, isPublicAPI, paramsAsQuery);
+    return this._call('POST', endpoint, params, isPublicAPI);
   }
 
-  protected deletePrivate(endpoint: string, params?: any) {
+  protected deletePrivate(endpoint: string, params?: ParamsInQueryAndOrBody) {
     const isPublicAPI = false;
     return this._call('DELETE', endpoint, params, isPublicAPI);
   }
 
-  protected putPrivate(endpoint: string, params?: any) {
+  protected putPrivate(endpoint: string, params?: ParamsInQueryAndOrBody) {
     const isPublicAPI = false;
     return this._call('PUT', endpoint, params, isPublicAPI);
   }
 
-  protected patchPrivate(endpoint: string, params?: any) {
+  // protected patchPrivate(endpoint: string, params?: any) {
+  protected patchPrivate(endpoint: string, params?: ParamsInQueryAndOrBody) {
     const isPublicAPI = false;
     return this._call('PATCH', endpoint, params, isPublicAPI);
   }
@@ -197,9 +220,8 @@ export abstract class BaseRestClient {
   private async _call(
     method: Method,
     endpoint: string,
-    params?: any,
+    params?: ParamsInQueryAndOrBody,
     isPublicApi?: boolean,
-    passParamsAsQueryString?: boolean,
   ): Promise<any> {
     // Sanity check to make sure it's only ever prefixed by one forward slash
     const requestUrl = [this.baseUrl, endpoint].join(
@@ -213,7 +235,6 @@ export abstract class BaseRestClient {
       requestUrl,
       params,
       isPublicApi,
-      passParamsAsQueryString,
     );
 
     if (ENABLE_HTTP_TRACE) {
@@ -284,12 +305,11 @@ export abstract class BaseRestClient {
   /**
    * @private sign request and set recv window
    */
-  private async signRequest<T extends object | undefined = {}>(
+  private async signRequest<T extends ParamsInQueryAndOrBody | undefined = {}>(
     data: T,
     endpoint: string,
     method: Method,
     signMethod: SignMethod,
-    passParamsAsQueryString?: boolean,
   ): Promise<SignedRequest<T>> {
     const timestamp = +(this.getSignTimestampMs() / 1000).toFixed(0); // in seconds
 
@@ -298,6 +318,7 @@ export abstract class BaseRestClient {
         // recvWindow: this.options.recvWindow,
         ...data,
       },
+
       sign: '',
       timestamp,
       recvWindow: 0,
@@ -314,24 +335,21 @@ export abstract class BaseRestClient {
     const encodeQueryStringValues = true;
 
     if (signMethod === 'gateV4') {
-      const useQueryStringParamAuth =
-        method === 'GET' || method === 'DELETE' || passParamsAsQueryString;
-
       const signAlgoritm: SignAlgorithm = 'SHA-512';
       const signEncoding: SignEncodeMethod = 'hex';
 
-      const queryStringToSign = useQueryStringParamAuth
+      const queryStringToSign = data?.query
         ? serializeParams(
-            res.originalParams,
+            res.originalParams?.query,
             strictParamValidation,
             encodeQueryStringValues,
             '',
           )
         : '';
 
-      const requestBodyToHash = useQueryStringParamAuth
-        ? ''
-        : JSON.stringify(res.originalParams);
+      const requestBodyToHash = res.originalParams?.body
+        ? JSON.stringify(res.originalParams?.body)
+        : '';
 
       const hashedRequestBody = await hashMessage(
         requestBodyToHash,
@@ -348,6 +366,7 @@ export abstract class BaseRestClient {
       ].join('\n');
 
       // console.log('sign params: ', {
+      //   requestBodyToHash,
       //   paramsStr: toSign,
       //   url: this.baseUrl,
       //   urlPath: this.baseUrlPath,
@@ -383,29 +402,32 @@ export abstract class BaseRestClient {
     return await signMessage(paramsStr, secret, method, algorithm);
   }
 
-  private async prepareSignParams<TParams extends object | undefined>(
+  private async prepareSignParams<
+    TParams extends ParamsInQueryAndOrBody | undefined,
+  >(
     method: Method,
     endpoint: string,
     signMethod: SignMethod,
     params?: TParams,
     isPublicApi?: true,
-    passParamsAsQueryString?: boolean,
   ): Promise<UnsignedRequest<TParams>>;
-  private async prepareSignParams<TParams extends object | undefined>(
+  private async prepareSignParams<
+    TParams extends ParamsInQueryAndOrBody | undefined,
+  >(
     method: Method,
     endpoint: string,
     signMethod: SignMethod,
     params?: TParams,
     isPublicApi?: false | undefined,
-    passParamsAsQueryString?: boolean,
   ): Promise<SignedRequest<TParams>>;
-  private async prepareSignParams<TParams extends object | undefined>(
+  private async prepareSignParams<
+    TParams extends ParamsInQueryAndOrBody | undefined,
+  >(
     method: Method,
     endpoint: string,
     signMethod: SignMethod,
     params?: TParams,
     isPublicApi?: boolean,
-    passParamsAsQueryString?: boolean,
   ) {
     if (isPublicApi) {
       return {
@@ -418,13 +440,7 @@ export abstract class BaseRestClient {
       throw new Error(MISSING_API_KEYS_ERROR);
     }
 
-    return this.signRequest(
-      params,
-      endpoint,
-      method,
-      signMethod,
-      passParamsAsQueryString,
-    );
+    return this.signRequest(params, endpoint, method, signMethod);
   }
 
   /** Returns an axios request object. Handles signing process automatically if this is a private API call */
@@ -432,9 +448,8 @@ export abstract class BaseRestClient {
     method: Method,
     endpoint: string,
     url: string,
-    params?: any,
+    params?: ParamsInQueryAndOrBody,
     isPublicApi?: boolean,
-    passParamsAsQueryString?: boolean,
   ): Promise<AxiosRequestConfig> {
     const options: AxiosRequestConfig = {
       ...this.globalRequestOptions,
@@ -442,16 +457,14 @@ export abstract class BaseRestClient {
       method: method,
     };
 
-    for (const key in params) {
-      if (typeof params[key] === 'undefined') {
-        delete params[key];
-      }
-    }
+    deleteUndefinedValues(params);
+    deleteUndefinedValues(params?.body);
+    deleteUndefinedValues(params?.query);
 
     if (isPublicApi || !this.apiKey || !this.apiSecret) {
       return {
         ...options,
-        params: params,
+        params: params?.query || params?.body || params,
       };
     }
 
@@ -461,7 +474,6 @@ export abstract class BaseRestClient {
       'gateV4',
       params,
       isPublicApi,
-      passParamsAsQueryString,
     );
 
     const authHeaders = {
@@ -471,14 +483,17 @@ export abstract class BaseRestClient {
       // 'X-Client-Request-Id': 'todo'
     };
 
-    if (method === 'GET' || passParamsAsQueryString) {
+    const urlWithQueryParams =
+      options.url + '?' + signResult.queryParamsWithSign;
+
+    if (method === 'GET' || !params?.body) {
       return {
         ...options,
         headers: {
           ...authHeaders,
           ...options.headers,
         },
-        url: options.url + '?' + signResult.queryParamsWithSign,
+        url: urlWithQueryParams,
       };
     }
 
@@ -488,7 +503,8 @@ export abstract class BaseRestClient {
         ...authHeaders,
         ...options.headers,
       },
-      data: signResult.originalParams,
+      url: params?.query ? urlWithQueryParams : options.url,
+      data: signResult.originalParams.body,
     };
   }
 }
