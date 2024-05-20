@@ -2421,7 +2421,8 @@ export class RestClient extends BaseRestClient {
   updateAutoRepaymentSetting(params: {
     status: 'on' | 'off';
   }): Promise<APIResponse<{ status: 'on' | 'off' }>> {
-    return this.postPrivate('/margin/auto_repay', params);
+    const paramsAsQuery = true;
+    return this.postPrivate('/margin/auto_repay', params, paramsAsQuery);
   }
 
   /**
@@ -3910,9 +3911,13 @@ export class RestClient extends BaseRestClient {
     leverage: string;
     cross_leverage_limit?: string;
   }): Promise<APIResponse<Position>> {
+    const paramsAsQuery = true;
+
+    const { settle, contract, ...remainingParams } = params;
     return this.postPrivate(
-      `/futures/${params.settle}/positions/${params.contract}/leverage`,
-      params,
+      `/futures/${settle}/positions/${contract}/leverage`,
+      remainingParams,
+      paramsAsQuery,
     );
   }
 

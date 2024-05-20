@@ -21,3 +21,5 @@ node_modules/
 .cache
 bundleReport.html
 .history/
+dist
+coverage
