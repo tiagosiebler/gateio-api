@@ -274,6 +274,8 @@ export abstract class BaseRestClient {
         apiKey: 'omittedFromError',
         apiMemo: 'omittedFromError',
         apiSecret: 'omittedFromError',
+        reqUrl: request.url,
+        reqBody: request.data,
       },
       ...debugData,
     };

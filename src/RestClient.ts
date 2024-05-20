@@ -2657,7 +2657,8 @@ export class RestClient extends BaseRestClient {
   updateAutoRepaymentSetting(params: {
     status: 'on' | 'off';
   }): Promise<APIResponse<{ status: 'on' | 'off' }>> {
-    return this.postPrivate('/margin/auto_repay', params);
+    const paramsAsQuery = true;
+    return this.postPrivate('/margin/auto_repay', params, paramsAsQuery);
   }
 
   /**
