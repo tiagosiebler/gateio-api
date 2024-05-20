@@ -306,14 +306,19 @@ export abstract class BaseRestClient {
               encodeQueryStringValues,
               '',
             )
-          : JSON.stringify(res.originalParams) || '';
+          : '';
 
-      const params = method === 'GET' ? '' : JSON.stringify(res.originalParams);
+      const hashedMsgParams =
+        method === 'GET' ? '' : JSON.stringify(res.originalParams);
 
       const signAlgoritm: SignAlgorithm = 'SHA-512';
       const signEncoding: SignEncodeMethod = 'hex';
 
-      const hashedData = await hashMessage(params, signEncoding, signAlgoritm);
+      const hashedData = await hashMessage(
+        hashedMsgParams,
+        signEncoding,
+        signAlgoritm,
+      );
 
       const toSign = [
         method,
