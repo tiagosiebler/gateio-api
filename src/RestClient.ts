@@ -418,7 +418,7 @@ export class RestClient extends BaseRestClient {
     memo?: string;
     chain: string;
   }): Promise<APIResponse<Withdraw>> {
-    return this.postPrivate('/withdrawals', body);
+    return this.postPrivate('/withdrawals', { body });
   }
 
   /**
@@ -517,7 +517,7 @@ export class RestClient extends BaseRestClient {
     currency_pair?: string;
     settle?: string;
   }): Promise<APIResponse<{ tx_id: number }>> {
-    return this.postPrivate('/wallet/transfers', body);
+    return this.postPrivate('/wallet/transfers', { body });
   }
 
   /**
@@ -536,7 +536,7 @@ export class RestClient extends BaseRestClient {
     client_order_id?: string;
     sub_account_type?: 'spot' | 'futures' | 'cross_margin' | 'delivery';
   }): Promise<APIResponse<any>> {
-    return this.postPrivate('/wallet/sub_account_transfers', body);
+    return this.postPrivate('/wallet/sub_account_transfers', { body });
   }
 
   /**
@@ -572,7 +572,7 @@ export class RestClient extends BaseRestClient {
     sub_account_to_type: 'spot' | 'futures' | 'delivery' | 'cross_margin';
     amount: string;
   }): Promise<APIResponse<any>> {
-    return this.postPrivate('/wallet/sub_account_to_sub_account', body);
+    return this.postPrivate('/wallet/sub_account_to_sub_account', { body });
   }
 
   /**
@@ -707,7 +707,7 @@ export class RestClient extends BaseRestClient {
   convertSmallBalance(body: {
     currency?: string[];
   }): Promise<APIResponse<void>> {
-    return this.postPrivate('/wallet/small_balance', body);
+    return this.postPrivate('/wallet/small_balance', { body });
   }
 
   /**
@@ -739,7 +739,7 @@ export class RestClient extends BaseRestClient {
     password?: string;
     email?: string;
   }): Promise<APIResponse<SubAccountResp>> {
-    return this.postPrivate('/sub_accounts', body);
+    return this.postPrivate('/sub_accounts', { body });
   }
 
   /**
@@ -780,7 +780,7 @@ export class RestClient extends BaseRestClient {
     },
     body: SubAccountKey,
   ): Promise<APIResponse<CreateSubAccountApiKeyResp>> {
-    return this.postPrivate(`/sub_accounts/${params.user_id}/keys`, body);
+    return this.postPrivate(`/sub_accounts/${params.user_id}/keys`, { body });
   }
   /**
    * List all API Key of the sub-account
@@ -809,7 +809,7 @@ export class RestClient extends BaseRestClient {
   ): Promise<APIResponse<any>> {
     return this.putPrivate(
       `/sub_accounts/${params.user_id}/keys/${params.key}`,
-      body,
+      { body },
     );
   }
 
@@ -932,7 +932,7 @@ export class RestClient extends BaseRestClient {
   submitUnifiedBorrowOrRepay(
     body: SubmitUnifiedBorrowOrRepayReq,
   ): Promise<APIResponse<void>> {
-    return this.postPrivate('/unified/loans', body);
+    return this.postPrivate('/unified/loans', { body });
   }
 
   /**
@@ -993,7 +993,7 @@ export class RestClient extends BaseRestClient {
   setUnifiedAccountMode(
     body: SetUnifiedAccountModeReq,
   ): Promise<APIResponse<void>> {
-    return this.putPrivate('/unified/unified_mode', body);
+    return this.putPrivate('/unified/unified_mode', { body });
   }
 
   /**
@@ -1047,7 +1047,7 @@ export class RestClient extends BaseRestClient {
   portfolioMarginCalculator(
     body: PortfolioMarginCalculatorReq,
   ): Promise<APIResponse<PortfolioMarginCalculatorResp>> {
-    return this.post('/unified/portfolio_calculator', body);
+    return this.post('/unified/portfolio_calculator', { body });
   }
 
   /**==========================================================================================================================
@@ -1497,7 +1497,7 @@ export class RestClient extends BaseRestClient {
       }[]
     >
   > {
-    return this.postPrivate('/spot/batch_orders', body);
+    return this.postPrivate('/spot/batch_orders', { body });
   }
 
   /**
@@ -1622,7 +1622,7 @@ export class RestClient extends BaseRestClient {
     price: string;
     action_mode?: 'ACK' | 'RESULT' | 'FULL';
   }): Promise<APIResponse<Order>> {
-    return this.postPrivate('/spot/cross_liquidate_orders', body);
+    return this.postPrivate('/spot/cross_liquidate_orders', { body });
   }
 
   /**
@@ -1649,7 +1649,7 @@ export class RestClient extends BaseRestClient {
    * }>>
    */
   submitSpotOrder(body: Order): Promise<APIResponse<Order>> {
-    return this.postPrivate('/spot/orders', body);
+    return this.postPrivate('/spot/orders', { body });
   }
 
   /**
@@ -1758,7 +1758,7 @@ export class RestClient extends BaseRestClient {
     account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
     action_mode?: 'ACK' | 'RESULT' | 'FULL';
   }): Promise<APIResponse<Order[]>> {
-    return this.deletePrivate('/spot/orders', params);
+    return this.deletePrivate('/spot/orders', { body: params });
   }
 
   /**
@@ -1788,7 +1788,7 @@ export class RestClient extends BaseRestClient {
       }[]
     >
   > {
-    return this.postPrivate('/spot/cancel_batch_orders', body);
+    return this.postPrivate('/spot/cancel_batch_orders', { body });
   }
 
   /**
@@ -1887,20 +1887,26 @@ export class RestClient extends BaseRestClient {
    *   finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
    * }>>
    */
-  updateSpotOrder(
-    params: {
-      order_id: string;
-      currency_pair: string;
-      account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
-    },
-    body: {
-      amount?: string;
-      price?: string;
-      amend_text?: string;
-      action_mode?: 'ACK' | 'RESULT' | 'FULL';
-    },
-  ): Promise<APIResponse<Order>> {
-    return this.patchPrivate(`/spot/orders/${params.order_id}`, body);
+  updateSpotOrder(params: {
+    order_id: string;
+    currency_pair: string;
+    account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
+    amount?: string;
+    price?: string;
+    amend_text?: string;
+    action_mode?: 'ACK' | 'RESULT' | 'FULL';
+  }): Promise<APIResponse<Order>> {
+    const { order_id, currency_pair, account, ...body } = params;
+
+    const query = {
+      currency_pair: currency_pair,
+      account: account,
+    };
+
+    return this.patchPrivate(`/spot/orders/${order_id}`, {
+      query,
+      body,
+    });
   }
 
   /**
@@ -1952,7 +1958,9 @@ export class RestClient extends BaseRestClient {
     account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
     action_mode?: 'ACK' | 'RESULT' | 'FULL';
   }): Promise<APIResponse<Order>> {
-    return this.deletePrivate(`/spot/orders/${params.order_id}`, params);
+    return this.deletePrivate(`/spot/orders/${params.order_id}`, {
+      body: params,
+    });
   }
 
   /**
@@ -2048,7 +2056,7 @@ export class RestClient extends BaseRestClient {
       triggerTime: number;
     }>
   > {
-    return this.postPrivate('/spot/countdown_cancel_all', body);
+    return this.postPrivate('/spot/countdown_cancel_all', { body });
   }
 
   /**
@@ -2146,7 +2154,7 @@ export class RestClient extends BaseRestClient {
       }[]
     >
   > {
-    return this.postPrivate('/spot/amend_batch_orders', body);
+    return this.postPrivate('/spot/amend_batch_orders', { body });
   }
 
   /**
@@ -2162,7 +2170,7 @@ export class RestClient extends BaseRestClient {
       id: number;
     }>
   > {
-    return this.postPrivate('/spot/price_orders', body);
+    return this.postPrivate('/spot/price_orders', { body });
   }
 
   /**
@@ -2226,7 +2234,7 @@ export class RestClient extends BaseRestClient {
     market?: string;
     account?: 'normal' | 'margin' | 'cross_margin';
   }): Promise<APIResponse<SpotPriceTriggeredOrder[]>> {
-    return this.deletePrivate('/spot/price_orders', params);
+    return this.deletePrivate('/spot/price_orders', { body: params });
   }
 
   /**
@@ -2286,7 +2294,9 @@ export class RestClient extends BaseRestClient {
   deleteSpotPriceTriggeredOrder(params: {
     order_id: string;
   }): Promise<APIResponse<SpotPriceTriggeredOrder>> {
-    return this.deletePrivate(`/spot/price_orders/${params.order_id}`, params);
+    return this.deletePrivate(`/spot/price_orders/${params.order_id}`, {
+      body: params,
+    });
   }
 
   /**==========================================================================================================================
@@ -2421,8 +2431,7 @@ export class RestClient extends BaseRestClient {
   updateAutoRepaymentSetting(params: {
     status: 'on' | 'off';
   }): Promise<APIResponse<{ status: 'on' | 'off' }>> {
-    const paramsAsQuery = true;
-    return this.postPrivate('/margin/auto_repay', params, paramsAsQuery);
+    return this.postPrivate('/margin/auto_repay', { query: params });
   }
 
   /**
@@ -2671,7 +2680,7 @@ export class RestClient extends BaseRestClient {
       unpaid_interest: string;
     }>
   > {
-    return this.postPrivate('/margin/cross/loans', body);
+    return this.postPrivate('/margin/cross/loans', { body });
   }
 
   /**
@@ -2789,7 +2798,7 @@ export class RestClient extends BaseRestClient {
       }[]
     >
   > {
-    return this.postPrivate('/margin/cross/repayments', body);
+    return this.postPrivate('/margin/cross/repayments', { body });
   }
 
   /**
@@ -2992,7 +3001,7 @@ export class RestClient extends BaseRestClient {
     repaid_all?: boolean;
     currency_pair: string;
   }): Promise<void> {
-    return this.postPrivate('/margin/uni/loans', body);
+    return this.postPrivate('/margin/uni/loans', { body });
   }
 
   /**
@@ -3192,7 +3201,7 @@ export class RestClient extends BaseRestClient {
       status: number;
     }>
   > {
-    return this.postPrivate('/flash_swap/orders', body);
+    return this.postPrivate('/flash_swap/orders', { body });
   }
 
   /**
@@ -3296,7 +3305,7 @@ export class RestClient extends BaseRestClient {
       price: string;
     }>
   > {
-    return this.postPrivate('/flash_swap/orders/preview', body);
+    return this.postPrivate('/flash_swap/orders/preview', { body });
   }
   /**==========================================================================================================================
    * FUTURES
@@ -3895,7 +3904,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<Position>> {
     return this.postPrivate(
       `/futures/${params.settle}/positions/${params.contract}/margin`,
-      params,
+      { body: params },
     );
   }
 
@@ -3911,13 +3920,10 @@ export class RestClient extends BaseRestClient {
     leverage: string;
     cross_leverage_limit?: string;
   }): Promise<APIResponse<Position>> {
-    const paramsAsQuery = true;
-
     const { settle, contract, ...remainingParams } = params;
     return this.postPrivate(
       `/futures/${settle}/positions/${contract}/leverage`,
-      remainingParams,
-      paramsAsQuery,
+      { query: remainingParams },
     );
   }
 
@@ -3934,7 +3940,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<Position>> {
     return this.postPrivate(
       `/futures/${params.settle}/positions/${params.contract}/risk_limit`,
-      params,
+      { body: params },
     );
   }
 
@@ -4004,7 +4010,9 @@ export class RestClient extends BaseRestClient {
       };
     }>
   > {
-    return this.postPrivate(`/futures/${params.settle}/dual_mode`, params);
+    return this.postPrivate(`/futures/${params.settle}/dual_mode`, {
+      body: params,
+    });
   }
 
   /**
@@ -4037,7 +4045,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<Position[]>> {
     return this.postPrivate(
       `/futures/${params.settle}/dual_comp/positions/${params.contract}/margin`,
-      params,
+      { body: params },
     );
   }
 
@@ -4055,7 +4063,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<Position[]>> {
     return this.postPrivate(
       `/futures/${params.settle}/dual_comp/positions/${params.contract}/leverage`,
-      params,
+      { body: params },
     );
   }
 
@@ -4072,7 +4080,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<Position[]>> {
     return this.postPrivate(
       `/futures/${params.settle}/dual_comp/positions/${params.contract}/risk_limit`,
-      params,
+      { body: params },
     );
   }
 
@@ -4095,7 +4103,7 @@ export class RestClient extends BaseRestClient {
     },
     body: FuturesOrder,
   ): Promise<APIResponse<FuturesOrder>> {
-    return this.postPrivate(`/futures/${params.settle}/orders`, body);
+    return this.postPrivate(`/futures/${params.settle}/orders`, { body });
   }
 
   /**
@@ -4131,7 +4139,9 @@ export class RestClient extends BaseRestClient {
     contract: string;
     side?: string;
   }): Promise<APIResponse<FuturesOrder[]>> {
-    return this.deletePrivate(`/futures/${params.settle}/orders`, params);
+    return this.deletePrivate(`/futures/${params.settle}/orders`, {
+      body: params,
+    });
   }
 
   /**
@@ -4230,7 +4240,7 @@ export class RestClient extends BaseRestClient {
       }[]
     >
   > {
-    return this.postPrivate(`/futures/${params.settle}/batch_orders`, body);
+    return this.postPrivate(`/futures/${params.settle}/batch_orders`, { body });
   }
 
   /**
@@ -4286,7 +4296,7 @@ export class RestClient extends BaseRestClient {
   ): Promise<APIResponse<FuturesOrder>> {
     return this.putPrivate(
       `/futures/${params.settle}/orders/${params.order_id}`,
-      body,
+      { body },
     );
   }
 
@@ -4492,10 +4502,9 @@ export class RestClient extends BaseRestClient {
       contract?: string;
     },
   ): Promise<APIResponse<{ triggerTime: number }>> {
-    return this.postPrivate(
-      `/futures/${params.settle}/countdown_cancel_all`,
+    return this.postPrivate(`/futures/${params.settle}/countdown_cancel_all`, {
       body,
-    );
+    });
   }
 
   /**
@@ -4541,10 +4550,9 @@ export class RestClient extends BaseRestClient {
       }[]
     >
   > {
-    return this.postPrivate(
-      `/futures/${params.settle}/batch_cancel_orders`,
+    return this.postPrivate(`/futures/${params.settle}/batch_cancel_orders`, {
       body,
-    );
+    });
   }
 
   /**
@@ -4559,7 +4567,7 @@ export class RestClient extends BaseRestClient {
     },
     body: FuturesPriceTriggeredOrder,
   ): Promise<APIResponse<{ id: number }>> {
-    return this.postPrivate(`/futures/${params.settle}/price_orders`, body);
+    return this.postPrivate(`/futures/${params.settle}/price_orders`, { body });
   }
 
   /**
@@ -4588,7 +4596,9 @@ export class RestClient extends BaseRestClient {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
   }): Promise<APIResponse<FuturesPriceTriggeredOrder[]>> {
-    return this.deletePrivate(`/futures/${params.settle}/price_orders`, params);
+    return this.deletePrivate(`/futures/${params.settle}/price_orders`, {
+      body: params,
+    });
   }
 
   /**
@@ -4619,7 +4629,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<FuturesPriceTriggeredOrder>> {
     return this.deletePrivate(
       `/futures/${params.settle}/price_orders/${params.order_id}`,
-      params,
+      { body: params },
     );
   }
   /**==========================================================================================================================
@@ -5018,7 +5028,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<Position>> {
     return this.postPrivate(
       `/delivery/${params.settle}/positions/${params.contract}/margin`,
-      params,
+      { body: params },
     );
   }
 
@@ -5035,7 +5045,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<Position>> {
     return this.postPrivate(
       `/delivery/${params.settle}/positions/${params.contract}/leverage`,
-      params,
+      { body: params },
     );
   }
 
@@ -5052,7 +5062,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<Position>> {
     return this.postPrivate(
       `/delivery/${params.settle}/positions/${params.contract}/risk_limit`,
-      params,
+      { body: params },
     );
   }
 
@@ -5070,7 +5080,7 @@ export class RestClient extends BaseRestClient {
     },
     body: FuturesOrder,
   ): Promise<APIResponse<FuturesOrder>> {
-    return this.postPrivate(`/delivery/${params.settle}/orders`, body);
+    return this.postPrivate(`/delivery/${params.settle}/orders`, { body });
   }
 
   /**
@@ -5106,7 +5116,9 @@ export class RestClient extends BaseRestClient {
     contract: string;
     side?: 'ask' | 'bid';
   }): Promise<APIResponse<FuturesOrder[]>> {
-    return this.deletePrivate(`/delivery/${params.settle}/orders`, params);
+    return this.deletePrivate(`/delivery/${params.settle}/orders`, {
+      body: params,
+    });
   }
 
   /**
@@ -5325,7 +5337,10 @@ export class RestClient extends BaseRestClient {
     },
     body: FuturesPriceTriggeredOrder,
   ): Promise<APIResponse<{ id: number }>> {
-    return this.postPrivate(`/delivery/${params.settle}/price_orders`, body);
+    return this.postPrivate(`/delivery/${params.settle}/price_orders`, {
+      query: params,
+      body,
+    });
   }
 
   /**
@@ -5354,10 +5369,9 @@ export class RestClient extends BaseRestClient {
     settle: 'usdt';
     contract: string;
   }): Promise<APIResponse<FuturesPriceTriggeredOrder[]>> {
-    return this.deletePrivate(
-      `/delivery/${params.settle}/price_orders`,
-      params,
-    );
+    return this.deletePrivate(`/delivery/${params.settle}/price_orders`, {
+      body: params,
+    });
   }
 
   /**
@@ -6146,7 +6160,7 @@ export class RestClient extends BaseRestClient {
       refr: string;
     }>
   > {
-    return this.postPrivate(`/options/orders`, body);
+    return this.postPrivate(`/options/orders`, { body });
   }
 
   /**
@@ -6288,7 +6302,7 @@ export class RestClient extends BaseRestClient {
       }[]
     >
   > {
-    return this.deletePrivate(`/options/orders`, params);
+    return this.deletePrivate(`/options/orders`, { body: params });
   }
 
   /**
@@ -6522,7 +6536,7 @@ export class RestClient extends BaseRestClient {
     type: 'lend' | 'redeem';
     min_rate?: string;
   }): Promise<APIResponse<void>> {
-    return this.postPrivate(`/earn/uni/lends`, body);
+    return this.postPrivate(`/earn/uni/lends`, { body });
   }
 
   /**
@@ -6573,11 +6587,11 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for amending lending order
    * @returns Promise<APIResponse<void>>
    */
-  updateLendingOrder(body: {
+  updateLendingOrder(params: {
     currency?: string;
     min_rate?: string;
   }): Promise<APIResponse<void>> {
-    return this.patchPrivate(`/earn/uni/lends`, body);
+    return this.patchPrivate(`/earn/uni/lends`, { body: params });
   }
 
   /**
@@ -6679,7 +6693,7 @@ export class RestClient extends BaseRestClient {
     currency: string;
     status: boolean;
   }): Promise<APIResponse<void>> {
-    return this.putPrivate(`/earn/uni/interest_reinvest`, body);
+    return this.putPrivate(`/earn/uni/interest_reinvest`, { body });
   }
 
   /**
@@ -6717,7 +6731,7 @@ export class RestClient extends BaseRestClient {
     borrow_amount: string;
     borrow_currency: string;
   }): Promise<APIResponse<{ order_id: number }>> {
-    return this.postPrivate(`/loan/collateral/orders`, body);
+    return this.postPrivate(`/loan/collateral/orders`, { body });
   }
 
   /**
@@ -6838,7 +6852,7 @@ export class RestClient extends BaseRestClient {
       repaid_interest: string;
     }>
   > {
-    return this.postPrivate(`/loan/collateral/repay`, body);
+    return this.postPrivate(`/loan/collateral/repay`, { body });
   }
 
   /**
@@ -6903,7 +6917,7 @@ export class RestClient extends BaseRestClient {
     collateral_amount: string;
     type: 'append' | 'redeem';
   }): Promise<APIResponse<void>> {
-    return this.postPrivate(`/loan/collateral/collaterals`, body);
+    return this.postPrivate(`/loan/collateral/collaterals`, { body });
   }
 
   /**
@@ -7042,7 +7056,7 @@ export class RestClient extends BaseRestClient {
       amount?: string;
     }[];
   }): Promise<APIResponse<{ order_id: number }>> {
-    return this.postPrivate(`/loan/multi_collateral/orders`, body);
+    return this.postPrivate(`/loan/multi_collateral/orders`, { body });
   }
 
   /**
@@ -7219,7 +7233,7 @@ export class RestClient extends BaseRestClient {
       }[];
     }>
   > {
-    return this.postPrivate(`/loan/multi_collateral/repay`, body);
+    return this.postPrivate(`/loan/multi_collateral/repay`, { body });
   }
 
   /**
@@ -7369,7 +7383,7 @@ export class RestClient extends BaseRestClient {
       }[];
     }>
   > {
-    return this.postPrivate(`/loan/multi_collateral/mortgage`, body);
+    return this.postPrivate(`/loan/multi_collateral/mortgage`, { body });
   }
 
   /**
@@ -7553,7 +7567,7 @@ export class RestClient extends BaseRestClient {
     side: '1' | '2';
     amount: string;
   }): Promise<APIResponse<void>> {
-    return this.postPrivate(`/earn/staking/eth2/swap`, body);
+    return this.postPrivate(`/earn/staking/eth2/swap`, { body });
   }
 
   /**
@@ -7659,7 +7673,7 @@ export class RestClient extends BaseRestClient {
     plan_id: string;
     copies: string;
   }): Promise<APIResponse<void>> {
-    return this.postPrivate(`/earn/dual/orders`, body);
+    return this.postPrivate(`/earn/dual/orders`, { body });
   }
 
   /**
@@ -7752,7 +7766,7 @@ export class RestClient extends BaseRestClient {
     pid?: string;
     amount?: string;
   }): Promise<APIResponse<void>> {
-    return this.postPrivate(`/earn/structured/orders`, body);
+    return this.postPrivate(`/earn/structured/orders`, { body });
   }
 
   /**==========================================================================================================================
@@ -7811,7 +7825,7 @@ export class RestClient extends BaseRestClient {
       create_time: number;
     }>
   > {
-    return this.postPrivate(`/account/stp_groups`, body);
+    return this.postPrivate(`/account/stp_groups`, { body });
   }
 
   /**
@@ -7885,7 +7899,9 @@ export class RestClient extends BaseRestClient {
       }[]
     >
   > {
-    return this.postPrivate(`/account/stp_groups/${params.stp_id}/users`, body);
+    return this.postPrivate(`/account/stp_groups/${params.stp_id}/users`, {
+      body,
+    });
   }
 
   /**
@@ -7907,10 +7923,9 @@ export class RestClient extends BaseRestClient {
       }[]
     >
   > {
-    return this.deletePrivate(
-      `/account/stp_groups/${params.stp_id}/users`,
-      params,
-    );
+    return this.deletePrivate(`/account/stp_groups/${params.stp_id}/users`, {
+      body: params,
+    });
   }
 
   /**
