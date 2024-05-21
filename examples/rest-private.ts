@@ -3,10 +3,10 @@ import { RestClient } from '../src';
 async function start() {
   try {
     const account = {
-      key: process.env.API_KEY || '8b8eff02d6b6105d195e81684017a43d',
+      key: process.env.API_KEY || 'a4ed617b3c02b6a9d4900be5446f402d',
       secret:
         process.env.API_SECRET ||
-        '545055d0b75c9c2f9234369990bac79e3df4d2c9cda852a8531be65d901f5719',
+        '68151540a9808cd12bb57ed31e2fa868f5022879bf969eb27cfd7125c0dcea6e',
     };
 
     console.log('using creds: ', account);

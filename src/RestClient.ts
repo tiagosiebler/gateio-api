@@ -13,21 +13,33 @@ import {
 import { RestClientOptions } from './lib/requestUtils.js';
 import {
   CreateSubAccountApiKeyReq,
+  DeleteAllFuturesOrdersReq,
   DeleteSpotOrderReq,
   GetCrossMarginAccountHistoryReq,
   GetCrossMarginBorrowHistoryReq,
   GetCrossMarginInterestRecordsReq,
   GetCrossMarginRepaymentsReq,
   GetFlashSwapOrdersReq,
+  GetFuturesAccountBookReq,
+  GetFuturesAutoOrdersReq,
   GetFuturesCandlesticksReq,
+  GetFuturesLiquidationHistoryReq,
   GetFuturesOrderBookReq,
+  GetFuturesOrdersByTimeRangeReq,
+  GetFuturesOrdersReq,
+  GetFuturesPositionHistoryReq,
+  GetFuturesPositionsReq,
+  GetFuturesStatsReq,
   GetFuturesTradesReq,
+  GetFuturesTradingHistoryReq,
+  GetLiquidationHistoryReq,
   GetMainSubTransfersReq,
   GetMarginBalanceHistoryReq,
   GetMarginUNIInterestRecordsReq,
   GetMarginUNILoanRecordsReq,
   GetMarginUNILoansReq,
   GetMarginUNIMaxBorrowReq,
+  GetRiskLimitTiersReq,
   GetSavedAddressReq,
   GetSmallBalanceHistoryReq,
   GetSpotAccountBookReq,
@@ -46,9 +58,14 @@ import {
   SubmitCrossMarginBorrowLoanReq,
   SubmitFlashSwapOrderPreviewReq,
   SubmitFlashSwapOrderReq,
+  submitFuturesBatchOrdersReq,
+  SubmitFuturesOrderReq,
+  SubmitFuturesPriceTriggeredOrderReq,
   SubmitSpotClosePosCrossDisabledReq,
   SubmitSpotOrderReq,
   SubmitUnifiedBorrowOrRepayReq,
+  UpdateDualModePositionLeverageReq,
+  UpdateDualModePositionMarginReq,
   UpdateSpotBatchOrdersReq,
   UpdateSpotOrderReq,
   UpdateSubAccountApiKeyReq,
@@ -57,6 +74,7 @@ import {
   APIResponse,
   CreateDepositAddressResp,
   CreateSubAccountApiKeyResp,
+  DeleteFuturesBatchOrdersResp,
   DeleteSpotBatchOrdersResp,
   FlashSwapOrderResp,
   GetBalancesResp,
@@ -65,16 +83,27 @@ import {
   GetCrossMarginCurrenciesResp,
   GetCurrencyChainsResp,
   GetFlashSwapCurrencyPairsResp,
+  GetFuturesAccountResp,
+  GetFuturesAutoDeleveragingHistoryResp,
   GetFuturesCandlesticksResp,
+  GetFuturesLiquidationHistoryResp,
   GetFuturesOrderBookResp,
+  GetFuturesPositionHistoryResp,
+  GetFuturesStatsResp,
+  GetFuturesTickersResp,
   GetFuturesTradesResp,
+  GetFuturesTradingHistoryResp,
+  GetIndexConstituentsResp,
   GetLendingMarketsResp,
+  GetLiquidationHistoryResp,
   GetMarginAccountsResp,
   GetMarginBalanceHistoryResp,
   GetMarginUNIInterestRecordsResp,
   GetMarginUNILoanRecordsResp,
   GetMarginUNILoansResp,
   GetMarginUNIMaxBorrowResp,
+  GetPremiumIndexKLineResp,
+  GetRiskLimitTiersResp,
   GetSavedAddressResp,
   GetSmallBalanceHistoryResp,
   GetSmallBalancesResp,
@@ -106,6 +135,7 @@ import {
   SubmitCrossMarginBorrowLoanResp,
   SubmitFlashSwapOrderPreviewResp,
   SubmitSpotBatchOrdersResp,
+  ToggleFuturesDualModeResp,
 } from './types/response/shared.types.js';
 import {
   CancelBatchOrder,
@@ -1785,94 +1815,27 @@ export class RestClient extends BaseRestClient {
    * Maximum of 1000 points can be returned in a query. Be sure not to exceed the limit when specifying from, to and interval.
    *
    * @param params Parameters for retrieving premium index K-Line
-   * @returns Promise<APIResponse<{
-   *   t: number;
-   *   c: string;
-   *   h: string;
-   *   l: string;
-   *   o: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetPremiumIndexKLineResp[]>>
    */
-  getPremiumIndexKLine(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    contract: string;
-    from?: number;
-    to?: number;
-    limit?: number;
-    interval?: string;
-  }): Promise<
-    APIResponse<
-      {
-        t: number;
-        c: string;
-        h: string;
-        l: string;
-        o: string;
-      }[]
-    >
-  > {
-    return this.get(`/futures/${params.settle}/premium_index`, params);
+  getPremiumIndexKLine(
+    params: GetFuturesCandlesticksReq,
+  ): Promise<APIResponse<GetPremiumIndexKLineResp[]>> {
+    const { settle, ...query } = params;
+    return this.get(`/futures/${settle}/premium_index`, query);
   }
 
   /**
    * List futures tickers
    *
    * @param params Parameters for listing futures tickers
-   * @returns Promise<APIResponse<{
-   *   contract: string;
-   *   last: string;
-   *   change_percentage: string;
-   *   total_size: string;
-   *   low_24h: string;
-   *   high_24h: string;
-   *   volume_24h: string;
-   *   volume_24h_btc?: string;
-   *   volume_24h_usd?: string;
-   *   volume_24h_base: string;
-   *   volume_24h_quote: string;
-   *   volume_24h_settle: string;
-   *   mark_price: string;
-   *   funding_rate: string;
-   *   funding_rate_indicative: string;
-   *   index_price: string;
-   *   quanto_base_rate?: string;
-   *   basis_rate: string;
-   *   basis_value: string;
-   *   lowest_ask: string;
-   *   highest_bid: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetFuturesTickersResp[]>>
    */
   getFuturesTickers(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract?: string;
-  }): Promise<
-    APIResponse<
-      {
-        contract: string;
-        last: string;
-        change_percentage: string;
-        total_size: string;
-        low_24h: string;
-        high_24h: string;
-        volume_24h: string;
-        volume_24h_btc?: string;
-        volume_24h_usd?: string;
-        volume_24h_base: string;
-        volume_24h_quote: string;
-        volume_24h_settle: string;
-        mark_price: string;
-        funding_rate: string;
-        funding_rate_indicative: string;
-        index_price: string;
-        quanto_base_rate?: string;
-        basis_rate: string;
-        basis_value: string;
-        lowest_ask: string;
-        highest_bid: string;
-      }[]
-    >
-  > {
-    return this.get(`/futures/${params.settle}/tickers`, params);
+  }): Promise<APIResponse<GetFuturesTickersResp[]>> {
+    const { settle, ...query } = params;
+    return this.get(`/futures/${settle}/tickers`, query);
   }
 
   /**
@@ -1896,7 +1859,8 @@ export class RestClient extends BaseRestClient {
       }[]
     >
   > {
-    return this.get(`/futures/${params.settle}/funding_rate`, params);
+    const { settle, ...query } = params;
+    return this.get(`/futures/${settle}/funding_rate`, query);
   }
 
   /**
@@ -1919,84 +1883,35 @@ export class RestClient extends BaseRestClient {
       }[]
     >
   > {
-    return this.get(`/futures/${params.settle}/insurance`, params);
+    const { settle, ...query } = params;
+    return this.get(`/futures/${settle}/insurance`, query);
   }
 
   /**
    * Futures stats
    *
    * @param params Parameters for retrieving futures stats
-   * @returns Promise<APIResponse<{
-   *   time: number;
-   *   lsr_taker: number;
-   *   lsr_account: number;
-   *   long_liq_size: number;
-   *   long_liq_amount: number;
-   *   long_liq_usd: number;
-   *   short_liq_size: number;
-   *   short_liq_amount: number;
-   *   short_liq_usd: number;
-   *   open_interest: number;
-   *   open_interest_usd: number;
-   *   top_lsr_account: number;
-   *   top_lsr_size: number;
-   * }[]>>
+   * @returns Promise<APIResponse<GetFuturesStatsResp[]>>
    */
-  getFuturesStats(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    contract: string;
-    from?: number;
-    interval?: string;
-    limit?: number;
-  }): Promise<
-    APIResponse<
-      {
-        time: number;
-        lsr_taker: number;
-        lsr_account: number;
-        long_liq_size: number;
-        long_liq_amount: number;
-        long_liq_usd: number;
-        short_liq_size: number;
-        short_liq_amount: number;
-        short_liq_usd: number;
-        open_interest: number;
-        open_interest_usd: number;
-        top_lsr_account: number;
-        top_lsr_size: number;
-      }[]
-    >
-  > {
-    return this.get(`/futures/${params.settle}/contract_stats`, params);
+  getFuturesStats(
+    params: GetFuturesStatsReq,
+  ): Promise<APIResponse<GetFuturesStatsResp[]>> {
+    const { settle, ...query } = params;
+    return this.get(`/futures/${settle}/contract_stats`, query);
   }
 
   /**
    * Get index constituents
    *
    * @param params Parameters for retrieving index constituents
-   * @returns Promise<APIResponse<{
-   *   index: string;
-   *   constituents: {
-   *     exchange: string;
-   *     symbols: string[];
-   *   }[];
-   * }>>
+   * @returns Promise<APIResponse<GetIndexConstituentsResp>>
    */
   getIndexConstituents(params: {
     settle: 'btc' | 'usdt' | 'usd';
     index: string;
-  }): Promise<
-    APIResponse<{
-      index: string;
-      constituents: {
-        exchange: string;
-        symbols: string[];
-      }[];
-    }>
-  > {
+  }): Promise<APIResponse<GetIndexConstituentsResp>> {
     return this.get(
       `/futures/${params.settle}/index_constituents/${params.index}`,
-      params,
     );
   }
 
@@ -2006,34 +1921,13 @@ export class RestClient extends BaseRestClient {
    * Interval between from and to cannot exceed 3600. Some private fields will not be returned in public endpoints. Refer to field description for detail.
    *
    * @param params Parameters for retrieving liquidation history
-   * @returns Promise<APIResponse<{
-   *   time: number;
-   *   contract: string;
-   *   size: number;
-   *   order_price: string;
-   *   fill_price: string;
-   *   left: number;
-   * }[]>>
+   * @returns Promise<APIResponse<GetLiquidationHistoryResp[]>>
    */
-  getLiquidationHistory(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    contract?: string;
-    from?: number;
-    to?: number;
-    limit?: number;
-  }): Promise<
-    APIResponse<
-      {
-        time: number;
-        contract: string;
-        size: number;
-        order_price: string;
-        fill_price: string;
-        left: number;
-      }[]
-    >
-  > {
-    return this.get(`/futures/${params.settle}/liq_orders`, params);
+  getLiquidationHistory(
+    params: GetLiquidationHistoryReq,
+  ): Promise<APIResponse<GetLiquidationHistoryResp[]>> {
+    const { settle, ...query } = params;
+    return this.get(`/futures/${settle}/liq_orders`, query);
   }
 
   /**
@@ -2044,97 +1938,25 @@ export class RestClient extends BaseRestClient {
    * This only takes effect when the 'contract' parameter is empty.
    *
    * @param params Parameters for listing risk limit tiers
-   * @returns Promise<APIResponse<{
-   *   tier: number;
-   *   risk_limit: string;
-   *   initial_rate: string;
-   *   maintenance_rate: string;
-   *   leverage_max: string;
-   *   contract: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetRiskLimitTiersResp[]>>
    */
-  getRiskLimitTiers(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    contract: string;
-    limit?: number;
-    offset?: number;
-  }): Promise<
-    APIResponse<
-      {
-        tier: number;
-        risk_limit: string;
-        initial_rate: string;
-        maintenance_rate: string;
-        leverage_max: string;
-        contract: string;
-      }[]
-    >
-  > {
-    return this.get(`/futures/${params.settle}/risk_limit_tiers`, params);
+  getRiskLimitTiers(
+    params: GetRiskLimitTiersReq,
+  ): Promise<APIResponse<GetRiskLimitTiersResp[]>> {
+    const { settle, ...query } = params;
+    return this.get(`/futures/${settle}/risk_limit_tiers`, query);
   }
 
   /**
    * Query futures account
    *
    * @param params Parameters for querying futures account
-   * @returns Promise<APIResponse<{
-   *   total: string;
-   *   unrealised_pnl: string;
-   *   position_margin: string;
-   *   order_margin: string;
-   *   available: string;
-   *   point: string;
-   *   currency: string;
-   *   in_dual_mode: boolean;
-   *   enable_credit: boolean;
-   *   position_initial_margin: string;
-   *   maintenance_margin: string;
-   *   bonus: string;
-   *   enable_evolved_classic: boolean;
-   *   history: {
-   *     dnw: string;
-   *     pnl: string;
-   *     fee: string;
-   *     refr: string;
-   *     fund: string;
-   *     point_dnw: string;
-   *     point_fee: string;
-   *     point_refr: string;
-   *     bonus_dnw: string;
-   *     bonus_offset: string;
-   *   };
-   * }>>
+   * @returns Promise<APIResponse<GetFuturesAccountResp>>
    */
-  getFuturesAccount(params: { settle: 'btc' | 'usdt' | 'usd' }): Promise<
-    APIResponse<{
-      total: string;
-      unrealised_pnl: string;
-      position_margin: string;
-      order_margin: string;
-      available: string;
-      point: string;
-      currency: string;
-      in_dual_mode: boolean;
-      enable_credit: boolean;
-      position_initial_margin: string;
-      maintenance_margin: string;
-      bonus: string;
-      enable_evolved_classic: boolean;
-      history: {
-        dnw: string;
-        pnl: string;
-        fee: string;
-        refr: string;
-        fund: string;
-        point_dnw: string;
-        point_fee: string;
-        point_refr: string;
-        bonus_dnw: string;
-        bonus_offset: string;
-      };
-    }>
-  > {
-    return this.getPrivate(`/futures/${params.settle}/accounts`, params);
+  getFuturesAccount(params: {
+    settle: 'btc' | 'usdt' | 'usd';
+  }): Promise<APIResponse<GetFuturesAccountResp>> {
+    return this.getPrivate(`/futures/${params.settle}/accounts`);
   }
 
   /**
@@ -2143,47 +1965,13 @@ export class RestClient extends BaseRestClient {
    * If the contract field is provided, it can only filter records that include this field after 2023-10-30.
    *
    * @param params Parameters for querying account book
-   * @returns Promise<APIResponse<{
-   *   time: number;
-   *   change: string;
-   *   balance: string;
-   *   type: string;
-   *   text: string;
-   *   contract?: string;
-   *   trade_id: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetFuturesAccountBookResp[]>>
    */
-  getFuturesAccountBook(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    contract?: string;
-    limit?: number;
-    offset?: number;
-    from?: number;
-    to?: number;
-    type?:
-      | 'dnw'
-      | 'pnl'
-      | 'fee'
-      | 'refr'
-      | 'fund'
-      | 'point_dnw'
-      | 'point_fee'
-      | 'point_refr'
-      | 'bonus_offset';
-  }): Promise<
-    APIResponse<
-      {
-        time: number;
-        change: string;
-        balance: string;
-        type: string;
-        text: string;
-        contract?: string;
-        trade_id: string;
-      }[]
-    >
-  > {
-    return this.getPrivate(`/futures/${params.settle}/account_book`, params);
+  getFuturesAccountBook(
+    params: GetFuturesAccountBookReq,
+  ): Promise<APIResponse<GetFuturesAccountBookReq[]>> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/futures/${settle}/account_book`, query);
   }
 
   /**
@@ -2192,15 +1980,12 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for listing all positions of a user
    * @returns Promise<APIResponse<Position[]>>
    */
-  getFuturesPositions(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    holding?: boolean;
-    limit?: number;
-    offset?: number;
-  }): Promise<APIResponse<Position[]>> {
-    return this.getPrivate(`/futures/${params.settle}/positions`, params);
+  getFuturesPositions(
+    params: GetFuturesPositionsReq,
+  ): Promise<APIResponse<Position[]>> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/futures/${settle}/positions`, query);
   }
-
   /**
    * Get single position
    *
@@ -2213,7 +1998,6 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<Position>> {
     return this.getPrivate(
       `/futures/${params.settle}/positions/${params.contract}`,
-      params,
     );
   }
 
@@ -2228,10 +2012,10 @@ export class RestClient extends BaseRestClient {
     contract: string;
     change: string;
   }): Promise<APIResponse<Position>> {
-    return this.postPrivate(
-      `/futures/${params.settle}/positions/${params.contract}/margin`,
-      { query: params },
-    );
+    const { settle, contract, ...query } = params;
+    return this.postPrivate(`/futures/${settle}/positions/${contract}/margin`, {
+      query: query,
+    });
   }
 
   /**
@@ -2246,10 +2030,10 @@ export class RestClient extends BaseRestClient {
     leverage: string;
     cross_leverage_limit?: string;
   }): Promise<APIResponse<Position>> {
-    const { settle, contract, ...remainingParams } = params;
+    const { settle, contract, ...query } = params;
     return this.postPrivate(
       `/futures/${settle}/positions/${contract}/leverage`,
-      { query: remainingParams },
+      { query: query },
     );
   }
 
@@ -2264,9 +2048,10 @@ export class RestClient extends BaseRestClient {
     contract: string;
     risk_limit: string;
   }): Promise<APIResponse<Position>> {
+    const { settle, contract, ...query } = params;
     return this.postPrivate(
-      `/futures/${params.settle}/positions/${params.contract}/risk_limit`,
-      { query: params },
+      `/futures/${settle}/positions/${contract}/risk_limit`,
+      { query: query },
     );
   }
 
@@ -2276,68 +2061,15 @@ export class RestClient extends BaseRestClient {
    * Before setting dual mode, make sure all positions are closed and no orders are open.
    *
    * @param params Parameters for enabling or disabling dual mode
-   * @returns Promise<APIResponse<{
-   *   total: string;
-   *   unrealised_pnl: string;
-   *   position_margin: string;
-   *   order_margin: string;
-   *   available: string;
-   *   point: string;
-   *   currency: string;
-   *   in_dual_mode: boolean;
-   *   enable_credit: boolean;
-   *   position_initial_margin: string;
-   *   maintenance_margin: string;
-   *   bonus: string;
-   *   enable_evolved_classic: boolean;
-   *   history: {
-   *     dnw: string;
-   *     pnl: string;
-   *     fee: string;
-   *     refr: string;
-   *     fund: string;
-   *     point_dnw: string;
-   *     point_fee: string;
-   *     point_refr: string;
-   *     bonus_dnw: string;
-   *     bonus_offset: string;
-   *   };
-   * }>>
+   * @returns Promise<APIResponse<ToggleFuturesDualModeResp>>
    */
   toggleFuturesDualMode(params: {
     settle: 'btc' | 'usdt' | 'usd';
     dual_mode: boolean;
-  }): Promise<
-    APIResponse<{
-      total: string;
-      unrealised_pnl: string;
-      position_margin: string;
-      order_margin: string;
-      available: string;
-      point: string;
-      currency: string;
-      in_dual_mode: boolean;
-      enable_credit: boolean;
-      position_initial_margin: string;
-      maintenance_margin: string;
-      bonus: string;
-      enable_evolved_classic: boolean;
-      history: {
-        dnw: string;
-        pnl: string;
-        fee: string;
-        refr: string;
-        fund: string;
-        point_dnw: string;
-        point_fee: string;
-        point_refr: string;
-        bonus_dnw: string;
-        bonus_offset: string;
-      };
-    }>
-  > {
-    return this.postPrivate(`/futures/${params.settle}/dual_mode`, {
-      query: params,
+  }): Promise<APIResponse<ToggleFuturesDualModeResp>> {
+    const { settle, ...query } = params;
+    return this.postPrivate(`/futures/${settle}/dual_mode`, {
+      query: query,
     });
   }
 
@@ -2353,7 +2085,6 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<Position[]>> {
     return this.getPrivate(
       `/futures/${params.settle}/dual_comp/positions/${params.contract}`,
-      params,
     );
   }
 
@@ -2363,15 +2094,13 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for updating position margin in dual mode
    * @returns Promise<APIResponse<Position[]>>
    */
-  updateDualModePositionMargin(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    contract: string;
-    change: string;
-    dual_side: 'dual_long' | 'dual_short';
-  }): Promise<APIResponse<Position[]>> {
+  updateDualModePositionMargin(
+    params: UpdateDualModePositionMarginReq,
+  ): Promise<APIResponse<Position[]>> {
+    const { settle, contract, ...query } = params;
     return this.postPrivate(
-      `/futures/${params.settle}/dual_comp/positions/${params.contract}/margin`,
-      { query: params },
+      `/futures/${settle}/dual_comp/positions/${contract}/margin`,
+      { query: query },
     );
   }
 
@@ -2381,15 +2110,13 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for updating position leverage in dual mode
    * @returns Promise<APIResponse<Position[]>>
    */
-  updateDualModePositionLeverage(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    contract: string;
-    leverage: string;
-    cross_leverage_limit?: string;
-  }): Promise<APIResponse<Position[]>> {
+  updateDualModePositionLeverage(
+    params: UpdateDualModePositionLeverageReq,
+  ): Promise<APIResponse<Position[]>> {
+    const { settle, contract, ...query } = params;
     return this.postPrivate(
-      `/futures/${params.settle}/dual_comp/positions/${params.contract}/leverage`,
-      { query: params },
+      `/futures/${settle}/dual_comp/positions/${contract}/leverage`,
+      { query: query },
     );
   }
 
@@ -2404,9 +2131,10 @@ export class RestClient extends BaseRestClient {
     contract: string;
     risk_limit: string;
   }): Promise<APIResponse<Position[]>> {
+    const { settle, contract, ...query } = params;
     return this.postPrivate(
-      `/futures/${params.settle}/dual_comp/positions/${params.contract}/risk_limit`,
-      { query: params },
+      `/futures/${settle}/dual_comp/positions/${contract}/risk_limit`,
+      { query: query },
     );
   }
 
@@ -2421,15 +2149,13 @@ export class RestClient extends BaseRestClient {
    * Set stp_act to decide the strategy of self-trade prevention. For detailed usage, refer to the stp_act parameter in the request body.
    *
    * @param params Parameters for creating a futures order
-   * @returns Promise<APIResponse<FuturesOrder>>
+   * @returns Promise<APIResponse<SubmitFuturesOrderReq>>
    */
   submitFuturesOrder(
-    params: {
-      settle: 'btc' | 'usdt' | 'usd';
-    },
-    body: FuturesOrder,
+    params: SubmitFuturesOrderReq,
   ): Promise<APIResponse<FuturesOrder>> {
-    return this.postPrivate(`/futures/${params.settle}/orders`, { body });
+    const { settle, ...body } = params;
+    return this.postPrivate(`/futures/${settle}/orders`, { body: body });
   }
 
   /**
@@ -2441,15 +2167,11 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for listing futures orders
    * @returns Promise<APIResponse<FuturesOrder[]>>
    */
-  getFuturesOrders(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    contract?: string;
-    status: string;
-    limit?: number;
-    offset?: number;
-    last_id?: string;
-  }): Promise<APIResponse<FuturesOrder[]>> {
-    return this.getPrivate(`/futures/${params.settle}/orders`, params);
+  getFuturesOrders(
+    params: GetFuturesOrdersReq,
+  ): Promise<APIResponse<FuturesOrder[]>> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/futures/${settle}/orders`, query);
   }
 
   /**
@@ -2460,13 +2182,12 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling all open orders matched
    * @returns Promise<APIResponse<FuturesOrder[]>>
    */
-  deleteAllFuturesOrders(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    contract: string;
-    side?: string;
-  }): Promise<APIResponse<FuturesOrder[]>> {
-    return this.deletePrivate(`/futures/${params.settle}/orders`, {
-      query: params,
+  deleteAllFuturesOrders(
+    params: DeleteAllFuturesOrdersReq,
+  ): Promise<APIResponse<FuturesOrder[]>> {
+    const { settle, ...query } = params;
+    return this.deletePrivate(`/futures/${settle}/orders`, {
+      query: query,
     });
   }
 
@@ -2476,18 +2197,11 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for listing futures orders by time range
    * @returns Promise<APIResponse<FuturesOrder[]>>
    */
-  getFuturesOrdersByTimeRange(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    contract?: string;
-    from?: number;
-    to?: number;
-    limit?: number;
-    offset?: number;
-  }): Promise<APIResponse<FuturesOrder[]>> {
-    return this.getPrivate(
-      `/futures/${params.settle}/orders_timerange`,
-      params,
-    );
+  getFuturesOrdersByTimeRange(
+    params: GetFuturesOrdersByTimeRangeReq,
+  ): Promise<APIResponse<FuturesOrder[]>> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/futures/${settle}/orders_timerange`, query);
   }
 
   /**
@@ -2502,71 +2216,13 @@ export class RestClient extends BaseRestClient {
    * In the rate limiting, each order is counted individually.
    *
    * @param params Parameters for creating a batch of futures orders
-   * @returns Promise<APIResponse<{
-   *   succeeded: boolean;
-   *   label?: string;
-   *   detail?: string;
-   *   id: number;
-   *   user: number;
-   *   create_time: number;
-   *   finish_time?: number;
-   *   finish_as?: string;
-   *   status: string;
-   *   contract: string;
-   *   size: number;
-   *   iceberg: number;
-   *   price: string;
-   *   is_close: boolean;
-   *   is_reduce_only: boolean;
-   *   is_liq: boolean;
-   *   tif: string;
-   *   left: number;
-   *   fill_price: string;
-   *   text: string;
-   *   tkfr: string;
-   *   mkfr: string;
-   *   refu: number;
-   *   stp_act: string;
-   *   stp_id: number;
-   * }[]>>
+   * @returns Promise<APIResponse<FuturesOrder[]>>
    */
   submitFuturesBatchOrders(
-    params: {
-      settle: 'btc' | 'usdt' | 'usd';
-    },
-    body: FuturesOrder[],
-  ): Promise<
-    APIResponse<
-      {
-        succeeded: boolean;
-        label?: string;
-        detail?: string;
-        id: number;
-        user: number;
-        create_time: number;
-        finish_time?: number;
-        finish_as?: string;
-        status: string;
-        contract: string;
-        size: number;
-        iceberg: number;
-        price: string;
-        is_close: boolean;
-        is_reduce_only: boolean;
-        is_liq: boolean;
-        tif: string;
-        left: number;
-        fill_price: string;
-        text: string;
-        tkfr: string;
-        mkfr: string;
-        refu: number;
-        stp_act: string;
-        stp_id: number;
-      }[]
-    >
-  > {
-    return this.postPrivate(`/futures/${params.settle}/batch_orders`, { body });
+    params: submitFuturesBatchOrdersReq,
+  ): Promise<APIResponse<FuturesOrder[]>> {
+    const { settle, ...body } = params;
+    return this.postPrivate(`/futures/${settle}/batch_orders`, { body: body });
   }
 
   /**
@@ -2584,7 +2240,6 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<FuturesOrder>> {
     return this.getPrivate(
       `/futures/${params.settle}/orders/${params.order_id}`,
-      params,
     );
   }
 
@@ -2609,21 +2264,17 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for amending an order
    * @returns Promise<APIResponse<FuturesOrder>>
    */
-  updateFuturesOrder(
-    params: {
-      settle: 'btc' | 'usdt' | 'usd';
-      order_id: string;
-    },
-    body: {
-      size?: number;
-      price?: string;
-      amend_text?: string;
-    },
-  ): Promise<APIResponse<FuturesOrder>> {
-    return this.putPrivate(
-      `/futures/${params.settle}/orders/${params.order_id}`,
-      { body },
-    );
+  updateFuturesOrder(params: {
+    settle: 'btc' | 'usdt' | 'usd';
+    order_id: string;
+    size?: number;
+    price?: string;
+    amend_text?: string;
+  }): Promise<APIResponse<FuturesOrder>> {
+    const { settle, order_id, ...body } = params;
+    return this.putPrivate(`/futures/${settle}/orders/${order_id}`, {
+      body: body,
+    });
   }
 
   /**
@@ -2632,181 +2283,52 @@ export class RestClient extends BaseRestClient {
    * By default, only data within the past 6 months is supported. If you need to query data for a longer period, please use GET /futures/{settle}/my_trades_timerange.
    *
    * @param params Parameters for listing personal trading history
-   * @returns Promise<APIResponse<{
-   *   id: number;
-   *   create_time: number;
-   *   contract: string;
-   *   order_id: string;
-   *   size: number;
-   *   price: string;
-   *   role: 'taker' | 'maker';
-   *   text: string;
-   *   fee: string;
-   *   point_fee: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetFuturesTradingHistoryResp[]>>
    */
-  getFuturesTradingHistory(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    contract?: string;
-    order?: number;
-    limit?: number;
-    offset?: number;
-    last_id?: string;
-  }): Promise<
-    APIResponse<
-      {
-        id: number;
-        create_time: number;
-        contract: string;
-        order_id: string;
-        size: number;
-        price: string;
-        role: 'taker' | 'maker';
-        text: string;
-        fee: string;
-        point_fee: string;
-      }[]
-    >
-  > {
-    return this.getPrivate(`/futures/${params.settle}/my_trades`, params);
+  getFuturesTradingHistory(
+    params: GetFuturesTradingHistoryReq,
+  ): Promise<APIResponse<GetFuturesTradingHistoryResp[]>> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/futures/${settle}/my_trades`, query);
   }
 
   /**
    * List position close history
    *
    * @param params Parameters for listing position close history
-   * @returns Promise<APIResponse<{
-   *   time: number;
-   *   contract: string;
-   *   side: 'long' | 'short';
-   *   pnl: string;
-   *   pnl_pnl: string;
-   *   pnl_fund: string;
-   *   pnl_fee: string;
-   *   text: string;
-   *   max_size: string;
-   *   first_open_time: number;
-   *   long_price: string;
-   *   short_price: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetFuturesPositionHistoryResp[]>>
    */
-  getFuturesPositionHistory(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    contract?: string;
-    limit?: number;
-    offset?: number;
-    from?: number;
-    to?: number;
-    side?: 'long' | 'short';
-    pnl?: string;
-  }): Promise<
-    APIResponse<
-      {
-        time: number;
-        contract: string;
-        side: 'long' | 'short';
-        pnl: string;
-        pnl_pnl: string;
-        pnl_fund: string;
-        pnl_fee: string;
-        text: string;
-        max_size: string;
-        first_open_time: number;
-        long_price: string;
-        short_price: string;
-      }[]
-    >
-  > {
-    return this.getPrivate(`/futures/${params.settle}/position_close`, params);
+  getFuturesPositionHistory(
+    params: GetFuturesPositionHistoryReq,
+  ): Promise<APIResponse<GetFuturesPositionHistoryResp[]>> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/futures/${settle}/position_close`, query);
   }
 
   /**
    * List liquidation history
    *
    * @param params Parameters for listing liquidation history
-   * @returns Promise<APIResponse<{
-   *   time: number;
-   *   contract: string;
-   *   leverage: string;
-   *   size: number;
-   *   margin: string;
-   *   entry_price: string;
-   *   liq_price: string;
-   *   mark_price: string;
-   *   order_id: number;
-   *   order_price: string;
-   *   fill_price: string;
-   *   left: number;
-   * }[]>>
+   * @returns Promise<APIResponse<GetFuturesLiquidationHistoryResp[]>>
    */
-  getFuturesLiquidationHistory(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    contract?: string;
-    limit?: number;
-    at?: number;
-  }): Promise<
-    APIResponse<
-      {
-        time: number;
-        contract: string;
-        leverage: string;
-        size: number;
-        margin: string;
-        entry_price: string;
-        liq_price: string;
-        mark_price: string;
-        order_id: number;
-        order_price: string;
-        fill_price: string;
-        left: number;
-      }[]
-    >
-  > {
-    return this.getPrivate(`/futures/${params.settle}/liquidates`, params);
+  getFuturesLiquidationHistory(
+    params: GetFuturesLiquidationHistoryReq,
+  ): Promise<APIResponse<GetFuturesLiquidationHistoryResp[]>> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/futures/${settle}/liquidates`, query);
   }
 
   /**
    * List Auto-Deleveraging History
    *
    * @param params Parameters for listing auto-deleveraging history
-   * @returns Promise<APIResponse<{
-   *   time: number;
-   *   user: number;
-   *   order_id: number;
-   *   contract: string;
-   *   leverage: string;
-   *   cross_leverage_limit: string;
-   *   entry_price: string;
-   *   fill_price: string;
-   *   trade_size: number;
-   *   position_size: number;
-   * }[]>>
+   * @returns Promise<APIResponse<GetFuturesAutoDeleveragingHistoryResp[]>>
    */
-  getFuturesAutoDeleveragingHistory(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    contract?: string;
-    limit?: number;
-    at?: number;
-  }): Promise<
-    APIResponse<
-      {
-        time: number;
-        user: number;
-        order_id: number;
-        contract: string;
-        leverage: string;
-        cross_leverage_limit: string;
-        entry_price: string;
-        fill_price: string;
-        trade_size: number;
-        position_size: number;
-      }[]
-    >
-  > {
-    return this.getPrivate(
-      `/futures/${params.settle}/auto_deleverages`,
-      params,
-    );
+  getFuturesAutoDeleveragingHistory(
+    params: GetFuturesLiquidationHistoryReq,
+  ): Promise<APIResponse<GetFuturesAutoDeleveragingHistoryResp[]>> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/futures/${settle}/auto_deleverages`, query);
   }
 
   /**
@@ -2819,17 +2341,14 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for setting countdown cancel orders
    * @returns Promise<APIResponse<{ triggerTime: number }>>
    */
-  deleteFuturesOrdersCountdown(
-    params: {
-      settle: 'btc' | 'usdt' | 'usd';
-    },
-    body: {
-      timeout: number;
-      contract?: string;
-    },
-  ): Promise<APIResponse<{ triggerTime: number }>> {
-    return this.postPrivate(`/futures/${params.settle}/countdown_cancel_all`, {
-      body,
+  deleteFuturesOrdersCountdown(params: {
+    settle: 'btc' | 'usdt' | 'usd';
+    timeout: number;
+    contract?: string;
+  }): Promise<APIResponse<{ triggerTime: number }>> {
+    const { settle, ...body } = params;
+    return this.postPrivate(`/futures/${settle}/countdown_cancel_all`, {
+      body: body,
     });
   }
 
@@ -2837,15 +2356,14 @@ export class RestClient extends BaseRestClient {
    * Query user trading fee rates
    *
    * @param params Parameters for querying user trading fee rates
-   * @returns Promise<APIResponse<Record<string, { taker_fee: string; maker_fee: string }>>>
+   * @returns Promise<APIResponse<any>>>
    */
   getFuturesUserTradingFees(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract?: string;
-  }): Promise<
-    APIResponse<Record<string, { taker_fee: string; maker_fee: string }>>
-  > {
-    return this.getPrivate(`/futures/${params.settle}/fee`, params);
+  }): Promise<APIResponse<any>> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/futures/${settle}/fee`, query);
   }
 
   /**
@@ -2854,30 +2372,15 @@ export class RestClient extends BaseRestClient {
    * Multiple distinct order ID list can be specified. Each request can cancel a maximum of 20 records.
    *
    * @param params Parameters for cancelling a batch of orders with an ID list
-   * @returns Promise<APIResponse<{
-   *   user_id: number;
-   *   id: string;
-   *   succeeded: boolean;
-   *   message: string;
-   * }[]>>
+   * @returns Promise<APIResponse<DeleteFuturesBatchOrdersResp[]>>
    */
-  deleteFuturesBatchOrders(
-    params: {
-      settle: 'btc' | 'usdt' | 'usd';
-    },
-    body: string[],
-  ): Promise<
-    APIResponse<
-      {
-        user_id: number;
-        id: string;
-        succeeded: boolean;
-        message: string;
-      }[]
-    >
-  > {
-    return this.postPrivate(`/futures/${params.settle}/batch_cancel_orders`, {
-      body,
+  deleteFuturesBatchOrders(params: {
+    settle: 'btc' | 'usdt' | 'usd';
+    body: string[];
+  }): Promise<APIResponse<DeleteFuturesBatchOrdersResp[]>> {
+    const { settle, ...body } = params;
+    return this.postPrivate(`/futures/${settle}/batch_cancel_orders`, {
+      body: body,
     });
   }
 
@@ -2888,12 +2391,10 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<APIResponse<{ id: number }>>
    */
   submitFuturesPriceTriggeredOrder(
-    params: {
-      settle: 'btc' | 'usdt' | 'usd';
-    },
-    body: FuturesPriceTriggeredOrder,
+    params: SubmitFuturesPriceTriggeredOrderReq,
   ): Promise<APIResponse<{ id: number }>> {
-    return this.postPrivate(`/futures/${params.settle}/price_orders`, { body });
+    const { settle, ...body } = params;
+    return this.postPrivate(`/futures/${settle}/price_orders`, { body: body });
   }
 
   /**
@@ -2902,14 +2403,11 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for listing all auto orders
    * @returns Promise<APIResponse<FuturesPriceTriggeredOrder[]>>
    */
-  getFuturesAutoOrders(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    status: 'open' | 'finished';
-    contract?: string;
-    limit?: number;
-    offset?: number;
-  }): Promise<APIResponse<FuturesPriceTriggeredOrder[]>> {
-    return this.getPrivate(`/futures/${params.settle}/price_orders`, params);
+  getFuturesAutoOrders(
+    params: GetFuturesAutoOrdersReq,
+  ): Promise<APIResponse<FuturesPriceTriggeredOrder[]>> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/futures/${settle}/price_orders`, query);
   }
 
   /**
@@ -2922,8 +2420,9 @@ export class RestClient extends BaseRestClient {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
   }): Promise<APIResponse<FuturesPriceTriggeredOrder[]>> {
-    return this.deletePrivate(`/futures/${params.settle}/price_orders`, {
-      query: params,
+    const { settle, ...query } = params;
+    return this.deletePrivate(`/futures/${settle}/price_orders`, {
+      query: query,
     });
   }
 
@@ -2939,7 +2438,6 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<FuturesPriceTriggeredOrder>> {
     return this.getPrivate(
       `/futures/${params.settle}/price_orders/${params.order_id}`,
-      params,
     );
   }
 
@@ -2955,9 +2453,9 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<FuturesPriceTriggeredOrder>> {
     return this.deletePrivate(
       `/futures/${params.settle}/price_orders/${params.order_id}`,
-      { query: params },
     );
   }
+
   /**==========================================================================================================================
    * DELIVERY
    * ==========================================================================================================================
