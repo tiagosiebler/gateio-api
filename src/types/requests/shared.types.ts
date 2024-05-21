@@ -305,3 +305,97 @@ export interface GetCrossMarginInterestRecordsReq {
  * MARGIN UNI
  * ==========================================================================================================================
  */
+
+export interface GetMarginUNILoansReq {
+  currency_pair?: string;
+  currency?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface GetMarginUNILoanRecordsReq {
+  type?: 'borrow' | 'repay';
+  currency?: string;
+  currency_pair?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface GetMarginUNIInterestRecordsReq {
+  currency_pair?: string;
+  currency?: string;
+  page?: number;
+  limit?: number;
+  from?: number;
+  to?: number;
+}
+
+export interface GetMarginUNIMaxBorrowReq {
+  currency: string;
+  currency_pair: string;
+}
+
+/**==========================================================================================================================
+ * FLASH SWAP
+ * ==========================================================================================================================
+ */
+
+export interface SubmitFlashSwapOrderReq {
+  preview_id: string;
+  sell_currency: string;
+  sell_amount: string;
+  buy_currency: string;
+  buy_amount: string;
+}
+
+export interface GetFlashSwapOrdersReq {
+  status?: number;
+  sell_currency?: string;
+  buy_currency?: string;
+  reverse?: boolean;
+  limit?: number;
+  page?: number;
+}
+
+export interface GetFlashSwapOrderReq {
+  order_id: number;
+}
+
+export interface SubmitFlashSwapOrderPreviewReq {
+  sell_currency: string;
+  sell_amount?: string;
+  buy_currency: string;
+  buy_amount?: string;
+}
+
+/**==========================================================================================================================
+ * FUTURES
+ * ==========================================================================================================================
+ */
+
+export interface GetFuturesOrderBookReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract: string;
+  interval?: string;
+  limit?: number;
+  with_id?: boolean;
+}
+
+export interface GetFuturesTradesReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract: string;
+  limit?: number;
+  offset?: number;
+  last_id?: string;
+  from?: number;
+  to?: number;
+}
+
+export interface GetFuturesCandlesticksReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract: string;
+  from?: number;
+  to?: number;
+  limit?: number;
+  interval?: string;
+}

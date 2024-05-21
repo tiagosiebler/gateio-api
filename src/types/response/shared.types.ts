@@ -655,3 +655,112 @@ export interface SubmitCrossMarginBorrowLoanResp {
  * MARGIN UNI
  * ==========================================================================================================================
  */
+
+export interface GetLendingMarketsResp {
+  currency_pair: string;
+  base_min_borrow_amount: string;
+  quote_min_borrow_amount: string;
+  leverage: string;
+}
+
+export interface GetMarginUNILoansResp {
+  currency: string;
+  currency_pair: string;
+  amount: string;
+  type: string;
+  create_time: number;
+  update_time: number;
+}
+
+export interface GetMarginUNILoanRecordsResp {
+  type: string;
+  currency_pair: string;
+  currency: string;
+  amount: string;
+  create_time: number;
+}
+
+export interface GetMarginUNIInterestRecordsResp {
+  currency: string;
+  currency_pair: string;
+  actual_rate: string;
+  interest: string;
+  status: number;
+  type: string;
+  create_time: number;
+}
+
+export interface GetMarginUNIMaxBorrowResp {
+  currency: string;
+  currency_pair: string;
+  borrowable: string;
+}
+
+/**==========================================================================================================================
+ * FLASH SWAP
+ * ==========================================================================================================================
+ */
+
+export interface GetFlashSwapCurrencyPairsResp {
+  currency_pair: string;
+  sell_currency: string;
+  buy_currency: string;
+  sell_min_amount: string;
+  sell_max_amount: string;
+  buy_min_amount: string;
+  buy_max_amount: string;
+}
+
+export interface FlashSwapOrderResp {
+  id: number;
+  create_time: number;
+  user_id: number;
+  sell_currency: string;
+  sell_amount: string;
+  buy_currency: string;
+  buy_amount: string;
+  price: string;
+  status: number;
+}
+
+export interface SubmitFlashSwapOrderPreviewResp {
+  preview_id: string;
+  sell_currency: string;
+  sell_amount: string;
+  buy_currency: string;
+  buy_amount: string;
+  price: string;
+}
+
+/**==========================================================================================================================
+ * FUTURES
+ * ==========================================================================================================================
+ */
+
+export interface GetFuturesOrderBookResp {
+  id?: number;
+  current: number;
+  update: number;
+  asks: { p: string; s: number }[];
+  bids: { p: string; s: number }[];
+}
+
+export interface GetFuturesTradesResp {
+  id: number;
+  create_time: number;
+  create_time_ms: number;
+  contract: string;
+  size: number;
+  price: string;
+  is_internal?: boolean;
+}
+
+export interface GetFuturesCandlesticksResp {
+  t: number;
+  v?: number;
+  c: string;
+  h: string;
+  l: string;
+  o: string;
+  sum: string;
+}
