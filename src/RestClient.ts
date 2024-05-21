@@ -19,6 +19,16 @@ import {
   GetCrossMarginBorrowHistoryReq,
   GetCrossMarginInterestRecordsReq,
   GetCrossMarginRepaymentsReq,
+  GetDeliveryAutoOrdersReq,
+  GetDeliveryBookReq,
+  GetDeliveryCandlesticksReq,
+  GetDeliveryClosedPositionsReq,
+  GetDeliveryLiquidationHistoryReq,
+  GetDeliveryOrderBookReq,
+  GetDeliveryOrdersReq,
+  GetDeliverySettlementHistoryReq,
+  GetDeliveryTradesReq,
+  GetDeliveryTradingHistoryReq,
   GetFlashSwapOrdersReq,
   GetFuturesAccountBookReq,
   GetFuturesAutoOrdersReq,
@@ -56,6 +66,8 @@ import {
   PortfolioMarginCalculatorReq,
   SetUnifiedAccountModeReq,
   SubmitCrossMarginBorrowLoanReq,
+  SubmitDeliveryFuturesOrderReq,
+  submitDeliveryTriggeredOrderReq,
   SubmitFlashSwapOrderPreviewReq,
   SubmitFlashSwapOrderReq,
   submitFuturesBatchOrdersReq,
@@ -82,6 +94,16 @@ import {
   GetCrossMarginAccountResp,
   GetCrossMarginCurrenciesResp,
   GetCurrencyChainsResp,
+  GetDeliveryAccountResp,
+  GetDeliveryBookResp,
+  GetDeliveryCandlesticksResp,
+  GetDeliveryClosedPositionsResp,
+  GetDeliveryLiquidationHistoryResp,
+  GetDeliveryOrderBookResp,
+  GetDeliverySettlementHistoryResp,
+  GetDeliveryTickersResp,
+  GetDeliveryTradesResp,
+  GetDeliveryTradingHistoryResp,
   GetFlashSwapCurrencyPairsResp,
   GetFuturesAccountResp,
   GetFuturesAutoDeleveragingHistoryResp,
@@ -2470,7 +2492,7 @@ export class RestClient extends BaseRestClient {
   getAllDeliveryContracts(params: {
     settle: 'usdt';
   }): Promise<APIResponse<DeliveryContract[]>> {
-    return this.get(`/delivery/${params.settle}/contracts`, params);
+    return this.get(`/delivery/${params.settle}/contracts`);
   }
 
   /**
@@ -2483,10 +2505,7 @@ export class RestClient extends BaseRestClient {
     settle: 'usdt';
     contract: string;
   }): Promise<APIResponse<DeliveryContract>> {
-    return this.get(
-      `/delivery/${params.settle}/contracts/${params.contract}`,
-      params,
-    );
+    return this.get(`/delivery/${params.settle}/contracts/${params.contract}`);
   }
 
   /**
@@ -2495,67 +2514,26 @@ export class RestClient extends BaseRestClient {
    * Bids will be sorted by price from high to low, while asks sorted reversely
    *
    * @param params Parameters for retrieving the futures order book
-   * @returns Promise<APIResponse<{
-   *   id?: number;
-   *   current: number;
-   *   update: number;
-   *   asks: { p: string; s: number }[];
-   *   bids: { p: string; s: number }[];
-   * }>>
+   * @returns Promise<APIResponse<GetDeliveryOrderBookResp>>
    */
-  getDeliveryOrderBook(params: {
-    settle: 'usdt';
-    contract: string;
-    interval?: '0' | '0.1' | '0.01';
-    limit?: number;
-    with_id?: boolean;
-  }): Promise<
-    APIResponse<{
-      id?: number;
-      current: number;
-      update: number;
-      asks: { p: string; s: number }[];
-      bids: { p: string; s: number }[];
-    }>
-  > {
-    return this.get(`/delivery/${params.settle}/order_book`, params);
+  getDeliveryOrderBook(
+    params: GetDeliveryOrderBookReq,
+  ): Promise<APIResponse<GetDeliveryOrderBookResp>> {
+    const { settle, ...query } = params;
+    return this.get(`/delivery/${settle}/order_book`, query);
   }
 
   /**
    * Futures trading history
    *
    * @param params Parameters for retrieving the futures trading history
-   * @returns Promise<APIResponse<{
-   *   id: number;
-   *   create_time: number;
-   *   create_time_ms: number;
-   *   contract: string;
-   *   size: number;
-   *   price: string;
-   *   is_internal?: boolean;
-   * }[]>>
+   * @returns Promise<APIResponse<GetDeliveryTradesResp[]>>
    */
-  getDeliveryTrades(params: {
-    settle: 'usdt';
-    contract: string;
-    limit?: number;
-    last_id?: string;
-    from?: number;
-    to?: number;
-  }): Promise<
-    APIResponse<
-      {
-        id: number;
-        create_time: number;
-        create_time_ms: number;
-        contract: string;
-        size: number;
-        price: string;
-        is_internal?: boolean;
-      }[]
-    >
-  > {
-    return this.get(`/delivery/${params.settle}/trades`, params);
+  getDeliveryTrades(
+    params: GetDeliveryTradesReq,
+  ): Promise<APIResponse<GetDeliveryTradesResp[]>> {
+    const { settle, ...query } = params;
+    return this.get(`/delivery/${settle}/trades`, query);
   }
 
   /**
@@ -2565,109 +2543,27 @@ export class RestClient extends BaseRestClient {
    * Maximum of 2000 points are returned in one query. Be sure not to exceed the limit when specifying from, to and interval.
    *
    * @param params Parameters for retrieving futures candlesticks
-   * @returns Promise<APIResponse<{
-   *   t: number;
-   *   v?: number;
-   *   c: string;
-   *   h: string;
-   *   l: string;
-   *   o: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetDeliveryCandlesticksResp[]>>
    */
-  getDeliveryCandlesticks(params: {
-    settle: 'usdt';
-    contract: string;
-    from?: number;
-    to?: number;
-    limit?: number;
-    interval?:
-      | '10s'
-      | '30s'
-      | '1m'
-      | '5m'
-      | '15m'
-      | '30m'
-      | '1h'
-      | '2h'
-      | '4h'
-      | '6h'
-      | '8h'
-      | '12h'
-      | '1d'
-      | '7d'
-      | '1w'
-      | '30d';
-  }): Promise<
-    APIResponse<
-      {
-        t: number;
-        v?: number;
-        c: string;
-        h: string;
-        l: string;
-        o: string;
-      }[]
-    >
-  > {
-    return this.get(`/delivery/${params.settle}/candlesticks`, params);
+  getDeliveryCandlesticks(
+    params: GetDeliveryCandlesticksReq,
+  ): Promise<APIResponse<GetDeliveryCandlesticksResp[]>> {
+    const { settle, ...query } = params;
+    return this.get(`/delivery/${settle}/candlesticks`, query);
   }
 
   /**
    * List futures tickers
    *
    * @param params Parameters for listing futures tickers
-   * @returns Promise<APIResponse<{
-   *   contract: string;
-   *   last: string;
-   *   change_percentage: string;
-   *   total_size: string;
-   *   low_24h: string;
-   *   high_24h: string;
-   *   volume_24h: string;
-   *   volume_24h_btc?: string;
-   *   volume_24h_usd?: string;
-   *   volume_24h_base: string;
-   *   volume_24h_quote: string;
-   *   volume_24h_settle: string;
-   *   mark_price: string;
-   *   funding_rate: string;
-   *   funding_rate_indicative: string;
-   *   index_price: string;
-   *   quanto_base_rate?: string;
-   *   basis_rate: string;
-   *   basis_value: string;
-   *   lowest_ask: string;
-   *   highest_bid: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetDeliveryTickersResp[]>>
    */
-  getDeliveryTickers(params: { settle: 'usdt'; contract?: string }): Promise<
-    APIResponse<
-      {
-        contract: string;
-        last: string;
-        change_percentage: string;
-        total_size: string;
-        low_24h: string;
-        high_24h: string;
-        volume_24h: string;
-        volume_24h_btc?: string;
-        volume_24h_usd?: string;
-        volume_24h_base: string;
-        volume_24h_quote: string;
-        volume_24h_settle: string;
-        mark_price: string;
-        funding_rate: string;
-        funding_rate_indicative: string;
-        index_price: string;
-        quanto_base_rate?: string;
-        basis_rate: string;
-        basis_value: string;
-        lowest_ask: string;
-        highest_bid: string;
-      }[]
-    >
-  > {
-    return this.get(`/delivery/${params.settle}/tickers`, params);
+  getDeliveryTickers(params: {
+    settle: 'usdt';
+    contract?: string;
+  }): Promise<APIResponse<GetDeliveryTickersResp[]>> {
+    const { settle, ...query } = params;
+    return this.get(`/delivery/${settle}/tickers`, query);
   }
 
   /**
@@ -2690,125 +2586,34 @@ export class RestClient extends BaseRestClient {
       }[]
     >
   > {
-    return this.get(`/delivery/${params.settle}/insurance`, params);
+    const { settle, ...query } = params;
+    return this.get(`/delivery/${settle}/insurance`, query);
   }
 
   /**
    * Query futures account
    *
    * @param params Parameters for querying futures account
-   * @returns Promise<APIResponse<{
-   *   total: string;
-   *   unrealised_pnl: string;
-   *   position_margin: string;
-   *   order_margin: string;
-   *   available: string;
-   *   point: string;
-   *   currency: string;
-   *   in_dual_mode: boolean;
-   *   enable_credit: boolean;
-   *   position_initial_margin: string;
-   *   maintenance_margin: string;
-   *   bonus: string;
-   *   enable_evolved_classic: boolean;
-   *   history: {
-   *     dnw: string;
-   *     pnl: string;
-   *     fee: string;
-   *     refr: string;
-   *     fund: string;
-   *     point_dnw: string;
-   *     point_fee: string;
-   *     point_refr: string;
-   *     bonus_dnw: string;
-   *     bonus_offset: string;
-   *   };
-   * }>>
+   * @returns Promise<APIResponse<GetDeliveryAccountResp>>
    */
-  getDeliveryAccount(params: { settle: 'usdt' }): Promise<
-    APIResponse<{
-      total: string;
-      unrealised_pnl: string;
-      position_margin: string;
-      order_margin: string;
-      available: string;
-      point: string;
-      currency: string;
-      in_dual_mode: boolean;
-      enable_credit: boolean;
-      position_initial_margin: string;
-      maintenance_margin: string;
-      bonus: string;
-      enable_evolved_classic: boolean;
-      history: {
-        dnw: string;
-        pnl: string;
-        fee: string;
-        refr: string;
-        fund: string;
-        point_dnw: string;
-        point_fee: string;
-        point_refr: string;
-        bonus_dnw: string;
-        bonus_offset: string;
-      };
-    }>
-  > {
-    return this.getPrivate(`/delivery/${params.settle}/accounts`, params);
+  getDeliveryAccount(params: {
+    settle: 'usdt';
+  }): Promise<APIResponse<GetDeliveryAccountResp>> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/delivery/${settle}/accounts`, query);
   }
 
   /**
    * Query account book
    *
    * @param params Parameters for querying account book
-   * @returns Promise<APIResponse<{
-   *   time: number;
-   *   change: string;
-   *   balance: string;
-   *   type: 'dnw' | 'pnl' | 'fee' | 'refr' | 'fund' | 'point_dnw' | 'point_fee' | 'point_refr' | 'bonus_offset';
-   *   text: string;
-   *   contract?: string;
-   *   trade_id?: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetDeliveryBookResp[]>>
    */
-  getDeliveryBook(params: {
-    settle: 'usdt';
-    limit?: number;
-    from?: number;
-    to?: number;
-    type?:
-      | 'dnw'
-      | 'pnl'
-      | 'fee'
-      | 'refr'
-      | 'fund'
-      | 'point_dnw'
-      | 'point_fee'
-      | 'point_refr'
-      | 'bonus_offset';
-  }): Promise<
-    APIResponse<
-      {
-        time: number;
-        change: string;
-        balance: string;
-        type:
-          | 'dnw'
-          | 'pnl'
-          | 'fee'
-          | 'refr'
-          | 'fund'
-          | 'point_dnw'
-          | 'point_fee'
-          | 'point_refr'
-          | 'bonus_offset';
-        text: string;
-        contract?: string;
-        trade_id?: string;
-      }[]
-    >
-  > {
-    return this.getPrivate(`/delivery/${params.settle}/account_book`, params);
+  getDeliveryBook(
+    params: GetDeliveryBookReq,
+  ): Promise<APIResponse<GetDeliveryBookResp[]>> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/delivery/${settle}/account_book`, query);
   }
 
   /**
@@ -2820,7 +2625,7 @@ export class RestClient extends BaseRestClient {
   getDeliveryPositions(params: {
     settle: 'usdt';
   }): Promise<APIResponse<Position[]>> {
-    return this.getPrivate(`/delivery/${params.settle}/positions`, params);
+    return this.getPrivate(`/delivery/${params.settle}/positions`);
   }
 
   /**
@@ -2835,7 +2640,6 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<Position>> {
     return this.getPrivate(
       `/delivery/${params.settle}/positions/${params.contract}`,
-      params,
     );
   }
 
@@ -2850,9 +2654,10 @@ export class RestClient extends BaseRestClient {
     contract: string;
     change: string;
   }): Promise<APIResponse<Position>> {
+    const { settle, contract, ...query } = params;
     return this.postPrivate(
-      `/delivery/${params.settle}/positions/${params.contract}/margin`,
-      { query: params },
+      `/delivery/${settle}/positions/${contract}/margin`,
+      { query: query },
     );
   }
 
@@ -2867,9 +2672,10 @@ export class RestClient extends BaseRestClient {
     contract: string;
     leverage: string;
   }): Promise<APIResponse<Position>> {
+    const { settle, contract, ...query } = params;
     return this.postPrivate(
-      `/delivery/${params.settle}/positions/${params.contract}/leverage`,
-      { query: params },
+      `/delivery/${settle}/positions/${contract}/leverage`,
+      { query: query },
     );
   }
 
@@ -2884,9 +2690,10 @@ export class RestClient extends BaseRestClient {
     contract: string;
     risk_limit: string;
   }): Promise<APIResponse<Position>> {
+    const { settle, contract, ...query } = params;
     return this.postPrivate(
-      `/delivery/${params.settle}/positions/${params.contract}/risk_limit`,
-      { query: params },
+      `/delivery/${settle}/positions/${contract}/risk_limit`,
+      { query: query },
     );
   }
 
@@ -2899,12 +2706,10 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<APIResponse<FuturesOrder>>
    */
   submitDeliveryOrder(
-    params: {
-      settle: 'usdt';
-    },
-    body: FuturesOrder,
+    params: SubmitDeliveryFuturesOrderReq,
   ): Promise<APIResponse<FuturesOrder>> {
-    return this.postPrivate(`/delivery/${params.settle}/orders`, { body });
+    const { settle, ...body } = params;
+    return this.postPrivate(`/delivery/${settle}/orders`, { body: body });
   }
 
   /**
@@ -2915,18 +2720,12 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for listing futures orders
    * @returns Promise<APIResponse<FuturesOrder[]>>
    */
-  getDeliveryOrders(params: {
-    settle: 'usdt';
-    contract?: string;
-    status: 'open' | 'finished';
-    limit?: number;
-    offset?: number;
-    last_id?: string;
-    count_total?: 0 | 1;
-  }): Promise<APIResponse<FuturesOrder[]>> {
-    return this.getPrivate(`/delivery/${params.settle}/orders`, params);
+  getDeliveryOrders(
+    params: GetDeliveryOrdersReq,
+  ): Promise<APIResponse<FuturesOrder[]>> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/delivery/${settle}/orders`, query);
   }
-
   /**
    * Cancel all open orders matched
    *
@@ -2940,8 +2739,9 @@ export class RestClient extends BaseRestClient {
     contract: string;
     side?: 'ask' | 'bid';
   }): Promise<APIResponse<FuturesOrder[]>> {
-    return this.deletePrivate(`/delivery/${params.settle}/orders`, {
-      query: params,
+    const { settle, ...query } = params;
+    return this.deletePrivate(`/delivery/${settle}/orders`, {
+      query: query,
     });
   }
 
@@ -2981,172 +2781,52 @@ export class RestClient extends BaseRestClient {
    * List personal trading history
    *
    * @param params Parameters for listing personal trading history
-   * @returns Promise<APIResponse<{
-   *   id: number;
-   *   create_time: number;
-   *   contract: string;
-   *   order_id: string;
-   *   size: number;
-   *   price: string;
-   *   role: 'taker' | 'maker';
-   *   text: string;
-   *   fee: string;
-   *   point_fee: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetDeliveryTradingHistoryResp[]>>
    */
-  getDeliveryTradingHistory(params: {
-    settle: 'usdt';
-    contract?: string;
-    order?: number;
-    limit?: number;
-    offset?: number;
-    last_id?: string;
-    count_total?: 0 | 1;
-  }): Promise<
-    APIResponse<
-      {
-        id: number;
-        create_time: number;
-        contract: string;
-        order_id: string;
-        size: number;
-        price: string;
-        role: 'taker' | 'maker';
-        text: string;
-        fee: string;
-        point_fee: string;
-      }[]
-    >
-  > {
-    return this.getPrivate(`/delivery/${params.settle}/my_trades`, params);
+  getDeliveryTradingHistory(
+    params: GetDeliveryTradingHistoryReq,
+  ): Promise<APIResponse<GetDeliveryTradingHistoryResp[]>> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/delivery/${settle}/my_trades`, query);
   }
 
   /**
    * List position close history
    *
    * @param params Parameters for listing position close history
-   * @returns Promise<APIResponse<{
-   *   time: number;
-   *   contract: string;
-   *   side: 'long' | 'short';
-   *   pnl: string;
-   *   pnl_pnl: string;
-   *   pnl_fund: string;
-   *   pnl_fee: string;
-   *   text: string;
-   *   max_size: string;
-   *   first_open_time: number;
-   *   long_price: string;
-   *   short_price: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetDeliveryClosedPositionsResp[]>>
    */
-  getDeliveryClosedPositions(params: {
-    settle: 'usdt';
-    contract?: string;
-    limit?: number;
-  }): Promise<
-    APIResponse<
-      {
-        time: number;
-        contract: string;
-        side: 'long' | 'short';
-        pnl: string;
-        pnl_pnl: string;
-        pnl_fund: string;
-        pnl_fee: string;
-        text: string;
-        max_size: string;
-        first_open_time: number;
-        long_price: string;
-        short_price: string;
-      }[]
-    >
-  > {
-    return this.getPrivate(`/delivery/${params.settle}/position_close`, params);
+  getDeliveryClosedPositions(
+    params: GetDeliveryClosedPositionsReq,
+  ): Promise<APIResponse<GetDeliveryClosedPositionsResp[]>> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/delivery/${settle}/position_close`, query);
   }
 
   /**
    * List liquidation history
    *
    * @param params Parameters for listing liquidation history
-   * @returns Promise<APIResponse<{
-   *   time: number;
-   *   contract: string;
-   *   leverage?: string;
-   *   size: number;
-   *   margin?: string;
-   *   entry_price?: string;
-   *   liq_price?: string;
-   *   mark_price?: string;
-   *   order_id?: number;
-   *   order_price: string;
-   *   fill_price: string;
-   *   left: number;
-   * }[]>>
+   * @returns Promise<APIResponse<GetDeliveryLiquidationHistoryResp[]>>
    */
-  getDeliveryLiquidationHistory(params: {
-    settle: 'usdt';
-    contract?: string;
-    limit?: number;
-    at?: number;
-  }): Promise<
-    APIResponse<
-      {
-        time: number;
-        contract: string;
-        leverage?: string;
-        size: number;
-        margin?: string;
-        entry_price?: string;
-        liq_price?: string;
-        mark_price?: string;
-        order_id?: number;
-        order_price: string;
-        fill_price: string;
-        left: number;
-      }[]
-    >
-  > {
-    return this.getPrivate(`/delivery/${params.settle}/liquidates`, params);
+  getDeliveryLiquidationHistory(
+    params: GetDeliveryLiquidationHistoryReq,
+  ): Promise<APIResponse<GetDeliveryLiquidationHistoryResp[]>> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/delivery/${settle}/liquidates`, query);
   }
 
   /**
    * List settlement history
    *
    * @param params Parameters for listing settlement history
-   * @returns Promise<APIResponse<{
-   *   time: number;
-   *   contract: string;
-   *   leverage: string;
-   *   size: number;
-   *   margin: string;
-   *   entry_price: string;
-   *   settle_price: string;
-   *   profit: string;
-   *   fee: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetDeliverySettlementHistoryResp[]>>
    */
-  getDeliverySettlementHistory(params: {
-    settle: 'usdt';
-    contract?: string;
-    limit?: number;
-    at?: number;
-  }): Promise<
-    APIResponse<
-      {
-        time: number;
-        contract: string;
-        leverage: string;
-        size: number;
-        margin: string;
-        entry_price: string;
-        settle_price: string;
-        profit: string;
-        fee: string;
-      }[]
-    >
-  > {
-    return this.getPrivate(`/delivery/${params.settle}/settlements`, params);
+  getDeliverySettlementHistory(
+    params: GetDeliverySettlementHistoryReq,
+  ): Promise<APIResponse<GetDeliverySettlementHistoryResp[]>> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/delivery/${settle}/settlements`, query);
   }
 
   /**
@@ -3156,14 +2836,11 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<APIResponse<{ id: number }>>
    */
   submitDeliveryTriggeredOrder(
-    params: {
-      settle: 'usdt';
-    },
-    body: FuturesPriceTriggeredOrder,
+    params: submitDeliveryTriggeredOrderReq,
   ): Promise<APIResponse<{ id: number }>> {
-    return this.postPrivate(`/delivery/${params.settle}/price_orders`, {
-      query: params,
-      body,
+    const { settle, ...body } = params;
+    return this.postPrivate(`/delivery/${settle}/price_orders`, {
+      body: body,
     });
   }
 
@@ -3173,14 +2850,11 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for listing all auto orders
    * @returns Promise<APIResponse<FuturesPriceTriggeredOrder[]>>
    */
-  getDeliveryAutoOrders(params: {
-    settle: 'usdt';
-    status: 'open' | 'finished';
-    contract?: string;
-    limit?: number;
-    offset?: number;
-  }): Promise<APIResponse<FuturesPriceTriggeredOrder[]>> {
-    return this.getPrivate(`/delivery/${params.settle}/price_orders`, params);
+  getDeliveryAutoOrders(
+    params: GetDeliveryAutoOrdersReq,
+  ): Promise<APIResponse<FuturesPriceTriggeredOrder[]>> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/delivery/${settle}/price_orders`, query);
   }
 
   /**
@@ -3193,8 +2867,9 @@ export class RestClient extends BaseRestClient {
     settle: 'usdt';
     contract: string;
   }): Promise<APIResponse<FuturesPriceTriggeredOrder[]>> {
-    return this.deletePrivate(`/delivery/${params.settle}/price_orders`, {
-      query: params,
+    const { settle, ...query } = params;
+    return this.deletePrivate(`/delivery/${settle}/price_orders`, {
+      query: query,
     });
   }
 
@@ -3210,7 +2885,6 @@ export class RestClient extends BaseRestClient {
   }): Promise<APIResponse<FuturesPriceTriggeredOrder>> {
     return this.getPrivate(
       `/delivery/${params.settle}/price_orders/${params.order_id}`,
-      params,
     );
   }
 

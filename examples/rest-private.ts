@@ -24,8 +24,9 @@ async function start() {
       price: '1',
     }); */
 
-    const res1 = await rest.updateAutoRepaymentSetting({
-      status: 'on',
+    const res1 = await rest.getDeliveryTradingHistory({
+      contract: 'BTC_USDT',
+      settle: 'usdt',
     });
 
     /* const res2 = await rest.getIndexConstituents({
