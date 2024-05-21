@@ -1,7 +1,7 @@
 // double check if schemas are requests
 // double check if names are set to what the call represents(get, delete, update etc...)
-// check where query params and body is as it should be
-// check all inputs where we have a link
+// check in all non-get calls that query params and body params are as it should be
+// check all inputs where we have a path to make sure all is right.
 
 import { AxiosRequestConfig } from 'axios';
 
@@ -18,8 +18,16 @@ import {
   GetCrossMarginBorrowHistoryReq,
   GetCrossMarginInterestRecordsReq,
   GetCrossMarginRepaymentsReq,
+  GetFlashSwapOrdersReq,
+  GetFuturesCandlesticksReq,
+  GetFuturesOrderBookReq,
+  GetFuturesTradesReq,
   GetMainSubTransfersReq,
   GetMarginBalanceHistoryReq,
+  GetMarginUNIInterestRecordsReq,
+  GetMarginUNILoanRecordsReq,
+  GetMarginUNILoansReq,
+  GetMarginUNIMaxBorrowReq,
   GetSavedAddressReq,
   GetSmallBalanceHistoryReq,
   GetSpotAccountBookReq,
@@ -36,6 +44,8 @@ import {
   PortfolioMarginCalculatorReq,
   SetUnifiedAccountModeReq,
   SubmitCrossMarginBorrowLoanReq,
+  SubmitFlashSwapOrderPreviewReq,
+  SubmitFlashSwapOrderReq,
   SubmitSpotClosePosCrossDisabledReq,
   SubmitSpotOrderReq,
   SubmitUnifiedBorrowOrRepayReq,
@@ -48,13 +58,23 @@ import {
   CreateDepositAddressResp,
   CreateSubAccountApiKeyResp,
   DeleteSpotBatchOrdersResp,
+  FlashSwapOrderResp,
   GetBalancesResp,
   GetCrossMarginAccountHistoryResp,
   GetCrossMarginAccountResp,
   GetCrossMarginCurrenciesResp,
   GetCurrencyChainsResp,
+  GetFlashSwapCurrencyPairsResp,
+  GetFuturesCandlesticksResp,
+  GetFuturesOrderBookResp,
+  GetFuturesTradesResp,
+  GetLendingMarketsResp,
   GetMarginAccountsResp,
   GetMarginBalanceHistoryResp,
+  GetMarginUNIInterestRecordsResp,
+  GetMarginUNILoanRecordsResp,
+  GetMarginUNILoansResp,
+  GetMarginUNIMaxBorrowResp,
   GetSavedAddressResp,
   GetSmallBalanceHistoryResp,
   GetSmallBalancesResp,
@@ -84,6 +104,7 @@ import {
   SubAccountResp,
   SubAccountTransferRecordResp,
   SubmitCrossMarginBorrowLoanResp,
+  SubmitFlashSwapOrderPreviewResp,
   SubmitSpotBatchOrdersResp,
 } from './types/response/shared.types.js';
 import {
@@ -1513,23 +1534,9 @@ export class RestClient extends BaseRestClient {
   /**
    * List lending markets
    *
-   * @returns Promise<APIResponse<{
-   *   currency_pair: string;
-   *   base_min_borrow_amount: string;
-   *   quote_min_borrow_amount: string;
-   *   leverage: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetLendingMarketsResp[]>>
    */
-  getLendingMarkets(): Promise<
-    APIResponse<
-      {
-        currency_pair: string;
-        base_min_borrow_amount: string;
-        quote_min_borrow_amount: string;
-        leverage: string;
-      }[]
-    >
-  > {
+  getLendingMarkets(): Promise<APIResponse<GetLendingMarketsResp[]>> {
     return this.get('/margin/uni/currency_pairs');
   }
 
@@ -1544,14 +1551,9 @@ export class RestClient extends BaseRestClient {
    *   leverage: string;
    * }>>
    */
-  getLendingMarket(params: { currency_pair: string }): Promise<
-    APIResponse<{
-      currency_pair: string;
-      base_min_borrow_amount: string;
-      quote_min_borrow_amount: string;
-      leverage: string;
-    }>
-  > {
+  getLendingMarket(params: {
+    currency_pair: string;
+  }): Promise<APIResponse<GetLendingMarketsResp>> {
     return this.get(`/margin/uni/currency_pairs/${params.currency_pair}`);
   }
 
@@ -1561,11 +1563,11 @@ export class RestClient extends BaseRestClient {
    * Please note that the interest rates are subject to change based on the borrowing and lending demand, and therefore, the provided rates may not be entirely accurate.
    *
    * @param params Parameters for retrieving estimated interest rates
-   * @returns Promise<APIResponse<Record<string, string>>>
+   * @returns Promise<APIResponse<any>>
    */
   estimateInterestRate(params: {
     currencies: string[];
-  }): Promise<APIResponse<Record<string, string>>> {
+  }): Promise<APIResponse<any>> {
     return this.getPrivate('/margin/uni/estimate_rate', params);
   }
 
@@ -1573,48 +1575,27 @@ export class RestClient extends BaseRestClient {
    * Borrow or repay
    *
    * @param params Parameters for borrowing or repaying
-   * @returns Promise<void>
+   * @returns Promise<any>
    */
   submitMarginUNIBorrowOrRepay(body: {
     currency: string;
     type: 'borrow' | 'repay';
     amount: string;
-    repaid_all?: boolean;
     currency_pair: string;
-  }): Promise<void> {
-    return this.postPrivate('/margin/uni/loans', { body });
+    repaid_all?: boolean;
+  }): Promise<any> {
+    return this.postPrivate('/margin/uni/loans', { body: body });
   }
 
   /**
    * List loans
    *
    * @param params Parameters for listing loans
-   * @returns Promise<APIResponse<{
-   *   currency: string;
-   *   currency_pair: string;
-   *   amount: string;
-   *   type: string;
-   *   create_time: number;
-   *   update_time: number;
-   * }[]>>
+   * @returns Promise<APIResponse<GetMarginUNILoansResp[]>>
    */
-  getMarginUNILoans(params?: {
-    currency_pair?: string;
-    currency?: string;
-    page?: number;
-    limit?: number;
-  }): Promise<
-    APIResponse<
-      {
-        currency: string;
-        currency_pair: string;
-        amount: string;
-        type: string;
-        create_time: number;
-        update_time: number;
-      }[]
-    >
-  > {
+  getMarginUNILoans(
+    params?: GetMarginUNILoansReq,
+  ): Promise<APIResponse<GetMarginUNILoansResp[]>> {
     return this.getPrivate('/margin/uni/loans', params);
   }
 
@@ -1622,31 +1603,11 @@ export class RestClient extends BaseRestClient {
    * Get loan records
    *
    * @param params Parameters for retrieving loan records
-   * @returns Promise<APIResponse<{
-   *   type: string;
-   *   currency_pair: string;
-   *   currency: string;
-   *   amount: string;
-   *   create_time: number;
-   * }[]>>
+   * @returns Promise<APIResponse<GetMarginUNILoanRecordsResp[]>>
    */
-  getMarginUNILoanRecords(params?: {
-    type?: 'borrow' | 'repay';
-    currency?: string;
-    currency_pair?: string;
-    page?: number;
-    limit?: number;
-  }): Promise<
-    APIResponse<
-      {
-        type: string;
-        currency_pair: string;
-        currency: string;
-        amount: string;
-        create_time: number;
-      }[]
-    >
-  > {
+  getMarginUNILoanRecords(
+    params?: GetMarginUNILoanRecordsReq,
+  ): Promise<APIResponse<GetMarginUNILoanRecordsResp[]>> {
     return this.getPrivate('/margin/uni/loan_records', params);
   }
 
@@ -1654,36 +1615,11 @@ export class RestClient extends BaseRestClient {
    * List interest records
    *
    * @param params Parameters for listing interest records
-   * @returns Promise<APIResponse<{
-   *   currency: string;
-   *   currency_pair: string;
-   *   actual_rate: string;
-   *   interest: string;
-   *   status: number;
-   *   type: string;
-   *   create_time: number;
-   * }[]>>
+   * @returns Promise<APIResponse<GetMarginUNIInterestRecordsResp[]>>
    */
-  getMarginUNIInterestRecords(params?: {
-    currency_pair?: string;
-    currency?: string;
-    page?: number;
-    limit?: number;
-    from?: number;
-    to?: number;
-  }): Promise<
-    APIResponse<
-      {
-        currency: string;
-        currency_pair: string;
-        actual_rate: string;
-        interest: string;
-        status: number;
-        type: string;
-        create_time: number;
-      }[]
-    >
-  > {
+  getMarginUNIInterestRecords(
+    params?: GetMarginUNIInterestRecordsReq,
+  ): Promise<APIResponse<GetMarginUNIInterestRecordsResp[]>> {
     return this.getPrivate('/margin/uni/interest_records', params);
   }
 
@@ -1691,25 +1627,13 @@ export class RestClient extends BaseRestClient {
    * Get maximum borrowable
    *
    * @param params Parameters for retrieving the maximum borrowable amount
-   * @returns Promise<APIResponse<{
-   *   currency: string;
-   *   currency_pair: string;
-   *   borrowable: string;
-   * }>>
+   * @returns Promise<APIResponse<GetMarginUNIMaxBorrowResp>>
    */
-  getMarginUNIMaxBorrow(params: {
-    currency: string;
-    currency_pair: string;
-  }): Promise<
-    APIResponse<{
-      currency: string;
-      currency_pair: string;
-      borrowable: string;
-    }>
-  > {
+  getMarginUNIMaxBorrow(
+    params: GetMarginUNIMaxBorrowReq,
+  ): Promise<APIResponse<GetMarginUNIMaxBorrowResp>> {
     return this.getPrivate('/margin/uni/borrowable', params);
   }
-
   /**==========================================================================================================================
    * FLASH SWAP
    * ==========================================================================================================================
@@ -1719,29 +1643,11 @@ export class RestClient extends BaseRestClient {
    * List All Supported Currency Pairs In Flash Swap
    *
    * @param params Parameters for retrieving data of the specified currency
-   * @returns Promise<APIResponse<{
-   *   currency_pair: string;
-   *   sell_currency: string;
-   *   buy_currency: string;
-   *   sell_min_amount: string;
-   *   sell_max_amount: string;
-   *   buy_min_amount: string;
-   *   buy_max_amount: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetFlashSwapCurrencyPairsResp[]>>
    */
-  getFlashSwapCurrencyPairs(params?: { currency?: string }): Promise<
-    APIResponse<
-      {
-        currency_pair: string;
-        sell_currency: string;
-        buy_currency: string;
-        sell_min_amount: string;
-        sell_max_amount: string;
-        buy_min_amount: string;
-        buy_max_amount: string;
-      }[]
-    >
-  > {
+  getFlashSwapCurrencyPairs(params?: {
+    currency?: string;
+  }): Promise<APIResponse<GetFlashSwapCurrencyPairsResp[]>> {
     return this.get('/flash_swap/currency_pairs', params);
   }
 
@@ -1751,78 +1657,23 @@ export class RestClient extends BaseRestClient {
    * Initiate a flash swap preview in advance because order creation requires a preview result.
    *
    * @param params Parameters for creating a flash swap order
-   * @returns Promise<APIResponse<{
-   *   id: number;
-   *   create_time: number;
-   *   user_id: number;
-   *   sell_currency: string;
-   *   sell_amount: string;
-   *   buy_currency: string;
-   *   buy_amount: string;
-   *   price: string;
-   *   status: number;
-   * }>>
+   * @returns Promise<APIResponse<SubmitFlashSwapOrderResp>>
    */
-  submitFlashSwapOrder(body: {
-    preview_id: string;
-    sell_currency: string;
-    sell_amount: string;
-    buy_currency: string;
-    buy_amount: string;
-  }): Promise<
-    APIResponse<{
-      id: number;
-      create_time: number;
-      user_id: number;
-      sell_currency: string;
-      sell_amount: string;
-      buy_currency: string;
-      buy_amount: string;
-      price: string;
-      status: number;
-    }>
-  > {
-    return this.postPrivate('/flash_swap/orders', { body });
+  submitFlashSwapOrder(
+    body: SubmitFlashSwapOrderReq,
+  ): Promise<APIResponse<FlashSwapOrderResp>> {
+    return this.postPrivate('/flash_swap/orders', { body: body });
   }
 
   /**
    * List all flash swap orders
    *
    * @param params Parameters for listing flash swap orders
-   * @returns Promise<APIResponse<{
-   *   id: number;
-   *   create_time: number;
-   *   user_id: number;
-   *   sell_currency: string;
-   *   sell_amount: string;
-   *   buy_currency: string;
-   *   buy_amount: string;
-   *   price: string;
-   *   status: number;
-   * }[]>>
+   * @returns Promise<APIResponse<GetFlashSwapOrdersResp[]>>
    */
-  getFlashSwapOrders(params?: {
-    status?: number;
-    sell_currency?: string;
-    buy_currency?: string;
-    reverse?: boolean;
-    limit?: number;
-    page?: number;
-  }): Promise<
-    APIResponse<
-      {
-        id: number;
-        create_time: number;
-        user_id: number;
-        sell_currency: string;
-        sell_amount: string;
-        buy_currency: string;
-        buy_amount: string;
-        price: string;
-        status: number;
-      }[]
-    >
-  > {
+  getFlashSwapOrders(
+    params?: GetFlashSwapOrdersReq,
+  ): Promise<APIResponse<FlashSwapOrderResp[]>> {
     return this.getPrivate('/flash_swap/orders', params);
   }
 
@@ -1830,31 +1681,11 @@ export class RestClient extends BaseRestClient {
    * Get a single flash swap order's detail
    *
    * @param params Parameters containing the flash swap order ID
-   * @returns Promise<APIResponse<{
-   *   id: number;
-   *   create_time: number;
-   *   user_id: number;
-   *   sell_currency: string;
-   *   sell_amount: string;
-   *   buy_currency: string;
-   *   buy_amount: string;
-   *   price: string;
-   *   status: number;
-   * }>>
+   * @returns Promise<APIResponse<GetFlashSwapOrderResp>>
    */
-  getFlashSwapOrder(params: { order_id: number }): Promise<
-    APIResponse<{
-      id: number;
-      create_time: number;
-      user_id: number;
-      sell_currency: string;
-      sell_amount: string;
-      buy_currency: string;
-      buy_amount: string;
-      price: string;
-      status: number;
-    }>
-  > {
+  getFlashSwapOrder(params: {
+    order_id: number;
+  }): Promise<APIResponse<FlashSwapOrderResp>> {
     return this.getPrivate(`/flash_swap/orders/${params.order_id}`);
   }
 
@@ -1862,32 +1693,14 @@ export class RestClient extends BaseRestClient {
    * Initiate a flash swap order preview
    *
    * @param params Parameters for initiating a flash swap order preview
-   * @returns Promise<APIResponse<{
-   *   preview_id: string;
-   *   sell_currency: string;
-   *   sell_amount: string;
-   *   buy_currency: string;
-   *   buy_amount: string;
-   *   price: string;
-   * }>>
+   * @returns Promise<APIResponse<SubmitFlashSwapOrderPreviewResp>>
    */
-  submitFlashSwapOrderPreview(body: {
-    sell_currency: string;
-    sell_amount?: string;
-    buy_currency: string;
-    buy_amount?: string;
-  }): Promise<
-    APIResponse<{
-      preview_id: string;
-      sell_currency: string;
-      sell_amount: string;
-      buy_currency: string;
-      buy_amount: string;
-      price: string;
-    }>
-  > {
+  submitFlashSwapOrderPreview(
+    body: SubmitFlashSwapOrderPreviewReq,
+  ): Promise<APIResponse<SubmitFlashSwapOrderPreviewResp>> {
     return this.postPrivate('/flash_swap/orders/preview', { body });
   }
+
   /**==========================================================================================================================
    * FUTURES
    * ==========================================================================================================================
@@ -1904,7 +1717,8 @@ export class RestClient extends BaseRestClient {
     limit?: number;
     offset?: number;
   }): Promise<APIResponse<Contract[]>> {
-    return this.get(`/futures/${params.settle}/contracts`, params);
+    const { settle, ...query } = params;
+    return this.get(`/futures/${settle}/contracts`, query);
   }
 
   /**
@@ -1917,10 +1731,7 @@ export class RestClient extends BaseRestClient {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
   }): Promise<APIResponse<Contract>> {
-    return this.get(
-      `/futures/${params.settle}/contracts/${params.contract}`,
-      params,
-    );
+    return this.get(`/futures/${params.settle}/contracts/${params.contract}`);
   }
 
   /**
@@ -1929,68 +1740,26 @@ export class RestClient extends BaseRestClient {
    * Bids will be sorted by price from high to low, while asks sorted reversely.
    *
    * @param params Parameters for retrieving the futures order book
-   * @returns Promise<APIResponse<{
-   *   id?: number;
-   *   current: number;
-   *   update: number;
-   *   asks: { p: string; s: number }[];
-   *   bids: { p: string; s: number }[];
-   * }>>
+   * @returns Promise<APIResponse<GetFuturesOrderBookResp>>
    */
-  getFuturesOrderBook(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    contract: string;
-    interval?: string;
-    limit?: number;
-    with_id?: boolean;
-  }): Promise<
-    APIResponse<{
-      id?: number;
-      current: number;
-      update: number;
-      asks: { p: string; s: number }[];
-      bids: { p: string; s: number }[];
-    }>
-  > {
-    return this.get(`/futures/${params.settle}/order_book`, params);
+  getFuturesOrderBook(
+    params: GetFuturesOrderBookReq,
+  ): Promise<APIResponse<GetFuturesOrderBookResp>> {
+    const { settle, ...query } = params;
+    return this.get(`/futures/${settle}/order_book`, query);
   }
 
   /**
    * Futures trading history
    *
    * @param params Parameters for retrieving futures trading history
-   * @returns Promise<APIResponse<{
-   *   id: number;
-   *   create_time: number;
-   *   create_time_ms: number;
-   *   contract: string;
-   *   size: number;
-   *   price: string;
-   *   is_internal?: boolean;
-   * }[]>>
+   * @returns Promise<APIResponse<GetFuturesTradesResp[]>>
    */
-  getFuturesTrades(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    contract: string;
-    limit?: number;
-    offset?: number;
-    last_id?: string;
-    from?: number;
-    to?: number;
-  }): Promise<
-    APIResponse<
-      {
-        id: number;
-        create_time: number;
-        create_time_ms: number;
-        contract: string;
-        size: number;
-        price: string;
-        is_internal?: boolean;
-      }[]
-    >
-  > {
-    return this.get(`/futures/${params.settle}/trades`, params);
+  getFuturesTrades(
+    params: GetFuturesTradesReq,
+  ): Promise<APIResponse<GetFuturesTradesResp[]>> {
+    const { settle, ...query } = params;
+    return this.get(`/futures/${settle}/trades`, query);
   }
 
   /**
@@ -2001,37 +1770,13 @@ export class RestClient extends BaseRestClient {
    * Maximum of 2000 points are returned in one query. Be sure not to exceed the limit when specifying from, to and interval.
    *
    * @param params Parameters for retrieving futures candlesticks
-   * @returns Promise<APIResponse<{
-   *   t: number;
-   *   v?: number;
-   *   c: string;
-   *   h: string;
-   *   l: string;
-   *   o: string;
-   *   sum: string;
-   * }[]>>
+   * @returns Promise<APIResponse<GetFuturesCandlesticksResp[]>>
    */
-  getFuturesCandlesticks(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    contract: string;
-    from?: number;
-    to?: number;
-    limit?: number;
-    interval?: string;
-  }): Promise<
-    APIResponse<
-      {
-        t: number;
-        v?: number;
-        c: string;
-        h: string;
-        l: string;
-        o: string;
-        sum: string;
-      }[]
-    >
-  > {
-    return this.get(`/futures/${params.settle}/candlesticks`, params);
+  getFuturesCandlesticks(
+    params: GetFuturesCandlesticksReq,
+  ): Promise<APIResponse<GetFuturesCandlesticksResp[]>> {
+    const { settle, ...query } = params;
+    return this.get(`/futures/${settle}/candlesticks`, query);
   }
 
   /**
