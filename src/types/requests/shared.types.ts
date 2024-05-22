@@ -682,3 +682,260 @@ export interface GetDeliveryAutoOrdersReq {
  * OPTIONS
  * ==========================================================================================================================
  */
+export interface GetOptionsSettlementHistoryReq {
+  underlying: string;
+  limit?: number;
+  offset?: number;
+  from?: number;
+  to?: number;
+}
+export interface GetOptionsMySettlementsReq {
+  underlying: string;
+  contract?: string;
+  limit?: number;
+  offset?: number;
+  from?: number;
+  to?: number;
+}
+
+export interface GetOptionsOrderBookReq {
+  contract: string;
+  interval?: '0' | '0.1' | '0.01';
+  limit?: number;
+  with_id?: boolean;
+}
+
+export interface GetOptionsCandlesticksReq {
+  contract: string;
+  limit?: number;
+  from?: number;
+  to?: number;
+  interval?: '1m' | '5m' | '15m' | '30m' | '1h';
+}
+
+export interface GetOptionsUnderlyingCandlesticksReq {
+  underlying: string;
+  limit?: number;
+  from?: number;
+  to?: number;
+  interval?: '1m' | '5m' | '15m' | '30m' | '1h';
+}
+
+export interface GetOptionsTradesReq {
+  contract?: string;
+  type?: 'C' | 'P';
+  limit?: number;
+  offset?: number;
+  from?: number;
+  to?: number;
+}
+
+export interface GetOptionsAccountChangeReq {
+  limit?: number;
+  offset?: number;
+  from?: number;
+  to?: number;
+  type?: 'dnw' | 'prem' | 'fee' | 'refr' | 'set';
+}
+
+export interface SubmitOptionsOrderReq {
+  contract: string;
+  size: number;
+  iceberg?: number;
+  price?: string;
+  close?: boolean;
+  reduce_only?: boolean;
+  tif?: 'gtc' | 'ioc' | 'poc';
+  text?: string;
+}
+
+export interface GetOptionsOrdersReq {
+  contract?: string;
+  underlying?: string;
+  status: 'open' | 'finished';
+  limit?: number;
+  offset?: number;
+  from?: number;
+  to?: number;
+}
+
+export interface GetOptionsPersonalHistoryReq {
+  underlying: string;
+  contract?: string;
+  limit?: number;
+  offset?: number;
+  from?: number;
+  to?: number;
+}
+
+/**==========================================================================================================================
+ * EARN UNI
+ * ==========================================================================================================================
+ */
+
+export interface SubmitLendOrRedeemReq {
+  currency: string;
+  amount: string;
+  type: 'lend' | 'redeem';
+  min_rate?: string;
+}
+
+export interface GetLendingOrdersReq {
+  currency?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface GetLendingRecordsReq {
+  currency?: string;
+  page?: number;
+  limit?: number;
+  from?: number;
+  to?: number;
+  type?: 'lend' | 'redeem';
+}
+
+export interface GetLendingInterestRecordsReq {
+  currency?: string;
+  page?: number;
+  limit?: number;
+  from?: number;
+  to?: number;
+}
+
+/**==========================================================================================================================
+ * COLLATERAL LOAN
+ * ==========================================================================================================================
+ */
+
+export interface SubmitLoanOrderReq {
+  collateral_amount: string;
+  collateral_currency: string;
+  borrow_amount: string;
+  borrow_currency: string;
+}
+
+export interface GetLoanOrdersReq {
+  page?: number;
+  limit?: number;
+  collateral_currency?: string;
+  borrow_currency?: string;
+}
+
+export interface GetLoanRepaymentHistoryReq {
+  source: 'repay' | 'liquidate';
+  borrow_currency?: string;
+  collateral_currency?: string;
+  page?: number;
+  limit?: number;
+  from?: number;
+  to?: number;
+}
+
+export interface UpdateLoanCollateralReq {
+  order_id: number;
+  collateral_currency: string;
+  collateral_amount: string;
+  type: 'append' | 'redeem';
+}
+
+export interface GetLoanCollateralRecordsReq {
+  page?: number;
+  limit?: number;
+  from?: number;
+  to?: number;
+  borrow_currency?: string;
+  collateral_currency?: string;
+}
+
+/**==========================================================================================================================
+ * MULTI COLLATERAL LOAN
+ * ==========================================================================================================================
+ */
+
+export interface SubmitMultiLoanOrderReq {
+  order_id?: string;
+  order_type?: string;
+  fixed_type?: string;
+  fixed_rate?: string;
+  auto_renew?: boolean;
+  auto_repay?: boolean;
+  borrow_currency: string;
+  borrow_amount: string;
+  collateral_currencies?: {
+    currency?: string;
+    amount?: string;
+  }[];
+}
+export interface GetMultiLoanOrdersReq {
+  page?: number;
+  limit?: number;
+  sort?: string;
+  order_type?: string;
+}
+
+export interface RepayMultiLoanReq {
+  order_id: number;
+  repay_items: {
+    currency?: string;
+    amount?: string;
+    repaid_all?: boolean;
+  }[];
+}
+
+export interface GetMultiLoanRepayRecordsReq {
+  type: 'repay' | 'liquidate';
+  borrow_currency?: string;
+  page?: number;
+  limit?: number;
+  from?: number;
+  to?: number;
+}
+
+export interface UpdateMultiLoanReq {
+  order_id: number;
+  type: 'append' | 'redeem';
+  collaterals?: {
+    currency?: string;
+    amount?: string;
+  }[];
+}
+
+export interface GetMultiLoanAdjustmentRecordsReq {
+  page?: number;
+  limit?: number;
+  from?: number;
+  to?: number;
+  collateral_currency?: string;
+}
+
+/**==========================================================================================================================
+ * EARN
+ * ==========================================================================================================================
+ */
+
+export interface GetStructuredProductListReq {
+  status: string;
+  type?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface GetStructuredProductOrdersReq {
+  from?: number;
+  to?: number;
+  page?: number;
+  limit?: number;
+}
+
+/**==========================================================================================================================
+ * ACCOUNT
+ * ==========================================================================================================================
+ */
+
+export interface CreateStpGroupReq {
+  name: string;
+  id?: number;
+  creator_id?: number;
+  create_time?: number;
+}

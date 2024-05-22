@@ -1129,3 +1129,566 @@ export interface GetDeliverySettlementHistoryResp {
  * OPTIONS
  * ==========================================================================================================================
  */
+
+export interface GetOptionsContractsResp {
+  name: string;
+  tag: string;
+  create_time: number;
+  expiration_time: number;
+  is_call: boolean;
+  strike_price: string;
+  last_price: string;
+  mark_price: string;
+  orderbook_id: number;
+  trade_id: number;
+  trade_size: number;
+  position_size: number;
+  underlying: string;
+  underlying_price: string;
+  multiplier: string;
+  order_price_round: string;
+  mark_price_round: string;
+  maker_fee_rate: string;
+  taker_fee_rate: string;
+  price_limit_fee_rate: string;
+  ref_discount_rate: string;
+  ref_rebate_rate: string;
+  order_price_deviate: string;
+  order_size_min: number;
+  order_size_max: number;
+  orders_limit: number;
+}
+
+export interface GetOptionsSettlementHistoryResp {
+  time: number;
+  contract: string;
+  profit: string;
+  fee: string;
+  strike_price: string;
+  settle_price: string;
+}
+
+export interface GetOptionsMySettlementsResp {
+  time: number;
+  underlying: string;
+  contract: string;
+  strike_price: string;
+  settle_price: string;
+  size: number;
+  settle_profit: string;
+  fee: string;
+  realised_pnl: string;
+}
+
+export interface GetOptionsOrderBookResp {
+  id?: number;
+  current: number;
+  update: number;
+  asks: { p: string; s: number }[];
+  bids: { p: string; s: number }[];
+}
+
+export interface GetOptionsTickersResp {
+  name: string;
+  last_price: string;
+  mark_price: string;
+  index_price: string;
+  ask1_size: number;
+  ask1_price: string;
+  bid1_size: number;
+  bid1_price: string;
+  position_size: number;
+  mark_iv: string;
+  bid_iv: string;
+  ask_iv: string;
+  leverage: string;
+  delta: string;
+  gamma: string;
+  vega: string;
+  theta: string;
+  rho: string;
+}
+
+export interface GetOptionsCandlesticksResp {
+  t: number;
+  v?: number;
+  c: string;
+  h: string;
+  l: string;
+  o: string;
+}
+
+export interface GetOptionsUnderlyingCandlesticksResp {
+  t: number;
+  v?: number;
+  c: string;
+  h: string;
+  l: string;
+  o: string;
+  sum: string;
+}
+
+export interface GetOptionsTradesResp {
+  id: number;
+  create_time: number;
+  create_time_ms: number;
+  contract: string;
+  size: number;
+  price: string;
+  is_internal?: boolean;
+}
+
+export interface GetOptionsAccountResp {
+  user: number;
+  total: string;
+  short_enabled: boolean;
+  unrealised_pnl: string;
+  init_margin: string;
+  maint_margin: string;
+  order_margin: string;
+  available: string;
+  point: string;
+  currency: string;
+}
+export interface GetOptionsAccountChangeResp {
+  time: number;
+  change: string;
+  balance: string;
+  type: 'dnw' | 'prem' | 'fee' | 'refr' | 'set';
+  text: string;
+}
+
+export interface GetOptionsPositionsUnderlyingResp {
+  user: number;
+  underlying: string;
+  underlying_price: string;
+  contract: string;
+  size: number;
+  entry_price: string;
+  mark_price: string;
+  mark_iv: string;
+  realised_pnl: string;
+  unrealised_pnl: string;
+  pending_orders: number;
+  close_order: {
+    id: number;
+    price: string;
+    is_liq: boolean;
+  } | null;
+  delta: string;
+  gamma: string;
+  vega: string;
+  theta: string;
+}
+
+export interface GetOptionsLiquidationResp {
+  time: number;
+  contract: string;
+  side: 'long' | 'short';
+  pnl: string;
+  text: string;
+  settle_size: string;
+}
+
+export interface SubmitOptionsOrderResp {
+  id: number;
+  user: number;
+  create_time: number;
+  finish_time: number;
+  finish_as:
+    | 'filled'
+    | 'cancelled'
+    | 'liquidated'
+    | 'ioc'
+    | 'auto_deleveraged'
+    | 'reduce_only'
+    | 'position_closed';
+  status: 'open' | 'finished';
+  contract: string;
+  size: number;
+  iceberg: number;
+  price: string;
+  is_close: boolean;
+  is_reduce_only: boolean;
+  is_liq: boolean;
+  tif: 'gtc' | 'ioc' | 'poc';
+  left: number;
+  fill_price: string;
+  text: string;
+  tkfr: string;
+  mkfr: string;
+  refu: number;
+  refr: string;
+}
+
+export interface GetOptionsPersonalHistoryResp {
+  id: number;
+  create_time: number;
+  contract: string;
+  order_id: number;
+  size: number;
+  price: string;
+  underlying_price: string;
+  role: 'taker' | 'maker';
+}
+
+/**==========================================================================================================================
+ * EARN UNI
+ * ==========================================================================================================================
+ */
+
+export interface GetLendingCurrenciesResp {
+  currency: string;
+  min_lend_amount: string;
+  max_lend_amount: string;
+  max_rate: string;
+  min_rate: string;
+}
+
+export interface GetLendingOrdersResp {
+  currency: string;
+  current_amount: string;
+  amount: string;
+  lent_amount: string;
+  frozen_amount: string;
+  min_rate: string;
+  interest_status: string;
+  reinvest_left_amount: string;
+  create_time: number;
+  update_time: number;
+}
+
+export interface GetLendingRecordsResp {
+  currency: string;
+  amount: string;
+  last_wallet_amount: string;
+  last_lent_amount: string;
+  last_frozen_amount: string;
+  type: 'lend' | 'redeem';
+  create_time: number;
+}
+
+export interface GetLendingInterestRecordsResp {
+  status: number;
+  currency: string;
+  actual_rate: string;
+  interest: string;
+  interest_status: string;
+  create_time: number;
+}
+
+/**==========================================================================================================================
+ * COLLATERAL LOAN
+ * ==========================================================================================================================
+ */
+
+export interface GetLoanOrdersResp {
+  order_id: number;
+  collateral_currency: string;
+  collateral_amount: string;
+  borrow_currency: string;
+  borrow_amount: string;
+  repaid_amount: string;
+  repaid_principal: string;
+  repaid_interest: string;
+  init_ltv: string;
+  current_ltv: string;
+  liquidate_ltv: string;
+  status: string;
+  borrow_time: number;
+  left_repay_total: string;
+  left_repay_principal: string;
+  left_repay_interest: string;
+}
+
+export interface GetLoanRepaymentHistoryResp {
+  order_id: number;
+  record_id: number;
+  repaid_amount: string;
+  borrow_currency: string;
+  collateral_currency: string;
+  init_ltv: string;
+  borrow_time: number;
+  repay_time: number;
+  total_interest: string;
+  before_left_principal: string;
+  after_left_principal: string;
+  before_left_collateral: string;
+  after_left_collateral: string;
+}
+
+export interface GetLoanCollateralRecordsResp {
+  order_id: number;
+  record_id: number;
+  borrow_currency: string;
+  borrow_amount: string;
+  collateral_currency: string;
+  before_collateral: string;
+  after_collateral: string;
+  before_ltv: string;
+  after_ltv: string;
+  operate_time: number;
+}
+
+export interface GetLoanCollateralizationRatioResp {
+  collateral_currency: string;
+  borrow_currency: string;
+  init_ltv: string;
+  alert_ltv: string;
+  liquidate_ltv: string;
+  min_borrow_amount: string;
+  left_borrowable_amount: string;
+}
+
+/**==========================================================================================================================
+ * MULTI COLLATERAL LOAN
+ * ==========================================================================================================================
+ */
+
+export interface GetMultiLoanOrdersResp {
+  order_id: string;
+  order_type: string;
+  fixed_type: string;
+  fixed_rate: string;
+  expire_time: number;
+  auto_renew: boolean;
+  auto_repay: boolean;
+  current_ltv: string;
+  status: string;
+  borrow_time: number;
+  total_left_repay_usdt: string;
+  total_left_collateral_usdt: string;
+  borrow_currencies: {
+    currency: string;
+    index_price: string;
+    left_repay_principal: string;
+    left_repay_interest: string;
+    left_repay_usdt: string;
+  }[];
+  collateral_currencies: {
+    currency: string;
+    index_price: string;
+    left_collateral: string;
+    left_collateral_usdt: string;
+  }[];
+}
+
+export interface RepayMultiLoanResp {
+  order_id: number;
+  repaid_currencies: {
+    succeeded: boolean;
+    label?: string;
+    message?: string;
+    currency: string;
+    repaid_principal: string;
+    repaid_interest: string;
+  }[];
+}
+
+export interface GetMultiLoanRepayRecordsResp {
+  order_id: number;
+  record_id: number;
+  init_ltv: string;
+  before_ltv: string;
+  after_ltv: string;
+  borrow_time: number;
+  repay_time: number;
+  borrow_currencies: {
+    currency: string;
+    index_price: string;
+    before_amount: string;
+    before_amount_usdt: string;
+    after_amount: string;
+    after_amount_usdt: string;
+  }[];
+  collateral_currencies: {
+    currency: string;
+    index_price: string;
+    before_amount: string;
+    before_amount_usdt: string;
+    after_amount: string;
+    after_amount_usdt: string;
+  }[];
+  repaid_currencies: {
+    currency: string;
+    index_price: string;
+    repaid_amount: string;
+    repaid_principal: string;
+    repaid_interest: string;
+    repaid_amount_usdt: string;
+  }[];
+  total_interest_list: {
+    currency: string;
+    index_price: string;
+    amount: string;
+    amount_usdt: string;
+  }[];
+  left_repay_interest_list: {
+    currency: string;
+    index_price: string;
+    before_amount: string;
+    before_amount_usdt: string;
+    after_amount: string;
+    after_amount_usdt: string;
+  }[];
+}
+
+export interface UpdateMultiLoanResp {
+  order_id: number;
+  collateral_currencies: {
+    succeeded: boolean;
+    label?: string;
+    message?: string;
+    currency: string;
+    amount: string;
+  }[];
+}
+
+export interface GetMultiLoanAdjustmentRecordsResp {
+  order_id: number;
+  record_id: number;
+  before_ltv: string;
+  after_ltv: string;
+  operate_time: number;
+  borrow_currencies: {
+    currency: string;
+    index_price: string;
+    before_amount: string;
+    before_amount_usdt: string;
+    after_amount: string;
+    after_amount_usdt: string;
+  }[];
+  collateral_currencies: {
+    currency: string;
+    index_price: string;
+    before_amount: string;
+    before_amount_usdt: string;
+    after_amount: string;
+    after_amount_usdt: string;
+  }[];
+}
+
+export interface GetMultiLoanCurrencyQuotaResp {
+  currency: string;
+  index_price: string;
+  min_quota: string;
+  left_quota: string;
+  left_quote_usdt: string;
+}
+
+export interface GetMultiLoanSupportedCurrenciesResp {
+  loan_currencies: {
+    currency: string;
+    price: string;
+  }[];
+  collateral_currencies: {
+    currency: string;
+    index_price: string;
+    discount: string;
+  }[];
+}
+
+export interface GetMultiLoanRatioResp {
+  init_ltv: string;
+  alert_ltv: string;
+  liquidate_ltv: string;
+}
+
+export interface GetMultiLoanFixedRatesResp {
+  currency: string;
+  rate_7d: string;
+  rate_30d: string;
+  update_time: number;
+}
+
+/**==========================================================================================================================
+ * EARN
+ * ==========================================================================================================================
+ */
+
+export interface GetDualInvestmentProductsResp {
+  id: number;
+  instrument_name: string;
+  invest_currency: string;
+  exercise_currency: string;
+  exercise_price: number;
+  delivery_time: number;
+  min_copies: number;
+  max_copies: number;
+  per_value: string;
+  apy_display: string;
+  start_time: number;
+  end_time: number;
+  status: 'NOTSTARTED' | 'ONGOING' | 'ENDED';
+}
+
+export interface GetDualInvestmentOrdersResp {
+  id: number;
+  plan_id: number;
+  copies: string;
+  invest_amount: string;
+  settlement_amount: string;
+  create_time: number;
+  complete_time: number;
+  status:
+    | 'INIT'
+    | 'SETTLEMENT_SUCCESS'
+    | 'SETTLEMENT_PROCESSING'
+    | 'CANCELED'
+    | 'FAILED';
+  invest_currency: string;
+  exercise_currency: string;
+  exercise_price: string;
+  settlement_price: string;
+  settlement_currency: string;
+  apy_display: string;
+  apy_settlement: string;
+  delivery_time: number;
+}
+
+export interface GetStructuredProductListResp {
+  id: number;
+  type: string;
+  name_en: string;
+  investment_coin: string;
+  investment_period: string;
+  min_annual_rate: string;
+  mid_annual_rate: string;
+  max_annual_rate: string;
+  watch_market: string;
+  start_time: number;
+  end_time: number;
+  status: 'in_process' | 'will_begin' | 'wait_settlement' | 'done';
+}
+
+export interface GetStructuredProductOrdersResp {
+  id: number;
+  pid: string;
+  lock_coin: string;
+  amount: string;
+  status: 'SUCCESS' | 'FAILED' | 'DONE';
+  income: string;
+  create_time: number;
+}
+
+/**==========================================================================================================================
+ * ACCOUNT
+ * ==========================================================================================================================
+ */
+
+export interface GetAccountDetailResp {
+  user_id: number;
+  ip_whitelist: string[];
+  currency_pairs: string[];
+  key: {
+    mode: number;
+  };
+  tier: number;
+}
+
+export interface CreateStpGroupResp {
+  id: number;
+  name: string;
+  creator_id: number;
+  create_time: number;
+}
