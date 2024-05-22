@@ -23,3 +23,5 @@ bundleReport.html
 .history/
 dist
 coverage
+localtest.sh
+

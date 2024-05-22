@@ -1,8 +1,3 @@
-// double check if names are set to what the call represents(get, delete, update etc...)
-// check in all non-get calls that query params and body params are as it should be
-// check all inputs where we have a path to make sure all is right.
-// check for voids
-
 import { AxiosRequestConfig } from 'axios';
 
 import {
@@ -14,6 +9,7 @@ import { RestClientOptions } from './lib/requestUtils.js';
 import {
   CreateStpGroupReq,
   CreateSubAccountApiKeyReq,
+  CreateSubAccountReq,
   DeleteAllFuturesOrdersReq,
   DeleteSpotOrderReq,
   GetCrossMarginAccountHistoryReq,
@@ -97,11 +93,15 @@ import {
   SubmitFuturesPriceTriggeredOrderReq,
   SubmitLendOrRedeemReq,
   SubmitLoanOrderReq,
+  SubmitMainSubTransferReq,
   SubmitMultiLoanOrderReq,
   SubmitOptionsOrderReq,
   SubmitSpotClosePosCrossDisabledReq,
   SubmitSpotOrderReq,
+  SubmitSubToSubTransferReq,
+  SubmitTransferReq,
   SubmitUnifiedBorrowOrRepayReq,
+  SubmitWithdrawReq,
   UpdateDualModePositionLeverageReq,
   UpdateDualModePositionMarginReq,
   UpdateLoanCollateralReq,
@@ -212,6 +212,7 @@ import {
   GetWithdrawalStatusResp,
   PortfolioMarginCalculatorResp,
   RepayMultiLoanResp,
+  StpResp,
   SubAccountCrossMarginBalancesResp,
   SubAccountFuturesBalancesResp,
   SubAccountMarginBalancesResp,
@@ -271,14 +272,7 @@ export class RestClient extends BaseRestClient {
    * @param params Withdrawal parameters
    * @returns Promise<APIResponse<Withdraw>>
    */
-  submitWithdraw(params: {
-    withdraw_order_id?: string;
-    amount: string;
-    currency: string;
-    address?: string;
-    memo?: string;
-    chain: string;
-  }): Promise<APIResponse<Withdraw>> {
+  submitWithdraw(params: SubmitWithdrawReq): Promise<APIResponse<Withdraw>> {
     return this.postPrivate('/withdrawals', { query: params });
   }
 
@@ -364,20 +358,9 @@ export class RestClient extends BaseRestClient {
    * @param params Transfer parameters
    * @returns Promise<APIResponse<TransferResponse>>
    */
-  submitTransfer(params: {
-    currency: string;
-    from:
-      | 'spot'
-      | 'margin'
-      | 'futures'
-      | 'delivery'
-      | 'cross_margin'
-      | 'options';
-    to: 'spot' | 'margin' | 'futures' | 'delivery' | 'cross_margin' | 'options';
-    amount: string;
-    currency_pair?: string;
-    settle?: string;
-  }): Promise<APIResponse<{ tx_id: number }>> {
+  submitTransfer(
+    params: SubmitTransferReq,
+  ): Promise<APIResponse<{ tx_id: number }>> {
     return this.postPrivate('/wallet/transfers', { body: params });
   }
 
@@ -389,14 +372,9 @@ export class RestClient extends BaseRestClient {
    * @param params Transfer parameters
    * @returns Promise<APIResponse<any>>
    */
-  submitMainSubTransfer(params: {
-    currency: string;
-    sub_account: string;
-    direction: 'to' | 'from';
-    amount: string;
-    client_order_id?: string;
-    sub_account_type?: 'spot' | 'futures' | 'cross_margin' | 'delivery';
-  }): Promise<APIResponse<any>> {
+  submitMainSubTransfer(
+    params: SubmitMainSubTransferReq,
+  ): Promise<APIResponse<any>> {
     return this.postPrivate('/wallet/sub_account_transfers', { body: params });
   }
 
@@ -424,15 +402,9 @@ export class RestClient extends BaseRestClient {
    * @param params Transfer parameters
    * @returns Promise<APIResponse<any>>
    */
-  submitSubToSubTransfer(params: {
-    currency: string;
-    sub_account_type?: string;
-    sub_account_from: string;
-    sub_account_from_type: 'spot' | 'futures' | 'delivery' | 'cross_margin';
-    sub_account_to: string;
-    sub_account_to_type: 'spot' | 'futures' | 'delivery' | 'cross_margin';
-    amount: string;
-  }): Promise<APIResponse<any>> {
+  submitSubToSubTransfer(
+    params: SubmitSubToSubTransferReq,
+  ): Promise<APIResponse<any>> {
     return this.postPrivate('/wallet/sub_account_to_sub_account', {
       body: params,
     });
@@ -565,11 +537,11 @@ export class RestClient extends BaseRestClient {
    * Convert small balance
    *
    * @param params Parameters for converting small balance
-   * @returns Promise<APIResponse<void>>
+   * @returns Promise<APIResponse<any>>
    */
   convertSmallBalance(params?: {
     currency?: string[];
-  }): Promise<APIResponse<void>> {
+  }): Promise<APIResponse<any>> {
     return this.postPrivate('/wallet/small_balance', { body: params });
   }
 
@@ -596,12 +568,9 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for creating a new sub-account
    * @returns Promise<APIResponse<CreateSubAccountResp>>
    */
-  createSubAccount(params: {
-    remark?: string;
-    login_name: string;
-    password?: string;
-    email?: string;
-  }): Promise<APIResponse<SubAccountResp>> {
+  createSubAccount(
+    params: CreateSubAccountReq,
+  ): Promise<APIResponse<SubAccountResp>> {
     return this.postPrivate('/sub_accounts', { body: params });
   }
 
@@ -701,9 +670,9 @@ export class RestClient extends BaseRestClient {
    * Lock the sub-account
    *
    * @param params Parameters containing the sub-account user ID
-   * @returns Promise<APIResponse<void>>
+   * @returns Promise<APIResponse<any>>
    */
-  lockSubAccount(params: { user_id: number }): Promise<APIResponse<void>> {
+  lockSubAccount(params: { user_id: number }): Promise<APIResponse<any>> {
     return this.postPrivate(`/sub_accounts/${params.user_id}/lock`);
   }
 
@@ -711,9 +680,9 @@ export class RestClient extends BaseRestClient {
    * Unlock the sub-account
    *
    * @param params Parameters containing the sub-account user ID
-   * @returns Promise<APIResponse<void>>
+   * @returns Promise<APIResponse<any>>
    */
-  unlockSubAccount(params: { user_id: number }): Promise<APIResponse<void>> {
+  unlockSubAccount(params: { user_id: number }): Promise<APIResponse<any>> {
     return this.postPrivate(`/sub_accounts/${params.user_id}/unlock`);
   }
   /**==========================================================================================================================
@@ -781,11 +750,11 @@ export class RestClient extends BaseRestClient {
    * For repayment, the option to repay the entire borrowed amount is available by setting the parameter repaid_all=true
    *
    * @param params Parameters for borrowing or repaying
-   * @returns Promise<APIResponse<void>>
+   * @returns Promise<APIResponse<any>>
    */
   submitUnifiedBorrowOrRepay(
     params: SubmitUnifiedBorrowOrRepayReq,
-  ): Promise<APIResponse<void>> {
+  ): Promise<APIResponse<any>> {
     return this.postPrivate('/unified/loans', { body: params });
   }
 
@@ -842,11 +811,11 @@ export class RestClient extends BaseRestClient {
    * Switching between different account modes requires only passing the parameters corresponding to the target account mode. It also supports opening or closing configuration switches for the corresponding account mode when switching.
    *
    * @param params Parameters for setting the mode of the unified account
-   * @returns Promise<APIResponse<void>>
+   * @returns Promise<APIResponse<any>>
    */
   updateUnifiedAccountMode(
     params: SetUnifiedAccountModeReq,
-  ): Promise<APIResponse<void>> {
+  ): Promise<APIResponse<any>> {
     return this.putPrivate('/unified/unified_mode', { body: params });
   }
 
@@ -928,16 +897,7 @@ export class RestClient extends BaseRestClient {
    * Get details of a specific currency
    *
    * @param params Parameters for retrieving details of a specific currency
-   * @returns Promise<APIResponse<{
-   *   currency: string;
-   *   delisted: boolean;
-   *   withdraw_disabled: boolean;
-   *   withdraw_delayed: boolean;
-   *   deposit_disabled: boolean;
-   *   trade_disabled: boolean;
-   *   fixed_rate: string;
-   *   chain: string;
-   * }>>
+   * @returns Promise<APIResponse<GetSpotCurrenciesResp>>
    */
   getSpotCurrency(params: {
     currency: string;
@@ -1194,7 +1154,8 @@ export class RestClient extends BaseRestClient {
     currency_pair: string;
     account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
   }): Promise<APIResponse<Order>> {
-    return this.getPrivate(`/spot/orders/${params.order_id}`, params);
+    const { order_id, ...query } = params;
+    return this.getPrivate(`/spot/orders/${order_id}`, query);
   }
 
   /**
@@ -3184,7 +3145,7 @@ export class RestClient extends BaseRestClient {
   getOptionsPositionContract(params: {
     contract: string;
   }): Promise<APIResponse<GetOptionsPositionsUnderlyingResp>> {
-    return this.getPrivate(`/options/positions/${params.contract}`, params);
+    return this.getPrivate(`/options/positions/${params.contract}`);
   }
 
   /**
@@ -3328,12 +3289,12 @@ export class RestClient extends BaseRestClient {
    * Currently only supports amending the minimum interest rate (hour)
    *
    * @param params Parameters for amending lending order
-   * @returns Promise<APIResponse<void>>
+   * @returns Promise<APIResponse<any>>
    */
   updateLendingOrder(params: {
     currency?: string;
     min_rate?: string;
-  }): Promise<APIResponse<void>> {
+  }): Promise<APIResponse<any>> {
     return this.patchPrivate(`/earn/uni/lends`, { query: params });
   }
 
@@ -3383,12 +3344,12 @@ export class RestClient extends BaseRestClient {
    * Set interest reinvestment toggle
    *
    * @param params Parameters for setting interest reinvestment toggle
-   * @returns Promise<APIResponse<void>>
+   * @returns Promise<APIResponse<any>>
    */
   updateInterestReinvestment(params: {
     currency: string;
     status: boolean;
-  }): Promise<APIResponse<void>> {
+  }): Promise<APIResponse<any>> {
     return this.putPrivate(`/earn/uni/interest_reinvest`, { body: params });
   }
 
@@ -3700,12 +3661,12 @@ export class RestClient extends BaseRestClient {
    * ETH2 swap
    *
    * @param params Parameters for ETH2 swap
-   * @returns Promise<APIResponse<void>>
+   * @returns Promise<APIResponse<any>>
    */
   submitEth2Swap(params: {
     side: '1' | '2';
     amount: string;
-  }): Promise<APIResponse<void>> {
+  }): Promise<APIResponse<any>> {
     return this.postPrivate(`/earn/staking/eth2/swap`, { body: params });
   }
 
@@ -3734,12 +3695,12 @@ export class RestClient extends BaseRestClient {
    * Place Dual Investment order
    *
    * @param params Parameters for placing a dual investment order
-   * @returns Promise<APIResponse<void>>
+   * @returns Promise<APIResponse<any>>
    */
   submitDualInvestmentOrder(params: {
     plan_id: string;
     copies: string;
-  }): Promise<APIResponse<void>> {
+  }): Promise<APIResponse<any>> {
     return this.postPrivate(`/earn/dual/orders`, { body: params });
   }
 
@@ -3821,21 +3782,11 @@ export class RestClient extends BaseRestClient {
    * List users of the STP group
    *
    * @param params Parameters for listing users of the STP group
-   * @returns Promise<APIResponse<{
-   *   user_id: number;
-   *   stp_id: number;
-   *   create_time: number;
-   * }[]>>
+   * @returns Promise<APIResponse<StpResp[]>>
    */
-  getStpGroupUsers(params: { stp_id: number }): Promise<
-    APIResponse<
-      {
-        user_id: number;
-        stp_id: number;
-        create_time: number;
-      }[]
-    >
-  > {
+  getStpGroupUsers(params: {
+    stp_id: number;
+  }): Promise<APIResponse<StpResp[]>> {
     return this.getPrivate(`/account/stp_groups/${params.stp_id}/users`);
   }
 
@@ -3843,21 +3794,12 @@ export class RestClient extends BaseRestClient {
    * Add users to the STP group
    *
    * @param params Parameters for adding users to the STP group
-   * @returns Promise<APIResponse<{
-   *   user_id: number;
-   *   stp_id: number;
-   *   create_time: number;
-   * }[]>>
+   * @returns Promise<APIResponse<StpResp[]>>
    */
-  addUsersToStpGroup(params: { stp_id: number; body: number[] }): Promise<
-    APIResponse<
-      {
-        user_id: number;
-        stp_id: number;
-        create_time: number;
-      }[]
-    >
-  > {
+  addUsersToStpGroup(params: {
+    stp_id: number;
+    body: number[];
+  }): Promise<APIResponse<StpResp[]>> {
     const { stp_id, ...body } = params;
     return this.postPrivate(`/account/stp_groups/${stp_id}/users`, {
       body: body,
@@ -3868,21 +3810,12 @@ export class RestClient extends BaseRestClient {
    * Delete the user in the STP group
    *
    * @param params Parameters for deleting users from the STP group
-   * @returns Promise<APIResponse<{
-   *   user_id: number;
-   *   stp_id: number;
-   *   create_time: number;
-   * }[]>>
+   * @returns Promise<APIResponse<StpResp[]>>
    */
-  deleteUserFromStpGroup(params: { stp_id: number; user_id: number }): Promise<
-    APIResponse<
-      {
-        user_id: number;
-        stp_id: number;
-        create_time: number;
-      }[]
-    >
-  > {
+  deleteUserFromStpGroup(params: {
+    stp_id: number;
+    user_id: number;
+  }): Promise<APIResponse<StpResp[]>> {
     const { stp_id, ...query } = params;
     return this.deletePrivate(`/account/stp_groups/${stp_id}/users`, {
       query: query,

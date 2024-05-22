@@ -1692,3 +1692,9 @@ export interface CreateStpGroupResp {
   creator_id: number;
   create_time: number;
 }
+
+export interface StpResp {
+  user_id: number;
+  stp_id: number;
+  create_time: number;
+}

@@ -1,5 +1,14 @@
 import { FuturesOrder, FuturesPriceTriggeredOrder } from 'types/shared';
 
+export interface SubmitWithdrawReq {
+  amount: string;
+  currency: string;
+  chain: string;
+  withdraw_order_id?: string;
+  address?: string;
+  memo?: string;
+}
+
 export interface GetWithdrawalDepositRecordsReq {
   currency?: string;
   from?: number;
@@ -14,6 +23,34 @@ export interface GetMainSubTransfersReq {
   to?: number;
   limit?: number;
   offset?: number;
+}
+
+export interface SubmitMainSubTransferReq {
+  currency: string;
+  sub_account: string;
+  direction: 'to' | 'from';
+  amount: string;
+  client_order_id?: string;
+  sub_account_type?: 'spot' | 'futures' | 'cross_margin' | 'delivery';
+}
+
+export interface SubmitSubToSubTransferReq {
+  currency: string;
+  sub_account_from: string;
+  sub_account_from_type: 'spot' | 'futures' | 'delivery' | 'cross_margin';
+  sub_account_to: string;
+  sub_account_to_type: 'spot' | 'futures' | 'delivery' | 'cross_margin';
+  amount: string;
+  sub_account_type?: string;
+}
+
+export interface SubmitTransferReq {
+  currency: string;
+  from: 'spot' | 'margin' | 'futures' | 'delivery' | 'cross_margin' | 'options';
+  to: 'spot' | 'margin' | 'futures' | 'delivery' | 'cross_margin' | 'options';
+  amount: string;
+  currency_pair?: string;
+  settle?: string;
 }
 
 export interface CreateSubAccountApiKeyReq {
@@ -38,6 +75,13 @@ export interface CreateSubAccountApiKeyReq {
 
 export interface UpdateSubAccountApiKeyReq extends CreateSubAccountApiKeyReq {
   key: string;
+}
+
+export interface CreateSubAccountReq {
+  login_name: string;
+  remark?: string;
+  password?: string;
+  email?: string;
 }
 
 export interface GetSavedAddressReq {
