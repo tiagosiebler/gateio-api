@@ -1,4 +1,159 @@
 import { AxiosRequestConfig } from 'axios';
+import {
+  GetAgencyCommissionHistoryReq,
+  GetAgencyTransactionHistoryReq,
+  GetBrokerCommissionHistoryReq,
+  GetBrokerTransactionHistoryReq,
+} from 'types/requests/rebate.js';
+import {
+  CreateStpGroupResp,
+  GetAccountDetailResp,
+  StpResp,
+} from 'types/response/account.js';
+import {
+  GetLoanCollateralizationRatioResp,
+  GetLoanCollateralRecordsResp,
+  GetLoanOrdersResp,
+  GetLoanRepaymentHistoryResp,
+} from 'types/response/collateralloan.js';
+import {
+  GetDeliveryAccountResp,
+  GetDeliveryBookResp,
+  GetDeliveryCandlesticksResp,
+  GetDeliveryClosedPositionsResp,
+  GetDeliveryLiquidationHistoryResp,
+  GetDeliveryOrderBookResp,
+  GetDeliverySettlementHistoryResp,
+  GetDeliveryTickersResp,
+  GetDeliveryTradesResp,
+  GetDeliveryTradingHistoryResp,
+} from 'types/response/delivery.js';
+import {
+  GetDualInvestmentOrdersResp,
+  GetDualInvestmentProductsResp,
+  GetStructuredProductListResp,
+  GetStructuredProductOrdersResp,
+} from 'types/response/earn.js';
+import {
+  GetLendingCurrenciesResp,
+  GetLendingInterestRecordsResp,
+  GetLendingOrdersResp,
+  GetLendingRecordsResp,
+} from 'types/response/earnuni.js';
+import {
+  FlashSwapOrderResp,
+  GetFlashSwapCurrencyPairsResp,
+  SubmitFlashSwapOrderPreviewResp,
+} from 'types/response/flashswap.js';
+import {
+  DeleteFuturesBatchOrdersResp,
+  GetFuturesAccountResp,
+  GetFuturesAutoDeleveragingHistoryResp,
+  GetFuturesCandlesticksResp,
+  GetFuturesLiquidationHistoryResp,
+  GetFuturesOrderBookResp,
+  GetFuturesPositionHistoryResp,
+  GetFuturesStatsResp,
+  GetFuturesTickersResp,
+  GetFuturesTradesResp,
+  GetFuturesTradingHistoryResp,
+  GetIndexConstituentsResp,
+  GetLiquidationHistoryResp,
+  GetPremiumIndexKLineResp,
+  GetRiskLimitTiersResp,
+  ToggleFuturesDualModeResp,
+} from 'types/response/futures.js';
+import {
+  GetCrossMarginAccountHistoryResp,
+  GetCrossMarginAccountResp,
+  GetCrossMarginCurrenciesResp,
+  GetMarginAccountsResp,
+  GetMarginBalanceHistoryResp,
+  SubmitCrossMarginBorrowLoanResp,
+} from 'types/response/margin.js';
+import {
+  GetLendingMarketsResp,
+  GetMarginUNIInterestRecordsResp,
+  GetMarginUNILoanRecordsResp,
+  GetMarginUNILoansResp,
+  GetMarginUNIMaxBorrowResp,
+} from 'types/response/marginuni.js';
+import {
+  GetMultiLoanAdjustmentRecordsResp,
+  GetMultiLoanCurrencyQuotaResp,
+  GetMultiLoanFixedRatesResp,
+  GetMultiLoanOrdersResp,
+  GetMultiLoanRatioResp,
+  GetMultiLoanRepayRecordsResp,
+  GetMultiLoanSupportedCurrenciesResp,
+  RepayMultiLoanResp,
+  UpdateMultiLoanResp,
+} from 'types/response/multicollateralLoan.js';
+import {
+  GetOptionsAccountChangeResp,
+  GetOptionsAccountResp,
+  GetOptionsCandlesticksResp,
+  GetOptionsContractsResp,
+  GetOptionsLiquidationResp,
+  GetOptionsMySettlementsResp,
+  GetOptionsOrderBookResp,
+  GetOptionsPersonalHistoryResp,
+  GetOptionsPositionsUnderlyingResp,
+  GetOptionsSettlementHistoryResp,
+  GetOptionsTickersResp,
+  GetOptionsTradesResp,
+  GetOptionsUnderlyingCandlesticksResp,
+  SubmitOptionsOrderResp,
+} from 'types/response/options.js';
+import {
+  GetAgencyCommissionHistoryResp,
+  GetAgencyTransactionHistoryResp,
+  GetBrokerCommissionHistoryResp,
+  GetBrokerTransactionHistoryResp,
+} from 'types/response/rebate.js';
+import {
+  DeleteSpotBatchOrdersResp,
+  GetSpotAccountBookResp,
+  GetSpotAccountsResp,
+  GetSpotBatchFeeRatesResp,
+  GetSpotCandlesticksResp,
+  GetSpotCurrenciesResp,
+  GetSpotFeeRatesResp,
+  GetSpotOpenOrdersResp,
+  GetSpotOrderBookResp,
+  GetSpotTickerResp,
+  GetSpotTradesResp,
+  GetSpotTradingHistoryResp,
+  SubmitSpotBatchOrdersResp,
+} from 'types/response/spot.js';
+import {
+  CreateSubAccountApiKeyResp,
+  SubAccountResp,
+} from 'types/response/subaccount.js';
+import {
+  GetUnifiedAccountInfoResp,
+  GetUnifiedCurrencyDiscountTiersResp,
+  GetUnifiedInterestRecordsResp,
+  GetUnifiedLoanRecordsResp,
+  GetUnifiedLoansResp,
+  GetUnifiedRiskUnitDetailsResp,
+  PortfolioMarginCalculatorResp,
+} from 'types/response/unified.js';
+import {
+  APIResponse,
+  CreateDepositAddressResp,
+  GetBalancesResp,
+  GetCurrencyChainsResp,
+  GetSavedAddressResp,
+  GetSmallBalanceHistoryResp,
+  GetSmallBalancesResp,
+  GetTradingFeesResp,
+  GetWithdrawalStatusResp,
+  SubAccountCrossMarginBalancesResp,
+  SubAccountFuturesBalancesResp,
+  SubAccountMarginBalancesResp,
+  SubAccountTransferRecordResp,
+} from 'types/response/wallet.js';
 
 import {
   BaseRestClient,
@@ -110,121 +265,6 @@ import {
   UpdateSpotOrderReq,
   UpdateSubAccountApiKeyReq,
 } from './types/requests/shared.types.js';
-import {
-  APIResponse,
-  CreateDepositAddressResp,
-  CreateStpGroupResp,
-  CreateSubAccountApiKeyResp,
-  DeleteFuturesBatchOrdersResp,
-  DeleteSpotBatchOrdersResp,
-  FlashSwapOrderResp,
-  GetAccountDetailResp,
-  GetBalancesResp,
-  GetCrossMarginAccountHistoryResp,
-  GetCrossMarginAccountResp,
-  GetCrossMarginCurrenciesResp,
-  GetCurrencyChainsResp,
-  GetDeliveryAccountResp,
-  GetDeliveryBookResp,
-  GetDeliveryCandlesticksResp,
-  GetDeliveryClosedPositionsResp,
-  GetDeliveryLiquidationHistoryResp,
-  GetDeliveryOrderBookResp,
-  GetDeliverySettlementHistoryResp,
-  GetDeliveryTickersResp,
-  GetDeliveryTradesResp,
-  GetDeliveryTradingHistoryResp,
-  GetDualInvestmentOrdersResp,
-  GetDualInvestmentProductsResp,
-  GetFlashSwapCurrencyPairsResp,
-  GetFuturesAccountResp,
-  GetFuturesAutoDeleveragingHistoryResp,
-  GetFuturesCandlesticksResp,
-  GetFuturesLiquidationHistoryResp,
-  GetFuturesOrderBookResp,
-  GetFuturesPositionHistoryResp,
-  GetFuturesStatsResp,
-  GetFuturesTickersResp,
-  GetFuturesTradesResp,
-  GetFuturesTradingHistoryResp,
-  GetIndexConstituentsResp,
-  GetLendingCurrenciesResp,
-  GetLendingInterestRecordsResp,
-  GetLendingMarketsResp,
-  GetLendingOrdersResp,
-  GetLendingRecordsResp,
-  GetLiquidationHistoryResp,
-  GetLoanCollateralizationRatioResp,
-  GetLoanCollateralRecordsResp,
-  GetLoanOrdersResp,
-  GetLoanRepaymentHistoryResp,
-  GetMarginAccountsResp,
-  GetMarginBalanceHistoryResp,
-  GetMarginUNIInterestRecordsResp,
-  GetMarginUNILoanRecordsResp,
-  GetMarginUNILoansResp,
-  GetMarginUNIMaxBorrowResp,
-  GetMultiLoanAdjustmentRecordsResp,
-  GetMultiLoanCurrencyQuotaResp,
-  GetMultiLoanFixedRatesResp,
-  GetMultiLoanOrdersResp,
-  GetMultiLoanRatioResp,
-  GetMultiLoanRepayRecordsResp,
-  GetMultiLoanSupportedCurrenciesResp,
-  GetOptionsAccountChangeResp,
-  GetOptionsAccountResp,
-  GetOptionsCandlesticksResp,
-  GetOptionsContractsResp,
-  GetOptionsLiquidationResp,
-  GetOptionsMySettlementsResp,
-  GetOptionsOrderBookResp,
-  GetOptionsPersonalHistoryResp,
-  GetOptionsPositionsUnderlyingResp,
-  GetOptionsSettlementHistoryResp,
-  GetOptionsTickersResp,
-  GetOptionsTradesResp,
-  GetOptionsUnderlyingCandlesticksResp,
-  GetPremiumIndexKLineResp,
-  GetRiskLimitTiersResp,
-  GetSavedAddressResp,
-  GetSmallBalanceHistoryResp,
-  GetSmallBalancesResp,
-  GetSpotAccountBookResp,
-  GetSpotAccountsResp,
-  GetSpotBatchFeeRatesResp,
-  GetSpotCandlesticksResp,
-  GetSpotCurrenciesResp,
-  GetSpotFeeRatesResp,
-  GetSpotOpenOrdersResp,
-  GetSpotOrderBookResp,
-  GetSpotTickerResp,
-  GetSpotTradesResp,
-  GetSpotTradingHistoryResp,
-  GetStructuredProductListResp,
-  GetStructuredProductOrdersResp,
-  GetTradingFeesResp,
-  GetUnifiedAccountInfoResp,
-  GetUnifiedCurrencyDiscountTiersResp,
-  GetUnifiedInterestRecordsResp,
-  GetUnifiedLoanRecordsResp,
-  GetUnifiedLoansResp,
-  GetUnifiedRiskUnitDetailsResp,
-  GetWithdrawalStatusResp,
-  PortfolioMarginCalculatorResp,
-  RepayMultiLoanResp,
-  StpResp,
-  SubAccountCrossMarginBalancesResp,
-  SubAccountFuturesBalancesResp,
-  SubAccountMarginBalancesResp,
-  SubAccountResp,
-  SubAccountTransferRecordResp,
-  SubmitCrossMarginBorrowLoanResp,
-  SubmitFlashSwapOrderPreviewResp,
-  SubmitOptionsOrderResp,
-  SubmitSpotBatchOrdersResp,
-  ToggleFuturesDualModeResp,
-  UpdateMultiLoanResp,
-} from './types/response/shared.types.js';
 import {
   CancelBatchOrder,
   Contract,
@@ -3820,5 +3860,69 @@ export class RestClient extends BaseRestClient {
     return this.deletePrivate(`/account/stp_groups/${stp_id}/users`, {
       query: query,
     });
+  }
+
+  /**==========================================================================================================================
+   * REBATES
+   * ==========================================================================================================================
+   */
+
+  /**
+   * The agency obtains the transaction history of the recommended user.
+   * Record time range cannot exceed 30 days.
+   *
+   * @param params Parameters for retrieving transaction history
+   * @returns Promise<APIResponse<GetAgencyTransactionHistoryResp>>
+   */
+  getAgencyTransactionHistory(
+    params: GetAgencyTransactionHistoryReq,
+  ): Promise<APIResponse<GetAgencyTransactionHistoryResp>> {
+    return this.getPrivate('/rebate/agency/transaction_history', params);
+  }
+
+  /**
+   * The agency obtains the commission history of the recommended user.
+   * Record time range cannot exceed 30 days.
+   *
+   * @param params Parameters for retrieving commission history
+   * @returns Promise<APIResponse<GetAgencyCommissionHistoryResp>>
+   */
+  getAgencyCommissionHistory(
+    params: GetAgencyCommissionHistoryReq,
+  ): Promise<APIResponse<GetAgencyCommissionHistoryResp>> {
+    return this.getPrivate('/rebate/agency/commission_history', params);
+  }
+
+  /**
+   * The broker obtains the user's commission rebate records.
+   * Record time range cannot exceed 30 days.
+   *
+   * @param params Parameters for retrieving commission rebate records
+   * @returns Promise<APIResponse<GetBrokerCommissionHistoryResp>>
+   */
+  getBrokerCommissionHistory(
+    params: GetBrokerCommissionHistoryReq,
+  ): Promise<APIResponse<GetBrokerCommissionHistoryResp>> {
+    return this.getPrivate('/rebate/broker/commission_history', params);
+  }
+
+  /**
+   * The broker obtains the user's trading history.
+   * Record time range cannot exceed 30 days.
+   *
+   * @param params Parameters for retrieving trading history
+   * @returns Promise<APIResponse<GetBrokerTransactionHistoryResp>>
+   */
+  getBrokerTransactionHistory(
+    params: GetBrokerTransactionHistoryReq,
+  ): Promise<APIResponse<GetBrokerTransactionHistoryResp>> {
+    return this.getPrivate('/rebate/broker/transaction_history', params);
+  }
+
+  /**
+   * User retrieves rebate information.
+   */
+  getUserRebateInfo(): Promise<APIResponse<{ invite_uid: number }>> {
+    return this.getPrivate('/rebate/user/info');
   }
 }
