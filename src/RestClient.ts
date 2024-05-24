@@ -1,12 +1,19 @@
 import { AxiosRequestConfig } from 'axios';
-import { CreateStpGroupReq } from 'types/requests/account.js';
+
+import {
+  BaseRestClient,
+  REST_CLIENT_TYPE_ENUM,
+  RestClientType,
+} from './lib/BaseRestClient.js';
+import { RestClientOptions } from './lib/requestUtils.js';
+import { CreateStpGroupReq } from './types/requests/account.js';
 import {
   GetLoanCollateralRecordsReq,
   GetLoanOrdersReq,
   GetLoanRepaymentHistoryReq,
   SubmitLoanOrderReq,
   UpdateLoanCollateralReq,
-} from 'types/requests/collateralLoan.js';
+} from './types/requests/collateralLoan.js';
 import {
   GetDeliveryAutoOrdersReq,
   GetDeliveryBookReq,
@@ -20,22 +27,22 @@ import {
   GetDeliveryTradingHistoryReq,
   SubmitDeliveryFuturesOrderReq,
   submitDeliveryTriggeredOrderReq,
-} from 'types/requests/delivery.js';
+} from './types/requests/delivery.js';
 import {
   GetStructuredProductListReq,
   GetStructuredProductOrdersReq,
-} from 'types/requests/earn.js';
+} from './types/requests/earn.js';
 import {
   GetLendingInterestRecordsReq,
   GetLendingOrdersReq,
   GetLendingRecordsReq,
   SubmitLendOrRedeemReq,
-} from 'types/requests/earnuni.js';
+} from './types/requests/earnuni.js';
 import {
   GetFlashSwapOrdersReq,
   SubmitFlashSwapOrderPreviewReq,
   SubmitFlashSwapOrderReq,
-} from 'types/requests/flashswap.js';
+} from './types/requests/flashswap.js';
 import {
   DeleteAllFuturesOrdersReq,
   GetFuturesAccountBookReq,
@@ -57,7 +64,7 @@ import {
   SubmitFuturesPriceTriggeredOrderReq,
   UpdateDualModePositionLeverageReq,
   UpdateDualModePositionMarginReq,
-} from 'types/requests/futures.js';
+} from './types/requests/futures.js';
 import {
   GetCrossMarginAccountHistoryReq,
   GetCrossMarginBorrowHistoryReq,
@@ -65,13 +72,13 @@ import {
   GetCrossMarginRepaymentsReq,
   GetMarginBalanceHistoryReq,
   SubmitCrossMarginBorrowLoanReq,
-} from 'types/requests/margin.js';
+} from './types/requests/margin.js';
 import {
   GetMarginUNIInterestRecordsReq,
   GetMarginUNILoanRecordsReq,
   GetMarginUNILoansReq,
   GetMarginUNIMaxBorrowReq,
-} from 'types/requests/marginuni.js';
+} from './types/requests/marginuni.js';
 import {
   GetMultiLoanAdjustmentRecordsReq,
   GetMultiLoanOrdersReq,
@@ -79,7 +86,7 @@ import {
   RepayMultiLoanReq,
   SubmitMultiLoanOrderReq,
   UpdateMultiLoanReq,
-} from 'types/requests/multicollateralLoan.js';
+} from './types/requests/multicollateralLoan.js';
 import {
   GetOptionsAccountChangeReq,
   GetOptionsCandlesticksReq,
@@ -91,13 +98,13 @@ import {
   GetOptionsTradesReq,
   GetOptionsUnderlyingCandlesticksReq,
   SubmitOptionsOrderReq,
-} from 'types/requests/options.js';
+} from './types/requests/options.js';
 import {
   GetAgencyCommissionHistoryReq,
   GetAgencyTransactionHistoryReq,
   GetBrokerCommissionHistoryReq,
   GetBrokerTransactionHistoryReq,
-} from 'types/requests/rebate.js';
+} from './types/requests/rebate.js';
 import {
   DeleteSpotOrderReq,
   GetSpotAccountBookReq,
@@ -111,12 +118,12 @@ import {
   SubmitSpotOrderReq,
   UpdateSpotBatchOrdersReq,
   UpdateSpotOrderReq,
-} from 'types/requests/spot.js';
+} from './types/requests/spot.js';
 import {
   CreateSubAccountApiKeyReq,
   CreateSubAccountReq,
   UpdateSubAccountApiKeyReq,
-} from 'types/requests/subaccount.js';
+} from './types/requests/subaccount.js';
 import {
   GetUnifiedInterestRecordsReq,
   GetUnifiedLoanRecordsReq,
@@ -124,7 +131,7 @@ import {
   PortfolioMarginCalculatorReq,
   SetUnifiedAccountModeReq,
   SubmitUnifiedBorrowOrRepayReq,
-} from 'types/requests/unified.js';
+} from './types/requests/unified.js';
 import {
   GetMainSubTransfersReq,
   GetSavedAddressReq,
@@ -133,19 +140,19 @@ import {
   SubmitMainSubTransferReq,
   SubmitSubToSubTransferReq,
   SubmitTransferReq,
-} from 'types/requests/wallet.js';
-import { SubmitWithdrawReq } from 'types/requests/withdrawal.js';
+} from './types/requests/wallet.js';
+import { SubmitWithdrawReq } from './types/requests/withdrawal.js';
 import {
   CreateStpGroupResp,
   GetAccountDetailResp,
   StpResp,
-} from 'types/response/account.js';
+} from './types/response/account.js';
 import {
   GetLoanCollateralizationRatioResp,
   GetLoanCollateralRecordsResp,
   GetLoanOrdersResp,
   GetLoanRepaymentHistoryResp,
-} from 'types/response/collateralloan.js';
+} from './types/response/collateralloan.js';
 import {
   GetDeliveryAccountResp,
   GetDeliveryBookResp,
@@ -157,24 +164,24 @@ import {
   GetDeliveryTickersResp,
   GetDeliveryTradesResp,
   GetDeliveryTradingHistoryResp,
-} from 'types/response/delivery.js';
+} from './types/response/delivery.js';
 import {
   GetDualInvestmentOrdersResp,
   GetDualInvestmentProductsResp,
   GetStructuredProductListResp,
   GetStructuredProductOrdersResp,
-} from 'types/response/earn.js';
+} from './types/response/earn.js';
 import {
   GetLendingCurrenciesResp,
   GetLendingInterestRecordsResp,
   GetLendingOrdersResp,
   GetLendingRecordsResp,
-} from 'types/response/earnuni.js';
+} from './types/response/earnuni.js';
 import {
   FlashSwapOrderResp,
   GetFlashSwapCurrencyPairsResp,
   SubmitFlashSwapOrderPreviewResp,
-} from 'types/response/flashswap.js';
+} from './types/response/flashswap.js';
 import {
   DeleteFuturesBatchOrdersResp,
   GetFuturesAccountResp,
@@ -192,7 +199,7 @@ import {
   GetPremiumIndexKLineResp,
   GetRiskLimitTiersResp,
   ToggleFuturesDualModeResp,
-} from 'types/response/futures.js';
+} from './types/response/futures.js';
 import {
   GetCrossMarginAccountHistoryResp,
   GetCrossMarginAccountResp,
@@ -200,14 +207,14 @@ import {
   GetMarginAccountsResp,
   GetMarginBalanceHistoryResp,
   SubmitCrossMarginBorrowLoanResp,
-} from 'types/response/margin.js';
+} from './types/response/margin.js';
 import {
   GetLendingMarketsResp,
   GetMarginUNIInterestRecordsResp,
   GetMarginUNILoanRecordsResp,
   GetMarginUNILoansResp,
   GetMarginUNIMaxBorrowResp,
-} from 'types/response/marginuni.js';
+} from './types/response/marginuni.js';
 import {
   GetMultiLoanAdjustmentRecordsResp,
   GetMultiLoanCurrencyQuotaResp,
@@ -218,7 +225,7 @@ import {
   GetMultiLoanSupportedCurrenciesResp,
   RepayMultiLoanResp,
   UpdateMultiLoanResp,
-} from 'types/response/multicollateralLoan.js';
+} from './types/response/multicollateralLoan.js';
 import {
   GetOptionsAccountChangeResp,
   GetOptionsAccountResp,
@@ -234,13 +241,13 @@ import {
   GetOptionsTradesResp,
   GetOptionsUnderlyingCandlesticksResp,
   SubmitOptionsOrderResp,
-} from 'types/response/options.js';
+} from './types/response/options.js';
 import {
   GetAgencyCommissionHistoryResp,
   GetAgencyTransactionHistoryResp,
   GetBrokerCommissionHistoryResp,
   GetBrokerTransactionHistoryResp,
-} from 'types/response/rebate.js';
+} from './types/response/rebate.js';
 import {
   DeleteSpotBatchOrdersResp,
   GetSpotAccountBookResp,
@@ -255,11 +262,11 @@ import {
   GetSpotTradesResp,
   GetSpotTradingHistoryResp,
   SubmitSpotBatchOrdersResp,
-} from 'types/response/spot.js';
+} from './types/response/spot.js';
 import {
   CreateSubAccountApiKeyResp,
   SubAccountResp,
-} from 'types/response/subaccount.js';
+} from './types/response/subaccount.js';
 import {
   GetUnifiedAccountInfoResp,
   GetUnifiedCurrencyDiscountTiersResp,
@@ -268,7 +275,7 @@ import {
   GetUnifiedLoansResp,
   GetUnifiedRiskUnitDetailsResp,
   PortfolioMarginCalculatorResp,
-} from 'types/response/unified.js';
+} from './types/response/unified.js';
 import {
   APIResponse,
   CreateDepositAddressResp,
@@ -283,14 +290,7 @@ import {
   SubAccountFuturesBalancesResp,
   SubAccountMarginBalancesResp,
   SubAccountTransferRecordResp,
-} from 'types/response/wallet.js';
-
-import {
-  BaseRestClient,
-  REST_CLIENT_TYPE_ENUM,
-  RestClientType,
-} from './lib/BaseRestClient.js';
-import { RestClientOptions } from './lib/requestUtils.js';
+} from './types/response/wallet.js';
 import {
   CancelBatchOrder,
   Contract,
