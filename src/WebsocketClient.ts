@@ -14,6 +14,7 @@ import {
 import {
   WsOperation,
   WsRequestOperationGate,
+  WsRequestPing,
 } from './types/websockets/requests.js';
 
 export const WS_LOGGER_CATEGORY = { category: 'gate-ws' };
@@ -86,9 +87,16 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
    * Call `unsubscribe(topics)` to remove topics
    */
   public subscribe(
-    requests: (WsTopicRequest<WsTopic> | WsTopic)[],
+    requests:
+      | (WsTopicRequest<WsTopic> | WsTopic)
+      | (WsTopicRequest<WsTopic> | WsTopic)[],
     wsKey: WsKey,
   ) {
+    if (!Array.isArray(requests)) {
+      this.subscribeTopicsForWsKey([requests], wsKey);
+      return;
+    }
+
     if (requests.length) {
       this.subscribeTopicsForWsKey(requests, wsKey);
     }
@@ -101,9 +109,16 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
    * - These topics will be removed from the topic cache, so they won't be subscribed to again.
    */
   public unsubscribe(
-    requests: (WsTopicRequest<WsTopic> | WsTopic)[],
+    requests:
+      | (WsTopicRequest<WsTopic> | WsTopic)
+      | (WsTopicRequest<WsTopic> | WsTopic)[],
     wsKey: WsKey,
   ) {
+    if (!Array.isArray(requests)) {
+      this.unsubscribeTopicsForWsKey([requests], wsKey);
+      return;
+    }
+
     if (requests.length) {
       this.unsubscribeTopicsForWsKey(requests, wsKey);
     }
@@ -116,27 +131,80 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
    */
 
   protected sendPingEvent(wsKey: WsKey) {
-    return this.tryWsSend(wsKey, '{"event":"ping"}');
+    let pingChannel: WsRequestPing['channel'];
+
+    switch (wsKey) {
+      case 'deliveryFuturesBTCV4':
+      case 'deliveryFuturesUSDTV4':
+      case 'perpFuturesBTCV4':
+      case 'perpFuturesUSDTV4': {
+        pingChannel = 'futures.ping';
+        break;
+      }
+      case 'announcementsV4': {
+        pingChannel = 'announcement.ping';
+        break;
+      }
+      case 'optionsV4': {
+        pingChannel = 'options.ping';
+        break;
+      }
+      case 'spotV4': {
+        pingChannel = 'spot.ping';
+        break;
+      }
+      default: {
+        throw neverGuard(wsKey, `Unhandled WsKey "${wsKey}"`);
+      }
+    }
+
+    const timeInMs = Date.now();
+    const timeInS = (timeInMs / 1000).toFixed(0);
+    return this.tryWsSend(
+      wsKey,
+      `{ "time": ${timeInS}, "channel": "${pingChannel}" }`,
+    );
   }
 
   protected sendPongEvent(wsKey: WsKey) {
-    return this.tryWsSend(wsKey, '{"event":"pong"}');
+    try {
+      this.logger.trace(`Sending upstream ws PONG: `, {
+        ...WS_LOGGER_CATEGORY,
+        wsMessage: 'PONG',
+        wsKey,
+      });
+      if (!wsKey) {
+        throw new Error(
+          'Cannot send PONG due to no known websocket for this wsKey',
+        );
+      }
+      const wsState = this.getWsStore().get(wsKey);
+      if (!wsState || !wsState?.ws) {
+        throw new Error(
+          `${wsKey} socket not connected yet, call "connectAll()" first then try again when the "open" event arrives`,
+        );
+      }
+
+      // Send a protocol layer pong
+      wsState.ws.pong();
+    } catch (e) {
+      this.logger.error(`Failed to send WS PONG`, {
+        ...WS_LOGGER_CATEGORY,
+        wsMessage: 'PONG',
+        wsKey,
+        exception: e,
+      });
+    }
   }
 
-  protected isWsPing(msg: any): boolean {
-    if (typeof msg?.data === 'string' && msg.data.includes('"event":"ping"')) {
-      return true;
-    }
-    // this.logger.info(`Not a ping: `, {
-    //   data: msg?.data,
-    //   type: typeof msg?.data,
-    // });
-
+  // Unused, pings for gate are protocol layer pings
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected isWsPing(_msg: any): boolean {
     return false;
   }
 
   protected isWsPong(msg: any): boolean {
-    if (typeof msg?.data === 'string' && msg.data.includes('"event":"pong"')) {
+    if (typeof msg?.data === 'string' && msg.data.includes('.pong"')) {
       return true;
     }
 
@@ -160,6 +228,14 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         if (parsed.success === false) {
           results.push({
             eventType: 'exception',
+            event: parsed,
+          });
+          return results;
+        }
+
+        if (eventAction === 'update') {
+          results.push({
+            eventType: 'update',
             event: parsed,
           });
           return results;

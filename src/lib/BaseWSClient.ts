@@ -626,7 +626,11 @@ export abstract class BaseWebsocketClient<
       this.clearPongTimer(wsKey);
 
       if (this.isWsPong(event)) {
-        this.logger.trace('Received pong', { ...WS_LOGGER_CATEGORY, wsKey });
+        this.logger.trace('Received pong', {
+          ...WS_LOGGER_CATEGORY,
+          wsKey,
+          event,
+        });
         return;
       }
 
@@ -634,6 +638,7 @@ export abstract class BaseWebsocketClient<
         this.logger.trace('Received ping', {
           ...WS_LOGGER_CATEGORY,
           wsKey,
+          event,
         });
         this.sendPongEvent(wsKey, ws);
         return;

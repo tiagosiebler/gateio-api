@@ -50,7 +50,10 @@ export type WsMarket = 'all';
  * - Topic: the topic this event is for
  * - Payload: the parameters to include, optional. E.g. auth requires key + sign. Some topics allow configurable parameters.
  */
-export interface WsTopicRequest<TWSTopic extends string, TWSPayload = any> {
+export interface WsTopicRequest<
+  TWSTopic extends string = string,
+  TWSPayload = any,
+> {
   topic: TWSTopic;
   params?: TWSPayload;
 }
