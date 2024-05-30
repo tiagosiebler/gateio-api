@@ -6,7 +6,7 @@ import { WsConnectionStateEnum, WsStoredState } from './WsStore.types.js';
 /**
  * Simple comparison of two objects, only checks 1-level deep (nested objects won't match)
  */
-function isDeepObjectMatch(object1: unknown, object2: unknown) {
+export function isDeepObjectMatch(object1: unknown, object2: unknown): boolean {
   if (typeof object1 === 'string' && typeof object2 === 'string') {
     return object1 === object2;
   }
@@ -150,6 +150,12 @@ export class WsStore<
   }
 
   // Since topics are objects we can't rely on the set to detect duplicates
+  /**
+   * Find matching "topic" request from the store
+   * @param key
+   * @param topic
+   * @returns
+   */
   getMatchingTopic(key: WsKey, topic: TWSTopicSubscribeEventArgs) {
     // if (typeof topic === 'string') {
     //   return this.getMatchingTopic(key, { channel: topic });

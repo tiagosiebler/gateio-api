@@ -18,8 +18,7 @@ export interface WSClientConfigurableOptions {
   /** Your API secret */
   apiSecret?: string;
 
-  /** Your application ID, given to you when creating your API keys */
-  apiApplicationId?: string;
+  useTestnet?: boolean;
 
   /** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
   recvWindow?: number;
@@ -55,5 +54,3 @@ export interface WebsocketClientOptions extends WSClientConfigurableOptions {
   reconnectTimeout: number;
   recvWindow: number;
 }
-
-export type WsMarket = 'all';
