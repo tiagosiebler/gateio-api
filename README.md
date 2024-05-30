@@ -1,15 +1,15 @@
 # gateio-api
 
-[![Tests](https://circleci.com/gh/tiagosiebler/gateio-api.svg?style=shield)](https://circleci.com/gh/tiagosiebler/gateio-api)
-[![npm version](https://img.shields.io/npm/v/gateio-api)][1] [![npm size](https://img.shields.io/bundlephobia/min/gateio-api/latest)][1] [![npm downloads](https://img.shields.io/npm/dt/gateio-api)][1]
+[![E2E Tests](https://github.com/tiagosiebler/gateio-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/gateio-api/actions/workflows/e2etest.yml)
+[![npm version](https://img.shields.io/npm/v/gateio-api)][1]
+[![npm size](https://img.shields.io/bundlephobia/min/gateio-api/latest)][1]
+[![npm downloads](https://img.shields.io/npm/dt/gateio-api)][1]
 [![last commit](https://img.shields.io/github/last-commit/tiagosiebler/gateio-api)][1]
 [![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/gateio-api/badge)](https://www.codefactor.io/repository/github/tiagosiebler/gateio-api)
 
 [1]: https://www.npmjs.com/package/gateio-api
 
-WARNING: This package is still early beta, following the designs of my other connectors. If you want to stay informed when this may be ready for testing, please get in touch via telegram.
-
-Node.js connector for the gateio APIs and WebSockets, with TypeScript & browser support.
+Node.js & TypeScript SDK for Gate.io REST APIs and WebSockets.
 
 ## Installation
 
@@ -22,16 +22,18 @@ Node.js connector for the gateio APIs and WebSockets, with TypeScript & browser 
 
 ## Related projects
 
-Check out my related projects:
+Check out my related JavaScript/TypeScript/Node.js projects:
 
-- Try my connectors:
-  - [binance](https://www.npmjs.com/package/binance)
-  - [bybit-api](https://www.npmjs.com/package/bybit-api)
-  - [okx-api](https://www.npmjs.com/package/okx-api)
-  - [bitget-api](https://www.npmjs.com/package/bitget-api)
-  - [ftx-api](https://www.npmjs.com/package/ftx-api)
+- Try my API & WebSocket SDKs:
+  - [Bybit-api Node.js SDK](https://www.npmjs.com/package/bybit-api)
+  - [Binance Node.js SDK](https://www.npmjs.com/package/binance)
+  - [Okx-api Node.js SDK](https://www.npmjs.com/package/okx-api)
+  - [Gateio-api Nodejs SDK](https://www.npmjs.com/package/bitmart-api)
+  - [Bitget-api Node.js SDK](https://www.npmjs.com/package/bitget-api)
+  - [Bitmart-api Nodejs SDK](https://www.npmjs.com/package/bitmart-api)
 - Try my misc utilities:
-  - [orderbooks](https://www.npmjs.com/package/orderbooks)
+  - [orderbooks node.js](https://www.npmjs.com/package/orderbooks)
+  - [accountstate](https://www.npmjs.com/package/accountstate)
 - Check out my examples:
   - [awesome-crypto-examples](https://github.com/tiagosiebler/awesome-crypto-examples)
 
@@ -143,13 +145,6 @@ const wsConfig = {
   // defaults to false == testnet. Set to true for livenet.
   // livenet: true
 
-  // NOTE: to listen to multiple markets (spot vs inverse vs linear vs linearfutures) at once, make one WebsocketClient instance per market
-
-  // defaults to inverse:
-  // market: 'inverse'
-  // market: 'linear'
-  // market: 'spot'
-
   // how long to wait (in ms) before deciding the connection should be terminated & reconnected
   // pongTimeout: 1000,
 
@@ -164,22 +159,35 @@ const wsConfig = {
 
   // config for axios used for HTTP requests. E.g for proxy support
   // requestOptions: { }
-
-  // override which URL to use for websocket connections
-  // wsUrl: 'wss://stream.bytick.com/realtime'
 };
 
 const ws = new WebsocketClient(wsConfig);
 
+const tickersRequestWithParams = {
+  topic: 'spot.tickers',
+  params: ['BTC_USDT', 'ETH_USDT', 'MATIC_USDT'],
+};
+
+const rawTradesRequestWithParams = {
+  topic: 'spot.trades',
+  params: ['BTC_USDT', 'ETH_USDT', 'MATIC_USDT'],
+};
+
 // subscribe to multiple topics at once
-ws.subscribe(['position', 'execution', 'trade']);
+ws.subscribe([tickersRequestWithParams, rawTradesRequestWithParams], 'spotV4');
 
 // and/or subscribe to individual topics on demand
-ws.subscribe('kline.BTCUSD.1m');
+ws.subscribe(
+  {
+    topic: 'spot.trades',
+    params: ['BTC_USDT', 'ETH_USDT', 'MATIC_USDT'],
+  },
+  'spotV4',
+);
 
 // Listen to events coming from websockets. This is the primary data source
 ws.on('update', (data) => {
-  console.log('update', data);
+  console.log('data', data);
 });
 
 // Optional: Listen to websocket connection open event (automatic after subscribing to one or more topics)
@@ -197,6 +205,11 @@ ws.on('close', () => {
   console.log('connection closed');
 });
 
+// Optional: listen to internal exceptions. Useful for debugging if something weird happens
+ws.on('exception', (data) => {
+  console.error('exception: ', data);
+});
+
 // Optional: Listen to raw error events.
 // Note: responses to invalid topics are currently only sent in the "response" event.
 ws.on('error', (err) => {
@@ -205,8 +218,6 @@ ws.on('error', (err) => {
 ```
 
 See [websocket-client.ts](./src/websocket-client.ts) for further information.
-
-Note: for linear websockets, pass `linear: true` in the constructor options when instancing the `WebsocketClient`. To connect to both linear and inverse websockets, make two instances of the WebsocketClient.
 
 ---
 
@@ -237,21 +248,13 @@ The bundle can be found in `dist/`. Altough usage should be largely consistent, 
 
 ## Contributions & Thanks
 
-### Donations
+Have my projects helped you? Share the love, there are many ways you can show your thanks:
 
-#### tiagosiebler
-
-Support my efforts to make algo trading accessible to all - register with my referral links:
-
-- [Bybit](https://www.bybit.com/en-US/register?affiliate_id=9410&language=en-US&group_id=0&group_type=1)
-- [Binance](https://www.binance.com/en/register?ref=20983262)
-- [OKX](https://www.okx.com/join/18504944)
-- [FTX](https://ftx.com/referrals#a=ftxapigithub)
-
-Or buy me a coffee using any of these:
-
-- BTC: `1C6GWZL1XW3jrjpPTS863XtZiXL1aTK7Jk`
-- ETH (ERC20): `0xd773d8e6a50758e1ada699bb6c4f98bb4abf82da`
+- Star & share my projects.
+- Are my projects useful? Sponsor me on Github and support my effort to maintain & improve them: https://github.com/sponsors/tiagosiebler
+- Have an interesting project? Get in touch & invite me to it.
+- Or buy me all the coffee:
+  - ETH(ERC20): `0xA3Bda8BecaB4DCdA539Dc16F9C54a592553Be06C` <!-- metamask -->
 
 ### Contributions & Pull Requests
 
