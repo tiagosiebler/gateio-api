@@ -1,4 +1,5 @@
 # gateio-api
+
 [![Tests](https://circleci.com/gh/tiagosiebler/gateio-api.svg?style=shield)](https://circleci.com/gh/tiagosiebler/gateio-api)
 [![npm version](https://img.shields.io/npm/v/gateio-api)][1] [![npm size](https://img.shields.io/bundlephobia/min/gateio-api/latest)][1] [![npm downloads](https://img.shields.io/npm/dt/gateio-api)][1]
 [![last commit](https://img.shields.io/github/last-commit/tiagosiebler/gateio-api)][1]
@@ -11,14 +12,18 @@ WARNING: This package is still early beta, following the designs of my other con
 Node.js connector for the gateio APIs and WebSockets, with TypeScript & browser support.
 
 ## Installation
+
 `npm install --save gateio-api`
 
 ## Issues & Discussion
+
 - Issues? Check the [issues tab](https://github.com/tiagosiebler/gateio-api/issues).
 - Discuss & collaborate with other node devs? Join our [Node.js Algo Traders](https://t.me/nodetraders) engineering community on telegram.
 
 ## Related projects
+
 Check out my related projects:
+
 - Try my connectors:
   - [binance](https://www.npmjs.com/package/binance)
   - [bybit-api](https://www.npmjs.com/package/bybit-api)
@@ -31,11 +36,15 @@ Check out my related projects:
   - [awesome-crypto-examples](https://github.com/tiagosiebler/awesome-crypto-examples)
 
 ## Documentation
+
 Most methods accept JS objects. These can be populated using parameters specified by gateio's API documentation.
+
 - [Gate.io API Documentation](https://www.gate.io/docs/developers/apiv4/en/).
 
 ## Structure
+
 This project uses typescript. Resources are stored in 3 key structures:
+
 - [src](./src) - the whole connector written in typescript
 - [lib](./lib) - the javascript version of the project (compiled from typescript). This should not be edited directly, as it will be overwritten with each release.
 - [dist](./dist) - the packed bundle of the project for use in browser environments.
@@ -44,6 +53,7 @@ This project uses typescript. Resources are stored in 3 key structures:
 ---
 
 # Usage
+
 <!-- Create API credentials at okx
 - [OKX my-api](https://www.okx.com/account/my-api) -->
 
@@ -111,7 +121,10 @@ client.getOrderBook({ symbol: 'BTCUSD' })
 See [inverse-client.ts](./src/inverse-client.ts) for further information. -->
 
 ## WebSockets
-Inverse, linear & spot WebSockets can be used via a shared `WebsocketClient`. However, make sure to make one instance of WebsocketClient per market type (spot vs inverse vs linear vs linearfutures):
+
+All available WebSockets can be used via a shared `WebsocketClient`. The WebSocket client will automatically open/track/manage connections as needed. Each unique connection (one per server URL) is tracked using a WsKey (each WsKey is a string - [WS_KEY_MAP](src/lib/websocket/websocket-util.ts).
+
+Any subscribe/unsubscribe events will need to include a WsKey, so the WebSocket client understands which connection the event should be routed to. See examples below or in the [examples](./examples/) folder on GitHub.
 
 ```javascript
 const { WebsocketClient } = require('gateio-api');
@@ -165,7 +178,7 @@ ws.subscribe(['position', 'execution', 'trade']);
 ws.subscribe('kline.BTCUSD.1m');
 
 // Listen to events coming from websockets. This is the primary data source
-ws.on('update', data => {
+ws.on('update', (data) => {
   console.log('update', data);
 });
 
@@ -175,7 +188,7 @@ ws.on('open', ({ wsKey, event }) => {
 });
 
 // Optional: Listen to responses to websocket queries (e.g. the response after subscribing to a topic)
-ws.on('response', response => {
+ws.on('response', (response) => {
   console.log('response', response);
 });
 
@@ -186,11 +199,10 @@ ws.on('close', () => {
 
 // Optional: Listen to raw error events.
 // Note: responses to invalid topics are currently only sent in the "response" event.
-ws.on('error', err => {
+ws.on('error', (err) => {
   console.error('ERR', err);
 });
 ```
-
 
 See [websocket-client.ts](./src/websocket-client.ts) for further information.
 
@@ -199,6 +211,7 @@ Note: for linear websockets, pass `linear: true` in the constructor options when
 ---
 
 ## Customise Logging
+
 Pass a custom logger which supports the log methods `silly`, `debug`, `notice`, `info`, `warning` and `error`, or override methods from the default logger as desired.
 
 ```javascript
@@ -207,14 +220,13 @@ const { WebsocketClient, DefaultLogger } = require('gateio-api');
 // Disable all logging on the silly level
 DefaultLogger.silly = () => {};
 
-const ws = new WebsocketClient(
-  { key: 'xxx', secret: 'yyy' },
-  DefaultLogger
-);
+const ws = new WebsocketClient({ key: 'xxx', secret: 'yyy' }, DefaultLogger);
 ```
 
 ## Browser Usage
+
 Build a bundle using webpack:
+
 - `npm install`
 - `npm build`
 - `npm pack`
@@ -224,17 +236,23 @@ The bundle can be found in `dist/`. Altough usage should be largely consistent, 
 ---
 
 ## Contributions & Thanks
+
 ### Donations
+
 #### tiagosiebler
+
 Support my efforts to make algo trading accessible to all - register with my referral links:
+
 - [Bybit](https://www.bybit.com/en-US/register?affiliate_id=9410&language=en-US&group_id=0&group_type=1)
 - [Binance](https://www.binance.com/en/register?ref=20983262)
 - [OKX](https://www.okx.com/join/18504944)
 - [FTX](https://ftx.com/referrals#a=ftxapigithub)
 
 Or buy me a coffee using any of these:
+
 - BTC: `1C6GWZL1XW3jrjpPTS863XtZiXL1aTK7Jk`
 - ETH (ERC20): `0xd773d8e6a50758e1ada699bb6c4f98bb4abf82da`
 
 ### Contributions & Pull Requests
+
 Contributions are encouraged, I will review any incoming pull requests. See the issues tab for todo items.
