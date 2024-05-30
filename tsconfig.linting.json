@@ -6,5 +6,11 @@
     "target": "esnext",
     "rootDir": "../"
   },
-  "include": ["src/**/*.*", "test/**/*.*", "examples/**/*.*", ".eslintrc.cjs"]
+  "include": [
+    "src/**/*.*",
+    "test/**/*.*",
+    "examples/**/*.*",
+    ".eslintrc.cjs",
+    "jest.config.ts"
+  ]
 }

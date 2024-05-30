@@ -8,48 +8,77 @@ import {
   WS_BASE_URL_MAP,
   WS_KEY_MAP,
   WsKey,
+  WsMarket,
+  WsTopicRequest,
 } from './lib/websocket/websocket-util.js';
-import { WsMarket } from './types/websockets/client.js';
 import {
   WsOperation,
-  WsRequestOperation,
+  WsRequestOperationGate,
+  WsRequestPing,
 } from './types/websockets/requests.js';
 
-export const WS_LOGGER_CATEGORY = { category: 'woo-ws' };
+export const WS_LOGGER_CATEGORY = { category: 'gate-ws' };
 
 /** Any WS keys in this list will trigger auth on connect, if credentials are available */
-const PRIVATE_WS_KEYS: WsKey[] = [WS_KEY_MAP.privateV1];
+const PRIVATE_WS_KEYS: WsKey[] = [];
 
 /** Any WS keys in this list will ALWAYS skip the authentication process, even if credentials are available */
-export const PUBLIC_WS_KEYS: WsKey[] = [WS_KEY_MAP.publicV1];
+export const PUBLIC_WS_KEYS: WsKey[] = [];
 
 /**
- * WS topics are always a string for woo. Some exchanges use complex objects
+ * WS topics are always a string for gate. Some exchanges use complex objects
  */
-export type WsTopic =
-  | 'balance'
-  | 'executionreport'
-  | 'algoexecutionreportv2'
-  | 'position'
-  | 'marginassignment';
+export type WsTopic = string;
 
-export class WebsocketClient extends BaseWebsocketClient<
-  WsMarket,
-  WsKey,
-  WsTopic
-> {
+// /**
+//  * Used to split sub/unsub logic by websocket connection. Groups & dedupes requests into per-WsKey arrays
+//  */
+// function arrangeTopicsIntoWsKeyGroups(
+//   requestOperations: WsRequest<WsTopic, WsOperation>[],
+// ): Record<WsKey, WsRequest<WsTopic, WsOperation>[]> {
+//   const topicsByWsKey: Record<WsKey, WsRequest<WsTopic, WsOperation>[]> = {
+//     [WS_KEY_MAP.spotV4]: [],
+//     [WS_KEY_MAP.perpFuturesUSDTV4]: [],
+//     [WS_KEY_MAP.perpFuturesBTCV4]: [],
+//     [WS_KEY_MAP.deliveryFuturesUSDTV4]: [],
+//     [WS_KEY_MAP.deliveryFuturesBTCV4]: [],
+//     [WS_KEY_MAP.optionsV4]: [],
+//     [WS_KEY_MAP.announcementsV4]: [],
+//   };
+
+//   for (const request of requestOperations) {
+//     const wsKeyForTopic = request.wsKey;
+
+//     const requestsForWsKey = topicsByWsKey[wsKeyForTopic];
+
+//     const requestAlreadyInList = requestsForWsKey.find((p) =>
+//       isDeepObjectMatch(p, request),
+//     );
+//     if (!requestAlreadyInList) {
+//       requestsForWsKey.push(request);
+//     }
+//   }
+
+//   return topicsByWsKey;
+// }
+
+export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   /**
    * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
    */
   public connectAll(): Promise<WebSocket | undefined>[] {
     return [
-      this.connect(WS_KEY_MAP.publicV1),
-      this.connect(WS_KEY_MAP.privateV1),
+      this.connect(WS_KEY_MAP.spotV4),
+      this.connect(WS_KEY_MAP.perpFuturesUSDTV4),
+      this.connect(WS_KEY_MAP.deliveryFuturesUSDTV4),
+      this.connect(WS_KEY_MAP.optionsV4),
+      this.connect(WS_KEY_MAP.announcementsV4),
     ];
   }
 
   /**
-   * Request subscription to one or more topics.
+   * Request subscription to one or more topics. Pass topics as either an array of strings, or array of objects (if the topic has parameters).
+   * Objects should be formatted as {topic: string, params: object}.
    *
    * - Subscriptions are automatically routed to the correct websocket connection.
    * - Authentication/connection is automatic.
@@ -57,35 +86,41 @@ export class WebsocketClient extends BaseWebsocketClient<
    *
    * Call `unsubscribe(topics)` to remove topics
    */
-  public subscribe(topics: WsTopic[]) {
-    const topicsByWsKey = this.arrangeTopicsIntoWsKeyGroups(topics);
+  public subscribe(
+    requests:
+      | (WsTopicRequest<WsTopic> | WsTopic)
+      | (WsTopicRequest<WsTopic> | WsTopic)[],
+    wsKey: WsKey,
+  ) {
+    if (!Array.isArray(requests)) {
+      this.subscribeTopicsForWsKey([requests], wsKey);
+      return;
+    }
 
-    for (const untypedWsKey in topicsByWsKey) {
-      const typedWsKey = untypedWsKey as WsKey;
-      const topics = topicsByWsKey[typedWsKey];
-
-      if (topics.length) {
-        this.subscribeTopicsForWsKey(topics, typedWsKey);
-      }
+    if (requests.length) {
+      this.subscribeTopicsForWsKey(requests, wsKey);
     }
   }
 
   /**
-   * Unsubscribe from one or more topics.
+   * Unsubscribe from one or more topics. Similar to subscribe() but in reverse.
    *
    * - Requests are automatically routed to the correct websocket connection.
    * - These topics will be removed from the topic cache, so they won't be subscribed to again.
    */
-  public unsubscribe(topics: WsTopic[]) {
-    const topicsByWsKey = this.arrangeTopicsIntoWsKeyGroups(topics);
+  public unsubscribe(
+    requests:
+      | (WsTopicRequest<WsTopic> | WsTopic)
+      | (WsTopicRequest<WsTopic> | WsTopic)[],
+    wsKey: WsKey,
+  ) {
+    if (!Array.isArray(requests)) {
+      this.unsubscribeTopicsForWsKey([requests], wsKey);
+      return;
+    }
 
-    for (const untypedWsKey in topicsByWsKey) {
-      const typedWsKey = untypedWsKey as WsKey;
-      const topics = topicsByWsKey[typedWsKey];
-
-      if (topics.length) {
-        this.unsubscribeTopicsForWsKey(topics, typedWsKey);
-      }
+    if (requests.length) {
+      this.unsubscribeTopicsForWsKey(requests, wsKey);
     }
   }
 
@@ -96,49 +131,89 @@ export class WebsocketClient extends BaseWebsocketClient<
    */
 
   protected sendPingEvent(wsKey: WsKey) {
+    let pingChannel: WsRequestPing['channel'];
+
     switch (wsKey) {
-      case WS_KEY_MAP.publicV1:
-      case WS_KEY_MAP.privateV1: {
-        return this.tryWsSend(wsKey, '{"event":"ping"}');
+      case 'deliveryFuturesBTCV4':
+      case 'deliveryFuturesUSDTV4':
+      case 'perpFuturesBTCV4':
+      case 'perpFuturesUSDTV4': {
+        pingChannel = 'futures.ping';
+        break;
+      }
+      case 'announcementsV4': {
+        pingChannel = 'announcement.ping';
+        break;
+      }
+      case 'optionsV4': {
+        pingChannel = 'options.ping';
+        break;
+      }
+      case 'spotV4': {
+        pingChannel = 'spot.ping';
+        break;
       }
       default: {
-        throw neverGuard(wsKey, `Unhandled ping format: "${wsKey}"`);
+        throw neverGuard(wsKey, `Unhandled WsKey "${wsKey}"`);
       }
     }
+
+    const timeInMs = Date.now();
+    const timeInS = (timeInMs / 1000).toFixed(0);
+    return this.tryWsSend(
+      wsKey,
+      `{ "time": ${timeInS}, "channel": "${pingChannel}" }`,
+    );
   }
 
   protected sendPongEvent(wsKey: WsKey) {
-    switch (wsKey) {
-      case WS_KEY_MAP.publicV1:
-      case WS_KEY_MAP.privateV1: {
-        return this.tryWsSend(wsKey, '{"event":"pong"}');
+    try {
+      this.logger.trace(`Sending upstream ws PONG: `, {
+        ...WS_LOGGER_CATEGORY,
+        wsMessage: 'PONG',
+        wsKey,
+      });
+      if (!wsKey) {
+        throw new Error(
+          'Cannot send PONG due to no known websocket for this wsKey',
+        );
       }
-      default: {
-        throw neverGuard(wsKey, `Unhandled ping format: "${wsKey}"`);
+      const wsState = this.getWsStore().get(wsKey);
+      if (!wsState || !wsState?.ws) {
+        throw new Error(
+          `${wsKey} socket not connected yet, call "connectAll()" first then try again when the "open" event arrives`,
+        );
       }
+
+      // Send a protocol layer pong
+      wsState.ws.pong();
+    } catch (e) {
+      this.logger.error(`Failed to send WS PONG`, {
+        ...WS_LOGGER_CATEGORY,
+        wsMessage: 'PONG',
+        wsKey,
+        exception: e,
+      });
     }
   }
 
-  protected isWsPing(msg: any): boolean {
-    if (typeof msg?.data === 'string' && msg.data.includes('"event":"ping"')) {
-      return true;
-    }
-    // this.logger.info(`Not a ping: `, {
-    //   data: msg?.data,
-    //   type: typeof msg?.data,
-    // });
-
+  // Unused, pings for gate are protocol layer pings
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected isWsPing(_msg: any): boolean {
     return false;
   }
 
   protected isWsPong(msg: any): boolean {
-    if (typeof msg?.data === 'string' && msg.data.includes('"event":"pong"')) {
+    if (typeof msg?.data === 'string' && msg.data.includes('.pong"')) {
       return true;
     }
 
     return false;
   }
 
+  /**
+   * Parse incoming events into categories
+   */
   protected resolveEmittableEvents(event: MessageEventLike): EmittableEvent[] {
     const results: EmittableEvent[] = [];
 
@@ -153,6 +228,14 @@ export class WebsocketClient extends BaseWebsocketClient<
         if (parsed.success === false) {
           results.push({
             eventType: 'exception',
+            event: parsed,
+          });
+          return results;
+        }
+
+        if (eventAction === 'update') {
+          results.push({
+            eventType: 'update',
             event: parsed,
           });
           return results;
@@ -217,14 +300,20 @@ export class WebsocketClient extends BaseWebsocketClient<
   /**
    * Determines if a topic is for a private channel, using a hardcoded list of strings
    */
-  protected isPrivateChannel(topic: WsTopic): boolean {
-    const topicName = topic.toLowerCase();
+  protected isPrivateTopicRequest(request: WsTopicRequest<string>): boolean {
+    const topicName = request?.topic?.toLowerCase();
+    if (!topicName) {
+      return false;
+    }
+
     const privateTopics = [
-      'balance',
-      'executionreport',
-      'algoexecutionreportv2',
-      'position',
-      'marginassignment',
+      'todo',
+      'todo',
+      'todo',
+      'todo',
+      'todo',
+      'todo',
+      'todo',
     ];
 
     if (topicName && privateTopics.includes(topicName)) {
@@ -234,29 +323,22 @@ export class WebsocketClient extends BaseWebsocketClient<
     return false;
   }
 
-  protected getWsKeyForMarket(_market: WsMarket, isPrivate: boolean): WsKey {
-    return isPrivate ? WS_KEY_MAP.privateV1 : WS_KEY_MAP.publicV1;
+  /**
+   * Not in use for gate.io
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected getWsKeyForTopic(_topic: WsTopic): WsKey {
+    return 'announcementsV4';
   }
 
-  protected getWsMarketForWsKey(key: WsKey): WsMarket {
-    switch (key) {
-      case 'publicV1':
-      case 'privateV1': {
-        return 'all';
-      }
-      default: {
-        throw neverGuard(key, `Unhandled ws key "${key}"`);
-      }
-    }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected getWsMarketForWsKey(_wsKey: WsKey): WsMarket {
+    return 'all';
   }
 
-  protected getWsKeyForTopic(topic: WsTopic): WsKey {
-    const market = this.getMarketForTopic(topic);
-    const isPrivateTopic = this.isPrivateChannel(topic);
-
-    return this.getWsKeyForMarket(market, isPrivateTopic);
-  }
-
+  /**
+   * Not in use for gate.io
+   */
   protected getPrivateWSKeys(): WsKey[] {
     return PRIVATE_WS_KEYS;
   }
@@ -266,36 +348,24 @@ export class WebsocketClient extends BaseWebsocketClient<
       return this.options.wsUrl;
     }
 
-    const applicationId = this.options.apiApplicationId;
-    const networkKey = 'livenet';
+    const useTestnet = this.options.useTestnet;
+    const networkKey = useTestnet ? 'testnet' : 'livenet';
 
-    switch (wsKey) {
-      case WS_KEY_MAP.publicV1: {
-        return WS_BASE_URL_MAP.publicV1.all[networkKey] + '/' + applicationId;
-      }
-      case WS_KEY_MAP.privateV1: {
-        return WS_BASE_URL_MAP.privateV1.all[networkKey] + '/' + applicationId;
-      }
-      default: {
-        this.logger.error('getWsUrl(): Unhandled wsKey: ', {
-          ...WS_LOGGER_CATEGORY,
-          wsKey,
-        });
-        throw neverGuard(wsKey, `getWsUrl(): Unhandled wsKey`);
-      }
-    }
+    const baseUrl = WS_BASE_URL_MAP[wsKey][networkKey];
+    return baseUrl;
   }
 
   /** Force subscription requests to be sent in smaller batches, if a number is returned */
   protected getMaxTopicsPerSubscribeEvent(wsKey: WsKey): number | null {
     switch (wsKey) {
-      case 'publicV1':
-      case 'privateV1': {
-        // Return a number if there's a limit on the number of sub topics per rq
-        return 1;
-      }
+      // case 'publicV1':
+      // case 'privateV1': {
+      //   // Return a number if there's a limit on the number of sub topics per rq
+      //   return 1;
+      // }
       default: {
-        throw neverGuard(wsKey, `getWsKeyForTopic(): Unhandled wsKey`);
+        return 1;
+        // throw neverGuard(wsKey, `getWsKeyForTopic(): Unhandled wsKey`);
       }
     }
   }
@@ -303,9 +373,10 @@ export class WebsocketClient extends BaseWebsocketClient<
   /**
    * Map one or more topics into fully prepared "subscribe request" events (already stringified and ready to send)
    */
-  protected getWsSubscribeEventsForTopics(
-    topics: WsTopic[],
+  protected getWsOperationEventsForTopics(
+    topics: WsTopicRequest<string>[],
     wsKey: WsKey,
+    operation: WsOperation,
   ): string[] {
     // console.log(new Date(), `called getWsSubscribeEventsForTopics()`, topics);
     // console.trace();
@@ -313,10 +384,10 @@ export class WebsocketClient extends BaseWebsocketClient<
       return [];
     }
 
+    // Events that are ready to send (usually stringified JSON)
+    const jsonStringEvents: string[] = [];
+
     const market = this.getWsMarketForWsKey(wsKey);
-
-    const subscribeEvents: string[] = [];
-
     const maxTopicsPerEvent = this.getMaxTopicsPerSubscribeEvent(wsKey);
     if (
       maxTopicsPerEvent &&
@@ -327,76 +398,28 @@ export class WebsocketClient extends BaseWebsocketClient<
         const batch = topics.slice(i, i + maxTopicsPerEvent);
         const subscribeRequestEvents = this.getWsRequestEvent(
           market,
-          'subscribe',
+          operation,
           batch,
         );
 
         for (const event of subscribeRequestEvents) {
-          subscribeEvents.push(JSON.stringify(event));
+          jsonStringEvents.push(JSON.stringify(event));
         }
       }
 
-      return subscribeEvents;
+      return jsonStringEvents;
     }
 
     const subscribeRequestEvents = this.getWsRequestEvent(
       market,
-      'subscribe',
+      operation,
       topics,
     );
 
     for (const event of subscribeRequestEvents) {
-      subscribeEvents.push(JSON.stringify(event));
+      jsonStringEvents.push(JSON.stringify(event));
     }
-    return subscribeEvents;
-  }
-
-  /**
-   * Map one or more topics into fully prepared "unsubscribe request" events (already stringified and ready to send)
-   */
-  protected getWsUnsubscribeEventsForTopics(
-    topics: WsTopic[],
-    wsKey: WsKey,
-  ): string[] {
-    if (!topics.length) {
-      return [];
-    }
-
-    const market = this.getWsMarketForWsKey(wsKey);
-
-    const subscribeEvents: string[] = [];
-
-    const maxTopicsPerEvent = this.getMaxTopicsPerSubscribeEvent(wsKey);
-    if (
-      maxTopicsPerEvent &&
-      maxTopicsPerEvent !== null &&
-      topics.length > maxTopicsPerEvent
-    ) {
-      for (let i = 0; i < topics.length; i += maxTopicsPerEvent) {
-        const batch = topics.slice(i, i + maxTopicsPerEvent);
-        const subscribeRequestEvents = this.getWsRequestEvent(
-          market,
-          'unsubscribe',
-          batch,
-        );
-
-        for (const event of subscribeRequestEvents) {
-          subscribeEvents.push(JSON.stringify(event));
-        }
-      }
-
-      return subscribeEvents;
-    }
-
-    const subscribeRequestEvents = this.getWsRequestEvent(
-      market,
-      'unsubscribe',
-      topics,
-    );
-    for (const event of subscribeRequestEvents) {
-      subscribeEvents.push(JSON.stringify(event));
-    }
-    return subscribeEvents;
+    return jsonStringEvents;
   }
 
   /**
@@ -405,16 +428,22 @@ export class WebsocketClient extends BaseWebsocketClient<
   private getWsRequestEvent(
     market: WsMarket,
     operation: WsOperation,
-    topics: WsTopic[],
-  ): WsRequestOperation<WsTopic>[] {
+    requests: WsTopicRequest<string>[],
+  ): WsRequestOperationGate<WsTopic>[] {
+    const timeInSeconds = +(Date.now() / 1000).toFixed(0);
     switch (market) {
       case 'all': {
-        return topics.map((topic) => {
-          const wsRequestEvent: WsRequestOperation<WsTopic> = {
-            id: `${operation}_${topic}`,
+        return requests.map((request) => {
+          const wsRequestEvent: WsRequestOperationGate<WsTopic> = {
+            time: timeInSeconds,
+            channel: request.topic,
             event: operation,
-            topic: topic,
+            // payload: 'todo',
           };
+
+          if (request.params) {
+            wsRequestEvent.payload = request.params;
+          }
 
           return wsRequestEvent;
         });
@@ -427,11 +456,7 @@ export class WebsocketClient extends BaseWebsocketClient<
 
   protected async getWsAuthRequestEvent(wsKey: WsKey): Promise<object> {
     const market = this.getWsMarketForWsKey(wsKey);
-    if (
-      !this.options.apiKey ||
-      !this.options.apiSecret ||
-      !this.options.apiApplicationId
-    ) {
+    if (!this.options.apiKey || !this.options.apiSecret) {
       throw new Error(
         `Cannot auth - missing api key, secret or memo in config`,
       );
@@ -451,6 +476,7 @@ export class WebsocketClient extends BaseWebsocketClient<
         signMessageInput,
         this.options.apiSecret,
         'hex',
+        'SHA-512',
       );
     }
 
@@ -482,29 +508,5 @@ export class WebsocketClient extends BaseWebsocketClient<
     return 'all';
 
     throw new Error(`Could not resolve "market" for topic: "${topic}"`);
-  }
-
-  /**
-   * Used to split sub/unsub logic by websocket connection
-   */
-  private arrangeTopicsIntoWsKeyGroups(
-    topics: WsTopic[],
-  ): Record<WsKey, WsTopic[]> {
-    const topicsByWsKey: Record<WsKey, WsTopic[]> = {
-      privateV1: [],
-      publicV1: [],
-    };
-
-    for (const untypedTopic of topics) {
-      const topic = untypedTopic as WsTopic;
-      const wsKeyForTopic = this.getWsKeyForTopic(topic);
-
-      const wsKeyTopicList = topicsByWsKey[wsKeyForTopic];
-      if (!wsKeyTopicList.includes(topic)) {
-        wsKeyTopicList.push(topic);
-      }
-    }
-
-    return topicsByWsKey;
   }
 }

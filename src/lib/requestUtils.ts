@@ -20,7 +20,7 @@ export interface RestClientOptions {
 
   /**
    * Optionally override API protocol + domain
-   * e.g baseUrl: 'https://api.woo.org'
+   * e.g baseUrl: 'https://api.gate.io'
    **/
   baseUrl?: string;
 
