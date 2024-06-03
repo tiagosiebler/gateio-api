@@ -17,7 +17,7 @@ async function submitFuturesOrder() {
     const result = await gateRestClient.submitFuturesOrder({
       settle: 'usdt',
       contract: 'BTC_USDT',
-      size: 0.1, // positive for long, negative for short
+      size: 10, // positive for long, negative for short
       price: '45000',
       tif: 'gtc',
     });

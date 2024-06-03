@@ -18,7 +18,7 @@ async function submitSpotOrder() {
       currency_pair: 'BTC_USDT',
       side: 'buy',
       type: 'limit',
-      amount: '0.10',
+      amount: '0.001',
       price: '45000',
       time_in_force: 'gtc',
     });
