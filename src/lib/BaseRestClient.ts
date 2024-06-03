@@ -244,7 +244,7 @@ export abstract class BaseRestClient {
     // Dispatch request
     return axios(options)
       .then((response) => {
-        if (response.status == 200) {
+        if (response.status == 200 || response.status == 201) {
           // Throw API rejections by parsing the response code from the body
           if (
             typeof response.data?.code === 'number' &&
