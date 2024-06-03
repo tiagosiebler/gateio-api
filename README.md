@@ -28,7 +28,7 @@ Check out my related JavaScript/TypeScript/Node.js projects:
   - [Bybit-api Node.js SDK](https://www.npmjs.com/package/bybit-api)
   - [Binance Node.js SDK](https://www.npmjs.com/package/binance)
   - [Okx-api Node.js SDK](https://www.npmjs.com/package/okx-api)
-  - [Gateio-api Nodejs SDK](https://www.npmjs.com/package/bitmart-api)
+  - [Gateio-api Nodejs SDK](https://www.npmjs.com/package/gateio-api)
   - [Bitget-api Node.js SDK](https://www.npmjs.com/package/bitget-api)
   - [Bitmart-api Nodejs SDK](https://www.npmjs.com/package/bitmart-api)
 - Try my misc utilities:
