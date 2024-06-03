@@ -46,7 +46,6 @@ export type WsMarket = 'all';
 /**
  * Normalised internal format for a request (subscribe/unsubscribe/etc) on a topic, with optional parameters.
  *
- * - WsKey: the WS connection this event is for
  * - Topic: the topic this event is for
  * - Payload: the parameters to include, optional. E.g. auth requires key + sign. Some topics allow configurable parameters.
  */
@@ -55,7 +54,7 @@ export interface WsTopicRequest<
   TWSPayload = any,
 > {
   topic: TWSTopic;
-  params?: TWSPayload;
+  payload?: TWSPayload;
 }
 
 /**
