@@ -53,4 +53,6 @@ export interface WebsocketClientOptions extends WSClientConfigurableOptions {
   pongTimeout: number;
   reconnectTimeout: number;
   recvWindow: number;
+  authPrivateConnectionsOnConnect: boolean;
+  authPrivateRequests: boolean;
 }

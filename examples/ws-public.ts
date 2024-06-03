@@ -61,12 +61,12 @@ async function start() {
   try {
     const tickersRequestWithParams: WsTopicRequest = {
       topic: 'spot.tickers',
-      params: ['BTC_USDT', 'ETH_USDT', 'MATIC_USDT'],
+      payload: ['BTC_USDT', 'ETH_USDT', 'MATIC_USDT'],
     };
 
     const rawTradesRequestWithParams: WsTopicRequest = {
       topic: 'spot.trades',
-      params: ['BTC_USDT', 'ETH_USDT', 'MATIC_USDT'],
+      payload: ['BTC_USDT', 'ETH_USDT', 'MATIC_USDT'],
     };
 
     // const topicWithoutParamsAsString = 'spot.balances';

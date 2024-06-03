@@ -31,6 +31,7 @@ interface WSClientEventMap<WsKey extends string> {
   update: (response: any & { wsKey: WsKey }) => void;
   /** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
   exception: (response: any & { wsKey: WsKey }) => void;
+  error: (response: any & { wsKey: WsKey }) => void;
   /** Confirmation that a connection successfully authenticated */
   authenticated: (event: { wsKey: WsKey; event: any }) => void;
 }
@@ -68,7 +69,7 @@ function getNormalisedTopicRequests(
     if (typeof wsTopicRequest === 'string') {
       const topicRequest: WsTopicRequest<string> = {
         topic: wsTopicRequest,
-        params: undefined,
+        payload: undefined,
       };
       normalisedTopicRequests.push(topicRequest);
       continue;
@@ -108,10 +109,15 @@ export abstract class BaseWebsocketClient<
     this.wsStore = new WsStore(this.logger);
 
     this.options = {
-      pongTimeout: 1000,
+      // Some defaults:
+      pongTimeout: 1500,
       pingInterval: 10000,
       reconnectTimeout: 500,
       recvWindow: 0,
+      // Gate.io only has one connection (for both public & private). Auth works with every sub, not on connect, so this is turned off.
+      authPrivateConnectionsOnConnect: false,
+      // Gate.io requires auth to be added to every request, when subscribing to private topics. This is handled automatically.
+      authPrivateRequests: true,
       ...options,
     };
   }
@@ -126,6 +132,7 @@ export abstract class BaseWebsocketClient<
 
   protected abstract isPrivateTopicRequest(
     request: WsTopicRequest<string>,
+    wsKey: TWSKey,
   ): boolean;
 
   protected abstract getPrivateWSKeys(): TWSKey[];
@@ -142,7 +149,7 @@ export abstract class BaseWebsocketClient<
     topics: WsTopicRequest<string>[],
     wsKey: TWSKey,
     operation: WsOperation,
-  ): string[];
+  ): Promise<string[]>;
 
   /**
    * Abstraction called to sort ws events into emittable event types (response to a request, data update, etc)
@@ -201,6 +208,22 @@ export abstract class BaseWebsocketClient<
       return this.connect(wsKey);
     }
 
+    // Subscribe should happen automatically once connected, nothing to do here after topics are added to wsStore.
+    if (!isConnected) {
+      /**
+       * Are we in the process of connection? Nothing to send yet.
+       */
+      this.logger.trace(
+        `WS not connected - requests queued for retry once connected.`,
+        {
+          ...WS_LOGGER_CATEGORY,
+          wsKey,
+          wsTopicRequests,
+        },
+      );
+      return;
+    }
+
     // We're connected. Check if auth is needed and if already authenticated
     const isPrivateConnection = this.isPrivateWsKey(wsKey);
     const isAuthenticated = this.wsStore.get(wsKey)?.isAuthenticated;
@@ -252,6 +275,33 @@ export abstract class BaseWebsocketClient<
 
     // Finally, request subscription to topics if the connection is healthy and ready
     this.requestUnsubscribeTopics(wsKey, normalisedTopicRequests);
+  }
+
+  /**
+   * Splits topic requests into two groups, public & private topic requests
+   */
+  private sortTopicRequestsIntoPublicPrivate(
+    wsTopicRequests: WsTopicRequest<string>[],
+    wsKey: TWSKey,
+  ): {
+    publicReqs: WsTopicRequest<string>[];
+    privateReqs: WsTopicRequest<string>[];
+  } {
+    const publicTopicRequests: WsTopicRequest<string>[] = [];
+    const privateTopicRequests: WsTopicRequest<string>[] = [];
+
+    for (const topic of wsTopicRequests) {
+      if (this.isPrivateTopicRequest(topic, wsKey)) {
+        privateTopicRequests.push(topic);
+      } else {
+        publicTopicRequests.push(topic);
+      }
+    }
+
+    return {
+      publicReqs: publicTopicRequests,
+      privateReqs: privateTopicRequests,
+    };
   }
 
   /** Get the WsStore that tracks websockets & topics */
@@ -414,8 +464,9 @@ export abstract class BaseWebsocketClient<
         ...WS_LOGGER_CATEGORY,
         wsKey,
       });
+      this.clearPongTimer(wsKey);
+
       this.getWs(wsKey)?.terminate();
-      delete this.wsStore.get(wsKey, true).activePongTimer;
     }, this.options.pongTimeout);
   }
 
@@ -443,6 +494,9 @@ export abstract class BaseWebsocketClient<
     if (wsState?.activePongTimer) {
       clearTimeout(wsState.activePongTimer);
       wsState.activePongTimer = undefined;
+      // this.logger.trace(`Cleared pong timeout for "${wsKey}"`);
+    } else {
+      // this.logger.trace(`No active pong timer for "${wsKey}"`);
     }
   }
 
@@ -451,7 +505,7 @@ export abstract class BaseWebsocketClient<
    *
    * @private Use the `subscribe(topics)` or `subscribeTopicsForWsKey(topics, wsKey)` method to subscribe to topics. Send WS message to subscribe to topics.
    */
-  private requestSubscribeTopics(
+  private async requestSubscribeTopics(
     wsKey: TWSKey,
     topics: WsTopicRequest<string>[],
   ) {
@@ -459,7 +513,8 @@ export abstract class BaseWebsocketClient<
       return;
     }
 
-    const subscribeWsMessages = this.getWsOperationEventsForTopics(
+    // Automatically splits requests into smaller batches, if needed
+    const subscribeWsMessages = await this.getWsOperationEventsForTopics(
       topics,
       wsKey,
       'subscribe',
@@ -486,7 +541,7 @@ export abstract class BaseWebsocketClient<
    *
    * @private Use the `unsubscribe(topics)` method to unsubscribe from topics. Send WS message to unsubscribe from topics.
    */
-  private requestUnsubscribeTopics(
+  private async requestUnsubscribeTopics(
     wsKey: TWSKey,
     wsTopicRequests: WsTopicRequest<string>[],
   ) {
@@ -494,7 +549,7 @@ export abstract class BaseWebsocketClient<
       return;
     }
 
-    const subscribeWsMessages = this.getWsOperationEventsForTopics(
+    const subscribeWsMessages = await this.getWsOperationEventsForTopics(
       wsTopicRequests,
       wsKey,
       'unsubscribe',
@@ -584,35 +639,48 @@ export abstract class BaseWebsocketClient<
 
     this.setWsState(wsKey, WsConnectionStateEnum.CONNECTED);
 
-    // Some websockets require an auth packet to be sent after opening the connection
-    if (this.isPrivateWsKey(wsKey)) {
-      await this.sendAuthRequest(wsKey);
-    }
-
-    // Reconnect to topics known before it connected
-    // Private topics will be resubscribed to once reconnected
-    const topics = [...this.wsStore.getTopics(wsKey)];
-    const publicTopics = topics.filter(
-      (topic) => !this.isPrivateTopicRequest(topic),
-    );
-
-    this.requestSubscribeTopics(wsKey, publicTopics);
-
     this.logger.trace(`Enabled ping timer`, { ...WS_LOGGER_CATEGORY, wsKey });
     this.wsStore.get(wsKey, true)!.activePingTimer = setInterval(
       () => this.ping(wsKey),
       this.options.pingInterval,
     );
+
+    // Some websockets require an auth packet to be sent after opening the connection
+    if (
+      this.isPrivateWsKey(wsKey) &&
+      this.options.authPrivateConnectionsOnConnect
+    ) {
+      await this.sendAuthRequest(wsKey);
+    }
+
+    // Reconnect to topics known before it connected
+    const { privateReqs, publicReqs } = this.sortTopicRequestsIntoPublicPrivate(
+      [...this.wsStore.getTopics(wsKey)],
+      wsKey,
+    );
+
+    // Request sub to public topics, if any
+    this.requestSubscribeTopics(wsKey, publicReqs);
+
+    // Request sub to private topics, if auth on connect isn't needed
+    if (!this.options.authPrivateConnectionsOnConnect) {
+      // TODO: check for API keys and throw if missing
+      this.requestSubscribeTopics(wsKey, privateReqs);
+    }
   }
 
-  /** Handle subscription to private topics _after_ authentication successfully completes asynchronously */
+  /**
+   * Handle subscription to private topics _after_ authentication successfully completes asynchronously.
+   *
+   * Only used for exchanges that require auth before sending private topic subscription requests
+   */
   private onWsAuthenticated(wsKey: TWSKey) {
     const wsState = this.wsStore.get(wsKey, true);
     wsState.isAuthenticated = true;
 
     const topics = [...this.wsStore.getTopics(wsKey)];
     const privateTopics = topics.filter((topic) =>
-      this.isPrivateTopicRequest(topic),
+      this.isPrivateTopicRequest(topic, wsKey),
     );
 
     if (privateTopics.length) {
@@ -629,7 +697,7 @@ export abstract class BaseWebsocketClient<
         this.logger.trace('Received pong', {
           ...WS_LOGGER_CATEGORY,
           wsKey,
-          event,
+          event: (event as any)?.data,
         });
         return;
       }

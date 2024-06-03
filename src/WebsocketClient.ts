@@ -3,7 +3,11 @@ import WebSocket from 'isomorphic-ws';
 import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
 import { neverGuard } from './lib/misc-util.js';
 import { MessageEventLike } from './lib/requestUtils.js';
-import { signMessage } from './lib/webCryptoAPI.js';
+import {
+  SignAlgorithm,
+  SignEncodeMethod,
+  signMessage,
+} from './lib/webCryptoAPI.js';
 import {
   WS_BASE_URL_MAP,
   WS_KEY_MAP,
@@ -29,6 +33,32 @@ export const PUBLIC_WS_KEYS: WsKey[] = [];
  * WS topics are always a string for gate. Some exchanges use complex objects
  */
 export type WsTopic = string;
+
+function getPrivateSpotTopics(): string[] {
+  // Consumeable channels for spot
+  const privateSpotTopics = [
+    'spot.orders',
+    'spot.usertrades',
+    'spot.balances',
+    'spot.margin_balances',
+    'spot.funding_balances',
+    'spot.cross_balances',
+    'spot.priceorders',
+  ];
+
+  // WebSocket API for spot
+  const privateSpotWSAPITopics = [
+    'spot.login',
+    'spot.order_place',
+    'spot.order_cancel',
+    'spot.order_cancel_ids',
+    'spot.order_cancel_cp',
+    'spot.order_amend',
+    'spot.order_status',
+  ];
+
+  return [...privateSpotTopics, ...privateSpotWSAPITopics];
+}
 
 // /**
 //  * Used to split sub/unsub logic by websocket connection. Groups & dedupes requests into per-WsKey arrays
@@ -300,24 +330,30 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   /**
    * Determines if a topic is for a private channel, using a hardcoded list of strings
    */
-  protected isPrivateTopicRequest(request: WsTopicRequest<string>): boolean {
+  protected isPrivateTopicRequest(
+    request: WsTopicRequest<string>,
+    wsKey: WsKey,
+  ): boolean {
     const topicName = request?.topic?.toLowerCase();
     if (!topicName) {
       return false;
     }
 
-    const privateTopics = [
-      'todo',
-      'todo',
-      'todo',
-      'todo',
-      'todo',
-      'todo',
-      'todo',
-    ];
+    switch (wsKey) {
+      case 'spotV4':
+        return getPrivateSpotTopics().includes(topicName);
 
-    if (topicName && privateTopics.includes(topicName)) {
-      return true;
+      // TODO:
+      case 'announcementsV4':
+      case 'deliveryFuturesBTCV4':
+      case 'deliveryFuturesUSDTV4':
+      case 'optionsV4':
+      case 'perpFuturesBTCV4':
+      case 'perpFuturesUSDTV4':
+        return getPrivateSpotTopics().includes(topicName);
+
+      default:
+        throw neverGuard(wsKey, `Unhandled WsKey "${wsKey}"`);
     }
 
     return false;
@@ -373,11 +409,11 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   /**
    * Map one or more topics into fully prepared "subscribe request" events (already stringified and ready to send)
    */
-  protected getWsOperationEventsForTopics(
+  protected async getWsOperationEventsForTopics(
     topics: WsTopicRequest<string>[],
     wsKey: WsKey,
     operation: WsOperation,
-  ): string[] {
+  ): Promise<string[]> {
     // console.log(new Date(), `called getWsSubscribeEventsForTopics()`, topics);
     // console.trace();
     if (!topics.length) {
@@ -396,10 +432,11 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     ) {
       for (let i = 0; i < topics.length; i += maxTopicsPerEvent) {
         const batch = topics.slice(i, i + maxTopicsPerEvent);
-        const subscribeRequestEvents = this.getWsRequestEvent(
+        const subscribeRequestEvents = await this.getWsRequestEvents(
           market,
           operation,
           batch,
+          wsKey,
         );
 
         for (const event of subscribeRequestEvents) {
@@ -410,10 +447,11 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       return jsonStringEvents;
     }
 
-    const subscribeRequestEvents = this.getWsRequestEvent(
+    const subscribeRequestEvents = await this.getWsRequestEvents(
       market,
       operation,
       topics,
+      wsKey,
     );
 
     for (const event of subscribeRequestEvents) {
@@ -425,33 +463,113 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   /**
    * @returns a correctly structured events for performing an operation over WS. This can vary per exchange spec.
    */
-  private getWsRequestEvent(
+  private async getWsRequestEvents(
     market: WsMarket,
     operation: WsOperation,
     requests: WsTopicRequest<string>[],
-  ): WsRequestOperationGate<WsTopic>[] {
-    const timeInSeconds = +(Date.now() / 1000).toFixed(0);
+    wsKey: WsKey,
+  ): Promise<WsRequestOperationGate<WsTopic>[]> {
+    const wsRequestEvents: WsRequestOperationGate<WsTopic>[] = [];
+    const wsRequestBuildingErrors: unknown[] = [];
+
     switch (market) {
       case 'all': {
-        return requests.map((request) => {
-          const wsRequestEvent: WsRequestOperationGate<WsTopic> = {
+        for (const request of requests) {
+          const timeInSeconds = +(Date.now() / 1000).toFixed(0);
+
+          const wsEvent: WsRequestOperationGate<WsTopic> = {
             time: timeInSeconds,
             channel: request.topic,
             event: operation,
-            // payload: 'todo',
           };
 
-          if (request.params) {
-            wsRequestEvent.payload = request.params;
+          if (request.payload) {
+            wsEvent.payload = request.payload;
           }
 
-          return wsRequestEvent;
-        });
+          if (!this.isPrivateTopicRequest(request, wsKey)) {
+            wsRequestEvents.push(wsEvent);
+            continue;
+          }
+
+          // If private topic request, build auth part for request
+
+          // No key or secret, push event as failed
+          if (!this.options.apiKey || !this.options.apiSecret) {
+            wsRequestBuildingErrors.push({
+              error: `apiKey or apiSecret missing from config`,
+              operation,
+              event: wsEvent,
+            });
+            continue;
+          }
+
+          const signAlgoritm: SignAlgorithm = 'SHA-512';
+          const signEncoding: SignEncodeMethod = 'hex';
+
+          const signInput = `channel=${wsEvent.channel}&event=${wsEvent.event}&time=${timeInSeconds}`;
+
+          try {
+            const sign = await this.signMessage(
+              signInput,
+              this.options.apiSecret,
+              signEncoding,
+              signAlgoritm,
+            );
+
+            wsEvent.auth = {
+              method: 'api_key',
+              KEY: this.options.apiKey,
+              SIGN: sign,
+            };
+
+            wsRequestEvents.push(wsEvent);
+          } catch (e) {
+            wsRequestBuildingErrors.push({
+              error: `exception during sign`,
+              errorTrace: e,
+              operation,
+              event: wsEvent,
+            });
+          }
+        }
+        break;
       }
       default: {
         throw neverGuard(market, `Unhandled market "${market}"`);
       }
     }
+
+    if (wsRequestBuildingErrors.length) {
+      const label =
+        wsRequestBuildingErrors.length === requests.length ? 'all' : 'some';
+      this.logger.error(
+        `Failed to build/send ${wsRequestBuildingErrors.length} event(s) for ${label} WS requests due to exceptions`,
+        {
+          ...WS_LOGGER_CATEGORY,
+          wsRequestBuildingErrors,
+          wsRequestBuildingErrorsStringified: JSON.stringify(
+            wsRequestBuildingErrors,
+            null,
+            2,
+          ),
+        },
+      );
+    }
+
+    return wsRequestEvents;
+  }
+
+  private async signMessage(
+    paramsStr: string,
+    secret: string,
+    method: 'hex' | 'base64',
+    algorithm: SignAlgorithm,
+  ): Promise<string> {
+    if (typeof this.options.customSignMessageFn === 'function') {
+      return this.options.customSignMessageFn(paramsStr, secret);
+    }
+    return await signMessage(paramsStr, secret, method, algorithm);
   }
 
   protected async getWsAuthRequestEvent(wsKey: WsKey): Promise<object> {
