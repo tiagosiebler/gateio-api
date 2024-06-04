@@ -2,6 +2,7 @@ import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
 
 import { neverGuard } from './misc-util.js';
 import {
+  CHANNEL_ID,
   getRestBaseUrl,
   RestClientOptions,
   serializeParams,
@@ -148,7 +149,7 @@ export abstract class BaseRestClient {
       ...networkOptions,
       headers: {
         'Content-Type': 'application/json',
-        // 'X-Gate-Channel-Id': CHANNEL_ID,
+        'X-Gate-Channel-Id': CHANNEL_ID,
         locale: 'en-US',
       },
     };
@@ -480,7 +481,6 @@ export abstract class BaseRestClient {
       KEY: this.apiKey,
       SIGN: signResult.sign,
       Timestamp: signResult.timestamp,
-      // 'X-Client-Request-Id': 'todo'
     };
 
     const urlWithQueryParams =
