@@ -135,15 +135,15 @@ const API_KEY = 'xxx';
 const PRIVATE_KEY = 'yyy';
 
 const wsConfig = {
-  key: API_KEY,
-  secret: PRIVATE_KEY,
+  apiKey: API_KEY,
+  apiSecret: PRIVATE_KEY,
 
   /*
     The following parameters are optional:
   */
 
-  // defaults to false == testnet. Set to true for livenet.
-  // livenet: true
+  // Livenet is used by default, use this to enable testnet:
+  // useTestnet: true
 
   // how long to wait (in ms) before deciding the connection should be terminated & reconnected
   // pongTimeout: 1000,
@@ -163,27 +163,43 @@ const wsConfig = {
 
 const ws = new WebsocketClient(wsConfig);
 
-const tickersRequestWithParams = {
-  topic: 'spot.tickers',
-  params: ['BTC_USDT', 'ETH_USDT', 'MATIC_USDT'],
+/**
+ * Subscribing to data:
+ **/
+
+const userOrders = {
+  topic: 'spot.orders',
+  payload: ['BTC_USDT', 'ETH_USDT', 'MATIC_USDT'],
 };
 
-const rawTradesRequestWithParams = {
-  topic: 'spot.trades',
-  params: ['BTC_USDT', 'ETH_USDT', 'MATIC_USDT'],
+const userTrades = {
+  topic: 'spot.usertrades',
+  payload: ['BTC_USDT', 'ETH_USDT', 'MATIC_USDT'],
+};
+
+const userPriceOrders = {
+  topic: 'spot.priceorders',
+  payload: ['!all'],
 };
 
 // subscribe to multiple topics at once
-ws.subscribe([tickersRequestWithParams, rawTradesRequestWithParams], 'spotV4');
+ws.subscribe([userOrders, userTrades, userPriceOrders], 'spotV4');
 
 // and/or subscribe to individual topics on demand
 ws.subscribe(
   {
-    topic: 'spot.trades',
-    params: ['BTC_USDT', 'ETH_USDT', 'MATIC_USDT'],
+    topic: 'spot.priceorders',
+    payload: ['!all'],
   },
   'spotV4',
 );
+
+// Some topics don't need params, for those you can just subscribe with a string (or use a topic + payload object as above)
+ws.subscribe('spot.balances', 'spotV4');
+
+/**
+ * Handling events:
+ **/
 
 // Listen to events coming from websockets. This is the primary data source
 ws.on('update', (data) => {
@@ -195,7 +211,7 @@ ws.on('open', ({ wsKey, event }) => {
   console.log('connection open for websocket with ID: ' + wsKey);
 });
 
-// Optional: Listen to responses to websocket queries (e.g. the response after subscribing to a topic)
+// Optional: Listen to responses to websocket queries (e.g. the reply after subscribing to a topic)
 ws.on('response', (response) => {
   console.log('response', response);
 });
@@ -211,13 +227,12 @@ ws.on('exception', (data) => {
 });
 
 // Optional: Listen to raw error events.
-// Note: responses to invalid topics are currently only sent in the "response" event.
 ws.on('error', (err) => {
   console.error('ERR', err);
 });
 ```
 
-See [websocket-client.ts](./src/websocket-client.ts) for further information.
+See [websocket-client.ts](./src/websocket-client.ts) for further information and make sure to check the [examples](./examples/) folder for much more detail.
 
 ---
 
