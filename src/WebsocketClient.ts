@@ -60,37 +60,50 @@ function getPrivateSpotTopics(): string[] {
   return [...privateSpotTopics, ...privateSpotWSAPITopics];
 }
 
-// /**
-//  * Used to split sub/unsub logic by websocket connection. Groups & dedupes requests into per-WsKey arrays
-//  */
-// function arrangeTopicsIntoWsKeyGroups(
-//   requestOperations: WsRequest<WsTopic, WsOperation>[],
-// ): Record<WsKey, WsRequest<WsTopic, WsOperation>[]> {
-//   const topicsByWsKey: Record<WsKey, WsRequest<WsTopic, WsOperation>[]> = {
-//     [WS_KEY_MAP.spotV4]: [],
-//     [WS_KEY_MAP.perpFuturesUSDTV4]: [],
-//     [WS_KEY_MAP.perpFuturesBTCV4]: [],
-//     [WS_KEY_MAP.deliveryFuturesUSDTV4]: [],
-//     [WS_KEY_MAP.deliveryFuturesBTCV4]: [],
-//     [WS_KEY_MAP.optionsV4]: [],
-//     [WS_KEY_MAP.announcementsV4]: [],
-//   };
+function getPrivateFuturesTopics(): string[] {
+  // These are the same for perps vs delivery futures
+  const privatePerpetualFuturesTopics = [
+    'futures.orders',
+    'futures.usertrades',
+    'futures.liquidates',
+    'futures.auto_deleverages',
+    'futures.position_closes',
+    'futures.balances',
+    'futures.reduce_risk_limits',
+    'futures.positions',
+    'futures.autoorders',
+  ];
 
-//   for (const request of requestOperations) {
-//     const wsKeyForTopic = request.wsKey;
+  const privatePerpetualFuturesWSAPITopics = [
+    'futures.login',
+    'futures.order_place',
+    'futures.order_batch_place',
+    'futures.order_cancel',
+    'futures.order_cancel_cp',
+    'futures.order_amend',
+    'futures.order_list',
+    'futures.order_status',
+  ];
 
-//     const requestsForWsKey = topicsByWsKey[wsKeyForTopic];
+  return [
+    ...privatePerpetualFuturesTopics,
+    ...privatePerpetualFuturesWSAPITopics,
+  ];
+}
 
-//     const requestAlreadyInList = requestsForWsKey.find((p) =>
-//       isDeepObjectMatch(p, request),
-//     );
-//     if (!requestAlreadyInList) {
-//       requestsForWsKey.push(request);
-//     }
-//   }
+function getPrivateOptionsTopics(): string[] {
+  const privateOptionsTopics = [
+    'options.orders',
+    'options.usertrades',
+    'options.liquidates',
+    'options.user_settlements',
+    'options.position_closes',
+    'options.balances',
+    'options.positions',
+  ];
 
-//   return topicsByWsKey;
-// }
+  return [...privateOptionsTopics];
+}
 
 export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   /**
@@ -227,7 +240,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     }
   }
 
-  // Unused, pings for gate are protocol layer pings
+  // NOT IN USE for gate.io, pings for gate are protocol layer pings
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected isWsPing(_msg: any): boolean {
     return false;
@@ -343,14 +356,18 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       case 'spotV4':
         return getPrivateSpotTopics().includes(topicName);
 
-      // TODO:
-      case 'announcementsV4':
-      case 'deliveryFuturesBTCV4':
-      case 'deliveryFuturesUSDTV4':
-      case 'optionsV4':
       case 'perpFuturesBTCV4':
       case 'perpFuturesUSDTV4':
-        return getPrivateSpotTopics().includes(topicName);
+      case 'deliveryFuturesBTCV4':
+      case 'deliveryFuturesUSDTV4':
+        return getPrivateFuturesTopics().includes(topicName);
+
+      case 'optionsV4':
+        return getPrivateOptionsTopics().includes(topicName);
+
+      // No private announcements channels
+      case 'announcementsV4':
+        return false;
 
       default:
         throw neverGuard(wsKey, `Unhandled WsKey "${wsKey}"`);
