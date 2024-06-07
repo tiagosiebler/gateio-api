@@ -1,8 +1,6 @@
-import WebSocket from 'isomorphic-ws';
-
 import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
 import { neverGuard } from './lib/misc-util.js';
-import { MessageEventLike } from './lib/requestUtils.js';
+import { CHANNEL_ID, MessageEventLike } from './lib/requestUtils.js';
 import {
   SignAlgorithm,
   SignEncodeMethod,
@@ -15,11 +13,14 @@ import {
   WsMarket,
   WsTopicRequest,
 } from './lib/websocket/websocket-util.js';
+import { DeferredPromise } from './lib/websocket/WsStore.types.js';
 import {
+  WSAPIRequest,
   WsOperation,
   WsRequestOperationGate,
   WsRequestPing,
 } from './types/websockets/requests.js';
+import { SpotWSAPITopic, WSAPITopic } from './types/websockets/shared.js';
 
 export const WS_LOGGER_CATEGORY = { category: 'gate-ws' };
 
@@ -47,7 +48,7 @@ function getPrivateSpotTopics(): string[] {
   ];
 
   // WebSocket API for spot
-  const privateSpotWSAPITopics = [
+  const privateSpotWSAPITopics: SpotWSAPITopic[] = [
     'spot.login',
     'spot.order_place',
     'spot.order_cancel',
@@ -109,7 +110,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   /**
    * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
    */
-  public connectAll(): Promise<WebSocket | undefined>[] {
+  public connectAll(): (DeferredPromise['promise'] | undefined)[] {
     return [
       this.connect(WS_KEY_MAP.spotV4),
       this.connect(WS_KEY_MAP.perpFuturesUSDTV4),
@@ -201,8 +202,8 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       }
     }
 
-    const timeInMs = Date.now();
-    const timeInS = (timeInMs / 1000).toFixed(0);
+    const signTimestamp = Date.now() + this.options.recvWindow;
+    const timeInS = (signTimestamp / 1000).toFixed(0);
     return this.tryWsSend(
       wsKey,
       `{ "time": ${timeInS}, "channel": "${pingChannel}" }`,
@@ -257,7 +258,10 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   /**
    * Parse incoming events into categories
    */
-  protected resolveEmittableEvents(event: MessageEventLike): EmittableEvent[] {
+  protected resolveEmittableEvents(
+    wsKey: WsKey,
+    event: MessageEventLike,
+  ): EmittableEvent[] {
     const results: EmittableEvent[] = [];
 
     try {
@@ -266,7 +270,87 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       const responseEvents = ['subscribe', 'unsubscribe'];
       const authenticatedEvents = ['auth'];
 
-      const eventAction = parsed.event || parsed.action;
+      const eventHeaders = parsed?.header;
+      const eventChannel = eventHeaders?.channel;
+      const eventType = eventHeaders?.event;
+      const eventStatusCode = eventHeaders?.status;
+      const requestId = parsed?.request_id;
+
+      const promiseRef = [eventChannel, requestId].join('_');
+
+      const eventAction = parsed.event || parsed.action || parsed?.header.data;
+
+      // const promise = this.getWsStore().getDeferredPromise(wsKey, promiseRef);
+      // console.error(`Event action: `, {
+      //   // parsed: JSON.stringify(parsed, null, 2),
+      //   eventChannel,
+      //   eventType,
+      //   eventStatusCode,
+      //   promiseRef,
+      //   promise: promise?.promise,
+      // });
+
+      if (eventType === 'api') {
+        const isError = eventStatusCode !== '200';
+
+        // WS API Exception
+        if (isError) {
+          try {
+            this.getWsStore().rejectDeferredPromise(
+              wsKey,
+              promiseRef,
+              parsed,
+              true,
+            );
+          } catch (e) {
+            this.logger.error(`Exception trying to reject WSAPI promise`, {
+              wsKey,
+              promiseRef,
+              parsedEvent: parsed,
+            });
+          }
+
+          results.push({
+            eventType: 'exception',
+            event: parsed,
+          });
+          return results;
+        }
+
+        // WS API Success
+        try {
+          this.getWsStore().resolveDeferredPromise(
+            wsKey,
+            promiseRef,
+            parsed,
+            true,
+          );
+        } catch (e) {
+          this.logger.error(`Exception trying to resolve WSAPI promise`, {
+            wsKey,
+            promiseRef,
+            parsedEvent: parsed,
+          });
+        }
+
+        if (eventChannel.includes('.login')) {
+          results.push({
+            eventType: 'authenticated',
+            event: {
+              ...parsed,
+              isWSAPI: true,
+              WSAPIAuthChannel: eventChannel,
+            },
+          });
+        }
+
+        results.push({
+          eventType: 'response',
+          event: parsed,
+        });
+        return results;
+      }
+
       if (typeof eventAction === 'string') {
         if (parsed.success === false) {
           results.push({
@@ -301,15 +385,6 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
           });
           return results;
         }
-
-        // if (eventAction === 'ping') {
-        //   this.logger.trace('Received ping - preparing pong', {
-        //     ...WS_LOGGER_CATEGORY,
-        //     wsKey,
-        //   });
-        //   this.sendPongEvent(wsKey, ws);
-        //   return;
-        // }
 
         this.logger.error(
           `!! Unhandled string event type "${eventAction}. Defaulting to "update" channel...`,
@@ -492,7 +567,8 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     switch (market) {
       case 'all': {
         for (const request of requests) {
-          const timeInSeconds = +(Date.now() / 1000).toFixed(0);
+          const signTimestamp = Date.now() + this.options.recvWindow;
+          const timeInSeconds = +(signTimestamp / 1000).toFixed(0);
 
           const wsEvent: WsRequestOperationGate<WsTopic> = {
             time: timeInSeconds,
@@ -600,20 +676,12 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     const signTimestamp = Date.now() + this.options.recvWindow;
     const signMessageInput = `|${signTimestamp}`;
 
-    let signature: string;
-    if (typeof this.options.customSignMessageFn === 'function') {
-      signature = await this.options.customSignMessageFn(
-        signMessageInput,
-        this.options.apiSecret,
-      );
-    } else {
-      signature = await signMessage(
-        signMessageInput,
-        this.options.apiSecret,
-        'hex',
-        'SHA-512',
-      );
-    }
+    const signature = await this.signMessage(
+      signMessageInput,
+      this.options.apiSecret,
+      'hex',
+      'SHA-512',
+    );
 
     switch (market) {
       case 'all': {
@@ -635,13 +703,118 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     }
   }
 
-  /**
-   * This exchange API is split into "markets" that behave differently (different base URLs).
-   * The market can easily be resolved using the topic name.
-   */
-  private getMarketForTopic(topic: string): WsMarket {
-    return 'all';
+  async signWSAPIRequest<TRequestParams extends object | string = object>(
+    requestEvent: WSAPIRequest<TRequestParams>,
+  ): Promise<WSAPIRequest<TRequestParams>> {
+    if (!this.options.apiSecret) {
+      throw new Error(`API Secret missing`);
+    }
 
-    throw new Error(`Could not resolve "market" for topic: "${topic}"`);
+    const payload = requestEvent.payload;
+
+    const toSign = [
+      requestEvent.event,
+      requestEvent.channel,
+      JSON.stringify(payload.req_param),
+      requestEvent.time,
+    ].join('\n');
+
+    const signEncoding: SignEncodeMethod = 'hex';
+    const signAlgoritm: SignAlgorithm = 'SHA-512';
+
+    return {
+      ...requestEvent,
+      payload: {
+        ...requestEvent.payload,
+        req_header: {
+          'X-Gate-Channel-Id': CHANNEL_ID,
+        },
+        signature: await this.signMessage(
+          toSign,
+          this.options.apiSecret,
+          signEncoding,
+          signAlgoritm,
+        ),
+      },
+    };
+  }
+
+  getPromiseRefForWSAPIRequest(requestEvent: WSAPIRequest): string {
+    const promiseRef = [
+      requestEvent.channel,
+      requestEvent.payload?.req_id,
+    ].join('_');
+    return promiseRef;
+  }
+
+  /**
+   * WS API Methods
+   */
+
+  /**
+   * Send a Websocket API event on a connection. Returns a promise that resolves on reply.
+   *
+   * Returned promise is rejected if an exception is detected in the reply OR the connection disconnects for any reason (even if automatic reconnect will happen).
+   *
+   * After a fresh connection, you should always send a login request first.
+   *
+   * If you authenticated once and you're reconnected later (e.g. connection temporarily lost), the SDK will by default automatically:
+   * - Detect you were authenticated to the WS API before
+   * - Try to re-authenticate (up to 5 times, in case something (bad timestamp) goes wrong)
+   * - If it succeeds, it will emit the 'authenticated' event.
+   * - If it fails and gives up, it will emit an 'exception' event (type: 'wsapi.auth', reason: detailed text).
+   *
+   * You can turn off the automatic re-auth WS API logic using `reauthWSAPIOnReconnect: false` in the WSClient config.
+   *
+   * @param wsKey - The connection this event is for (e.g. "spotV4" | "perpFuturesUSDTV4" | "perpFuturesBTCV4" | "deliveryFuturesUSDTV4" | "deliveryFuturesBTCV4" | "optionsV4")
+   * @param channel - The channel this event is for (e.g. "spot.login" to authenticate)
+   * @param params - Any request parameters for the payload. Signature generation is automatic, only send parameters such as order ID as per the docs.
+   * @returns
+   */
+  async sendWSAPIRequest<TRequestParams extends object | string = object>(
+    wsKey: WsKey,
+    channel: WSAPITopic,
+    params?: TRequestParams,
+  ) {
+    this.logger.trace(`sendWSAPIRequest(): assert "${wsKey}" is connected`);
+    await this.assertIsConnected(wsKey);
+
+    const signTimestamp = Date.now() + this.options.recvWindow;
+    const timeInSeconds = +(signTimestamp / 1000).toFixed(0);
+
+    const requestEvent: WSAPIRequest<TRequestParams> = {
+      time: timeInSeconds,
+      // id: timeInSeconds,
+      channel,
+      event: 'api',
+      payload: {
+        req_id: this.getNewRequestId(),
+        req_header: {
+          'X-Gate-Channel-Id': CHANNEL_ID,
+        },
+        api_key: this.options.apiKey,
+        req_param: params ? params : '', // should this be string, not sure
+        timestamp: `${timeInSeconds}`,
+      },
+    };
+
+    // Sign request
+    const signedEvent = await this.signWSAPIRequest(requestEvent);
+
+    // Store deferred promise
+    const promiseRef = this.getPromiseRefForWSAPIRequest(requestEvent);
+    const deferredPromise = this.getWsStore().createDeferredPromise(
+      wsKey,
+      promiseRef,
+      false,
+    );
+
+    // Send event
+    this.tryWsSend(wsKey, JSON.stringify(signedEvent));
+
+    this.logger.trace(`sendWSAPIRequest(): sent ${channel} event`);
+
+    // Return deferred promise, so caller can await this call
+    return deferredPromise.promise;
   }
 }

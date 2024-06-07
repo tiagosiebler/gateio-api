@@ -336,8 +336,8 @@ export abstract class BaseRestClient {
     const encodeQueryStringValues = true;
 
     if (signMethod === 'gateV4') {
-      const signAlgoritm: SignAlgorithm = 'SHA-512';
       const signEncoding: SignEncodeMethod = 'hex';
+      const signAlgoritm: SignAlgorithm = 'SHA-512';
 
       const queryStringToSign = data?.query
         ? serializeParams(

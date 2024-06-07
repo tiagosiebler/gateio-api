@@ -1,7 +1,11 @@
 import WebSocket from 'isomorphic-ws';
 
 import { DefaultLogger } from '../logger.js';
-import { WsConnectionStateEnum, WsStoredState } from './WsStore.types.js';
+import {
+  DeferredPromise,
+  WsConnectionStateEnum,
+  WsStoredState,
+} from './WsStore.types.js';
 
 /**
  * Simple comparison of two objects, only checks 1-level deep (nested objects won't match)
@@ -25,6 +29,13 @@ export function isDeepObjectMatch(object1: unknown, object2: unknown): boolean {
   }
   return true;
 }
+
+const DEFERRED_PROMISE_REF = {
+  CONNECTION_IN_PROGRESS: 'CONNECTION_IN_PROGRESS',
+} as const;
+
+type DeferredPromiseRef =
+  (typeof DEFERRED_PROMISE_REF)[keyof typeof DEFERRED_PROMISE_REF];
 
 export class WsStore<
   WsKey extends string,
@@ -74,6 +85,7 @@ export class WsStore<
     this.wsState[key] = {
       subscribedTopics: new Set<TWSTopicSubscribeEventArgs>(),
       connectionState: WsConnectionStateEnum.INITIAL,
+      deferredPromiseStore: {},
     };
     return this.get(key);
   }
@@ -111,6 +123,162 @@ export class WsStore<
 
     this.get(key, true).ws = wsConnection;
     return wsConnection;
+  }
+
+  getDeferredPromise(
+    wsKey: WsKey,
+    promiseRef: string | DeferredPromiseRef,
+  ): DeferredPromise<unknown> | undefined {
+    const storeForKey = this.get(wsKey);
+    if (!storeForKey) {
+      return;
+    }
+
+    const deferredPromiseStore = storeForKey.deferredPromiseStore;
+    return deferredPromiseStore[promiseRef];
+  }
+
+  createDeferredPromise(
+    wsKey: WsKey,
+    promiseRef: string | DeferredPromiseRef,
+    throwIfExists: boolean,
+  ): DeferredPromise<unknown> {
+    const existingPromise = this.getDeferredPromise(wsKey, promiseRef);
+    if (existingPromise) {
+      if (throwIfExists) {
+        throw new Error(`Promise exists for "${wsKey}"`);
+      } else {
+        // console.log('existing promise');
+        return existingPromise;
+      }
+    }
+
+    // console.log('create promise');
+    const createIfMissing = true;
+    const storeForKey = this.get(wsKey, createIfMissing);
+
+    const deferredPromise: DeferredPromise = {};
+
+    deferredPromise.promise = new Promise((resolve, reject) => {
+      deferredPromise.resolve = resolve;
+      deferredPromise.reject = reject;
+    });
+
+    const deferredPromiseStore = storeForKey.deferredPromiseStore;
+
+    deferredPromiseStore[promiseRef] = deferredPromise;
+
+    return deferredPromise;
+  }
+
+  resolveDeferredPromise(
+    wsKey: WsKey,
+    promiseRef: string | DeferredPromiseRef,
+    value: unknown,
+    removeAfter: boolean,
+  ): void {
+    const promise = this.getDeferredPromise(wsKey, promiseRef);
+    if (promise?.resolve) {
+      promise.resolve(value);
+    }
+    if (removeAfter) {
+      this.removeDeferredPromise(wsKey, promiseRef);
+    }
+  }
+
+  rejectDeferredPromise(
+    wsKey: WsKey,
+    promiseRef: string | DeferredPromiseRef,
+    value: unknown,
+    removeAfter: boolean,
+  ): void {
+    const promise = this.getDeferredPromise(wsKey, promiseRef);
+    if (promise?.reject) {
+      promise.reject(value);
+    }
+    if (removeAfter) {
+      this.removeDeferredPromise(wsKey, promiseRef);
+    }
+  }
+
+  removeDeferredPromise(
+    wsKey: WsKey,
+    promiseRef: string | DeferredPromiseRef,
+  ): void {
+    const storeForKey = this.get(wsKey);
+    if (!storeForKey) {
+      return;
+    }
+
+    const deferredPromise = storeForKey.deferredPromiseStore[promiseRef];
+    if (deferredPromise) {
+      // Just in case it's pending
+      if (deferredPromise.resolve) {
+        deferredPromise.resolve('promiseRemoved');
+      }
+
+      delete storeForKey.deferredPromiseStore[promiseRef];
+    }
+  }
+
+  rejectAllDeferredPromises(wsKey: WsKey, reason: string): void {
+    const storeForKey = this.get(wsKey);
+    const deferredPromiseStore = storeForKey.deferredPromiseStore;
+    if (!storeForKey || !deferredPromiseStore) {
+      return;
+    }
+
+    const reservedKeys = Object.values(DEFERRED_PROMISE_REF) as string[];
+
+    for (const promiseRef in deferredPromiseStore) {
+      // Skip reserved keys, such as the connection promise
+      if (reservedKeys.includes(promiseRef)) {
+        continue;
+      }
+
+      try {
+        this.rejectDeferredPromise(wsKey, promiseRef, reason, true);
+      } catch (e) {
+        this.logger.error(
+          `rejectAllDeferredPromises(): Exception rejecting deferred promise`,
+          { wsKey: wsKey, reason, promiseRef, exception: e },
+        );
+      }
+    }
+  }
+
+  /** Get promise designed to track a connection attempt in progress. Resolves once connected. */
+  getConnectionInProgressPromise(
+    wsKey: WsKey,
+  ): DeferredPromise<unknown> | undefined {
+    return this.getDeferredPromise(
+      wsKey,
+      DEFERRED_PROMISE_REF.CONNECTION_IN_PROGRESS,
+    );
+  }
+
+  /**
+   * Create a deferred promise designed to track a connection attempt in progress.
+   *
+   * Will throw if existing promise is found.
+   */
+  createConnectionInProgressPromise(
+    wsKey: WsKey,
+    throwIfExists: boolean,
+  ): DeferredPromise<unknown> {
+    return this.createDeferredPromise(
+      wsKey,
+      DEFERRED_PROMISE_REF.CONNECTION_IN_PROGRESS,
+      throwIfExists,
+    );
+  }
+
+  /** Remove promise designed to track a connection attempt in progress */
+  removeConnectingInProgressPromise(wsKey: WsKey): void {
+    return this.removeDeferredPromise(
+      wsKey,
+      DEFERRED_PROMISE_REF.CONNECTION_IN_PROGRESS,
+    );
   }
 
   /* connection state */

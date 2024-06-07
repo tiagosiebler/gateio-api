@@ -232,7 +232,110 @@ ws.on('error', (err) => {
 });
 ```
 
-See [websocket-client.ts](./src/websocket-client.ts) for further information and make sure to check the [examples](./examples/) folder for much more detail.
+See [WebsocketClient.ts](./src/WebsocketClient.ts) for further information and make sure to check the [examples](./examples/) folder for much more detail.
+
+### Websocket API
+
+The [WebsocketClient.ts](./src/WebsocketClient.ts) supports this exchange's Websocket API. There are two ways to use the WS API, depending on individual preference:
+
+- event-driven:
+  - send requests via `client.sendWSAPIRequest(wsKey, channel, params)`, fire and forget, don't use await
+  - handle async replies via event handlers on `client.on('exception', cb)` and `client.on('response', cb)`
+- promise-driven:
+  - send requests via `const result = await client.sendWSAPIRequest(wsKey, channel, params)`, which returns a promise
+  - await each call
+  - use try/catch blocks to handle promise rejections
+
+The below example demonstrates the promise-driven approach, which behaves similar to a REST API. For more detailed examples, refer to the [examples](./examples/) folder (e.g the [ws-private-spot-wsapi.ts](./examples/ws-private-spot-wsapi.ts) example).
+
+```javascript
+const { WebsocketClient } = require('gateio-api');
+
+const API_KEY = 'xxx';
+const PRIVATE_KEY = 'yyy';
+
+async function start() {
+  const client = new WebsocketClient({
+    apiKey: API_KEY,
+    apiSecret: PRIVATE_KEY,
+    // Automatically re-auth WS API, if we were auth'd before and get reconnected
+    reauthWSAPIOnReconnect: true,
+  });
+
+  /**
+   * Setup basic event handlers for core connectivity events.
+   * Note for this approach, the `response` and `update` events are not needed (but you can use them too/instead if you prefer).
+   **/
+
+  // Successfully connected
+  client.on('open', (data) => {
+    console.log(new Date(), 'ws connected ', data?.wsKey);
+  });
+
+  // Something happened, attempting to reconenct
+  client.on('reconnect', (data) => {
+    console.log(new Date(), 'ws reconnect: ', data);
+  });
+
+  // Reconnect successful
+  client.on('reconnected', (data) => {
+    console.log(new Date(), 'ws reconnected: ', data);
+  });
+
+  // Connection closed. If unexpected, expect reconnect -> reconnected.
+  client.on('close', (data) => {
+    console.error(new Date(), 'ws close: ', data);
+  });
+
+  client.on('exception', (data) => {
+    console.error(new Date(), 'ws exception: ', data);
+  });
+
+  client.on('authenticated', (data) => {
+    console.error(new Date(), 'ws authenticated: ', data);
+  });
+
+  try {
+    /**
+     * All WebSocket API (WS API) messaging should be done via the sendWSAPIRequest method.
+     */
+
+    // The WSKey identifies which connection this request is for.
+    // (e.g. "spotV4" | "perpFuturesUSDTV4" | "perpFuturesBTCV4" | "deliveryFuturesUSDTV4" | "deliveryFuturesBTCV4" | "optionsV4")
+    const wsKey = 'spotV4';
+
+    /**
+     * To authenticate, send an empty request to "spot.login". The SDK will handle all the parameters.
+     *
+     * By default (reauthWSAPIOnReconnect: true), if we get reconnected later on (e.g. connection temporarily lost), we will try to re-authenticate the WS API automatically when the connection is restored.
+     */
+    console.log(new Date(), 'try authenticate');
+    const loginResult = await client.sendWSAPIRequest(wsKey, 'spot.login');
+    console.log(new Date(), 'authenticated!', loginResult);
+
+    /**
+     * For other channels, you should include any parameters for the request (the payload) in your call.
+     *
+     * Note that internal parameters such as "signature" etc are all handled automatically by the SDK. Only the core request parameters are needed.
+     */
+    console.log(new Date(), 'try get order status');
+    const orderStatus = await client.sendWSAPIRequest(
+      wsKey,
+      'spot.order_status',
+      {
+        order_id: '600995435390',
+        currency_pair: 'BTC_USDT',
+      },
+    );
+
+    console.log(new Date(), 'orderStatus result!', orderStatus);
+  } catch (e) {
+    console.error(`WS API Error: `, e);
+  }
+}
+
+start();
+```
 
 ---
 

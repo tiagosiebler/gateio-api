@@ -14,7 +14,10 @@ import {
   WsTopicRequestOrStringTopic,
 } from './websocket/websocket-util.js';
 import { WsStore } from './websocket/WsStore.js';
-import { WsConnectionStateEnum } from './websocket/WsStore.types.js';
+import {
+  DeferredPromise,
+  WsConnectionStateEnum,
+} from './websocket/WsStore.types.js';
 
 interface WSClientEventMap<WsKey extends string> {
   /** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
@@ -99,6 +102,8 @@ export abstract class BaseWebsocketClient<
   protected logger: typeof DefaultLogger;
   protected options: WebsocketClientOptions;
 
+  private wsApiRequestId: number = 0;
+
   constructor(
     options?: WSClientConfigurableOptions,
     logger?: typeof DefaultLogger,
@@ -113,11 +118,13 @@ export abstract class BaseWebsocketClient<
       pongTimeout: 1500,
       pingInterval: 10000,
       reconnectTimeout: 500,
-      recvWindow: 0,
+      recvWindow: -1000,
       // Gate.io only has one connection (for both public & private). Auth works with every sub, not on connect, so this is turned off.
       authPrivateConnectionsOnConnect: false,
       // Gate.io requires auth to be added to every request, when subscribing to private topics. This is handled automatically.
       authPrivateRequests: true,
+      // Automatically re-auth WS API, if we were auth'd before and get reconnected
+      reauthWSAPIOnReconnect: true,
       ...options,
     };
   }
@@ -155,17 +162,27 @@ export abstract class BaseWebsocketClient<
    * Abstraction called to sort ws events into emittable event types (response to a request, data update, etc)
    */
   protected abstract resolveEmittableEvents(
+    wsKey: TWSKey,
     event: MessageEventLike,
   ): EmittableEvent[];
 
   /**
    * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
    */
-  abstract connectAll(): Promise<WebSocket | undefined>[];
+  protected abstract connectAll(): (DeferredPromise['promise'] | undefined)[];
 
   protected isPrivateWsKey(wsKey: TWSKey): boolean {
     return this.getPrivateWSKeys().includes(wsKey);
   }
+
+  /** Returns auto-incrementing request ID, used to track promise references for async requests */
+  protected getNewRequestId(): string {
+    return `${++this.wsApiRequestId}`;
+  }
+
+  protected abstract sendWSAPIRequest<
+    TRequestParams extends object | string = object,
+  >(wsKey: TWSKey, channel: string, params?: TRequestParams);
 
   /**
    * Don't call directly! Use subscribe() instead!
@@ -196,15 +213,13 @@ export abstract class BaseWebsocketClient<
       WsConnectionStateEnum.CONNECTED,
     );
 
+    // TODO: test this, spam loads of subscribe topic calls in intervals (and add a log line on this logic)
+    const isConnectionInProgress =
+      this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.CONNECTING) ||
+      this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.RECONNECTING);
+
     // start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
-    if (
-      !isConnected &&
-      !this.wsStore.isConnectionState(
-        wsKey,
-        WsConnectionStateEnum.CONNECTING,
-      ) &&
-      !this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.RECONNECTING)
-    ) {
+    if (!isConnected && !isConnectionInProgress) {
       return this.connect(wsKey);
     }
 
@@ -337,14 +352,16 @@ export abstract class BaseWebsocketClient<
   /**
    * Request connection to a specific websocket, instead of waiting for automatic connection.
    */
-  protected async connect(wsKey: TWSKey): Promise<WebSocket | undefined> {
+  protected async connect(
+    wsKey: TWSKey,
+  ): Promise<DeferredPromise['promise'] | undefined> {
     try {
       if (this.wsStore.isWsOpen(wsKey)) {
         this.logger.error(
           'Refused to connect to ws with existing active connection',
           { ...WS_LOGGER_CATEGORY, wsKey },
         );
-        return this.wsStore.getWs(wsKey);
+        return this.wsStore.getConnectionInProgressPromise(wsKey);
       }
 
       if (
@@ -364,14 +381,37 @@ export abstract class BaseWebsocketClient<
         this.setWsState(wsKey, WsConnectionStateEnum.CONNECTING);
       }
 
+      if (!this.wsStore.getConnectionInProgressPromise(wsKey)) {
+        this.wsStore.createConnectionInProgressPromise(wsKey, false);
+      }
+
       const url = this.getWsUrl(wsKey);
       const ws = this.connectToWsUrl(url, wsKey);
 
-      return this.wsStore.setWs(wsKey, ws);
+      this.wsStore.setWs(wsKey, ws);
+
+      return this.wsStore.getConnectionInProgressPromise(wsKey)?.promise;
     } catch (err) {
       this.parseWsError('Connection failed', err, wsKey);
       this.reconnectWithDelay(wsKey, this.options.reconnectTimeout!);
     }
+  }
+
+  private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket {
+    this.logger.trace(`Opening WS connection to URL: ${url}`, {
+      ...WS_LOGGER_CATEGORY,
+      wsKey,
+    });
+
+    const ws = new WebSocket(url, undefined);
+
+    ws.onopen = (event: any) => this.onWsOpen(event, wsKey);
+    ws.onmessage = (event: any) => this.onWsMessage(event, wsKey, ws);
+    ws.onerror = (event: any) =>
+      this.parseWsError('websocket error', event, wsKey);
+    ws.onclose = (event: any) => this.onWsClose(event, wsKey);
+
+    return ws;
   }
 
   private parseWsError(context: string, error: any, wsKey: TWSKey) {
@@ -601,24 +641,11 @@ export abstract class BaseWebsocketClient<
     }
   }
 
-  private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket {
-    this.logger.trace(`Opening WS connection to URL: ${url}`, {
-      ...WS_LOGGER_CATEGORY,
-      wsKey,
-    });
-
-    const ws = new WebSocket(url, undefined);
-
-    ws.onopen = (event: any) => this.onWsOpen(event, wsKey);
-    ws.onmessage = (event: any) => this.onWsMessage(event, wsKey, ws);
-    ws.onerror = (event: any) =>
-      this.parseWsError('websocket error', event, wsKey);
-    ws.onclose = (event: any) => this.onWsClose(event, wsKey);
-
-    return ws;
-  }
-
   private async onWsOpen(event: any, wsKey: TWSKey) {
+    const didReconnectSuccessfully = this.wsStore.isConnectionState(
+      wsKey,
+      WsConnectionStateEnum.RECONNECTING,
+    );
     if (
       this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.CONNECTING)
     ) {
@@ -627,9 +654,7 @@ export abstract class BaseWebsocketClient<
         wsKey,
       });
       this.emit('open', { wsKey, event });
-    } else if (
-      this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.RECONNECTING)
-    ) {
+    } else if (didReconnectSuccessfully) {
       this.logger.info('Websocket reconnected', {
         ...WS_LOGGER_CATEGORY,
         wsKey,
@@ -644,6 +669,24 @@ export abstract class BaseWebsocketClient<
       () => this.ping(wsKey),
       this.options.pingInterval,
     );
+
+    // Resolve & cleanup deferred "connection attempt in progress" promise
+    try {
+      const connectionInProgressPromise =
+        this.wsStore.getConnectionInProgressPromise(wsKey);
+      if (connectionInProgressPromise?.resolve) {
+        connectionInProgressPromise.resolve({
+          wsKey,
+        });
+      }
+    } catch (e) {
+      this.logger.error(
+        `Exception trying to resolve "connectionInProgress" promise`,
+      );
+    }
+
+    // Remove before resolving, in case there's more requests queued
+    this.wsStore.removeConnectingInProgressPromise(wsKey);
 
     // Some websockets require an auth packet to be sent after opening the connection
     if (
@@ -664,8 +707,57 @@ export abstract class BaseWebsocketClient<
 
     // Request sub to private topics, if auth on connect isn't needed
     if (!this.options.authPrivateConnectionsOnConnect) {
-      // TODO: check for API keys and throw if missing
       this.requestSubscribeTopics(wsKey, privateReqs);
+    }
+
+    const wsStoredState = this.wsStore.get(wsKey, true);
+
+    const { didAuthWSAPI, WSAPIAuthChannel } = wsStoredState;
+
+    // If enabled, automatically reauth WS API if reconnected
+    if (
+      didReconnectSuccessfully &&
+      this.options.reauthWSAPIOnReconnect &&
+      didAuthWSAPI &&
+      WSAPIAuthChannel
+    ) {
+      this.logger.info(
+        `WS API was authenticated before reconnect - re-authenticating WS API...`,
+      );
+
+      let attempt = 0;
+      const maxReAuthAttempts = 5;
+
+      while (attempt <= maxReAuthAttempts) {
+        attempt++;
+        try {
+          this.logger.trace(
+            `try reauthenticate (attempt ${attempt}/${maxReAuthAttempts})`,
+          );
+          const loginResult = await this.sendWSAPIRequest(
+            wsKey,
+            WSAPIAuthChannel,
+          );
+          this.logger.trace('reauthenticated!', loginResult);
+          break;
+        } catch (e) {
+          const giveUp = attempt >= maxReAuthAttempts;
+
+          const suffix = giveUp
+            ? 'Max tries reached. Giving up!'
+            : 'Trying again...';
+
+          this.logger.error(
+            `Exception trying to reauthenticate WS API on reconnect... ${suffix}`,
+          );
+
+          this.emit('exception', {
+            wsKey,
+            type: 'wsapi.auth',
+            reason: `automatic WS API reauth failed after ${attempt} attempts`,
+          });
+        }
+      }
     }
   }
 
@@ -674,17 +766,27 @@ export abstract class BaseWebsocketClient<
    *
    * Only used for exchanges that require auth before sending private topic subscription requests
    */
-  private onWsAuthenticated(wsKey: TWSKey) {
+  private onWsAuthenticated(
+    wsKey: TWSKey,
+    event: { isWSAPI?: boolean; WSAPIAuthChannel?: string },
+  ) {
     const wsState = this.wsStore.get(wsKey, true);
     wsState.isAuthenticated = true;
 
-    const topics = [...this.wsStore.getTopics(wsKey)];
-    const privateTopics = topics.filter((topic) =>
-      this.isPrivateTopicRequest(topic, wsKey),
-    );
+    if (this.options.authPrivateConnectionsOnConnect) {
+      const topics = [...this.wsStore.getTopics(wsKey)];
+      const privateTopics = topics.filter((topic) =>
+        this.isPrivateTopicRequest(topic, wsKey),
+      );
 
-    if (privateTopics.length) {
-      this.subscribeTopicsForWsKey(privateTopics, wsKey);
+      if (privateTopics.length) {
+        this.subscribeTopicsForWsKey(privateTopics, wsKey);
+      }
+    }
+
+    if (event?.isWSAPI && event?.WSAPIAuthChannel) {
+      wsState.didAuthWSAPI = true;
+      wsState.WSAPIAuthChannel = event.WSAPIAuthChannel;
     }
   }
 
@@ -716,7 +818,7 @@ export abstract class BaseWebsocketClient<
         const data = event.data;
         const dataType = event.type;
 
-        const emittableEvents = this.resolveEmittableEvents(event);
+        const emittableEvents = this.resolveEmittableEvents(wsKey, event);
 
         if (!emittableEvents.length) {
           // console.log(`raw event: `, { data, dataType, emittableEvents });
@@ -750,7 +852,7 @@ export abstract class BaseWebsocketClient<
               wsKey,
             });
             this.emit(emittable.eventType, { ...emittable.event, wsKey });
-            this.onWsAuthenticated(wsKey);
+            this.onWsAuthenticated(wsKey, emittable.event);
             continue;
           }
 
@@ -788,9 +890,19 @@ export abstract class BaseWebsocketClient<
     if (
       this.wsStore.getConnectionState(wsKey) !== WsConnectionStateEnum.CLOSING
     ) {
+      // clean up any pending promises for this connection
+      this.getWsStore().rejectAllDeferredPromises(
+        wsKey,
+        'connection lost, reconnecting',
+      );
+
+      this.setWsState(wsKey, WsConnectionStateEnum.INITIAL);
+
       this.reconnectWithDelay(wsKey, this.options.reconnectTimeout!);
       this.emit('reconnect', { wsKey, event });
     } else {
+      // clean up any pending promises for this connection
+      this.getWsStore().rejectAllDeferredPromises(wsKey, 'disconnected');
       this.setWsState(wsKey, WsConnectionStateEnum.INITIAL);
       this.emit('close', { wsKey, event });
     }
@@ -802,5 +914,43 @@ export abstract class BaseWebsocketClient<
 
   private setWsState(wsKey: TWSKey, state: WsConnectionStateEnum) {
     this.wsStore.setConnectionState(wsKey, state);
+  }
+
+  /**
+   * Promise-driven method to assert that a ws has successfully connected (will await until connection is open)
+   */
+  protected async assertIsConnected(wsKey: TWSKey): Promise<unknown> {
+    const isConnected = this.getWsStore().isConnectionState(
+      wsKey,
+      WsConnectionStateEnum.CONNECTED,
+    );
+
+    if (!isConnected) {
+      const inProgressPromise =
+        this.getWsStore().getConnectionInProgressPromise(wsKey);
+
+      // Already in progress? Await shared promise and retry
+      if (inProgressPromise) {
+        this.logger.trace(
+          `sendWSAPIRequest(): Awaiting EXISTING connection promise...`,
+        );
+        await inProgressPromise.promise;
+        this.logger.trace(
+          `sendWSAPIRequest(): EXISTING connection promise resolved!`,
+        );
+        return;
+      }
+
+      // Start connection, it should automatically store/return a promise.
+      this.logger.trace(
+        `sendWSAPIRequest(): Not connected yet...queue await connection...`,
+      );
+
+      await this.connect(wsKey);
+
+      this.logger.trace(
+        `sendWSAPIRequest(): New connection promise resolved! `,
+      );
+    }
   }
 }
