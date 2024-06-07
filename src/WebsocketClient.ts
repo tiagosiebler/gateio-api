@@ -20,7 +20,11 @@ import {
   WsRequestOperationGate,
   WsRequestPing,
 } from './types/websockets/requests.js';
-import { SpotWSAPITopic, WSAPITopic } from './types/websockets/shared.js';
+import {
+  FuturesWSAPITopic,
+  SpotWSAPITopic,
+  WsAPIWsKeyTopicMap,
+} from './types/websockets/wsAPI.js';
 
 export const WS_LOGGER_CATEGORY = { category: 'gate-ws' };
 
@@ -75,7 +79,7 @@ function getPrivateFuturesTopics(): string[] {
     'futures.autoorders',
   ];
 
-  const privatePerpetualFuturesWSAPITopics = [
+  const privatePerpetualFuturesWSAPITopics: FuturesWSAPITopic[] = [
     'futures.login',
     'futures.order_place',
     'futures.order_batch_place',
@@ -299,7 +303,10 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
             this.getWsStore().rejectDeferredPromise(
               wsKey,
               promiseRef,
-              parsed,
+              {
+                wsKey,
+                ...parsed,
+              },
               true,
             );
           } catch (e) {
@@ -322,7 +329,10 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
           this.getWsStore().resolveDeferredPromise(
             wsKey,
             promiseRef,
-            parsed,
+            {
+              wsKey,
+              ...parsed,
+            },
             true,
           );
         } catch (e) {
@@ -772,14 +782,15 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
    * @returns Promise - tries to resolve with async WS API response. Rejects if disconnected or exception is seen in async WS API response
    */
   async sendWSAPIRequest<
-    TWSChannel extends WSAPITopic = WSAPITopic,
-    TWSAPIResult = object,
+    TWSAPIResponse = object,
     TRequestParams extends object | string = object,
+    TWSKey extends keyof WsAPIWsKeyTopicMap = keyof WsAPIWsKeyTopicMap,
+    TWSChannel extends string = WsAPIWsKeyTopicMap[TWSKey],
   >(
-    wsKey: WsKey,
+    wsKey: TWSKey,
     channel: TWSChannel,
     params?: TRequestParams,
-  ): Promise<TWSAPIResult> {
+  ): Promise<TWSAPIResponse> {
     this.logger.trace(`sendWSAPIRequest(): assert "${wsKey}" is connected`);
     await this.assertIsConnected(wsKey);
 
@@ -807,11 +818,12 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
 
     // Store deferred promise
     const promiseRef = this.getPromiseRefForWSAPIRequest(requestEvent);
-    const deferredPromise = this.getWsStore().createDeferredPromise(
-      wsKey,
-      promiseRef,
-      false,
-    );
+    const deferredPromise =
+      this.getWsStore().createDeferredPromise<TWSAPIResponse>(
+        wsKey,
+        promiseRef,
+        false,
+      );
 
     // Send event
     this.tryWsSend(wsKey, JSON.stringify(signedEvent));
@@ -819,6 +831,6 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     this.logger.trace(`sendWSAPIRequest(): sent ${channel} event`);
 
     // Return deferred promise, so caller can await this call
-    return deferredPromise.promise;
+    return deferredPromise.promise!;
   }
 }

@@ -1,5 +1,5 @@
 import { CHANNEL_ID } from '../../lib/requestUtils';
-import { WSAPITopic } from './shared';
+import { WSAPITopic } from './wsAPI';
 
 export type WsOperation = 'subscribe' | 'unsubscribe' | 'auth';
 
@@ -26,10 +26,13 @@ export interface WsRequestOperationGate<
   payload?: TWSPayload;
 }
 
-export interface WSAPIRequest<TRequestParams = object | string> {
+export interface WSAPIRequest<
+  TRequestParams = object | string,
+  TWSChannel extends WSAPITopic = any,
+> {
   time: number;
   id?: number;
-  channel: WSAPITopic;
+  channel: TWSChannel;
   event: 'api';
   payload: {
     req_id: string;

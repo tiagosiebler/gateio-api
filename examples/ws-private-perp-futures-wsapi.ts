@@ -91,27 +91,32 @@ async function start() {
      */
 
     /**
-     * To authenticate, send an empty request to "spot.login". The SDK will handle all the parameters.
+     * To authenticate, send an empty request to "futures.login". The SDK will handle all the parameters.
      *
      * Optional - you can inject rich types to set the response type
-     *    const loginResult = await client.sendWSAPIRequest<WSAPIResponse<WSAPILoginResponse>>('spotV4', 'spot.login');
+     *    const loginResult = await client.sendWSAPIRequest<WSAPIResponse<WSAPILoginResponse>>('perpFuturesUSDTV4', 'futures.login');
      */
     console.log(new Date(), 'try authenticate');
-    const loginResult = await client.sendWSAPIRequest('spotV4', 'spot.login');
+    const loginResult = await client.sendWSAPIRequest(
+      'perpFuturesUSDTV4',
+      'futures.login',
+    );
+
+    client.sendWSAPIRequest('perpFuturesUSDTV4', 'futures.login');
     console.log(new Date(), 'authenticated!', loginResult);
 
     /**
      * For other channels, the 3rd parameter should have any parameters for the request (the payload).
      *
      * Note that internal parameters such as "signature" etc are all handled automatically by the SDK.
+     *
      */
     console.log(new Date(), 'try get order status');
     const orderStatus = await client.sendWSAPIRequest(
-      'spotV4',
-      'spot.order_status',
+      'perpFuturesUSDTV4',
+      'futures.order_list',
       {
-        order_id: '600995435390',
-        currency_pair: 'BTC_USDT',
+        status: 'finished',
       },
     );
 

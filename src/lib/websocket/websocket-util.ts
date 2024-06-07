@@ -41,6 +41,13 @@ export const WS_KEY_MAP = {
 
 /** This is used to differentiate between each of the available websocket streams */
 export type WsKey = (typeof WS_KEY_MAP)[keyof typeof WS_KEY_MAP];
+
+export type FuturesWsKey =
+  | typeof WS_KEY_MAP.perpFuturesUSDTV4
+  | typeof WS_KEY_MAP.perpFuturesBTCV4
+  | typeof WS_KEY_MAP.deliveryFuturesUSDTV4
+  | typeof WS_KEY_MAP.deliveryFuturesBTCV4;
+
 export type WsMarket = 'all';
 
 /**

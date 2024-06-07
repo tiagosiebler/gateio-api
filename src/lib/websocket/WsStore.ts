@@ -143,7 +143,10 @@ export class WsStore<
     promiseRef: string | DeferredPromiseRef,
     throwIfExists: boolean,
   ): DeferredPromise<TSuccessResult> {
-    const existingPromise = this.getDeferredPromise(wsKey, promiseRef);
+    const existingPromise = this.getDeferredPromise<TSuccessResult>(
+      wsKey,
+      promiseRef,
+    );
     if (existingPromise) {
       if (throwIfExists) {
         throw new Error(`Promise exists for "${wsKey}"`);
@@ -157,6 +160,7 @@ export class WsStore<
     const createIfMissing = true;
     const storeForKey = this.get(wsKey, createIfMissing);
 
+    // TODO: Once stable, use Promise.withResolvers in future
     const deferredPromise: DeferredPromise = {};
 
     deferredPromise.promise = new Promise((resolve, reject) => {
