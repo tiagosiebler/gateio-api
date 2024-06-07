@@ -1,4 +1,4 @@
-# gateio-api
+# Node.js & JavaScript SDK for Gate.io REST APIs and WebSockets (including WebSocket API).
 
 [![E2E Tests](https://github.com/tiagosiebler/gateio-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/gateio-api/actions/workflows/e2etest.yml)
 [![npm version](https://img.shields.io/npm/v/gateio-api)][1]
@@ -9,7 +9,29 @@
 
 [1]: https://www.npmjs.com/package/gateio-api
 
-Node.js & TypeScript SDK for Gate.io REST APIs and WebSockets.
+Updated & performant JavaScript & Node.js SDK for the Gate.io REST APIs and WebSockets:
+
+- Extensive integration with Gate.io REST APIs and WebSockets.
+- TypeScript support (with type declarations for most API requests & responses).
+- Supports Gate.io REST APIs for Gate.io Spot, Margin, Perpetual Futures, Delivery Futures, Options & Announcements APIs.
+  - Strongly typed on most requests and responses.
+- Extremely robust & performant JavaScript/Node.js Gate.io SDK.
+- Actively maintained with a modern, promise-driven interface.
+- Support for seamless API authentication for private Gate.io REST API and WebSocket calls.
+- Supports Websockets for Gate.io Spot, Margin, Perpetual Futures, Delivery Futures & Options.
+  - Event driven messaging.
+  - Smart websocket persistence
+    - Automatically handle silent websocket disconnections through timed heartbeats, including the scheduled 24hr disconnect.
+    - Automatically handle listenKey persistence and expiration/refresh.
+    - Emit `reconnected` event when dropped connection is restored.
+- Supports Websocket API for Gate.io Spot, Margin, Perpetual Futures & Delivery Futures.
+  - Automatic connectivity via existing WebsocketClient, just call sendWSAPIRequest to trigger a request.
+  - Automatic authentication, just call sendWSAPIRequest with channel & parameters.
+  - Choose between two interfaces for WS API communication:
+    - Event-driven interface, fire & forget via sendWSAPIRequest and receive async replies via wsClient's event emitter.
+    - Promise-driven interface, simply call and await sendWSAPIRequest for a REST-API-like behaviour with the WS API.
+- Proxy support via axios integration.
+- Active community support & collaboration in telegram: [Node.js Algo Traders](https://t.me/nodetraders).
 
 ## Installation
 
@@ -28,14 +50,14 @@ Check out my related JavaScript/TypeScript/Node.js projects:
   - [Bybit-api Node.js SDK](https://www.npmjs.com/package/bybit-api)
   - [Binance Node.js SDK](https://www.npmjs.com/package/binance)
   - [Okx-api Node.js SDK](https://www.npmjs.com/package/okx-api)
-  - [Gateio-api Nodejs SDK](https://www.npmjs.com/package/gateio-api)
   - [Bitget-api Node.js SDK](https://www.npmjs.com/package/bitget-api)
-  - [Bitmart-api Nodejs SDK](https://www.npmjs.com/package/bitmart-api)
+  - [Bitmart-api Node.js SDK](https://www.npmjs.com/package/bitmart-api)
+  - [Gateio-api Node.js SDK](https://www.npmjs.com/package/gateio-api)
 - Try my misc utilities:
-  - [orderbooks node.js](https://www.npmjs.com/package/orderbooks)
+  - [OrderBooks Node.js](https://www.npmjs.com/package/orderbooks)
   - [accountstate](https://www.npmjs.com/package/accountstate)
 - Check out my examples:
-  - [awesome-crypto-examples](https://github.com/tiagosiebler/awesome-crypto-examples)
+  - [awesome-crypto-examples Node.js](https://github.com/tiagosiebler/awesome-crypto-examples)
 
 ## Documentation
 
