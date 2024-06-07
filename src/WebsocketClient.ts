@@ -769,7 +769,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
    * @param wsKey - The connection this event is for (e.g. "spotV4" | "perpFuturesUSDTV4" | "perpFuturesBTCV4" | "deliveryFuturesUSDTV4" | "deliveryFuturesBTCV4" | "optionsV4")
    * @param channel - The channel this event is for (e.g. "spot.login" to authenticate)
    * @param params - Any request parameters for the payload. Signature generation is automatic, only send parameters such as order ID as per the docs.
-   * @returns
+   * @returns Promise - tries to resolve with async WS API response. Rejects if disconnected or exception is seen in async WS API response
    */
   async sendWSAPIRequest<TRequestParams extends object | string = object>(
     wsKey: WsKey,
