@@ -182,7 +182,12 @@ export abstract class BaseWebsocketClient<
 
   protected abstract sendWSAPIRequest<
     TRequestParams extends object | string = object,
-  >(wsKey: TWSKey, channel: string, params?: TRequestParams);
+    TWSAPIResult = object,
+  >(
+    wsKey: TWSKey,
+    channel: string,
+    params?: TRequestParams,
+  ): Promise<TWSAPIResult>;
 
   /**
    * Don't call directly! Use subscribe() instead!

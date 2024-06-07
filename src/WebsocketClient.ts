@@ -771,11 +771,15 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
    * @param params - Any request parameters for the payload. Signature generation is automatic, only send parameters such as order ID as per the docs.
    * @returns Promise - tries to resolve with async WS API response. Rejects if disconnected or exception is seen in async WS API response
    */
-  async sendWSAPIRequest<TRequestParams extends object | string = object>(
+  async sendWSAPIRequest<
+    TWSChannel extends WSAPITopic = WSAPITopic,
+    TWSAPIResult = object,
+    TRequestParams extends object | string = object,
+  >(
     wsKey: WsKey,
-    channel: WSAPITopic,
+    channel: TWSChannel,
     params?: TRequestParams,
-  ) {
+  ): Promise<TWSAPIResult> {
     this.logger.trace(`sendWSAPIRequest(): assert "${wsKey}" is connected`);
     await this.assertIsConnected(wsKey);
 

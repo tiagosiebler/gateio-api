@@ -125,10 +125,10 @@ export class WsStore<
     return wsConnection;
   }
 
-  getDeferredPromise(
+  getDeferredPromise<TSuccessResult = any>(
     wsKey: WsKey,
     promiseRef: string | DeferredPromiseRef,
-  ): DeferredPromise<unknown> | undefined {
+  ): DeferredPromise<TSuccessResult> | undefined {
     const storeForKey = this.get(wsKey);
     if (!storeForKey) {
       return;
@@ -138,11 +138,11 @@ export class WsStore<
     return deferredPromiseStore[promiseRef];
   }
 
-  createDeferredPromise(
+  createDeferredPromise<TSuccessResult = any>(
     wsKey: WsKey,
     promiseRef: string | DeferredPromiseRef,
     throwIfExists: boolean,
-  ): DeferredPromise<unknown> {
+  ): DeferredPromise<TSuccessResult> {
     const existingPromise = this.getDeferredPromise(wsKey, promiseRef);
     if (existingPromise) {
       if (throwIfExists) {
