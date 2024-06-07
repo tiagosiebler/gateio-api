@@ -1,6 +1,7 @@
 export * from './lib/logger.js';
 export * from './RestClient.js';
 export * from './types/request/account.js';
+export * from './types/response/account.js';
 export * from './types/shared.js';
 export * from './types/websockets/client.js';
 export * from './types/websockets/events.js';
