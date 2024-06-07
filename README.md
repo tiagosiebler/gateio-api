@@ -272,7 +272,7 @@ async function start() {
     console.log(new Date(), 'ws connected ', data?.wsKey);
   });
 
-  // Something happened, attempting to reconenct
+  // Something happened, attempting to reconnect
   client.on('reconnect', (data) => {
     console.log(new Date(), 'ws reconnect: ', data);
   });

@@ -40,7 +40,7 @@ async function start() {
     console.info('data received: ', JSON.stringify(data));
   });
 
-  // Something happened, attempting to reconenct
+  // Something happened, attempting to reconnect
   client.on('reconnect', (data) => {
     console.log('reconnect: ', data);
   });

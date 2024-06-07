@@ -35,6 +35,8 @@ async function start() {
     customLogger,
   );
 
+  client.sendWSAPIRequest('perpFuturesUSDTV4', 'futures.login');
+
   client.on('open', (data) => {
     console.log(new Date(), 'ws connected ', data?.wsKey);
   });
@@ -45,7 +47,7 @@ async function start() {
   //   console.info(new Date(), 'ws data received: ', JSON.stringify(data, null, 2));
   // });
 
-  // Something happened, attempting to reconenct
+  // Something happened, attempting to reconnect
   client.on('reconnect', (data) => {
     console.log(new Date(), 'ws reconnect: ', data);
   });
