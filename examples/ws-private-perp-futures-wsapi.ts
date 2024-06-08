@@ -111,16 +111,120 @@ async function start() {
      * Note that internal parameters such as "signature" etc are all handled automatically by the SDK.
      *
      */
-    console.log(new Date(), 'try get order status');
-    const orderStatus = await client.sendWSAPIRequest(
+
+    /**
+     * Submit futures order
+     */
+
+    console.log(new Date(), 'Sending futures order:');
+    const submitOrder = await client.sendWSAPIRequest(
       'perpFuturesUSDTV4',
-      'futures.order_list',
+      'futures.order_place',
       {
-        status: 'finished',
+        contract: 'BTC_USDT',
+        size: 20, // positive for long, negative for short
+        price: '0',
+        tif: 'ioc',
       },
     );
 
-    console.log(new Date(), 'orderStatus result!', orderStatus);
+    console.log(new Date(), 'Result: ', submitOrder);
+
+    /**
+     * Submit batch futures order
+     */
+
+    console.log(new Date(), 'Sending batch futures order!');
+    const submitBatchOrder = await client.sendWSAPIRequest(
+      'perpFuturesUSDTV4',
+      'futures.order_batch_place',
+      [
+        {
+          contract: 'ETH_USDT',
+          size: 10, // positive for long, negative for short
+          price: '0',
+          tif: 'ioc',
+        },
+        {
+          contract: 'BTC_USDT',
+          size: 10, // positive for long, negative for short
+          price: '0',
+          tif: 'ioc',
+        },
+      ],
+    );
+
+    console.log(new Date(), 'Result: ', submitBatchOrder);
+
+    /**
+     * Cancel futures order
+     */
+    console.log(new Date(), 'Cancelling futures order!');
+    const cancelOrder = await client.sendWSAPIRequest(
+      'perpFuturesUSDTV4',
+      'futures.order_cancel',
+      { order_id: 'orderIDHere' },
+    );
+
+    console.log(new Date(), 'Result: ', cancelOrder);
+
+    /**
+     * Cancel all futures orders
+     */
+    console.log(new Date(), 'Cancelling all futures orders!');
+    const cancelAllOrders = await client.sendWSAPIRequest(
+      'perpFuturesUSDTV4',
+      'futures.order_cancel_cp',
+      { contract: 'BTC_USDT' },
+    );
+
+    console.log(new Date(), 'Result: ', cancelAllOrders);
+
+    /**
+     * Update/Amend Futures order
+     */
+    console.log(new Date(), 'Updating futures order!');
+    const updateOrder = await client.sendWSAPIRequest(
+      'perpFuturesUSDTV4',
+      'futures.order_amend',
+      {
+        order_id: 'orderIdHere',
+        price: '31303.180000',
+      },
+    );
+
+    console.log(new Date(), 'Result: ', updateOrder);
+
+    /**
+     * Get orders list
+     */
+
+    console.log(new Date(), 'Getting futures orders!');
+    const getList = await client.sendWSAPIRequest(
+      'perpFuturesUSDTV4',
+      'futures.order_list',
+      {
+        contract: 'BTC_USDT',
+        status: 'open',
+      },
+    );
+
+    console.log(new Date(), 'Result: ', getList);
+
+    /**
+     * Get order status
+     */
+
+    console.log(new Date(), 'Getting order status!');
+    const getStatus = await client.sendWSAPIRequest(
+      'perpFuturesUSDTV4',
+      'futures.order_status',
+      {
+        order_id: '74046543',
+      },
+    );
+
+    console.log(new Date(), 'Result: ', getStatus);
   } catch (e) {
     console.error(`WS API Error: `, e);
   }
