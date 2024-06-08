@@ -3,7 +3,7 @@
  * ==========================================================================================================================
  */
 
-import { FuturesPriceTriggeredOrder } from 'types/shared';
+import { FuturesPriceTriggeredOrder } from '../shared';
 
 export interface GetDeliveryOrderBookReq {
   settle: 'usdt';
