@@ -107,7 +107,88 @@ async function start() {
      *
      * Note that internal parameters such as "signature" etc are all handled automatically by the SDK.
      */
-    console.log(new Date(), 'try get order status');
+
+    /**
+     * Submit spot order
+     */
+
+    console.log(new Date(), 'Submitting spot order!');
+    const newOrder = await client.sendWSAPIRequest(
+      'spotV4',
+      'spot.order_place',
+      {
+        text: 't-my-custom-id',
+        currency_pair: 'BTC_USDT',
+        type: 'limit',
+        account: 'spot',
+        side: 'buy',
+        amount: '0.001',
+        price: '45000',
+      },
+    );
+
+    console.log(new Date(), 'Result:', newOrder);
+
+    /**
+     * Cancel spot order
+     */
+
+    console.log(new Date(), 'Cancelling spot order!');
+    const cancelOrder = await client.sendWSAPIRequest(
+      'spotV4',
+      'spot.order_cancel',
+      {
+        order_id: 'yourIdHere',
+        currency_pair: 'BTC_USDT',
+      },
+    );
+
+    console.log(new Date(), 'Result:', cancelOrder);
+
+    /**
+     * Batch cancel spot order
+     */
+
+    console.log(new Date(), 'Cancelling spot orders!');
+    const cancelOrders = await client.sendWSAPIRequest(
+      'spotV4',
+      'spot.order_cancel_ids',
+      [
+        {
+          order_id: 'yourIdHere',
+          currency_pair: 'BTC_USDT',
+        },
+        {
+          order_id: 'yourIdHere',
+          currency_pair: 'ETH_USDT',
+        },
+      ],
+    );
+
+    console.log(new Date(), 'Result:', cancelOrders);
+
+    /**
+     * Amend/Update spot order
+     */
+
+    console.log(new Date(), 'Updating spot order!');
+    const updateOrder = await client.sendWSAPIRequest(
+      'spotV4',
+      'spot.order_amend',
+      {
+        order_id: 'yourIdHere',
+        currency_pair: 'BTC_USDT',
+        price: '50000',
+      },
+    );
+
+    console.log(new Date(), 'Result:', updateOrder);
+
+    /**
+     * Get spot order status
+     */
+
+    console.log(new Date(), 'Getting order status');
     const orderStatus = await client.sendWSAPIRequest(
       'spotV4',
       'spot.order_status',

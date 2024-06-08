@@ -1,4 +1,7 @@
 import { WsKey } from '../../lib/websocket/websocket-util';
+import { GetFuturesOrdersReq, SubmitFuturesOrderReq } from '../request/futures';
+import { DeleteSpotOrderReq, SubmitSpotOrderReq } from '../request/spot';
+import { CancelBatchOrder, Order } from '../shared';
 
 export type SpotWSAPITopic =
   | 'spot.login'
@@ -29,6 +32,31 @@ export interface WsAPIWsKeyTopicMap {
   deliveryFuturesBTCV4: FuturesWSAPITopic;
   // optionsV4: never;
   // announcementsV4: never;
+}
+
+export interface WsAPIRequestsTopicMap {
+  'spot.login': never;
+  'spot.order_place': SubmitSpotOrderReq;
+  'spot.order_cancel': DeleteSpotOrderReq;
+  'spot.order_cancel_ids': CancelBatchOrder[];
+  'spot.order_cancel_cp': DeleteSpotOrderReq[];
+  'spot.order_amend': Order;
+  'spot.order_status': any;
+  'futures.login': never;
+  'futures.order_place': SubmitFuturesOrderReq;
+  'futures.order_batch_place': SubmitFuturesOrderReq[];
+  'futures.order_cancel': {
+    order_id: string;
+  };
+  'futures.order_cancel_cp': {
+    contract: string;
+    side?: 'ask' | 'bid';
+  };
+  'futures.order_amend': any;
+  'futures.order_list': GetFuturesOrdersReq;
+  'futures.order_status': {
+    order_id: string;
+  };
 }
 
 export interface WSAPIResponseHeader<TChannel extends WSAPITopic> {
