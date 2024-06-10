@@ -103,7 +103,9 @@ async function start() {
     console.log(new Date(), 'authenticated!', loginResult);
 
     /**
-     * For other channels, the 3rd parameter should have any parameters for the request (the payload).
+     * For other channels, the 3rd parameter should have any parameters for the request (the payload that goes in req_param in the docs).
+     *
+     * See WsAPIRequestsTopicMap for a topic->parameter map.
      *
      * Note that internal parameters such as "signature" etc are all handled automatically by the SDK.
      */
@@ -129,6 +131,8 @@ async function start() {
 
     console.log(new Date(), 'Result:', newOrder);
 
+    client.sendWSAPIRequest('spotV4', 'spot.order_place');
+
     /**
      * Cancel spot order
      */
@@ -138,7 +142,7 @@ async function start() {
       'spotV4',
       'spot.order_cancel',
       {
-        order_id: 'yourIdHere',
+        order_id: 'yourOrderIdHere1',
         currency_pair: 'BTC_USDT',
       },
     );
@@ -155,11 +159,11 @@ async function start() {
       'spot.order_cancel_ids',
       [
         {
-          order_id: 'yourIdHere',
+          id: 'yourOrderIdHere1',
           currency_pair: 'BTC_USDT',
         },
         {
-          order_id: 'yourIdHere',
+          id: 'yourOrderIdHere2',
           currency_pair: 'ETH_USDT',
         },
       ],

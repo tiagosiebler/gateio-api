@@ -64,6 +64,7 @@ import {
   SubmitFuturesPriceTriggeredOrderReq,
   UpdateDualModePositionLeverageReq,
   UpdateDualModePositionMarginReq,
+  UpdateFuturesOrderReq,
 } from './types/request/futures.js';
 import {
   GetCrossMarginAccountHistoryReq,
@@ -298,6 +299,7 @@ import {
   DeliveryContract,
   FuturesOrder,
   FuturesPriceTriggeredOrder,
+  GetSingleOrderReq,
   Order,
   Position,
   SpotPriceTriggeredOrder,
@@ -1215,11 +1217,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for getting a single order
    * @returns Promise<APIResponse<Order>>
    */
-  getSpotOrder(params: {
-    order_id: string;
-    currency_pair: string;
-    account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
-  }): Promise<APIResponse<Order>> {
+  getSpotOrder(params: GetSingleOrderReq): Promise<APIResponse<Order>> {
     const { order_id, ...query } = params;
     return this.getPrivate(`/spot/orders/${order_id}`, query);
   }
@@ -2378,13 +2376,9 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for amending an order
    * @returns Promise<APIResponse<FuturesOrder>>
    */
-  updateFuturesOrder(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    order_id: string;
-    size?: number;
-    price?: string;
-    amend_text?: string;
-  }): Promise<APIResponse<FuturesOrder>> {
+  updateFuturesOrder(
+    params: UpdateFuturesOrderReq,
+  ): Promise<APIResponse<FuturesOrder>> {
     const { settle, order_id, ...body } = params;
     return this.putPrivate(`/futures/${settle}/orders/${order_id}`, {
       body: body,

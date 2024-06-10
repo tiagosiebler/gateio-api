@@ -85,6 +85,12 @@ export interface Order {
   action_mode?: 'ACK' | 'RESULT' | 'FULL';
 }
 
+export interface GetSingleOrderReq {
+  order_id: string;
+  currency_pair: string;
+  account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
+}
+
 export interface CancelBatchOrder {
   currency_pair: string;
   id: string;

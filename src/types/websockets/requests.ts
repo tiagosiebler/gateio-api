@@ -27,7 +27,7 @@ export interface WsRequestOperationGate<
 }
 
 export interface WSAPIRequest<
-  TRequestParams = object | string,
+  TRequestParams = any,
   TWSChannel extends WSAPITopic = any,
 > {
   time: number;

@@ -180,14 +180,11 @@ export abstract class BaseWebsocketClient<
     return `${++this.wsApiRequestId}`;
   }
 
-  protected abstract sendWSAPIRequest<
-    TRequestParams extends object | string = object,
-    TWSAPIResult = object,
-  >(
+  protected abstract sendWSAPIRequest(
     wsKey: TWSKey,
     channel: string,
-    params?: TRequestParams,
-  ): Promise<TWSAPIResult>;
+    params?: object | undefined | string,
+  ): Promise<unknown>;
 
   /**
    * Don't call directly! Use subscribe() instead!

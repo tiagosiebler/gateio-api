@@ -1,7 +1,15 @@
 import { WsKey } from '../../lib/websocket/websocket-util';
-import { GetFuturesOrdersReq, SubmitFuturesOrderReq } from '../request/futures';
-import { DeleteSpotOrderReq, SubmitSpotOrderReq } from '../request/spot';
-import { CancelBatchOrder, Order } from '../shared';
+import {
+  GetFuturesOrdersReq,
+  SubmitFuturesOrderReq,
+  UpdateFuturesOrderReq,
+} from '../request/futures';
+import {
+  DeleteSpotOrderReq,
+  SubmitSpotOrderReq,
+  UpdateSpotOrderReq,
+} from '../request/spot';
+import { CancelBatchOrder, GetSingleOrderReq } from '../shared';
 
 export type SpotWSAPITopic =
   | 'spot.login'
@@ -34,17 +42,17 @@ export interface WsAPIWsKeyTopicMap {
   // announcementsV4: never;
 }
 
-export interface WsAPIRequestsTopicMap {
-  'spot.login': never;
+export type WsAPIRequestsTopicMap = {
+  'spot.login': undefined;
   'spot.order_place': SubmitSpotOrderReq;
   'spot.order_cancel': DeleteSpotOrderReq;
   'spot.order_cancel_ids': CancelBatchOrder[];
   'spot.order_cancel_cp': DeleteSpotOrderReq[];
-  'spot.order_amend': Order;
-  'spot.order_status': any;
-  'futures.login': never;
-  'futures.order_place': SubmitFuturesOrderReq;
-  'futures.order_batch_place': SubmitFuturesOrderReq[];
+  'spot.order_amend': UpdateSpotOrderReq;
+  'spot.order_status': GetSingleOrderReq;
+  'futures.login': undefined;
+  'futures.order_place': Omit<SubmitFuturesOrderReq, 'settle'>; // doesn't seem like "settle" is needed here
+  'futures.order_batch_place': Omit<SubmitFuturesOrderReq, 'settle'>[];
   'futures.order_cancel': {
     order_id: string;
   };
@@ -52,12 +60,15 @@ export interface WsAPIRequestsTopicMap {
     contract: string;
     side?: 'ask' | 'bid';
   };
-  'futures.order_amend': any;
-  'futures.order_list': GetFuturesOrdersReq;
+  'futures.order_amend': Omit<UpdateFuturesOrderReq, 'settle'>;
+  'futures.order_list': Omit<GetFuturesOrdersReq, 'settle'>;
   'futures.order_status': {
     order_id: string;
   };
-}
+};
+
+export type WsAPIRequestParams =
+  WsAPIRequestsTopicMap[keyof WsAPIRequestsTopicMap];
 
 export interface WSAPIResponseHeader<TChannel extends WSAPITopic> {
   /** String timestamp as ms */

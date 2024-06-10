@@ -23,6 +23,8 @@ import {
 import {
   FuturesWSAPITopic,
   SpotWSAPITopic,
+  WsAPIRequestsTopicMap,
+  WSAPITopic,
   WsAPIWsKeyTopicMap,
 } from './types/websockets/wsAPI.js';
 
@@ -713,7 +715,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     }
   }
 
-  async signWSAPIRequest<TRequestParams extends object | string = object>(
+  async signWSAPIRequest<TRequestParams = object>(
     requestEvent: WSAPIRequest<TRequestParams>,
   ): Promise<WSAPIRequest<TRequestParams>> {
     if (!this.options.apiSecret) {
@@ -778,18 +780,17 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
    *
    * @param wsKey - The connection this event is for (e.g. "spotV4" | "perpFuturesUSDTV4" | "perpFuturesBTCV4" | "deliveryFuturesUSDTV4" | "deliveryFuturesBTCV4" | "optionsV4")
    * @param channel - The channel this event is for (e.g. "spot.login" to authenticate)
-   * @param params - Any request parameters for the payload. Signature generation is automatic, only send parameters such as order ID as per the docs.
+   * @param params - Any request parameters for the payload (contents of req_param in the docs). Signature generation is automatic, only send parameters such as order ID as per the docs.
    * @returns Promise - tries to resolve with async WS API response. Rejects if disconnected or exception is seen in async WS API response
    */
   async sendWSAPIRequest<
-    TWSAPIResponse = object,
-    TRequestParams extends object | string = object,
     TWSKey extends keyof WsAPIWsKeyTopicMap = keyof WsAPIWsKeyTopicMap,
-    TWSChannel extends string = WsAPIWsKeyTopicMap[TWSKey],
+    TWSChannel extends WSAPITopic = WsAPIWsKeyTopicMap[TWSKey],
+    TWSAPIResponse = object,
   >(
     wsKey: TWSKey,
     channel: TWSChannel,
-    params?: TRequestParams,
+    params?: WsAPIRequestsTopicMap[TWSChannel],
   ): Promise<TWSAPIResponse> {
     this.logger.trace(`sendWSAPIRequest(): assert "${wsKey}" is connected`);
     await this.assertIsConnected(wsKey);
@@ -797,7 +798,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     const signTimestamp = Date.now() + this.options.recvWindow;
     const timeInSeconds = +(signTimestamp / 1000).toFixed(0);
 
-    const requestEvent: WSAPIRequest<TRequestParams> = {
+    const requestEvent: WSAPIRequest<WsAPIRequestsTopicMap[TWSChannel]> = {
       time: timeInSeconds,
       // id: timeInSeconds,
       channel,
@@ -808,7 +809,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
           'X-Gate-Channel-Id': CHANNEL_ID,
         },
         api_key: this.options.apiKey,
-        req_param: params ? params : '', // should this be string, not sure
+        req_param: params ? params : '',
         timestamp: `${timeInSeconds}`,
       },
     };

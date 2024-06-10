@@ -137,6 +137,14 @@ export interface submitFuturesBatchOrdersReq extends FuturesOrder {
   settle: 'btc' | 'usdt' | 'usd';
 }
 
+export interface UpdateFuturesOrderReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  order_id: string;
+  size?: number;
+  price?: string;
+  amend_text?: string;
+}
+
 export interface GetFuturesTradingHistoryReq {
   settle: 'btc' | 'usdt' | 'usd';
   contract?: string;

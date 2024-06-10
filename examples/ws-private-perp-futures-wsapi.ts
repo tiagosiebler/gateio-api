@@ -204,7 +204,6 @@ async function start() {
       'perpFuturesUSDTV4',
       'futures.order_list',
       {
-        contract: 'BTC_USDT',
         status: 'open',
       },
     );
