@@ -29,12 +29,6 @@ import {
 
 export const WS_LOGGER_CATEGORY = { category: 'gate-ws' };
 
-/** Any WS keys in this list will trigger auth on connect, if credentials are available */
-const PRIVATE_WS_KEYS: WsKey[] = [];
-
-/** Any WS keys in this list will ALWAYS skip the authentication process, even if credentials are available */
-export const PUBLIC_WS_KEYS: WsKey[] = [];
-
 /**
  * WS topics are always a string for gate. Some exchanges use complex objects
  */
@@ -285,16 +279,6 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
 
       const eventAction = parsed.event || parsed.action || parsed?.header.data;
 
-      // const promise = this.getWsStore().getDeferredPromise(wsKey, promiseRef);
-      // console.error(`Event action: `, {
-      //   // parsed: JSON.stringify(parsed, null, 2),
-      //   eventChannel,
-      //   eventType,
-      //   eventStatusCode,
-      //   promiseRef,
-      //   promise: promise?.promise,
-      // });
-
       if (eventType === 'api') {
         const isError = eventStatusCode !== '200';
 
@@ -465,10 +449,6 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   /**
    * Not in use for gate.io
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected getWsKeyForTopic(_topic: WsTopic): WsKey {
-    return 'announcementsV4';
-  }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected getWsMarketForWsKey(_wsKey: WsKey): WsMarket {
@@ -479,7 +459,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
    * Not in use for gate.io
    */
   protected getPrivateWSKeys(): WsKey[] {
-    return PRIVATE_WS_KEYS;
+    return [];
   }
 
   protected getWsUrl(wsKey: WsKey): string {
@@ -495,18 +475,9 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   }
 
   /** Force subscription requests to be sent in smaller batches, if a number is returned */
-  protected getMaxTopicsPerSubscribeEvent(wsKey: WsKey): number | null {
-    switch (wsKey) {
-      // case 'publicV1':
-      // case 'privateV1': {
-      //   // Return a number if there's a limit on the number of sub topics per rq
-      //   return 1;
-      // }
-      default: {
-        return 1;
-        // throw neverGuard(wsKey, `getWsKeyForTopic(): Unhandled wsKey`);
-      }
-    }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected getMaxTopicsPerSubscribeEvent(_wsKey: WsKey): number | null {
+    return 1;
   }
 
   /**
@@ -621,13 +592,14 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
               signAlgoritm,
             );
 
-            wsEvent.auth = {
-              method: 'api_key',
-              KEY: this.options.apiKey,
-              SIGN: sign,
-            };
-
-            wsRequestEvents.push(wsEvent);
+            wsRequestEvents.push({
+              ...wsEvent,
+              auth: {
+                method: 'api_key',
+                KEY: this.options.apiKey,
+                SIGN: sign,
+              },
+            });
           } catch (e) {
             wsRequestBuildingErrors.push({
               error: `exception during sign`,
@@ -829,6 +801,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
 
     // Store deferred promise
     const promiseRef = this.getPromiseRefForWSAPIRequest(requestEvent);
+
     const deferredPromise =
       this.getWsStore().createDeferredPromise<TWSAPIResponse>(
         wsKey,
