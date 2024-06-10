@@ -24,7 +24,6 @@ import {
   FuturesWSAPITopic,
   SpotWSAPITopic,
   WsAPIRequestsTopicMap,
-  WSAPITopic,
   WsAPIWsKeyTopicMap,
 } from './types/websockets/wsAPI.js';
 
@@ -783,15 +782,26 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
    * @param params - Any request parameters for the payload (contents of req_param in the docs). Signature generation is automatic, only send parameters such as order ID as per the docs.
    * @returns Promise - tries to resolve with async WS API response. Rejects if disconnected or exception is seen in async WS API response
    */
+
   async sendWSAPIRequest<
-    TWSKey extends keyof WsAPIWsKeyTopicMap = keyof WsAPIWsKeyTopicMap,
-    TWSChannel extends WSAPITopic = WsAPIWsKeyTopicMap[TWSKey],
+    TWSKey extends keyof WsAPIWsKeyTopicMap,
+    TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
+    TWSParams extends
+      WsAPIRequestsTopicMap[TWSChannel] = WsAPIRequestsTopicMap[TWSChannel],
     TWSAPIResponse = object,
   >(
     wsKey: TWSKey,
     channel: TWSChannel,
-    params?: WsAPIRequestsTopicMap[TWSChannel],
-  ): Promise<TWSAPIResponse> {
+    ...params: TWSParams extends undefined ? [] : [TWSParams] // This overload allows the caller to omit the 3rd param, if it isn't required
+  ): Promise<TWSAPIResponse>;
+
+  async sendWSAPIRequest<
+    TWSKey extends keyof WsAPIWsKeyTopicMap = keyof WsAPIWsKeyTopicMap,
+    TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
+    TWSParams extends
+      WsAPIRequestsTopicMap[TWSChannel] = WsAPIRequestsTopicMap[TWSChannel],
+    TWSAPIResponse = object,
+  >(wsKey: TWSKey, channel: TWSChannel, params?: TWSParams): Promise<any> {
     this.logger.trace(`sendWSAPIRequest(): assert "${wsKey}" is connected`);
     await this.assertIsConnected(wsKey);
 

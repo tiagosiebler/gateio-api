@@ -44,13 +44,14 @@ export interface WsAPIWsKeyTopicMap {
 
 export type WsAPIRequestsTopicMap = {
   'spot.login': undefined;
+  'futures.login': undefined;
+
   'spot.order_place': SubmitSpotOrderReq;
   'spot.order_cancel': DeleteSpotOrderReq;
   'spot.order_cancel_ids': CancelBatchOrder[];
   'spot.order_cancel_cp': DeleteSpotOrderReq[];
   'spot.order_amend': UpdateSpotOrderReq;
   'spot.order_status': GetSingleOrderReq;
-  'futures.login': undefined;
   'futures.order_place': Omit<SubmitFuturesOrderReq, 'settle'>; // doesn't seem like "settle" is needed here
   'futures.order_batch_place': Omit<SubmitFuturesOrderReq, 'settle'>[];
   'futures.order_cancel': {

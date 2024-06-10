@@ -183,7 +183,13 @@ export abstract class BaseWebsocketClient<
   protected abstract sendWSAPIRequest(
     wsKey: TWSKey,
     channel: string,
-    params?: object | undefined | string,
+    params?: any,
+  ): Promise<unknown>;
+
+  protected abstract sendWSAPIRequest(
+    wsKey: TWSKey,
+    channel: string,
+    params: any,
   ): Promise<unknown>;
 
   /**

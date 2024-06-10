@@ -131,8 +131,6 @@ async function start() {
 
     console.log(new Date(), 'Result:', newOrder);
 
-    client.sendWSAPIRequest('spotV4', 'spot.order_place');
-
     /**
      * Cancel spot order
      */
