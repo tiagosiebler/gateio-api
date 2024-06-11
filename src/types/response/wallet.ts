@@ -1,9 +1,3 @@
-export interface APIResponse<TData = {}> {
-  success: boolean;
-  data: TData;
-  timestamp: number;
-}
-
 export interface GetCurrencyChainsResp {
   chain: string;
   name_cn: string;

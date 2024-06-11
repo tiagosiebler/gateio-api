@@ -33,3 +33,28 @@ export interface CreateSubAccountApiKeyResp {
   updated_at: number;
   last_access: number;
 }
+
+export interface SubAccountKey {
+  user_id?: string;
+  mode?: number;
+  name?: string;
+  perms?: {
+    name?:
+      | 'wallet'
+      | 'spot'
+      | 'futures'
+      | 'delivery'
+      | 'earn'
+      | 'options'
+      | 'account'
+      | 'unified'
+      | 'loan';
+    read_only?: boolean;
+  }[];
+  ip_whitelist?: string[];
+  key?: string;
+  state?: number;
+  created_at?: number;
+  updated_at?: number;
+  last_access?: number;
+}

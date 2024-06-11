@@ -67,11 +67,24 @@ export interface GetSpotOrdersReq {
   side?: 'buy' | 'sell';
 }
 
+export interface CancelSpotBatchOrdersReq {
+  currency_pair: string;
+  id: string;
+  account?: 'cross_margin';
+  action_mode?: 'ACK' | 'RESULT' | 'FULL';
+}
+
 export interface DeleteSpotOrderReq {
   order_id: string;
   currency_pair: string;
   account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
   action_mode?: 'ACK' | 'RESULT' | 'FULL';
+}
+
+export interface GetSpotOrderReq {
+  order_id: string;
+  currency_pair: string;
+  account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
 }
 
 export interface GetSpotTradingHistoryReq {

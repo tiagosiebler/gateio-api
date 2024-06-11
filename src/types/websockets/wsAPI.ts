@@ -9,7 +9,7 @@ import {
   SubmitSpotOrderReq,
   UpdateSpotOrderReq,
 } from '../request/spot';
-import { CancelBatchOrder, GetSingleOrderReq } from '../shared';
+import { CancelSpotBatchOrderReq, GetSpotOrderReq } from '../shared';
 
 export type SpotWSAPITopic =
   | 'spot.login'
@@ -48,10 +48,10 @@ export interface WsAPITopicRequestParamMap {
 
   'spot.order_place': SubmitSpotOrderReq;
   'spot.order_cancel': DeleteSpotOrderReq;
-  'spot.order_cancel_ids': CancelBatchOrder[];
+  'spot.order_cancel_ids': CancelSpotBatchOrderReq[];
   'spot.order_cancel_cp': DeleteSpotOrderReq[];
   'spot.order_amend': UpdateSpotOrderReq;
-  'spot.order_status': GetSingleOrderReq;
+  'spot.order_status': GetSpotOrderReq;
   'futures.order_place': Omit<SubmitFuturesOrderReq, 'settle'>; // doesn't seem like "settle" is needed here
   'futures.order_batch_place': Omit<SubmitFuturesOrderReq, 'settle'>[];
   'futures.order_cancel': {
@@ -117,7 +117,7 @@ export interface WsAPITopicResponseMap<TResponseType extends object = object> {
   'futures.login': WSAPIResponse<WSAPILoginResponse, 'futures.login'>;
 
   'spot.order_place': WSAPIResponse<TResponseType, 'spot.order_place'>;
-  'spot.order_cancel': WSAPIResponse<WSAPILoginResponse, 'spot.order_cancel'>;
+  'spot.order_cancel': WSAPIResponse<TResponseType, 'spot.order_cancel'>;
   'spot.order_cancel_ids': WSAPIResponse<
     TResponseType,
     'spot.order_cancel_ids'
@@ -139,10 +139,7 @@ export interface WsAPITopicResponseMap<TResponseType extends object = object> {
     'futures.order_cancel_cp'
   >;
   'futures.order_amend': WSAPIResponse<TResponseType, 'futures.order_amend'>;
-  'futures.order_list': WSAPIResponse<
-    WSAPILoginResponse[],
-    'futures.order_list'
-  >;
+  'futures.order_list': WSAPIResponse<TResponseType[], 'futures.order_list'>;
   'futures.order_status': WSAPIResponse<
     WSAPIOrderStatusResponse,
     'futures.order_status'

@@ -3,8 +3,6 @@
  * ==========================================================================================================================
  */
 
-import { Order } from '../shared';
-
 export interface GetSpotCurrenciesResp {
   currency: string;
   delisted: boolean;
@@ -158,10 +156,74 @@ export interface SubmitSpotBatchOrdersResp {
   finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
 }
 
+export interface SpotOrder {
+  id?: string;
+  text?: string;
+  amend_text?: string;
+  create_time?: string;
+  update_time?: string;
+  create_time_ms?: number;
+  update_time_ms?: number;
+  status?: 'open' | 'closed' | 'cancelled';
+  currency_pair: string;
+  type?: 'limit' | 'market';
+  account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
+  side: 'buy' | 'sell';
+  amount: string;
+  price?: string;
+  time_in_force?: 'gtc' | 'ioc' | 'poc' | 'fok';
+  iceberg?: string;
+  auto_borrow?: boolean;
+  auto_repay?: boolean;
+  left?: string;
+  filled_amount?: string;
+  fill_price?: string;
+  filled_total?: string;
+  avg_deal_price?: string;
+  fee?: string;
+  fee_currency?: string;
+  point_fee?: string;
+  gt_fee?: string;
+  gt_maker_fee?: string;
+  gt_taker_fee?: string;
+  gt_discount?: boolean;
+  rebated_fee?: string;
+  rebated_fee_currency?: string;
+  stp_id?: number;
+  stp_act?: 'cn' | 'co' | 'cb' | '-';
+  finish_as?: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
+  action_mode?: 'ACK' | 'RESULT' | 'FULL';
+}
+
+export interface SpotPriceTriggeredOrder {
+  trigger: {
+    price: string;
+    rule: '>=' | '<=';
+    expiration: number;
+  };
+  put: {
+    type?: 'limit' | 'market';
+    side: 'buy' | 'sell';
+    price: string;
+    amount: string;
+    account: 'normal' | 'margin' | 'cross_margin';
+    time_in_force?: 'gtc' | 'ioc';
+    text?: string;
+  };
+  id?: number;
+  user?: number;
+  market: string;
+  ctime?: number;
+  ftime?: number;
+  fired_order_id?: number;
+  status?: 'open' | 'cancelled' | 'finish' | 'failed' | 'expired';
+  reason?: string;
+}
+
 export interface GetSpotOpenOrdersResp {
   currency_pair: string;
   total: number;
-  orders: Order[];
+  orders: SpotOrder[];
 }
 
 export interface DeleteSpotBatchOrdersResp {
