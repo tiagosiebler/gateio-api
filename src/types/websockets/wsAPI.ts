@@ -42,7 +42,7 @@ export interface WsAPIWsKeyTopicMap {
   // announcementsV4: never;
 }
 
-export type WsAPIRequestsTopicMap = {
+export interface WsAPITopicRequestParamMap {
   'spot.login': undefined;
   'futures.login': undefined;
 
@@ -66,10 +66,10 @@ export type WsAPIRequestsTopicMap = {
   'futures.order_status': {
     order_id: string;
   };
-};
+}
 
-export type WsAPIRequestParams =
-  WsAPIRequestsTopicMap[keyof WsAPIRequestsTopicMap];
+export type WsAPITopicRequestParams =
+  WsAPITopicRequestParamMap[keyof WsAPITopicRequestParamMap];
 
 export interface WSAPIResponseHeader<TChannel extends WSAPITopic> {
   /** String timestamp as ms */
@@ -112,8 +112,44 @@ export interface WSAPIOrderStatusResponse {
 
 export type WSAPIResponseData = WSAPILoginResponse | WSAPIOrderStatusResponse;
 
+export interface WsAPITopicResponseMap<TResponseType extends object = object> {
+  'spot.login': WSAPIResponse<WSAPILoginResponse, 'spot.login'>;
+  'futures.login': WSAPIResponse<WSAPILoginResponse, 'futures.login'>;
+
+  'spot.order_place': WSAPIResponse<TResponseType, 'spot.order_place'>;
+  'spot.order_cancel': WSAPIResponse<WSAPILoginResponse, 'spot.order_cancel'>;
+  'spot.order_cancel_ids': WSAPIResponse<
+    TResponseType,
+    'spot.order_cancel_ids'
+  >;
+  'spot.order_cancel_cp': WSAPIResponse<TResponseType, 'spot.order_cancel_cp'>;
+  'spot.order_amend': WSAPIResponse<TResponseType, 'spot.order_amend'>;
+  'spot.order_status': WSAPIResponse<
+    WSAPIOrderStatusResponse,
+    'spot.order_status'
+  >;
+  'futures.order_place': WSAPIResponse<TResponseType[], 'futures.order_place'>;
+  'futures.order_batch_place': WSAPIResponse<
+    TResponseType[],
+    'futures.order_batch_place'
+  >;
+  'futures.order_cancel': WSAPIResponse<TResponseType, 'futures.order_cancel'>;
+  'futures.order_cancel_cp': WSAPIResponse<
+    TResponseType,
+    'futures.order_cancel_cp'
+  >;
+  'futures.order_amend': WSAPIResponse<TResponseType, 'futures.order_amend'>;
+  'futures.order_list': WSAPIResponse<
+    WSAPILoginResponse[],
+    'futures.order_list'
+  >;
+  'futures.order_status': WSAPIResponse<
+    WSAPIOrderStatusResponse,
+    'futures.order_status'
+  >;
+}
 export interface WSAPIResponse<
-  TResponseData extends WSAPIResponseData = WSAPIResponseData,
+  TResponseData extends object = WSAPIResponseData | object,
   TChannel extends WSAPITopic = WSAPITopic,
 > {
   wsKey: WsKey;

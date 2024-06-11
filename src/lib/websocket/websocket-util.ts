@@ -1,3 +1,9 @@
+import { WSAPIRequest } from '../../types/websockets/requests';
+import {
+  FuturesWSAPITopic,
+  SpotWSAPITopic,
+} from '../../types/websockets/wsAPI';
+
 /**
  * Should be one WS key per unique URL. Some URLs may need a suffix.
  */
@@ -123,4 +129,88 @@ export const WS_BASE_URL_MAP: Record<
 
 export function neverGuard(x: never, msg: string): Error {
   return new Error(`Unhandled value exception "${x}", ${msg}`);
+}
+
+/**
+ * WS API promises are stored using a primary key. This key is constructed using
+ * properties found in every request & reply.
+ */
+export function getPromiseRefForWSAPIRequest(
+  requestEvent: WSAPIRequest,
+): string {
+  const promiseRef = [requestEvent.channel, requestEvent.payload?.req_id].join(
+    '_',
+  );
+  return promiseRef;
+}
+
+export function getPrivateSpotTopics(): string[] {
+  // Consumeable channels for spot
+  const privateSpotTopics = [
+    'spot.orders',
+    'spot.usertrades',
+    'spot.balances',
+    'spot.margin_balances',
+    'spot.funding_balances',
+    'spot.cross_balances',
+    'spot.priceorders',
+  ];
+
+  // WebSocket API for spot
+  const privateSpotWSAPITopics: SpotWSAPITopic[] = [
+    'spot.login',
+    'spot.order_place',
+    'spot.order_cancel',
+    'spot.order_cancel_ids',
+    'spot.order_cancel_cp',
+    'spot.order_amend',
+    'spot.order_status',
+  ];
+
+  return [...privateSpotTopics, ...privateSpotWSAPITopics];
+}
+
+export function getPrivateFuturesTopics(): string[] {
+  // These are the same for perps vs delivery futures
+  const privatePerpetualFuturesTopics = [
+    'futures.orders',
+    'futures.usertrades',
+    'futures.liquidates',
+    'futures.auto_deleverages',
+    'futures.position_closes',
+    'futures.balances',
+    'futures.reduce_risk_limits',
+    'futures.positions',
+    'futures.autoorders',
+  ];
+
+  const privatePerpetualFuturesWSAPITopics: FuturesWSAPITopic[] = [
+    'futures.login',
+    'futures.order_place',
+    'futures.order_batch_place',
+    'futures.order_cancel',
+    'futures.order_cancel_cp',
+    'futures.order_amend',
+    'futures.order_list',
+    'futures.order_status',
+  ];
+
+  return [
+    ...privatePerpetualFuturesTopics,
+    ...privatePerpetualFuturesWSAPITopics,
+  ];
+}
+
+export function getPrivateOptionsTopics(): string[] {
+  const privateOptionsTopics = [
+    'options.orders',
+    'options.usertrades',
+    'options.liquidates',
+    'options.user_settlements',
+    'options.position_closes',
+    'options.balances',
+    'options.positions',
+  ];
+
+  return [...privateOptionsTopics];
 }

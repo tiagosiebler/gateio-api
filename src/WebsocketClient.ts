@@ -7,6 +7,10 @@ import {
   signMessage,
 } from './lib/webCryptoAPI.js';
 import {
+  getPrivateFuturesTopics,
+  getPrivateOptionsTopics,
+  getPrivateSpotTopics,
+  getPromiseRefForWSAPIRequest,
   WS_BASE_URL_MAP,
   WS_KEY_MAP,
   WsKey,
@@ -21,9 +25,8 @@ import {
   WsRequestPing,
 } from './types/websockets/requests.js';
 import {
-  FuturesWSAPITopic,
-  SpotWSAPITopic,
-  WsAPIRequestsTopicMap,
+  WsAPITopicRequestParamMap,
+  WsAPITopicResponseMap,
   WsAPIWsKeyTopicMap,
 } from './types/websockets/wsAPI.js';
 
@@ -34,80 +37,11 @@ export const WS_LOGGER_CATEGORY = { category: 'gate-ws' };
  */
 export type WsTopic = string;
 
-function getPrivateSpotTopics(): string[] {
-  // Consumeable channels for spot
-  const privateSpotTopics = [
-    'spot.orders',
-    'spot.usertrades',
-    'spot.balances',
-    'spot.margin_balances',
-    'spot.funding_balances',
-    'spot.cross_balances',
-    'spot.priceorders',
-  ];
-
-  // WebSocket API for spot
-  const privateSpotWSAPITopics: SpotWSAPITopic[] = [
-    'spot.login',
-    'spot.order_place',
-    'spot.order_cancel',
-    'spot.order_cancel_ids',
-    'spot.order_cancel_cp',
-    'spot.order_amend',
-    'spot.order_status',
-  ];
-
-  return [...privateSpotTopics, ...privateSpotWSAPITopics];
-}
-
-function getPrivateFuturesTopics(): string[] {
-  // These are the same for perps vs delivery futures
-  const privatePerpetualFuturesTopics = [
-    'futures.orders',
-    'futures.usertrades',
-    'futures.liquidates',
-    'futures.auto_deleverages',
-    'futures.position_closes',
-    'futures.balances',
-    'futures.reduce_risk_limits',
-    'futures.positions',
-    'futures.autoorders',
-  ];
-
-  const privatePerpetualFuturesWSAPITopics: FuturesWSAPITopic[] = [
-    'futures.login',
-    'futures.order_place',
-    'futures.order_batch_place',
-    'futures.order_cancel',
-    'futures.order_cancel_cp',
-    'futures.order_amend',
-    'futures.order_list',
-    'futures.order_status',
-  ];
-
-  return [
-    ...privatePerpetualFuturesTopics,
-    ...privatePerpetualFuturesWSAPITopics,
-  ];
-}
-
-function getPrivateOptionsTopics(): string[] {
-  const privateOptionsTopics = [
-    'options.orders',
-    'options.usertrades',
-    'options.liquidates',
-    'options.user_settlements',
-    'options.position_closes',
-    'options.balances',
-    'options.positions',
-  ];
-
-  return [...privateOptionsTopics];
-}
-
 export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   /**
-   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
+   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library.
+   *
+   * Returns array of promises that individually resolve when each connection is successfully opened.
    */
   public connectAll(): (DeferredPromise['promise'] | undefined)[] {
     return [
@@ -168,10 +102,113 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   }
 
   /**
+   * WS API Methods - similar to the REST API, but via WebSockets
+   */
+
+  /**
+   * Send a Websocket API event on a connection. Returns a promise that resolves on reply.
    *
-   * Internal methods
+   * Returned promise is rejected if an exception is detected in the reply OR the connection disconnects for any reason (even if automatic reconnect will happen).
+   *
+   * After a fresh connection, you should always send a login request first.
+   *
+   * If you authenticated once and you're reconnected later (e.g. connection temporarily lost), the SDK will by default automatically:
+   * - Detect you were authenticated to the WS API before
+   * - Try to re-authenticate (up to 5 times, in case something (bad timestamp) goes wrong)
+   * - If it succeeds, it will emit the 'authenticated' event.
+   * - If it fails and gives up, it will emit an 'exception' event (type: 'wsapi.auth', reason: detailed text).
+   *
+   * You can turn off the automatic re-auth WS API logic using `reauthWSAPIOnReconnect: false` in the WSClient config.
+   *
+   * @param wsKey - The connection this event is for (e.g. "spotV4" | "perpFuturesUSDTV4" | "perpFuturesBTCV4" | "deliveryFuturesUSDTV4" | "deliveryFuturesBTCV4" | "optionsV4")
+   * @param channel - The channel this event is for (e.g. "spot.login" to authenticate)
+   * @param params - Any request parameters for the payload (contents of req_param in the docs). Signature generation is automatic, only send parameters such as order ID as per the docs.
+   * @returns Promise - tries to resolve with async WS API response. Rejects if disconnected or exception is seen in async WS API response
+   */
+
+  // This overload allows the caller to omit the 3rd param, if it isn't required (e.g. for the login call)
+  async sendWSAPIRequest<
+    TWSKey extends keyof WsAPIWsKeyTopicMap,
+    TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
+    TWSParams extends
+      WsAPITopicRequestParamMap[TWSChannel] = WsAPITopicRequestParamMap[TWSChannel],
+    TWSAPIResponse extends
+      | WsAPITopicResponseMap[TWSChannel]
+      | object = WsAPITopicResponseMap[TWSChannel],
+  >(
+    wsKey: TWSKey,
+    channel: TWSChannel,
+    ...params: TWSParams extends undefined ? [] : [TWSParams]
+  ): Promise<TWSAPIResponse>;
+
+  async sendWSAPIRequest<
+    TWSKey extends keyof WsAPIWsKeyTopicMap = keyof WsAPIWsKeyTopicMap,
+    TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
+    TWSParams extends
+      WsAPITopicRequestParamMap[TWSChannel] = WsAPITopicRequestParamMap[TWSChannel],
+    TWSAPIResponse = object,
+  >(wsKey: TWSKey, channel: TWSChannel, params?: TWSParams): Promise<any> {
+    this.logger.trace(`sendWSAPIRequest(): assert "${wsKey}" is connected`);
+    await this.assertIsConnected(wsKey);
+
+    const signTimestamp = Date.now() + this.options.recvWindow;
+    const timeInSeconds = +(signTimestamp / 1000).toFixed(0);
+
+    const requestEvent: WSAPIRequest<WsAPITopicRequestParamMap[TWSChannel]> = {
+      time: timeInSeconds,
+      // id: timeInSeconds,
+      channel,
+      event: 'api',
+      payload: {
+        req_id: this.getNewRequestId(),
+        req_header: {
+          'X-Gate-Channel-Id': CHANNEL_ID,
+        },
+        api_key: this.options.apiKey,
+        req_param: params ? params : '',
+        timestamp: `${timeInSeconds}`,
+      },
+    };
+
+    // Sign request
+    const signedEvent = await this.signWSAPIRequest(requestEvent);
+
+    // Store deferred promise
+    const promiseRef = getPromiseRefForWSAPIRequest(requestEvent);
+
+    const deferredPromise =
+      this.getWsStore().createDeferredPromise<TWSAPIResponse>(
+        wsKey,
+        promiseRef,
+        false,
+      );
+
+    // Send event
+    this.tryWsSend(wsKey, JSON.stringify(signedEvent));
+
+    this.logger.trace(`sendWSAPIRequest(): sent ${channel} event`);
+
+    // Return deferred promise, so caller can await this call
+    return deferredPromise.promise!;
+  }
+
+  /**
+   *
+   * Internal methods - not intended for public use
    *
    */
+
+  protected getWsUrl(wsKey: WsKey): string {
+    if (this.options.wsUrl) {
+      return this.options.wsUrl;
+    }
+
+    const useTestnet = this.options.useTestnet;
+    const networkKey = useTestnet ? 'testnet' : 'livenet';
+
+    const baseUrl = WS_BASE_URL_MAP[wsKey][networkKey];
+    return baseUrl;
+  }
 
   protected sendPingEvent(wsKey: WsKey) {
     let pingChannel: WsRequestPing['channel'];
@@ -255,7 +292,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   }
 
   /**
-   * Parse incoming events into categories
+   * Parse incoming events into categories, before emitting to the user
    */
   protected resolveEmittableEvents(
     wsKey: WsKey,
@@ -462,18 +499,6 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     return [];
   }
 
-  protected getWsUrl(wsKey: WsKey): string {
-    if (this.options.wsUrl) {
-      return this.options.wsUrl;
-    }
-
-    const useTestnet = this.options.useTestnet;
-    const networkKey = useTestnet ? 'testnet' : 'livenet';
-
-    const baseUrl = WS_BASE_URL_MAP[wsKey][networkKey];
-    return baseUrl;
-  }
-
   /** Force subscription requests to be sent in smaller batches, if a number is returned */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected getMaxTopicsPerSubscribeEvent(_wsKey: WsKey): number | null {
@@ -535,7 +560,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   }
 
   /**
-   * @returns a correctly structured events for performing an operation over WS. This can vary per exchange spec.
+   * @returns one or more correctly structured request events for performing a operations over WS. This can vary per exchange spec.
    */
   private async getWsRequestEvents(
     market: WsMarket,
@@ -686,7 +711,12 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     }
   }
 
-  async signWSAPIRequest<TRequestParams = object>(
+  /**
+   *
+   * @param requestEvent
+   * @returns A signed updated WS API request object, ready to be sent
+   */
+  private async signWSAPIRequest<TRequestParams = object>(
     requestEvent: WSAPIRequest<TRequestParams>,
   ): Promise<WSAPIRequest<TRequestParams>> {
     if (!this.options.apiSecret) {
@@ -720,101 +750,5 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         ),
       },
     };
-  }
-
-  getPromiseRefForWSAPIRequest(requestEvent: WSAPIRequest): string {
-    const promiseRef = [
-      requestEvent.channel,
-      requestEvent.payload?.req_id,
-    ].join('_');
-    return promiseRef;
-  }
-
-  /**
-   * WS API Methods
-   */
-
-  /**
-   * Send a Websocket API event on a connection. Returns a promise that resolves on reply.
-   *
-   * Returned promise is rejected if an exception is detected in the reply OR the connection disconnects for any reason (even if automatic reconnect will happen).
-   *
-   * After a fresh connection, you should always send a login request first.
-   *
-   * If you authenticated once and you're reconnected later (e.g. connection temporarily lost), the SDK will by default automatically:
-   * - Detect you were authenticated to the WS API before
-   * - Try to re-authenticate (up to 5 times, in case something (bad timestamp) goes wrong)
-   * - If it succeeds, it will emit the 'authenticated' event.
-   * - If it fails and gives up, it will emit an 'exception' event (type: 'wsapi.auth', reason: detailed text).
-   *
-   * You can turn off the automatic re-auth WS API logic using `reauthWSAPIOnReconnect: false` in the WSClient config.
-   *
-   * @param wsKey - The connection this event is for (e.g. "spotV4" | "perpFuturesUSDTV4" | "perpFuturesBTCV4" | "deliveryFuturesUSDTV4" | "deliveryFuturesBTCV4" | "optionsV4")
-   * @param channel - The channel this event is for (e.g. "spot.login" to authenticate)
-   * @param params - Any request parameters for the payload (contents of req_param in the docs). Signature generation is automatic, only send parameters such as order ID as per the docs.
-   * @returns Promise - tries to resolve with async WS API response. Rejects if disconnected or exception is seen in async WS API response
-   */
-
-  async sendWSAPIRequest<
-    TWSKey extends keyof WsAPIWsKeyTopicMap,
-    TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
-    TWSParams extends
-      WsAPIRequestsTopicMap[TWSChannel] = WsAPIRequestsTopicMap[TWSChannel],
-    TWSAPIResponse = object,
-  >(
-    wsKey: TWSKey,
-    channel: TWSChannel,
-    ...params: TWSParams extends undefined ? [] : [TWSParams] // This overload allows the caller to omit the 3rd param, if it isn't required
-  ): Promise<TWSAPIResponse>;
-
-  async sendWSAPIRequest<
-    TWSKey extends keyof WsAPIWsKeyTopicMap = keyof WsAPIWsKeyTopicMap,
-    TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
-    TWSParams extends
-      WsAPIRequestsTopicMap[TWSChannel] = WsAPIRequestsTopicMap[TWSChannel],
-    TWSAPIResponse = object,
-  >(wsKey: TWSKey, channel: TWSChannel, params?: TWSParams): Promise<any> {
-    this.logger.trace(`sendWSAPIRequest(): assert "${wsKey}" is connected`);
-    await this.assertIsConnected(wsKey);
-
-    const signTimestamp = Date.now() + this.options.recvWindow;
-    const timeInSeconds = +(signTimestamp / 1000).toFixed(0);
-
-    const requestEvent: WSAPIRequest<WsAPIRequestsTopicMap[TWSChannel]> = {
-      time: timeInSeconds,
-      // id: timeInSeconds,
-      channel,
-      event: 'api',
-      payload: {
-        req_id: this.getNewRequestId(),
-        req_header: {
-          'X-Gate-Channel-Id': CHANNEL_ID,
-        },
-        api_key: this.options.apiKey,
-        req_param: params ? params : '',
-        timestamp: `${timeInSeconds}`,
-      },
-    };
-
-    // Sign request
-    const signedEvent = await this.signWSAPIRequest(requestEvent);
-
-    // Store deferred promise
-    const promiseRef = this.getPromiseRefForWSAPIRequest(requestEvent);
-
-    const deferredPromise =
-      this.getWsStore().createDeferredPromise<TWSAPIResponse>(
-        wsKey,
-        promiseRef,
-        false,
-      );
-
-    // Send event
-    this.tryWsSend(wsKey, JSON.stringify(signedEvent));
-
-    this.logger.trace(`sendWSAPIRequest(): sent ${channel} event`);
-
-    // Return deferred promise, so caller can await this call
-    return deferredPromise.promise!;
   }
 }
