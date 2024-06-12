@@ -3,14 +3,14 @@
  * ==========================================================================================================================
  */
 
-export interface GetLendingMarketsResp {
+export interface LendingMarket {
   currency_pair: string;
   base_min_borrow_amount: string;
   quote_min_borrow_amount: string;
   leverage: string;
 }
 
-export interface GetMarginUNILoansResp {
+export interface MarginUNILoan {
   currency: string;
   currency_pair: string;
   amount: string;
@@ -19,7 +19,7 @@ export interface GetMarginUNILoansResp {
   update_time: number;
 }
 
-export interface GetMarginUNILoanRecordsResp {
+export interface MarginUNILoanRecord {
   type: string;
   currency_pair: string;
   currency: string;
@@ -27,7 +27,7 @@ export interface GetMarginUNILoanRecordsResp {
   create_time: number;
 }
 
-export interface GetMarginUNIInterestRecordsResp {
+export interface MarginUNIInterestRecord {
   currency: string;
   currency_pair: string;
   actual_rate: string;
@@ -37,7 +37,7 @@ export interface GetMarginUNIInterestRecordsResp {
   create_time: number;
 }
 
-export interface GetMarginUNIMaxBorrowResp {
+export interface MarginUNIMaxBorrowable {
   currency: string;
   currency_pair: string;
   borrowable: string;

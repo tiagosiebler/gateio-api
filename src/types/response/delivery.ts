@@ -3,7 +3,7 @@
  * ==========================================================================================================================
  */
 
-export interface GetDeliveryOrderBookResp {
+export interface DeliveryOrderBook {
   id?: number;
   current: number;
   update: number;
@@ -11,7 +11,7 @@ export interface GetDeliveryOrderBookResp {
   bids: { p: string; s: number }[];
 }
 
-export interface GetDeliveryTradesResp {
+export interface DeliveryTrade {
   id: number;
   create_time: number;
   create_time_ms: number;
@@ -21,7 +21,7 @@ export interface GetDeliveryTradesResp {
   is_internal?: boolean;
 }
 
-export interface GetDeliveryCandlesticksResp {
+export interface DeliveryCandle {
   t: number;
   v?: number;
   c: string;
@@ -30,7 +30,7 @@ export interface GetDeliveryCandlesticksResp {
   o: string;
 }
 
-export interface GetDeliveryTickersResp {
+export interface DeliveryTicker {
   contract: string;
   last: string;
   change_percentage: string;
@@ -54,7 +54,7 @@ export interface GetDeliveryTickersResp {
   highest_bid: string;
 }
 
-export interface GetDeliveryAccountResp {
+export interface DeliveryAccount {
   total: string;
   unrealised_pnl: string;
   position_margin: string;
@@ -82,7 +82,7 @@ export interface GetDeliveryAccountResp {
   };
 }
 
-export interface GetDeliveryBookResp {
+export interface DeliveryBook {
   time: number;
   change: string;
   balance: string;
@@ -101,7 +101,7 @@ export interface GetDeliveryBookResp {
   trade_id?: string;
 }
 
-export interface GetDeliveryTradingHistoryResp {
+export interface DeliveryTradingHistoryRecord {
   id: number;
   create_time: number;
   contract: string;
@@ -114,7 +114,7 @@ export interface GetDeliveryTradingHistoryResp {
   point_fee: string;
 }
 
-export interface GetDeliveryClosedPositionsResp {
+export interface DeliveryClosedPosition {
   time: number;
   contract: string;
   side: 'long' | 'short';
@@ -129,7 +129,7 @@ export interface GetDeliveryClosedPositionsResp {
   short_price: string;
 }
 
-export interface GetDeliveryLiquidationHistoryResp {
+export interface DeliveryLiquidationHistoryRecord {
   time: number;
   contract: string;
   leverage?: string;
@@ -144,7 +144,7 @@ export interface GetDeliveryLiquidationHistoryResp {
   left: number;
 }
 
-export interface GetDeliverySettlementHistoryResp {
+export interface DeliverySettlementHistoryRecord {
   time: number;
   contract: string;
   leverage: string;

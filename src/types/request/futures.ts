@@ -3,8 +3,6 @@
  * ==========================================================================================================================
  */
 
-import { FuturesPriceTriggeredOrder } from '../response/futures';
-
 export interface GetFuturesOrderBookReq {
   settle: 'btc' | 'usdt' | 'usd';
   contract: string;
@@ -168,8 +166,31 @@ export interface GetFuturesLiquidationHistoryReq {
   at?: number;
 }
 
-export interface SubmitFuturesPriceTriggeredOrderReq
-  extends FuturesPriceTriggeredOrder {
+export interface SubmitFuturesTriggeredOrderReq {
+  initial: {
+    contract: string;
+    size?: number;
+    price?: string;
+    close?: boolean;
+    tif?: 'gtc' | 'ioc';
+    text?: string;
+    reduce_only?: boolean;
+    auto_size?: string;
+  };
+  trigger: {
+    strategy_type?: 0 | 1;
+    price_type?: 0 | 1 | 2;
+    price?: string;
+    rule?: 1 | 2;
+    expiration?: number;
+  };
+  order_type?:
+    | 'close-long-order'
+    | 'close-short-order'
+    | 'close-long-position'
+    | 'close-short-position'
+    | 'plan-close-long-position'
+    | 'plan-close-short-position';
   settle: 'btc' | 'usdt' | 'usd';
 }
 

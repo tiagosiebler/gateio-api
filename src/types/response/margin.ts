@@ -3,7 +3,7 @@
  * ==========================================================================================================================
  */
 
-export interface GetMarginAccountsResp {
+export interface MarginAccount {
   currency_pair: string;
   locked: boolean;
   risk: string;
@@ -23,7 +23,7 @@ export interface GetMarginAccountsResp {
   };
 }
 
-export interface GetMarginBalanceHistoryResp {
+export interface MarginBalanceHistoryRecord {
   id: string;
   time: string;
   time_ms: number;
@@ -34,7 +34,7 @@ export interface GetMarginBalanceHistoryResp {
   type: string;
 }
 
-export interface GetCrossMarginCurrenciesResp {
+export interface CrossMarginCurrency {
   name: string;
   rate: string;
   prec: string;
@@ -47,7 +47,7 @@ export interface GetCrossMarginCurrenciesResp {
   status: number;
 }
 
-export interface GetCrossMarginAccountResp {
+export interface CrossMarginAccount {
   user_id: number;
   refresh_time: number;
   locked: boolean;
@@ -79,7 +79,7 @@ export interface GetCrossMarginAccountResp {
   portfolio_margin_total_equity: string;
 }
 
-export interface GetCrossMarginAccountHistoryResp {
+export interface CrossMarginAccountHistoryRecord {
   id: string;
   time: number;
   currency: string;

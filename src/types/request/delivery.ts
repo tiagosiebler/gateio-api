@@ -3,8 +3,6 @@
  * ==========================================================================================================================
  */
 
-import { FuturesPriceTriggeredOrder } from '../shared';
-
 export interface GetDeliveryOrderBookReq {
   settle: 'usdt';
   contract: string;
@@ -22,7 +20,7 @@ export interface GetDeliveryTradesReq {
   to?: number;
 }
 
-export interface GetDeliveryCandlesticksReq {
+export interface GetDeliveryCandlesReq {
   settle: 'usdt';
   contract: string;
   from?: number;
@@ -117,12 +115,6 @@ export interface GetDeliverySettlementHistoryReq {
   limit?: number;
   at?: number;
 }
-
-export interface submitDeliveryTriggeredOrderReq
-  extends FuturesPriceTriggeredOrder {
-  settle: 'usdt';
-}
-
 export interface GetDeliveryAutoOrdersReq {
   settle: 'usdt';
   status: 'open' | 'finished';

@@ -3,7 +3,7 @@
  * ==========================================================================================================================
  */
 
-export interface GetAccountDetailResp {
+export interface AccountDetail {
   user_id: number;
   ip_whitelist: string[];
   currency_pairs: string[];
@@ -13,14 +13,14 @@ export interface GetAccountDetailResp {
   tier: number;
 }
 
-export interface CreateStpGroupResp {
+export interface StpGroup {
   id: number;
   name: string;
   creator_id: number;
   create_time: number;
 }
 
-export interface StpResp {
+export interface StpGroupUser {
   user_id: number;
   stp_id: number;
   create_time: number;

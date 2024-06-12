@@ -3,7 +3,7 @@
  * ==========================================================================================================================
  */
 
-export interface GetFlashSwapCurrencyPairsResp {
+export interface FlashSwapCurrencyPair {
   currency_pair: string;
   sell_currency: string;
   buy_currency: string;
@@ -13,7 +13,7 @@ export interface GetFlashSwapCurrencyPairsResp {
   buy_max_amount: string;
 }
 
-export interface FlashSwapOrderResp {
+export interface FlashSwapOrder {
   id: number;
   create_time: number;
   user_id: number;

@@ -63,7 +63,7 @@ export interface FuturesTicker {
   highest_bid: string;
 }
 
-export interface GetFuturesStatsResp {
+export interface FuturesStats {
   time: number;
   lsr_taker: number;
   lsr_account: number;
@@ -79,7 +79,7 @@ export interface GetFuturesStatsResp {
   top_lsr_size: number;
 }
 
-export interface GetIndexConstituentsResp {
+export interface IndexConstituents {
   index: string;
   constituents: {
     exchange: string;
@@ -87,7 +87,7 @@ export interface GetIndexConstituentsResp {
   }[];
 }
 
-export interface GetLiquidationHistoryResp {
+export interface LiquidationHistoryRecord {
   time: number;
   contract: string;
   size: number;
@@ -96,7 +96,7 @@ export interface GetLiquidationHistoryResp {
   left: number;
 }
 
-export interface GetRiskLimitTiersResp {
+export interface RiskLimitTier {
   tier: number;
   risk_limit: string;
   initial_rate: string;
@@ -105,7 +105,7 @@ export interface GetRiskLimitTiersResp {
   contract: string;
 }
 
-export interface GetFuturesAccountResp {
+export interface FuturesAccount {
   total: string;
   unrealised_pnl: string;
   position_margin: string;
@@ -133,7 +133,7 @@ export interface GetFuturesAccountResp {
   };
 }
 
-export interface GetFuturesAccountBookResp {
+export interface FuturesAccountBookRecord {
   time: number;
   change: string;
   balance: string;
@@ -246,7 +246,7 @@ export interface FuturesPosition {
   open_time?: number;
 }
 
-export interface GetFuturesTradingHistoryResp {
+export interface FuturesTradingHistoryRecord {
   id: number;
   create_time: number;
   contract: string;
@@ -259,7 +259,7 @@ export interface GetFuturesTradingHistoryResp {
   point_fee: string;
 }
 
-export interface GetFuturesPositionHistoryResp {
+export interface FuturesPositionHistoryRecord {
   time: number;
   contract: string;
   side: 'long' | 'short';
@@ -274,7 +274,7 @@ export interface GetFuturesPositionHistoryResp {
   short_price: string;
 }
 
-export interface GetFuturesLiquidationHistoryResp {
+export interface FuturesLiquidationHistoryRecord {
   time: number;
   contract: string;
   leverage: string;
@@ -288,7 +288,7 @@ export interface GetFuturesLiquidationHistoryResp {
   fill_price: string;
   left: number;
 }
-export interface GetFuturesAutoDeleveragingHistoryResp {
+export interface FuturesAutoDeleveragingHistoryRecord {
   time: number;
   user: number;
   order_id: number;

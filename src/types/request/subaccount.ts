@@ -25,6 +25,6 @@ export interface CreateSubAccountApiKeyReq {
   ip_whitelist?: string[]; // IP white list
 }
 
-export interface UpdateSubAccountApiKeyReq extends CreateSubAccountApiKeyReq {
+export type UpdateSubAccountApiKeyReq = {
   key: string;
-}
+} & CreateSubAccountApiKeyReq;

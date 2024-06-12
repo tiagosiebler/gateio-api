@@ -59,7 +59,7 @@ export interface UnifiedInterestRecord {
   create_time: number;
 }
 
-export interface GetUnifiedRiskUnitDetailsResp {
+export interface UnifiedRiskUnitDetails {
   user_id: number;
   spot_hedge: boolean;
   risk_units: {
@@ -74,7 +74,7 @@ export interface GetUnifiedRiskUnitDetailsResp {
   }[];
 }
 
-export interface GetUnifiedCurrencyDiscountTiersResp {
+export interface UnifiedCurrencyDiscountTiers {
   currency: string;
   discount_tiers: {
     tier: string;

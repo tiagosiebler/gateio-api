@@ -33,7 +33,7 @@ export interface SubAccountTransferRecord {
   sub_account_type: 'spot' | 'futures' | 'cross_margin' | 'delivery';
 }
 
-export interface GetWithdrawalStatusResp {
+export interface WithdrawalStatus {
   currency: string;
   name: string;
   name_cn: string;
@@ -48,27 +48,24 @@ export interface GetWithdrawalStatusResp {
   withdraw_percent_on_chains: { [key: string]: string };
 }
 
-export interface SubAccountMarginBalancesResp {
-  uid: string;
-  available: {
-    currency_pair: string;
-    locked: boolean;
-    risk: string;
-    base: {
-      currency: string;
-      available: string;
-      locked: string;
-      borrowed: string;
-      interest: string;
-    };
-    quote: {
-      currency: string;
-      available: string;
-      locked: string;
-      borrowed: string;
-      interest: string;
-    };
-  }[];
+export interface SubAccountMarginBalance {
+  currency_pair: string;
+  locked: boolean;
+  risk: string;
+  base: {
+    currency: string;
+    available: string;
+    locked: string;
+    borrowed: string;
+    interest: string;
+  };
+  quote: {
+    currency: string;
+    available: string;
+    locked: string;
+    borrowed: string;
+    interest: string;
+  };
 }
 
 export interface SubAccountFuturesBalancesResp {
@@ -142,7 +139,7 @@ export interface SavedAddress {
   verified: string;
 }
 
-export interface GetTradingFeesResp {
+export interface TradingFees {
   user_id: number;
   taker_fee: string;
   maker_fee: string;
@@ -182,7 +179,7 @@ export interface SmallBalanceRecord {
   convertible_to_gt: string;
 }
 
-export interface GetSmallBalanceHistoryResp {
+export interface SmallBalanceHistoryRecord {
   id: string;
   currency: string;
   amount: string;

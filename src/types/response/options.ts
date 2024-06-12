@@ -3,7 +3,7 @@
  * ==========================================================================================================================
  */
 
-export interface GetOptionsContractsResp {
+export interface OptionsContract {
   name: string;
   tag: string;
   create_time: number;
@@ -32,7 +32,7 @@ export interface GetOptionsContractsResp {
   orders_limit: number;
 }
 
-export interface GetOptionsSettlementHistoryResp {
+export interface OptionsSettlementHistoryRecord {
   time: number;
   contract: string;
   profit: string;
@@ -41,7 +41,7 @@ export interface GetOptionsSettlementHistoryResp {
   settle_price: string;
 }
 
-export interface GetOptionsMySettlementsResp {
+export interface OptionsUserSettlement {
   time: number;
   underlying: string;
   contract: string;
@@ -53,7 +53,7 @@ export interface GetOptionsMySettlementsResp {
   realised_pnl: string;
 }
 
-export interface GetOptionsOrderBookResp {
+export interface OptionsOrderBook {
   id?: number;
   current: number;
   update: number;
@@ -61,7 +61,7 @@ export interface GetOptionsOrderBookResp {
   bids: { p: string; s: number }[];
 }
 
-export interface GetOptionsTickersResp {
+export interface OptionsTicker {
   name: string;
   last_price: string;
   mark_price: string;
@@ -82,7 +82,7 @@ export interface GetOptionsTickersResp {
   rho: string;
 }
 
-export interface GetOptionsCandlesticksResp {
+export interface OptionsCandle {
   t: number;
   v?: number;
   c: string;
@@ -91,7 +91,7 @@ export interface GetOptionsCandlesticksResp {
   o: string;
 }
 
-export interface GetOptionsUnderlyingCandlesticksResp {
+export interface OptionsUnderlyingCandle {
   t: number;
   v?: number;
   c: string;
@@ -101,7 +101,7 @@ export interface GetOptionsUnderlyingCandlesticksResp {
   sum: string;
 }
 
-export interface GetOptionsTradesResp {
+export interface OptionsTrade {
   id: number;
   create_time: number;
   create_time_ms: number;
@@ -111,7 +111,7 @@ export interface GetOptionsTradesResp {
   is_internal?: boolean;
 }
 
-export interface GetOptionsAccountResp {
+export interface OptionsAccount {
   user: number;
   total: string;
   short_enabled: boolean;
@@ -123,7 +123,7 @@ export interface GetOptionsAccountResp {
   point: string;
   currency: string;
 }
-export interface GetOptionsAccountChangeResp {
+export interface OptionsAccountChangeRecord {
   time: number;
   change: string;
   balance: string;
@@ -131,7 +131,7 @@ export interface GetOptionsAccountChangeResp {
   text: string;
 }
 
-export interface GetOptionsPositionsUnderlyingResp {
+export interface OptionsPositionsUnderlying {
   user: number;
   underlying: string;
   underlying_price: string;
@@ -194,7 +194,7 @@ export interface SubmitOptionsOrderResp {
   refr: string;
 }
 
-export interface GetOptionsPersonalHistoryResp {
+export interface OptionsUserHistoryRecord {
   id: number;
   create_time: number;
   contract: string;

@@ -3,7 +3,7 @@
  * ==========================================================================================================================
  */
 
-export interface GetMultiLoanOrdersResp {
+export interface MultiLoanOrder {
   order_id: string;
   order_type: string;
   fixed_type: string;
@@ -43,7 +43,7 @@ export interface RepayMultiLoanResp {
   }[];
 }
 
-export interface GetMultiLoanRepayRecordsResp {
+export interface MultiLoanRepayRecord {
   order_id: number;
   record_id: number;
   init_ltv: string;
@@ -102,7 +102,7 @@ export interface UpdateMultiLoanResp {
   }[];
 }
 
-export interface GetMultiLoanAdjustmentRecordsResp {
+export interface MultiLoanAdjustmentRecord {
   order_id: number;
   record_id: number;
   before_ltv: string;
@@ -126,7 +126,7 @@ export interface GetMultiLoanAdjustmentRecordsResp {
   }[];
 }
 
-export interface GetMultiLoanCurrencyQuotaResp {
+export interface MultiLoanCurrencyQuota {
   currency: string;
   index_price: string;
   min_quota: string;
@@ -134,7 +134,7 @@ export interface GetMultiLoanCurrencyQuotaResp {
   left_quote_usdt: string;
 }
 
-export interface GetMultiLoanSupportedCurrenciesResp {
+export interface MultiLoanSupportedCurrencies {
   loan_currencies: {
     currency: string;
     price: string;
@@ -146,13 +146,13 @@ export interface GetMultiLoanSupportedCurrenciesResp {
   }[];
 }
 
-export interface GetMultiLoanRatioResp {
+export interface MultiLoanRatio {
   init_ltv: string;
   alert_ltv: string;
   liquidate_ltv: string;
 }
 
-export interface GetMultiLoanFixedRatesResp {
+export interface MultiLoanFixedRate {
   currency: string;
   rate_7d: string;
   rate_30d: string;

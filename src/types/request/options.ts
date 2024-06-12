@@ -25,7 +25,7 @@ export interface GetOptionsOrderBookReq {
   with_id?: boolean;
 }
 
-export interface GetOptionsCandlesticksReq {
+export interface GetOptionsCandlesReq {
   contract: string;
   limit?: number;
   from?: number;
@@ -33,7 +33,7 @@ export interface GetOptionsCandlesticksReq {
   interval?: '1m' | '5m' | '15m' | '30m' | '1h';
 }
 
-export interface GetOptionsUnderlyingCandlesticksReq {
+export interface GetOptionsUnderlyingCandlesReq {
   underlying: string;
   limit?: number;
   from?: number;

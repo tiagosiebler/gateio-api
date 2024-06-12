@@ -3,7 +3,7 @@
  * ==========================================================================================================================
  */
 
-export interface GetLendingCurrenciesResp {
+export interface LendingCurrency {
   currency: string;
   min_lend_amount: string;
   max_lend_amount: string;
@@ -11,7 +11,7 @@ export interface GetLendingCurrenciesResp {
   min_rate: string;
 }
 
-export interface GetLendingOrdersResp {
+export interface LendingOrder {
   currency: string;
   current_amount: string;
   amount: string;
@@ -24,7 +24,7 @@ export interface GetLendingOrdersResp {
   update_time: number;
 }
 
-export interface GetLendingRecordsResp {
+export interface LendingRecord {
   currency: string;
   amount: string;
   last_wallet_amount: string;
@@ -34,7 +34,7 @@ export interface GetLendingRecordsResp {
   create_time: number;
 }
 
-export interface GetLendingInterestRecordsResp {
+export interface LendingInterestRecord {
   status: number;
   currency: string;
   actual_rate: string;

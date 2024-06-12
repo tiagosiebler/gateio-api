@@ -5,11 +5,12 @@ import {
   UpdateFuturesOrderReq,
 } from '../request/futures';
 import {
+  CancelSpotBatchOrdersReq,
   DeleteSpotOrderReq,
+  GetSpotOrderReq,
   SubmitSpotOrderReq,
   UpdateSpotOrderReq,
 } from '../request/spot';
-import { CancelSpotBatchOrderReq, GetSpotOrderReq } from '../shared';
 
 export type SpotWSAPITopic =
   | 'spot.login'
@@ -48,7 +49,7 @@ export interface WsAPITopicRequestParamMap {
 
   'spot.order_place': SubmitSpotOrderReq;
   'spot.order_cancel': DeleteSpotOrderReq;
-  'spot.order_cancel_ids': CancelSpotBatchOrderReq[];
+  'spot.order_cancel_ids': CancelSpotBatchOrdersReq[];
   'spot.order_cancel_cp': DeleteSpotOrderReq[];
   'spot.order_amend': UpdateSpotOrderReq;
   'spot.order_status': GetSpotOrderReq;

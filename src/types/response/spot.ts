@@ -218,7 +218,7 @@ export interface DeleteSpotBatchOrdersResp {
   account: string;
 }
 
-export interface GetSpotTradingHistoryResp {
+export interface SpotHistoricTradeRecord {
   id: string;
   create_time: string;
   create_time_ms: string;

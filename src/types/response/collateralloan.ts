@@ -3,7 +3,7 @@
  * ==========================================================================================================================
  */
 
-export interface GetLoanOrdersResp {
+export interface LoanOrder {
   order_id: number;
   collateral_currency: string;
   collateral_amount: string;
@@ -22,7 +22,7 @@ export interface GetLoanOrdersResp {
   left_repay_interest: string;
 }
 
-export interface GetLoanRepaymentHistoryResp {
+export interface LoanRepaymentHistoryRecord {
   order_id: number;
   record_id: number;
   repaid_amount: string;
@@ -38,7 +38,7 @@ export interface GetLoanRepaymentHistoryResp {
   after_left_collateral: string;
 }
 
-export interface GetLoanCollateralRecordsResp {
+export interface LoanCollateralRecord {
   order_id: number;
   record_id: number;
   borrow_currency: string;
@@ -51,7 +51,7 @@ export interface GetLoanCollateralRecordsResp {
   operate_time: number;
 }
 
-export interface GetLoanCollateralizationRatioResp {
+export interface LoanCollateralRatio {
   collateral_currency: string;
   borrow_currency: string;
   init_ltv: string;

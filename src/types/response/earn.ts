@@ -3,7 +3,7 @@
  * ==========================================================================================================================
  */
 
-export interface GetDualInvestmentProductsResp {
+export interface DualInvestmentProduct {
   id: number;
   instrument_name: string;
   invest_currency: string;
@@ -19,7 +19,7 @@ export interface GetDualInvestmentProductsResp {
   status: 'NOTSTARTED' | 'ONGOING' | 'ENDED';
 }
 
-export interface GetDualInvestmentOrdersResp {
+export interface DualInvestmentOrder {
   id: number;
   plan_id: number;
   copies: string;
@@ -43,7 +43,7 @@ export interface GetDualInvestmentOrdersResp {
   delivery_time: number;
 }
 
-export interface GetStructuredProductListResp {
+export interface StructuredProduct {
   id: number;
   type: string;
   name_en: string;
@@ -58,7 +58,7 @@ export interface GetStructuredProductListResp {
   status: 'in_process' | 'will_begin' | 'wait_settlement' | 'done';
 }
 
-export interface GetStructuredProductOrdersResp {
+export interface StructuredProductOrder {
   id: number;
   pid: string;
   lock_coin: string;
