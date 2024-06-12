@@ -1,90 +1,36 @@
-import { RestClient } from '../src';
+import { RestClient } from '../src'; // Import the RestClient from the src directory
 
-async function start() {
+// Define the account object with API key and secret
+const account = {
+  key: process.env.API_KEY || 'yourApiHere', // Replace 'yourApiHere' with your actual API key
+  secret: process.env.API_SECRET || 'yourSecretHere', // Replace 'yourSecretHere' with your actual API secret
+};
+
+// Initialize the RestClient with the API credentials
+const gateRestClient = new RestClient({
+  apiKey: account.key,
+  apiSecret: account.secret,
+});
+
+async function restPrivateExample() {
   try {
-    const account = {
-      key: process.env.API_KEY || 'yourApiHere',
-      secret: process.env.API_SECRET || 'YourSecretHere',
-    };
+    console.log('Using credentials: ', account);
 
-    console.log('using creds: ', account);
-    const rest = new RestClient({
-      apiKey: account.key,
-      apiSecret: account.secret,
+    // Submit a limit order for spot trading
+    const result = await gateRestClient.submitSpotOrder({
+      currency_pair: 'BTC_USDT', // Specify the currency pair
+      side: 'buy', // Specify the order side: 'buy' or 'sell'
+      type: 'limit', // Specify the order type: 'limit'
+      amount: '0.001', // Specify the amount to buy
+      price: '45000', // Specify the limit price
+      time_in_force: 'gtc', // Time in force: 'gtc' (Good Till Cancelled)
     });
 
-    /*  const res1 = await rest.submitSpotOrder({
-      currency_pair: 'BTC_USDT',
-      side: 'buy',
-      type: 'limit',
-      amount: '10',
-      time_in_force: 'gtc',
-      price: '1',
-    }); */
-
-    const res1 = await rest.getDeliveryTradingHistory({
-      contract: 'BTC_USDT',
-      settle: 'usdt',
-    });
-
-    /* const res2 = await rest.getIndexConstituents({
-      settle: 'usdt',
-      index: 'BTC_USDT',
-    }); */
-
-    /* const res3 = await rest.portfolioMarginCalculator({
-      spot_balances: [
-        {
-          currency: 'BTC',
-          equity: '-1',
-        },
-      ],
-      spot_orders: [
-        {
-          currency_pairs: 'BTC_USDT',
-          order_price: '344',
-          left: '100',
-          type: 'sell',
-        },
-      ],
-      futures_positions: [
-        {
-          contract: 'BTC_USDT',
-          size: '100',
-        },
-      ],
-      futures_orders: [
-        {
-          contract: 'BTC_USDT',
-          size: '10',
-          left: '8',
-        },
-      ],
-      options_positions: [
-        {
-          options_name: 'BTC_USDT-20240329-32000-C',
-          size: '10',
-        },
-      ],
-      options_orders: [
-        {
-          options_name: 'BTC_USDT-20240329-32000-C',
-          size: '100',
-          left: '80',
-        },
-      ],
-      spot_hedge: false,
-    }); */
-
-    /* const res4 = await rest.getDeliveryContract({
-      settle: 'usdt',
-      contract: 'BTC_USDT',
-    }); */
-    // const res1 = await rest.getSystemMaintenanceStatus();
-    console.log('res: ', JSON.stringify(res1, null, 2));
+    console.log('Result: ', JSON.stringify(result, null, 2)); // Log the result to the console
   } catch (e) {
-    console.error(`Error in execution: `, e);
+    console.error(`Error in execution: `, e); // Log any errors that occur
   }
 }
 
-start();
+// Execute the function to demonstrate the RestClient usage
+restPrivateExample();

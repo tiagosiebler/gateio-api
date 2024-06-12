@@ -1,10 +1,12 @@
-import { RestClient } from '../../src';
+import { RestClient } from '../../src'; // Import the RestClient from the src directory
 
+// Define the account object with API key and secret
 const account = {
-  key: process.env.API_KEY || 'yourApiHere',
-  secret: process.env.API_SECRET || 'yourSecretHere',
+  key: process.env.API_KEY || 'yourApiHere', // Replace 'yourApiHere' with your actual API key
+  secret: process.env.API_SECRET || 'yourSecretHere', // Replace 'yourSecretHere' with your actual API secret
 };
 
+// Initialize the RestClient with the API credentials
 const gateRestClient = new RestClient({
   apiKey: account.key,
   apiSecret: account.secret,
@@ -14,21 +16,22 @@ async function getFuturesTicker() {
   try {
     console.log('Using API keys:', account);
 
-    // GET specific ticker
-    const ticker = await gateRestClient.getFuturesTickers({
-      settle: 'usdt',
-    });
-    console.log('Response: ', ticker);
-
-    /* GET all tickers */
+    // Fetch all futures tickers with USDT settlement
     const allTickers = await gateRestClient.getFuturesTickers({
-      settle: 'usdt',
-      contract: 'BTC_USDT',
+      settle: 'usdt', // Specify the settlement currency
     });
-    console.log('Response: ', allTickers);
+    console.log('Response: ', allTickers); // Log the response to the console
+
+    // Fetch a specific futures ticker with USDT settlement
+    const ticker = await gateRestClient.getFuturesTickers({
+      settle: 'usdt', // Specify the settlement currency
+      contract: 'BTC_USDT', // Specify the contract
+    });
+    console.log('Response: ', ticker); // Log the response to the console
   } catch (e) {
-    console.error(`Error in execution: `, e);
+    console.error(`Error in execution: `, e); // Log any errors that occur
   }
 }
 
+// Execute the function to get futures tickers
 getFuturesTicker();

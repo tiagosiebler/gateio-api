@@ -2,20 +2,23 @@
 import { LogParams, WebsocketClient } from '../src';
 import { WsTopicRequest } from '../src/lib/websocket/websocket-util';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const account = {
   key: process.env.API_KEY || 'apiKeyHere',
   secret: process.env.API_SECRET || 'apiSecretHere',
 };
 
+// Define a custom logger object to handle logging at different levels
 const customLogger = {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // Trace level logging: used for detailed debugging information
   trace: (...params: LogParams): void => {
+    // Uncomment the line below to enable trace logging
     // console.log(new Date(), 'trace', ...params);
   },
+  // Info level logging: used for general informational messages
   info: (...params: LogParams): void => {
     console.log(new Date(), 'info', ...params);
   },
+  // Error level logging: used for error messages
   error: (...params: LogParams): void => {
     console.error(new Date(), 'error', ...params);
   },
@@ -72,19 +75,6 @@ async function start() {
     // TODO: many private topics use your user ID
     const myUserID = '20011';
 
-    /**
-     * Either send one topic (with params) at a time
-     */
-    // client.subscribe({
-    //   topic: 'futures.usertrades',
-    //   payload: [myUserID, '!all'],
-    // }, 'spotV4');
-
-    /**
-     * Or send multiple topics in a batch (grouped by ws connection (WsKey))
-     * You can also use strings for topics that don't have any parameters, even if you mix multiple requests into one function call:
-     */
-
     const userBalances: WsTopicRequest = {
       topic: 'futures.balances',
       payload: [myUserID],
@@ -100,6 +90,18 @@ async function start() {
       payload: [myUserID, '!all'],
     };
 
+    /**
+     * Either send one topic (with params) at a time
+     */
+    // client.subscribe({
+    //   topic: 'futures.usertrades',
+    //   payload: [myUserID, '!all'],
+    // }, 'perpFuturesUSDTV4');
+
+    /**
+     * Or send multiple topics in a batch (grouped by ws connection (WsKey))
+     * You can also use strings for topics that don't have any parameters, even if you mix multiple requests into one function call:
+     */
     client.subscribe(
       [userBalances, userTrades, userLiquidates],
       'perpFuturesUSDTV4',

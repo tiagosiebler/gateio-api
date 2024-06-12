@@ -6,20 +6,23 @@ import {
   WSAPIResponse,
 } from '../src/types/websockets/wsAPI';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const account = {
   key: process.env.API_KEY || 'apiKeyHere',
   secret: process.env.API_SECRET || 'apiSecretHere',
 };
 
+// Define a custom logger object to handle logging at different levels
 const customLogger = {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // Trace level logging: used for detailed debugging information
   trace: (...params: LogParams): void => {
+    // Uncomment the line below to enable trace logging
     // console.log(new Date(), 'trace', ...params);
   },
+  // Info level logging: used for general informational messages
   info: (...params: LogParams): void => {
     console.log(new Date(), 'info', ...params);
   },
+  // Error level logging: used for error messages
   error: (...params: LogParams): void => {
     console.error(new Date(), 'error', ...params);
   },
