@@ -3,7 +3,7 @@
  * ==========================================================================================================================
  */
 
-import { FuturesOrder, FuturesPriceTriggeredOrder } from '../response/futures';
+import { FuturesPriceTriggeredOrder } from '../response/futures';
 
 export interface GetFuturesOrderBookReq {
   settle: 'btc' | 'usdt' | 'usd';
@@ -131,10 +131,6 @@ export interface GetFuturesOrdersByTimeRangeReq {
   to?: number;
   limit?: number;
   offset?: number;
-}
-
-export interface SubmitFuturesBatchOrdersReq extends FuturesOrder {
-  settle: 'btc' | 'usdt' | 'usd';
 }
 
 export interface UpdateFuturesOrderReq {

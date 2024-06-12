@@ -59,7 +59,6 @@ import {
   GetFuturesTradingHistoryReq,
   GetLiquidationHistoryReq,
   GetRiskLimitTiersReq,
-  SubmitFuturesBatchOrdersReq,
   SubmitFuturesOrderReq,
   SubmitFuturesPriceTriggeredOrderReq,
   UpdateDualModePositionLeverageReq,
@@ -2322,11 +2321,14 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for creating a batch of futures orders
    * @returns Promise<APIResponse<FuturesOrder[]>>
    */
-  submitFuturesBatchOrders(
-    params: SubmitFuturesBatchOrdersReq,
-  ): Promise<APIResponse<FuturesOrder[]>> {
-    const { settle, ...body } = params;
-    return this.postPrivate(`/futures/${settle}/batch_orders`, { body: body });
+  submitFuturesBatchOrders(params: {
+    settle: 'btc' | 'usdt' | 'usd';
+    orders: SubmitFuturesOrderReq[];
+  }): Promise<APIResponse<FuturesOrder[]>> {
+    const { settle, orders } = params;
+    return this.postPrivate(`/futures/${settle}/batch_orders`, {
+      body: orders,
+    });
   }
 
   /**
