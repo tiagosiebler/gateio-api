@@ -3,7 +3,7 @@
  * ==========================================================================================================================
  */
 
-export interface GetFuturesOrderBookResp {
+export interface FuturesOrderBook {
   id?: number;
   current: number;
   update: number;
@@ -11,7 +11,7 @@ export interface GetFuturesOrderBookResp {
   bids: { p: string; s: number }[];
 }
 
-export interface GetFuturesTradesResp {
+export interface FuturesTrade {
   id: number;
   create_time: number;
   create_time_ms: number;
@@ -21,7 +21,7 @@ export interface GetFuturesTradesResp {
   is_internal?: boolean;
 }
 
-export interface GetFuturesCandlesticksResp {
+export interface FuturesCandle {
   t: number;
   v?: number;
   c: string;
@@ -31,7 +31,7 @@ export interface GetFuturesCandlesticksResp {
   sum: string;
 }
 
-export interface GetPremiumIndexKLineResp {
+export interface PremiumIndexKLine {
   t: number;
   c: string;
   h: string;
@@ -39,7 +39,7 @@ export interface GetPremiumIndexKLineResp {
   o: string;
 }
 
-export interface GetFuturesTickersResp {
+export interface FuturesTicker {
   contract: string;
   last: string;
   change_percentage: string;

@@ -20,7 +20,7 @@ export interface GetSpotTradesReq {
   page?: number;
 }
 
-export interface GetSpotCandlesticksReq {
+export interface GetSpotCandlesReq {
   currency_pair: string;
   limit?: number;
   from?: number;

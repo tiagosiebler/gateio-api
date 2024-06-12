@@ -5,6 +5,7 @@ export type GateBaseUrlKey =
 
 // interfaces
 
+// Used for spot and flash swap
 export interface CurrencyPair {
   id?: string;
   base?: string;

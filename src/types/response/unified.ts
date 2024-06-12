@@ -1,4 +1,4 @@
-export interface GetUnifiedAccountInfoResp {
+export interface UnifiedAccountInfo {
   user_id: number;
   refresh_time: number;
   locked: boolean;
@@ -31,7 +31,7 @@ export interface GetUnifiedAccountInfoResp {
   spot_hedge: boolean;
 }
 
-export interface GetUnifiedLoansResp {
+export interface UnifiedLoan {
   currency: string;
   currency_pair: string;
   amount: string;
@@ -40,7 +40,7 @@ export interface GetUnifiedLoansResp {
   update_time: number;
 }
 
-export interface GetUnifiedLoanRecordsResp {
+export interface UnifiedLoanRecord {
   id: number;
   type: 'borrow' | 'repay';
   repayment_type: 'none' | 'manual_repay' | 'auto_repay' | 'cancel_auto_repay';
@@ -49,7 +49,7 @@ export interface GetUnifiedLoanRecordsResp {
   amount: string;
   create_time: number;
 }
-export interface GetUnifiedInterestRecordsResp {
+export interface UnifiedInterestRecord {
   currency: string;
   currency_pair: string;
   actual_rate: string;
@@ -84,7 +84,7 @@ export interface GetUnifiedCurrencyDiscountTiersResp {
   }[];
 }
 
-export interface PortfolioMarginCalculatorResp {
+export interface PortfolioMarginCalculation {
   maintain_margin_total: string;
   initial_margin_total: string;
   calculate_time: number;

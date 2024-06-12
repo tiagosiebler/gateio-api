@@ -1,4 +1,4 @@
-export interface GetCurrencyChainsResp {
+export interface CurrencyChain {
   chain: string;
   name_cn: string;
   name_en: string;
@@ -21,7 +21,7 @@ export interface CreateDepositAddressResp {
   }[];
 }
 
-export interface SubAccountTransferRecordResp {
+export interface SubAccountTransferRecord {
   currency: string;
   sub_account: string;
   direction: 'to' | 'from';
@@ -133,7 +133,7 @@ export interface SubAccountCrossMarginBalancesResp {
   };
 }
 
-export interface GetSavedAddressResp {
+export interface SavedAddress {
   currency: string;
   chain: string;
   address: string;
@@ -175,7 +175,7 @@ export interface GetBalancesResp {
   };
 }
 
-export interface GetSmallBalancesResp {
+export interface SmallBalanceRecord {
   currency: string;
   available_balance: string;
   estimated_as_btc: string;

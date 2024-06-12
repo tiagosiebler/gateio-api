@@ -1,4 +1,4 @@
-export interface SubAccountResp {
+export interface SubAccount {
   remark?: string;
   login_name: string;
   password?: string;
@@ -9,7 +9,7 @@ export interface SubAccountResp {
   create_time: number;
 }
 
-export interface CreateSubAccountApiKeyResp {
+export interface CreatedSubAccountAPIKey {
   user_id: string;
   mode?: number;
   name?: string;
@@ -34,7 +34,7 @@ export interface CreateSubAccountApiKeyResp {
   last_access: number;
 }
 
-export interface SubAccountKey {
+export interface SubAccountAPIKey {
   user_id?: string;
   mode?: number;
   name?: string;

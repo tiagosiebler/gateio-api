@@ -47,7 +47,7 @@ import {
   DeleteAllFuturesOrdersReq,
   GetFuturesAccountBookReq,
   GetFuturesAutoOrdersReq,
-  GetFuturesCandlesticksReq,
+  GetFuturesCandlesReq,
   GetFuturesLiquidationHistoryReq,
   GetFuturesOrderBookReq,
   GetFuturesOrdersByTimeRangeReq,
@@ -111,7 +111,7 @@ import {
   DeleteSpotOrderReq,
   GetSpotAccountBookReq,
   GetSpotAutoOrdersReq,
-  GetSpotCandlesticksReq,
+  GetSpotCandlesReq,
   GetSpotOrderBookReq,
   GetSpotOrderReq,
   GetSpotOrdersReq,
@@ -187,25 +187,25 @@ import {
 } from './types/response/flashswap.js';
 import {
   DeleteFuturesBatchOrdersResp,
+  FuturesCandle,
   FuturesContract,
   FuturesDeliveryContract,
   FuturesOrder,
+  FuturesOrderBook,
   FuturesPosition,
   FuturesPriceTriggeredOrder,
+  FuturesTicker,
+  FuturesTrade,
   GetFuturesAccountResp,
   GetFuturesAutoDeleveragingHistoryResp,
-  GetFuturesCandlesticksResp,
   GetFuturesLiquidationHistoryResp,
-  GetFuturesOrderBookResp,
   GetFuturesPositionHistoryResp,
   GetFuturesStatsResp,
-  GetFuturesTickersResp,
-  GetFuturesTradesResp,
   GetFuturesTradingHistoryResp,
   GetIndexConstituentsResp,
   GetLiquidationHistoryResp,
-  GetPremiumIndexKLineResp,
   GetRiskLimitTiersResp,
+  PremiumIndexKLine,
   UpdateFuturesDualModeResp,
 } from './types/response/futures.js';
 import {
@@ -259,50 +259,49 @@ import {
 import { APIResponse } from './types/response/shared.types.js';
 import {
   DeleteSpotBatchOrdersResp,
-  GetSpotAccountBookResp,
-  GetSpotAccountsResp,
-  GetSpotBatchFeeRatesResp,
-  GetSpotCandlesticksResp,
-  GetSpotCurrenciesResp,
-  GetSpotFeeRatesResp,
   GetSpotOpenOrdersResp,
-  GetSpotOrderBookResp,
-  GetSpotTickerResp,
-  GetSpotTradesResp,
   GetSpotTradingHistoryResp,
+  SpotAccount,
+  SpotAccountBook,
+  SpotCandle,
+  SpotCurrency,
+  SpotFeeRates,
   SpotOrder,
+  SpotOrderBook,
   SpotPriceTriggeredOrder,
+  SpotTicker,
+  SpotTrade,
   SubmitSpotBatchOrdersResp,
 } from './types/response/spot.js';
 import {
-  CreateSubAccountApiKeyResp,
-  SubAccountKey,
-  SubAccountResp,
+  CreatedSubAccountAPIKey,
+  SubAccount,
+  SubAccountAPIKey,
 } from './types/response/subaccount.js';
 import {
-  GetUnifiedAccountInfoResp,
   GetUnifiedCurrencyDiscountTiersResp,
-  GetUnifiedInterestRecordsResp,
-  GetUnifiedLoanRecordsResp,
-  GetUnifiedLoansResp,
   GetUnifiedRiskUnitDetailsResp,
-  PortfolioMarginCalculatorResp,
+  PortfolioMarginCalculation,
+  UnifiedAccountInfo,
+  UnifiedInterestRecord,
+  UnifiedLoan,
+  UnifiedLoanRecord,
 } from './types/response/unified.js';
 import {
   CreateDepositAddressResp,
+  CurrencyChain,
   GetBalancesResp,
-  GetCurrencyChainsResp,
-  GetSavedAddressResp,
   GetSmallBalanceHistoryResp,
-  GetSmallBalancesResp,
   GetTradingFeesResp,
   GetWithdrawalStatusResp,
+  SavedAddress,
+  SmallBalanceRecord,
   SubAccountCrossMarginBalancesResp,
   SubAccountFuturesBalancesResp,
   SubAccountMarginBalancesResp,
-  SubAccountTransferRecordResp,
+  SubAccountTransferRecord,
 } from './types/response/wallet.js';
-import { Withdrawal } from './types/response/withdrawal.js';
+import { WithdrawalRecord } from './types/response/withdrawal.js';
 import { CurrencyPair } from './types/shared.js';
 
 /**
@@ -321,7 +320,7 @@ export class RestClient extends BaseRestClient {
     return REST_CLIENT_TYPE_ENUM.main;
   }
 
-  getSystemMaintenanceStatus(): Promise<APIResponse<unknown>> {
+  getSystemMaintenanceStatus(): Promise<APIResponse<any>> {
     return this.get('/v1/public/system_info');
   }
 
@@ -338,7 +337,9 @@ export class RestClient extends BaseRestClient {
    * @param params Withdrawal parameters
    * @returns Promise<APIResponse<Withdraw>>
    */
-  submitWithdraw(params: SubmitWithdrawReq): Promise<APIResponse<Withdrawal>> {
+  submitWithdraw(
+    params: SubmitWithdrawReq,
+  ): Promise<APIResponse<WithdrawalRecord>> {
     return this.postPrivate('/withdrawals', { query: params });
   }
 
@@ -350,7 +351,7 @@ export class RestClient extends BaseRestClient {
    */
   cancelWithdrawal(params: {
     withdrawal_id: string;
-  }): Promise<APIResponse<Withdrawal>> {
+  }): Promise<APIResponse<WithdrawalRecord>> {
     return this.deletePrivate(`/withdrawals/${params.withdrawal_id}`);
   }
 
@@ -367,7 +368,7 @@ export class RestClient extends BaseRestClient {
    */
   getCurrencyChains(params: {
     currency: string;
-  }): Promise<APIResponse<GetCurrencyChainsResp[]>> {
+  }): Promise<APIResponse<CurrencyChain[]>> {
     return this.get('/wallet/currency_chains', params);
   }
 
@@ -393,7 +394,7 @@ export class RestClient extends BaseRestClient {
    */
   getWithdrawalRecords(
     params?: GetWithdrawalDepositRecordsReq,
-  ): Promise<APIResponse<Withdrawal[]>> {
+  ): Promise<APIResponse<WithdrawalRecord[]>> {
     return this.getPrivate('/wallet/withdrawals', params);
   }
 
@@ -407,7 +408,7 @@ export class RestClient extends BaseRestClient {
    */
   getDepositRecords(
     params?: GetWithdrawalDepositRecordsReq,
-  ): Promise<APIResponse<Withdrawal[]>> {
+  ): Promise<APIResponse<WithdrawalRecord[]>> {
     return this.getPrivate('/wallet/deposits', params);
   }
 
@@ -456,7 +457,7 @@ export class RestClient extends BaseRestClient {
    */
   getMainSubTransfers(
     params?: GetMainSubTransfersReq,
-  ): Promise<APIResponse<SubAccountTransferRecordResp[]>> {
+  ): Promise<APIResponse<SubAccountTransferRecord[]>> {
     return this.getPrivate('/wallet/sub_account_transfers', params);
   }
 
@@ -546,14 +547,14 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
-   * Query saved address
+   * Query saved addresses
    *
    * @param params Parameters for querying saved address
    * @returns Promise<APIResponse<GetSavedAddressResp[]>>
    */
-  getSavedAddress(
+  getSavedAddresses(
     params: GetSavedAddressReq,
-  ): Promise<APIResponse<GetSavedAddressResp[]>> {
+  ): Promise<APIResponse<SavedAddress[]>> {
     return this.getPrivate('/wallet/saved_address', params);
   }
 
@@ -595,7 +596,7 @@ export class RestClient extends BaseRestClient {
    *
    * @returns Promise<APIResponse<GetSmallBalancesResp>>
    */
-  getSmallBalances(): Promise<APIResponse<GetSmallBalancesResp>> {
+  getSmallBalances(): Promise<APIResponse<SmallBalanceRecord>> {
     return this.getPrivate('/wallet/small_balance');
   }
 
@@ -636,7 +637,7 @@ export class RestClient extends BaseRestClient {
    */
   createSubAccount(
     params: CreateSubAccountReq,
-  ): Promise<APIResponse<SubAccountResp>> {
+  ): Promise<APIResponse<SubAccount>> {
     return this.postPrivate('/sub_accounts', { body: params });
   }
 
@@ -649,7 +650,7 @@ export class RestClient extends BaseRestClient {
 
   getSubAccounts(params?: {
     type?: string;
-  }): Promise<APIResponse<SubAccountResp[]>> {
+  }): Promise<APIResponse<SubAccount[]>> {
     return this.getPrivate('/sub_accounts', params);
   }
 
@@ -659,9 +660,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters containing the sub-account user ID
    * @returns Promise<APIResponse<SubAccountResp>>
    */
-  getSubAccount(params: {
-    user_id: number;
-  }): Promise<APIResponse<SubAccountResp>> {
+  getSubAccount(params: { user_id: number }): Promise<APIResponse<SubAccount>> {
     return this.getPrivate(`/sub_accounts/${params.user_id}`);
   }
 
@@ -673,7 +672,7 @@ export class RestClient extends BaseRestClient {
    */
   createSubAccountApiKey(
     params: CreateSubAccountApiKeyReq,
-  ): Promise<APIResponse<CreateSubAccountApiKeyResp>> {
+  ): Promise<APIResponse<CreatedSubAccountAPIKey>> {
     const { user_id, ...body } = params;
     return this.postPrivate(`/sub_accounts/${user_id}/keys`, { body: body });
   }
@@ -685,7 +684,7 @@ export class RestClient extends BaseRestClient {
    */
   getSubAccountApiKeys(params: {
     user_id: number;
-  }): Promise<APIResponse<SubAccountKey[]>> {
+  }): Promise<APIResponse<SubAccountAPIKey[]>> {
     return this.getPrivate(`/sub_accounts/${params.user_id}/keys`);
   }
 
@@ -726,7 +725,7 @@ export class RestClient extends BaseRestClient {
   getSubAccountApiKey(params: {
     user_id: number;
     key: string;
-  }): Promise<APIResponse<SubAccountKey>> {
+  }): Promise<APIResponse<SubAccountAPIKey>> {
     return this.getPrivate(
       `/sub_accounts/${params.user_id}/keys/${params.key}`,
     );
@@ -766,7 +765,7 @@ export class RestClient extends BaseRestClient {
    */
   getUnifiedAccountInfo(params?: {
     currency?: string;
-  }): Promise<APIResponse<GetUnifiedAccountInfoResp>> {
+  }): Promise<APIResponse<UnifiedAccountInfo>> {
     return this.getPrivate('/unified/accounts', params);
   }
 
@@ -832,7 +831,7 @@ export class RestClient extends BaseRestClient {
    */
   getUnifiedLoans(
     params?: GetUnifiedLoansReq,
-  ): Promise<APIResponse<GetUnifiedLoansResp[]>> {
+  ): Promise<APIResponse<UnifiedLoan[]>> {
     return this.getPrivate('/unified/loans', params);
   }
 
@@ -844,7 +843,7 @@ export class RestClient extends BaseRestClient {
    */
   getUnifiedLoanRecords(
     params?: GetUnifiedLoanRecordsReq,
-  ): Promise<APIResponse<GetUnifiedLoanRecordsResp[]>> {
+  ): Promise<APIResponse<UnifiedLoanRecord[]>> {
     return this.getPrivate('/unified/loan_records', params);
   }
 
@@ -856,7 +855,7 @@ export class RestClient extends BaseRestClient {
    */
   getUnifiedInterestRecords(
     params?: GetUnifiedInterestRecordsReq,
-  ): Promise<APIResponse<GetUnifiedInterestRecordsResp[]>> {
+  ): Promise<APIResponse<UnifiedInterestRecord[]>> {
     return this.getPrivate('/unified/interest_records', params);
   }
 
@@ -879,7 +878,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for setting the mode of the unified account
    * @returns Promise<APIResponse<any>>
    */
-  updateUnifiedAccountMode(
+  setUnifiedAccountMode(
     params: SetUnifiedAccountModeReq,
   ): Promise<APIResponse<any>> {
     return this.putPrivate('/unified/unified_mode', { body: params });
@@ -935,7 +934,7 @@ export class RestClient extends BaseRestClient {
    */
   portfolioMarginCalculate(
     params: PortfolioMarginCalculatorReq,
-  ): Promise<APIResponse<PortfolioMarginCalculatorResp>> {
+  ): Promise<APIResponse<PortfolioMarginCalculation>> {
     return this.post('/unified/portfolio_calculator', { body: params });
   }
 
@@ -955,7 +954,7 @@ export class RestClient extends BaseRestClient {
    *
    * @returns Promise<APIResponse<GetSpotCurrenciesResp[]>>
    */
-  getSpotCurrencies(): Promise<APIResponse<GetSpotCurrenciesResp[]>> {
+  getSpotCurrencies(): Promise<APIResponse<SpotCurrency[]>> {
     return this.get('/spot/currencies');
   }
 
@@ -967,7 +966,7 @@ export class RestClient extends BaseRestClient {
    */
   getSpotCurrency(params: {
     currency: string;
-  }): Promise<APIResponse<GetSpotCurrenciesResp>> {
+  }): Promise<APIResponse<SpotCurrency>> {
     return this.get(`/spot/currencies/${params.currency}`);
   }
 
@@ -1003,7 +1002,7 @@ export class RestClient extends BaseRestClient {
   getSpotTicker(params?: {
     currency_pair?: string;
     timezone?: 'utc0' | 'utc8' | 'all';
-  }): Promise<APIResponse<GetSpotTickerResp[]>> {
+  }): Promise<APIResponse<SpotTicker[]>> {
     return this.get('/spot/tickers', params);
   }
 
@@ -1017,7 +1016,7 @@ export class RestClient extends BaseRestClient {
    */
   getSpotOrderBook(
     params: GetSpotOrderBookReq,
-  ): Promise<APIResponse<GetSpotOrderBookResp>> {
+  ): Promise<APIResponse<SpotOrderBook>> {
     return this.get('/spot/order_book', params);
   }
 
@@ -1030,9 +1029,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for retrieving market trades
    * @returns Promise<APIResponse<GetSpotTradesResp[]>>
    */
-  getSpotTrades(
-    params: GetSpotTradesReq,
-  ): Promise<APIResponse<GetSpotTradesResp[]>> {
+  getSpotTrades(params: GetSpotTradesReq): Promise<APIResponse<SpotTrade[]>> {
     return this.get('/spot/trades', params);
   }
 
@@ -1044,9 +1041,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for retrieving market candlesticks
    * @returns Promise<APIResponse<GetSpotCandlesticksResp>>
    */
-  getSpotCandlesticks(
-    params: GetSpotCandlesticksReq,
-  ): Promise<APIResponse<GetSpotCandlesticksResp>> {
+  getSpotCandle(params: GetSpotCandlesReq): Promise<APIResponse<SpotCandle[]>> {
     return this.get('/spot/candlesticks', params);
   }
 
@@ -1060,7 +1055,7 @@ export class RestClient extends BaseRestClient {
    */
   getSpotFeeRates(params?: {
     currency_pair?: string;
-  }): Promise<APIResponse<GetSpotFeeRatesResp>> {
+  }): Promise<APIResponse<SpotFeeRates>> {
     return this.getPrivate('/spot/fee', params);
   }
 
@@ -1068,11 +1063,10 @@ export class RestClient extends BaseRestClient {
    * Query a batch of user trading fee rates
    *
    * @param params Parameters for querying a batch of user trading fee rates
-   * @returns Promise<APIResponse<GetSpotBatchFeeRatesResp>>
    */
   getSpotBatchFeeRates(params: {
     currency_pairs: string;
-  }): Promise<APIResponse<GetSpotBatchFeeRatesResp>> {
+  }): Promise<APIResponse<Record<string, SpotFeeRates>>> {
     return this.getPrivate('/spot/batch_fee', params);
   }
 
@@ -1084,7 +1078,7 @@ export class RestClient extends BaseRestClient {
    */
   getSpotAccounts(params?: {
     currency?: string;
-  }): Promise<APIResponse<GetSpotAccountsResp[]>> {
+  }): Promise<APIResponse<SpotAccount[]>> {
     return this.getPrivate('/spot/accounts', params);
   }
 
@@ -1098,7 +1092,7 @@ export class RestClient extends BaseRestClient {
    */
   getSpotAccountBook(
     params?: GetSpotAccountBookReq,
-  ): Promise<APIResponse<GetSpotAccountBookResp[]>> {
+  ): Promise<APIResponse<SpotAccountBook[]>> {
     return this.getPrivate('/spot/account_book', params);
   }
 
@@ -1884,7 +1878,7 @@ export class RestClient extends BaseRestClient {
    */
   getFuturesOrderBook(
     params: GetFuturesOrderBookReq,
-  ): Promise<APIResponse<GetFuturesOrderBookResp>> {
+  ): Promise<APIResponse<FuturesOrderBook>> {
     const { settle, ...query } = params;
     return this.get(`/futures/${settle}/order_book`, query);
   }
@@ -1897,7 +1891,7 @@ export class RestClient extends BaseRestClient {
    */
   getFuturesTrades(
     params: GetFuturesTradesReq,
-  ): Promise<APIResponse<GetFuturesTradesResp[]>> {
+  ): Promise<APIResponse<FuturesTrade[]>> {
     const { settle, ...query } = params;
     return this.get(`/futures/${settle}/trades`, query);
   }
@@ -1912,9 +1906,9 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for retrieving futures candlesticks
    * @returns Promise<APIResponse<GetFuturesCandlesticksResp[]>>
    */
-  getFuturesCandlesticks(
-    params: GetFuturesCandlesticksReq,
-  ): Promise<APIResponse<GetFuturesCandlesticksResp[]>> {
+  getFuturesCandles(
+    params: GetFuturesCandlesReq,
+  ): Promise<APIResponse<FuturesCandle[]>> {
     const { settle, ...query } = params;
     return this.get(`/futures/${settle}/candlesticks`, query);
   }
@@ -1928,8 +1922,8 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<APIResponse<GetPremiumIndexKLineResp[]>>
    */
   getPremiumIndexKLine(
-    params: GetFuturesCandlesticksReq,
-  ): Promise<APIResponse<GetPremiumIndexKLineResp[]>> {
+    params: GetFuturesCandlesReq,
+  ): Promise<APIResponse<PremiumIndexKLine[]>> {
     const { settle, ...query } = params;
     return this.get(`/futures/${settle}/premium_index`, query);
   }
@@ -1943,7 +1937,7 @@ export class RestClient extends BaseRestClient {
   getFuturesTickers(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract?: string;
-  }): Promise<APIResponse<GetFuturesTickersResp[]>> {
+  }): Promise<APIResponse<FuturesTicker[]>> {
     const { settle, ...query } = params;
     return this.get(`/futures/${settle}/tickers`, query);
   }

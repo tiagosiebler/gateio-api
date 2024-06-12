@@ -1,4 +1,4 @@
-export interface Withdrawal {
+export interface WithdrawalRecord {
   id: string;
   txid: string;
   withdraw_order_id: string;

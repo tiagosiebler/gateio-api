@@ -23,7 +23,7 @@ export interface GetFuturesTradesReq {
   to?: number;
 }
 
-export interface GetFuturesCandlesticksReq {
+export interface GetFuturesCandlesReq {
   settle: 'btc' | 'usdt' | 'usd';
   contract: string;
   from?: number;

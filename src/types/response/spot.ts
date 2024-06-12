@@ -3,7 +3,7 @@
  * ==========================================================================================================================
  */
 
-export interface GetSpotCurrenciesResp {
+export interface SpotCurrency {
   currency: string;
   delisted: boolean;
   withdraw_disabled: boolean;
@@ -14,7 +14,7 @@ export interface GetSpotCurrenciesResp {
   chain: string;
 }
 
-export interface GetSpotTickerResp {
+export interface SpotTicker {
   currency_pair: string;
   last: string;
   lowest_ask: string;
@@ -32,7 +32,7 @@ export interface GetSpotTickerResp {
   etf_leverage: string | null;
 }
 
-export interface GetSpotOrderBookResp {
+export interface SpotOrderBook {
   id?: number;
   current: number;
   update: number;
@@ -40,7 +40,7 @@ export interface GetSpotOrderBookResp {
   bids: [string, string][];
 }
 
-export interface GetSpotTradesResp {
+export interface SpotTrade {
   id: string;
   create_time: string;
   create_time_ms: string;
@@ -59,20 +59,18 @@ export interface GetSpotTradesResp {
   text: string;
 }
 
-export type GetSpotCandlesticksResp = [
-  [
-    string, // Unix timestamp with second precision
-    string, // Trading volume in quote currency
-    string, // Closing price
-    string, // Highest price
-    string, // Lowest price
-    string, // Opening price
-    string, // Trading volume in base currency
-    boolean, // Whether the window is closed
-  ],
+export type SpotCandle = [
+  string, // Unix timestamp with second precision
+  string, // Trading volume in quote currency
+  string, // Closing price
+  string, // Highest price
+  string, // Lowest price
+  string, // Opening price
+  string, // Trading volume in base currency
+  boolean, // Whether the window is closed
 ];
 
-export interface GetSpotFeeRatesResp {
+export interface SpotFeeRates {
   user_id: number;
   taker_fee: string;
   maker_fee: string;
@@ -85,29 +83,14 @@ export interface GetSpotFeeRatesResp {
   debit_fee: number;
 }
 
-export interface GetSpotBatchFeeRatesResp {
-  [key: string]: {
-    user_id: number;
-    taker_fee: string;
-    maker_fee: string;
-    gt_discount: boolean;
-    gt_taker_fee: string;
-    gt_maker_fee: string;
-    loan_fee: string;
-    point_type: string;
-    currency_pair: string;
-    debit_fee: number;
-  };
-}
-
-export interface GetSpotAccountsResp {
+export interface SpotAccount {
   currency: string;
   available: string;
   locked: string;
   update_id: number;
 }
 
-export interface GetSpotAccountBookResp {
+export interface SpotAccountBook {
   id: string;
   time: number;
   currency: string;
