@@ -4,7 +4,8 @@
     "module": "commonjs",
     "outDir": "dist/cjs",
     "target": "esnext",
-    "rootDir": "../"
+    "rootDir": "../",
+    "allowJs": true
   },
   "include": [
     "src/**/*.*",

@@ -1,4 +1,5 @@
-import { RestClient } from '../../src'; // Import the RestClient from the src directory
+import { RestClient } from '../../src'; // For an easy demonstration, import from the src dir. Normally though, see below to import from the npm installed version instead.
+// import { RestClient } from 'gateio-api'; // Import the RestClient from the published version of this SDK, installed via NPM (npm install gateio-api)
 
 // Define the account object with API key and secret
 const account = {

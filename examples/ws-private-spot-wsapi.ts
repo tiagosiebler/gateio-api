@@ -1,10 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { LogParams, WebsocketClient } from '../src';
-import {
-  WSAPILoginResponse,
-  WSAPIResponse,
-} from '../src/types/websockets/wsAPI';
+// import { LogParams, WebsocketClient } from 'gateio-api'; // normally you should install this module via npm: `npm install gateio-api`
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const account = {

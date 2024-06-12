@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { LogParams, WebsocketClient } from '../src';
-import { WsTopicRequest } from '../src/lib/websocket/websocket-util';
+import { LogParams, WebsocketClient, WsTopicRequest } from '../src';
+// import { LogParams, WebsocketClient, WsTopicRequest } from 'gateio-api'; // normally you should install this module via npm: `npm install gateio-api`
 
 const account = {
   key: process.env.API_KEY || 'apiKeyHere',
