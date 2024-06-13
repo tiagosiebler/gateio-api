@@ -76,88 +76,65 @@ Most methods accept JS objects. These can be populated using parameters specifie
 
 ## Structure
 
-This project uses typescript. Resources are stored in 3 key structures:
+This project uses typescript. Resources are stored in 2 key structures:
 
 - [src](./src) - the whole connector written in typescript
-- [lib](./lib) - the javascript version of the project (compiled from typescript). This should not be edited directly, as it will be overwritten with each release.
-- [dist](./dist) - the packed bundle of the project for use in browser environments.
 - [examples](./examples) - some implementation examples & demonstrations. Contributions are welcome!
 
 ---
 
 # Usage
 
-<!-- Create API credentials at okx
-- [OKX my-api](https://www.okx.com/account/my-api) -->
+Create API credentials
 
-<!--
-### REST Inverse
-To use the inverse REST APIs, import the `InverseClient`:
+- [Gate.io API Key Management](https://www.gate.io/myaccount/api_key_manage)
+
+### REST API
+
+To use any of Gate.io's REST APIs in JavaScript/TypeScript/Node.js, import (or require) the `RestClient`:
 
 ```javascript
-const { InverseClient } = require('gateio-api');
-
-const restClientOptions = {
-  // override the max size of the request window (in ms)
-  recv_window?: number;
-
-  // how often to sync time drift with gateio servers
-  sync_interval_ms?: number | string;
-
-  // Default: false. Disable above sync mechanism if true.
-  disable_time_sync?: boolean;
-
-  // Default: false. If true, we'll throw errors if any params are undefined
-  strict_param_validation?: boolean;
-
-  // Optionally override API protocol + domain
-  // e.g 'https://api.bytick.com'
-  baseUrl?: string;
-
-  // Default: true. whether to try and post-process request exceptions.
-  parse_exceptions?: boolean;
-};
+const { RestClient } = require('gateio-api');
 
 const API_KEY = 'xxx';
 const PRIVATE_KEY = 'yyy';
-const useLivenet = false;
 
-const client = new InverseClient(
-  API_KEY,
-  PRIVATE_KEY,
+const client = new RestClient({
+  apiKey: API_KEY,
+  apiSecret: PRIVATE_KEY,
+});
 
-  // optional, uses testnet by default. Set to 'true' to use livenet.
-  useLivenet,
-
-  // restClientOptions,
-  // requestLibraryOptions
-);
-
-client.getApiKeyInfo()
-  .then(result => {
-    console.log("apiKey result: ", result);
+client
+  .getSpotTicker()
+  .then((result) => {
+    console.log('all spot tickers result: ', result);
   })
-  .catch(err => {
-    console.error("apiKey error: ", err);
+  .catch((err) => {
+    console.error('spot ticker error: ', err);
   });
 
-client.getOrderBook({ symbol: 'BTCUSD' })
-  .then(result => {
-    console.log("getOrderBook inverse result: ", result);
+client
+  .getSpotOrders({
+    currency_pair: 'BTC_USDT', // Specify the currency pair
+    status: 'open', // Specify the status of the orders to fetch
   })
-  .catch(err => {
-    console.error("getOrderBook inverse error: ", err);
+  .then((result) => {
+    console.log('getSpotOrders result: ', result);
+  })
+  .catch((err) => {
+    console.error('getSpotOrders error: ', err);
   });
 ```
 
-
-See [inverse-client.ts](./src/inverse-client.ts) for further information. -->
+See [RestClient.ts](./src/RestClient.ts) for further information, or the [examples](./examples/) for lots of usage examples.
 
 ## WebSockets
 
 All available WebSockets can be used via a shared `WebsocketClient`. The WebSocket client will automatically open/track/manage connections as needed. Each unique connection (one per server URL) is tracked using a WsKey (each WsKey is a string - [WS_KEY_MAP](src/lib/websocket/websocket-util.ts).
 
 Any subscribe/unsubscribe events will need to include a WsKey, so the WebSocket client understands which connection the event should be routed to. See examples below or in the [examples](./examples/) folder on GitHub.
+
+Data events are emitted from the WebsocketClient via the `update` event, see example below:
 
 ```javascript
 const { WebsocketClient } = require('gateio-api');
@@ -382,16 +359,6 @@ DefaultLogger.silly = () => {};
 
 const ws = new WebsocketClient({ key: 'xxx', secret: 'yyy' }, DefaultLogger);
 ```
-
-## Browser Usage
-
-Build a bundle using webpack:
-
-- `npm install`
-- `npm build`
-- `npm pack`
-
-The bundle can be found in `dist/`. Altough usage should be largely consistent, smaller differences will exist. Documentation is still TODO.
 
 ---
 
