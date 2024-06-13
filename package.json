@@ -1,6 +1,6 @@
 {
   "name": "gateio-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Complete & robust Node.js SDK for Gate.io's REST APIs, WebSockets & WebSocket APIs, with TypeScript declarations.",
   "scripts": {
     "clean": "rm -rf dist/*",
@@ -77,10 +77,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tiagosiebler/gate-api"
+    "url": "https://github.com/tiagosiebler/gateio-api"
   },
   "bugs": {
-    "url": "https://github.com/tiagosiebler/gate-api/issues"
+    "url": "https://github.com/tiagosiebler/gateio-api/issues"
   },
-  "homepage": "https://github.com/tiagosiebler/gate-api#readme"
+  "homepage": "https://github.com/tiagosiebler/gateio-api#readme"
 }
