@@ -88,7 +88,7 @@ export interface CrossMarginAccountHistoryRecord {
   type: string;
 }
 
-export interface SubmitCrossMarginBorrowLoanResp {
+export interface CrossMarginMorrowLoanRecord {
   id: string;
   create_time: number;
   update_time: number;

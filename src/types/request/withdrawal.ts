@@ -3,7 +3,7 @@
  * ==========================================================================================================================
  */
 
-export interface SubmitWithdrawReq {
+export interface SubmitWithdrawalReq {
   amount: string;
   currency: string;
   chain: string;

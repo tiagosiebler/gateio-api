@@ -142,7 +142,7 @@ import {
   SubmitSubToSubTransferReq,
   SubmitTransferReq,
 } from './types/request/wallet.js';
-import { SubmitWithdrawReq } from './types/request/withdrawal.js';
+import { SubmitWithdrawalReq } from './types/request/withdrawal.js';
 import {
   AccountDetail,
   StpGroup,
@@ -210,9 +210,9 @@ import {
   CrossMarginAccount,
   CrossMarginAccountHistoryRecord,
   CrossMarginCurrency,
+  CrossMarginMorrowLoanRecord,
   MarginAccount,
   MarginBalanceHistoryRecord,
-  SubmitCrossMarginBorrowLoanResp,
 } from './types/response/margin.js';
 import {
   LendingMarket,
@@ -335,8 +335,8 @@ export class RestClient extends BaseRestClient {
    * @param params Withdrawal parameters
    * @returns Promise<APIResponse<Withdraw>>
    */
-  submitWithdraw(
-    params: SubmitWithdrawReq,
+  submitWithdrawal(
+    params: SubmitWithdrawalReq,
   ): Promise<APIResponse<WithdrawalRecord>> {
     return this.postPrivate('/withdrawals', { query: params });
   }
@@ -1039,7 +1039,9 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for retrieving market Candles
    * @returns Promise<APIResponse<GetSpotCandlesResp>>
    */
-  getSpotCandle(params: GetSpotCandlesReq): Promise<APIResponse<SpotCandle[]>> {
+  getSpotCandles(
+    params: GetSpotCandlesReq,
+  ): Promise<APIResponse<SpotCandle[]>> {
     return this.get('/spot/Candles', params);
   }
 
@@ -1176,7 +1178,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling all open orders in specified currency pair
    * @returns Promise<APIResponse<Order[]>>
    */
-  deleteSpotPairOpenOrders(params: {
+  cancelSpotOpenOrders(params: {
     currency_pair: string;
     side?: 'buy' | 'sell';
     account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
@@ -1193,7 +1195,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling a batch of orders
    * @returns Promise<APIResponse<DeleteSpotBatchOrdersResp[]>>
    */
-  deleteSpotBatchOrders(
+  batchCancelSpotOrders(
     params: CancelSpotBatchOrdersReq[],
   ): Promise<APIResponse<DeleteSpotBatchOrdersResp[]>> {
     return this.postPrivate('/spot/cancel_batch_orders', { body: params });
@@ -1244,7 +1246,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling a single order
    * @returns Promise<APIResponse<Order>>
    */
-  deleteSpotOrder(params: DeleteSpotOrderReq): Promise<APIResponse<SpotOrder>> {
+  cancelSpotOrder(params: DeleteSpotOrderReq): Promise<APIResponse<SpotOrder>> {
     const { order_id, ...query } = params;
     return this.deletePrivate(`/spot/orders/${order_id}`, {
       query: query,
@@ -1311,7 +1313,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for batch modification of orders
    * @returns Promise<APIResponse<Order[]>>
    */
-  updateSpotBatchOrders(
+  batchUpdateSpotOrders(
     params: UpdateSpotBatchOrdersReq[],
   ): Promise<APIResponse<SpotOrder[]>> {
     return this.postPrivate('/spot/amend_batch_orders', { body: params });
@@ -1351,7 +1353,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling all open orders
    * @returns Promise<APIResponse<SpotPriceTriggeredOrder[]>>
    */
-  deleteSpotAllOpenOrders(params?: {
+  cancelAllOpenSpotOrders(params?: {
     market?: string;
     account?: 'normal' | 'margin' | 'cross_margin';
   }): Promise<APIResponse<SpotPriceTriggeredOrder[]>> {
@@ -1376,7 +1378,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling a price-triggered order
    * @returns Promise<APIResponse<SpotPriceTriggeredOrder>>
    */
-  deleteSpotPriceTriggeredOrder(params: {
+  cancelSpotTriggeredOrder(params: {
     order_id: string;
   }): Promise<APIResponse<SpotPriceTriggeredOrder>> {
     return this.deletePrivate(`/spot/price_orders/${params.order_id}`);
@@ -1537,7 +1539,7 @@ export class RestClient extends BaseRestClient {
    */
   submitCrossMarginBorrowLoan(
     params: SubmitCrossMarginBorrowLoanReq,
-  ): Promise<APIResponse<SubmitCrossMarginBorrowLoanResp>> {
+  ): Promise<APIResponse<CrossMarginMorrowLoanRecord>> {
     return this.postPrivate('/margin/cross/loans', { body: params });
   }
 
@@ -1551,7 +1553,7 @@ export class RestClient extends BaseRestClient {
    */
   getCrossMarginBorrowHistory(
     params: GetCrossMarginBorrowHistoryReq,
-  ): Promise<APIResponse<SubmitCrossMarginBorrowLoanResp[]>> {
+  ): Promise<APIResponse<CrossMarginMorrowLoanRecord[]>> {
     return this.getPrivate('/margin/cross/loans', params);
   }
 
@@ -1563,7 +1565,7 @@ export class RestClient extends BaseRestClient {
    */
   getCrossMarginBorrowLoan(params: {
     loan_id: string;
-  }): Promise<APIResponse<SubmitCrossMarginBorrowLoanResp>> {
+  }): Promise<APIResponse<CrossMarginMorrowLoanRecord>> {
     return this.getPrivate(`/margin/cross/loans/${params.loan_id}`);
   }
   /**
@@ -1577,7 +1579,7 @@ export class RestClient extends BaseRestClient {
   submitCrossMarginRepayment(params: {
     currency: string;
     amount: string;
-  }): Promise<APIResponse<SubmitCrossMarginBorrowLoanResp[]>> {
+  }): Promise<APIResponse<CrossMarginMorrowLoanRecord[]>> {
     return this.postPrivate('/margin/cross/repayments', { body: params });
   }
 
@@ -1917,7 +1919,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for retrieving premium index K-Line
    * @returns Promise<APIResponse<GetPremiumIndexKLineResp[]>>
    */
-  getPremiumIndexKLine(
+  getPremiumIndexKLines(
     params: GetFuturesCandlesReq,
   ): Promise<APIResponse<PremiumIndexKLine[]>> {
     const { settle, ...query } = params;
@@ -1972,7 +1974,7 @@ export class RestClient extends BaseRestClient {
    *   b: string;
    * }[]>>
    */
-  getFuturesInsuranceBalance(params: {
+  getFuturesInsuranceBalanceHistory(params: {
     settle: 'btc' | 'usdt' | 'usd';
     limit?: number;
   }): Promise<
@@ -2282,7 +2284,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling all open orders matched
    * @returns Promise<APIResponse<FuturesOrder[]>>
    */
-  deleteAllFuturesOrders(
+  cancelAllFuturesOrders(
     params: DeleteAllFuturesOrdersReq,
   ): Promise<APIResponse<FuturesOrder[]>> {
     const { settle, ...query } = params;
@@ -2352,7 +2354,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling a single order
    * @returns Promise<APIResponse<FuturesOrder>>
    */
-  deleteFuturesOrder(params: {
+  cancelFuturesOrder(params: {
     settle: 'btc' | 'usdt' | 'usd';
     order_id: string;
   }): Promise<APIResponse<FuturesOrder>> {
@@ -2440,7 +2442,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for setting countdown cancel orders
    * @returns Promise<APIResponse<{ triggerTime: number }>>
    */
-  deleteFuturesOrdersCountdown(params: {
+  setFuturesOrderCancelCountdown(params: {
     settle: 'btc' | 'usdt' | 'usd';
     timeout: number;
     contract?: string;
@@ -2473,13 +2475,13 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling a batch of orders with an ID list
    * @returns Promise<APIResponse<DeleteFuturesBatchOrdersResp[]>>
    */
-  deleteFuturesBatchOrders(params: {
+  batchCancelFuturesOrders(params: {
     settle: 'btc' | 'usdt' | 'usd';
-    body: string[];
+    orderIds: string[];
   }): Promise<APIResponse<DeleteFuturesBatchOrdersResp[]>> {
-    const { settle, ...body } = params;
+    const { settle, ...orderIds } = params;
     return this.postPrivate(`/futures/${settle}/batch_cancel_orders`, {
-      body: body,
+      body: orderIds,
     });
   }
 
@@ -2515,7 +2517,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling all open orders
    * @returns Promise<APIResponse<FuturesPriceTriggeredOrder[]>>
    */
-  deleteFuturesAllOpenOrders(params: {
+  cancelAllOpenFuturesOrders(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
   }): Promise<APIResponse<FuturesPriceTriggeredOrder[]>> {
@@ -2546,7 +2548,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling a price-triggered order
    * @returns Promise<APIResponse<FuturesPriceTriggeredOrder>>
    */
-  deleteFuturesPriceTriggeredOrder(params: {
+  cancelFuturesPriceTriggeredOrder(params: {
     settle: 'btc' | 'usdt' | 'usd';
     order_id: string;
   }): Promise<APIResponse<FuturesPriceTriggeredOrder>> {
@@ -2811,7 +2813,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling all open orders matched
    * @returns Promise<APIResponse<FuturesOrder[]>>
    */
-  deleteAllDeliveryOrders(params: {
+  cancelAllDeliveryOrders(params: {
     settle: 'usdt';
     contract: string;
     side?: 'ask' | 'bid';
@@ -2845,7 +2847,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling a single order
    * @returns Promise<APIResponse<FuturesOrder>>
    */
-  deleteDeliveryOrder(params: {
+  cancelDeliveryOrder(params: {
     settle: 'usdt';
     order_id: string;
   }): Promise<APIResponse<FuturesOrder>> {
@@ -2940,7 +2942,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling all open orders
    * @returns Promise<APIResponse<FuturesPriceTriggeredOrder[]>>
    */
-  deleteDeliveryOrders(params: {
+  cancelAllOpenDeliveryOrders(params: {
     settle: 'usdt';
     contract: string;
   }): Promise<APIResponse<FuturesPriceTriggeredOrder[]>> {
@@ -2971,7 +2973,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for cancelling a price-triggered order
    * @returns Promise<APIResponse<FuturesPriceTriggeredOrder>>
    */
-  deleteDeliveryTriggeredOrder(params: {
+  cancelTriggeredDeliveryOrder(params: {
     settle: 'usdt';
     order_id: string;
   }): Promise<APIResponse<FuturesPriceTriggeredOrder>> {
@@ -3242,7 +3244,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for canceling all open orders matched
    * @returns Promise<APIResponse<SubmitOptionsOrderResp[]>>
    */
-  deleteOptionsOrders(params: {
+  cancelAllOpenOptionsOrders(params: {
     contract?: string;
     underlying?: string;
     side?: 'ask' | 'bid';
@@ -3268,7 +3270,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for canceling a single order
    * @returns Promise<APIResponse<SubmitOptionsOrderResp>>
    */
-  deleteOptionsOrder(params: {
+  cancelOptionsOrder(params: {
     order_id: number;
   }): Promise<APIResponse<SubmitOptionsOrderResp>> {
     return this.deletePrivate(`/options/orders/${params.order_id}`);
@@ -3318,7 +3320,9 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for lending or redeeming
    * @returns Promise<APIResponse<any>>
    */
-  submitLendOrRedeem(params: SubmitLendOrRedeemReq): Promise<APIResponse<any>> {
+  submitLendOrRedeemOrder(
+    params: SubmitLendOrRedeemReq,
+  ): Promise<APIResponse<any>> {
     return this.postPrivate(`/earn/uni/lends`, { body: params });
   }
 
@@ -3753,7 +3757,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for listing structured products
    * @returns Promise<APIResponse<GetStructuredProductListResp[]>>
    */
-  getStructuredProductList(
+  getStructuredProducts(
     params: GetStructuredProductListReq,
   ): Promise<APIResponse<StructuredProduct[]>> {
     return this.get(`/earn/structured/products`, params);
