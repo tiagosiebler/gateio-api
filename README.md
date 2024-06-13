@@ -58,16 +58,16 @@ Updated & performant JavaScript & Node.js SDK for the Gate.io REST APIs and WebS
 
 Check out my related JavaScript/TypeScript/Node.js projects:
 
-- Try my API & WebSocket SDKs:
+- Try my REST API & WebSocket SDKs:
   - [Bybit-api Node.js SDK](https://www.npmjs.com/package/bybit-api)
   - [Binance Node.js SDK](https://www.npmjs.com/package/binance)
   - [Okx-api Node.js SDK](https://www.npmjs.com/package/okx-api)
+  - [Gateio-api Node.js SDK](https://www.npmjs.com/package/gateio-api)
   - [Bitget-api Node.js SDK](https://www.npmjs.com/package/bitget-api)
   - [Bitmart-api Node.js SDK](https://www.npmjs.com/package/bitmart-api)
-  - [Gateio-api Node.js SDK](https://www.npmjs.com/package/gateio-api)
 - Try my misc utilities:
   - [OrderBooks Node.js](https://www.npmjs.com/package/orderbooks)
-  - [accountstate](https://www.npmjs.com/package/accountstate)
+  - [Crypto Exchange Account State Cache](https://www.npmjs.com/package/accountstate)
 - Check out my examples:
   - [awesome-crypto-examples Node.js](https://github.com/tiagosiebler/awesome-crypto-examples)
 
@@ -133,7 +133,7 @@ See [RestClient.ts](./src/RestClient.ts) for further information, or the [exampl
 
 ## WebSockets
 
-All available WebSockets can be used via a shared `WebsocketClient`. The WebSocket client will automatically open/track/manage connections as needed. Each unique connection (one per server URL) is tracked using a WsKey (each WsKey is a string - [WS_KEY_MAP](src/lib/websocket/websocket-util.ts).
+All available WebSockets can be used via a shared `WebsocketClient`. The WebSocket client will automatically open/track/manage connections as needed. Each unique connection (one per server URL) is tracked using a WsKey (each WsKey is a string - see [WS_KEY_MAP](src/lib/websocket/websocket-util.ts) for a list of supported values).
 
 Any subscribe/unsubscribe events will need to include a WsKey, so the WebSocket client understands which connection the event should be routed to. See examples below or in the [examples](./examples/) folder on GitHub.
 
