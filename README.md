@@ -1,12 +1,14 @@
 # Node.js & JavaScript SDK for Gate.io REST APIs, WebSockets & WebSocket API
 
 <p align="center">
-<a href="https://www.npmjs.com/package/gateio-api">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/tiagosiebler/gateio-api/blob/master/docs/images/logoDarkMode2.svg?raw=true#gh-dark-mode-only">
-    <img alt="SDK Logo" src="https://github.com/tiagosiebler/gateio-api/blob/master/docs/images/logoBrightMode2.svg?raw=true#gh-light-mode-only">
+    <a href="https://www.npmjs.com/package/gateio-api">
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/tiagosiebler/gateio-api/blob/master/docs/images/logoDarkMode2.svg?raw=true#gh-dark-mode-only">
+    </a>
+    <a href="https://www.npmjs.com/package/gateio-api">
+      <img alt="SDK Logo" src="https://github.com/tiagosiebler/gateio-api/blob/master/docs/images/logoBrightMode2.svg?raw=true#gh-light-mode-only">
+    </a>
   </picture>
-</a>
 </p>
 
 [![npm version](https://img.shields.io/npm/v/gateio-api)][1]
