@@ -16,7 +16,6 @@
 [![npm downloads](https://img.shields.io/npm/dt/gateio-api)][1]
 [![Build & Test](https://github.com/tiagosiebler/gateio-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/gateio-api/actions/workflows/e2etest.yml)
 [![last commit](https://img.shields.io/github/last-commit/tiagosiebler/gateio-api)][1]
-[![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/gateio-api/badge)](https://www.codefactor.io/repository/github/tiagosiebler/gateio-api)
 [![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
 
 [1]: https://www.npmjs.com/package/gateio-api
