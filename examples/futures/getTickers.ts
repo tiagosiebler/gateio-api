@@ -21,14 +21,14 @@ async function getFuturesTicker() {
     const allTickers = await gateRestClient.getFuturesTickers({
       settle: 'usdt', // Specify the settlement currency
     });
-    console.log('Response: ', allTickers); // Log the response to the console
+    console.log('allTickers: ', allTickers); // Log the response to the console
 
     // Fetch a specific futures ticker with USDT settlement
     const ticker = await gateRestClient.getFuturesTickers({
       settle: 'usdt', // Specify the settlement currency
       contract: 'BTC_USDT', // Specify the contract
     });
-    console.log('Response: ', ticker); // Log the response to the console
+    console.log('ticker: ', ticker); // Log the response to the console
   } catch (e) {
     console.error(`Error in execution: `, e); // Log any errors that occur
   }

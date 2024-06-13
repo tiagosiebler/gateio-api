@@ -18,8 +18,9 @@ async function getFuturesBalances() {
     console.log('Using API keys:', account);
 
     // Fetch the futures account balance for USDT settlement
-    const ticker = await gateRestClient.getFuturesAccount({ settle: 'usdt' });
-    console.log('Response: ', ticker); // Log the response to the console
+    const result = await gateRestClient.getFuturesAccount({ settle: 'usdt' });
+
+    console.log('Response: ', result); // Log the response to the console
   } catch (e) {
     console.error(`Error in execution: `, e); // Log any errors that occur
   }

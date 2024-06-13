@@ -18,18 +18,18 @@ async function getFuturesOrders() {
     console.log('Using API keys:', account);
 
     // Fetch open futures orders with USDT settlement
-    const orders = await gateRestClient.getFuturesOrders({
+    const openOrders = await gateRestClient.getFuturesOrders({
       settle: 'usdt', // Specify the settlement currency
       status: 'open', // Specify the status of the orders to fetch
     });
-    console.log('Response: ', orders); // Log the response to the console
+    console.log('openOrders: ', openOrders); // Log the response to the console
 
     // Fetch finished futures orders with USDT settlement
-    const orders1 = await gateRestClient.getFuturesOrders({
+    const finishedOrders = await gateRestClient.getFuturesOrders({
       settle: 'usdt', // Specify the settlement currency
       status: 'finished', // Specify the status of the orders to fetch
     });
-    console.log('Response: ', orders1); // Log the response to the console
+    console.log('finishedOrders: ', finishedOrders); // Log the response to the console
   } catch (e) {
     console.error(`Error in execution: `, e); // Log any errors that occur
   }

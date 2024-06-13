@@ -18,18 +18,18 @@ async function getSpotOrders() {
     console.log('Using API keys:', account);
 
     // Fetch open spot orders for the BTC_USDT currency pair
-    const orders = await gateRestClient.getSpotOrders({
+    const openOrders = await gateRestClient.getSpotOrders({
       currency_pair: 'BTC_USDT', // Specify the currency pair
       status: 'open', // Specify the status of the orders to fetch
     });
-    console.log('Response: ', orders); // Log the response to the console
+    console.log('openOrders: ', openOrders); // Log the response to the console
 
     // Fetch finished spot orders for the BTC_USDT currency pair
-    const orders1 = await gateRestClient.getSpotOrders({
+    const finishedOrders = await gateRestClient.getSpotOrders({
       currency_pair: 'BTC_USDT', // Specify the currency pair
       status: 'finished', // Specify the status of the orders to fetch
     });
-    console.log('Response: ', orders1); // Log the response to the console
+    console.log('finishedOrders: ', finishedOrders); // Log the response to the console
   } catch (e) {
     console.error(`Error in execution: `, e); // Log any errors that occur
   }
