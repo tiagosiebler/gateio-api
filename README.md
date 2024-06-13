@@ -1,7 +1,7 @@
-# Node.js & JavaScript SDK for Gate.io REST APIs and WebSockets (& WebSocket API).
+# Node.js & JavaScript SDK for Gate.io REST APIs, WebSockets & WebSocket API
 
 <a href="[1]#gh-light-mode-only">
-  <img src="https://github.com/tiagosiebler/gateio-api/blob/master/docs/images/logoBrightMode1.svg?raw=true#gh-light-mode-only" alt="SDK Logo" />
+  <img src="https://github.com/tiagosiebler/gateio-api/blob/master/docs/images/logoBrightMode2.svg?raw=true#gh-light-mode-only" alt="SDK Logo" />
 </a>
 
 <a href="[1]#gh-dark-mode-only">
