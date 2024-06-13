@@ -5,7 +5,10 @@
 </a>
 
 <a href="[1]#gh-dark-mode-only">
-  <img src="https://github.com/tiagosiebler/gateio-api/blob/master/docs/images/logoDarkMode1.svg?raw=true#gh-dark-mode-only" alt="SDK Logo" />
+  <div style="margin: 100px;">
+    <!-- <img src="./docs/images/logoDarkMode2.svg?raw=true#gh-dark-mode-only" alt="SDK Logo" width="100%" height="" /> -->
+    <img src="https://github.com/tiagosiebler/gateio-api/blob/master/docs/images/logoDarkMode2.svg?raw=true#gh-dark-mode-only" alt="SDK Logo" width="100%" height="" />
+  </div>
 </a>
 
 [![npm version](https://img.shields.io/npm/v/gateio-api)][1]
