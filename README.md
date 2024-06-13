@@ -129,7 +129,7 @@ client
   });
 ```
 
-See [RestClient.ts](./src/RestClient.ts) for further information, or the [examples](./examples/) for lots of usage examples.
+See [RestClient](./src/RestClient.ts) for further information, or the [examples](./examples/) for lots of usage examples.
 
 ## WebSockets
 
@@ -243,11 +243,11 @@ ws.on('error', (err) => {
 });
 ```
 
-See [WebsocketClient.ts](./src/WebsocketClient.ts) for further information and make sure to check the [examples](./examples/) folder for much more detail.
+See [WebsocketClient](./src/WebsocketClient.ts) for further information and make sure to check the [examples](./examples/) folder for much more detail.
 
 ### Websocket API
 
-The [WebsocketClient.ts](./src/WebsocketClient.ts) supports this exchange's Websocket API. There are two ways to use the WS API, depending on individual preference:
+The [WebsocketClient](./src/WebsocketClient.ts) supports this exchange's Websocket API. There are two ways to use the WS API, depending on individual preference:
 
 - event-driven:
   - send requests via `client.sendWSAPIRequest(wsKey, channel, params)`, fire and forget, don't use await
