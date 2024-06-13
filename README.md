@@ -8,13 +8,11 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/gateio-api/badge)](https://www.codefactor.io/repository/github/tiagosiebler/gateio-api)
 [![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
 
-[![sdk logo](https://github.com/tiagosiebler/gateio-api/blob/master/docs/images/logoBrightMode1.svg?raw=true)][1]
-
-<a href="[1]">
+<a href="[1]#gh-light-mode-only">
   <img src="https://github.com/tiagosiebler/gateio-api/blob/master/docs/images/logoBrightMode1.svg?raw=true#gh-light-mode-only" alt="SDK Logo" />
 </a>
 
-<a href="[1]">
+<a href="[1]#gh-dark-mode-only">
   <img src="https://github.com/tiagosiebler/gateio-api/blob/master/docs/images/logoDarkMode1.svg?raw=true#gh-dark-mode-only" alt="SDK Logo" />
 </a>
 
