@@ -1,11 +1,14 @@
 # Node.js & JavaScript SDK for Gate.io REST APIs and WebSockets (including WebSocket API).
 
-[![E2E Tests](https://github.com/tiagosiebler/gateio-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/gateio-api/actions/workflows/e2etest.yml)
 [![npm version](https://img.shields.io/npm/v/gateio-api)][1]
 [![npm size](https://img.shields.io/bundlephobia/min/gateio-api/latest)][1]
 [![npm downloads](https://img.shields.io/npm/dt/gateio-api)][1]
+[![Build & Test](https://github.com/tiagosiebler/gateio-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/gateio-api/actions/workflows/e2etest.yml)
 [![last commit](https://img.shields.io/github/last-commit/tiagosiebler/gateio-api)][1]
 [![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/gateio-api/badge)](https://www.codefactor.io/repository/github/tiagosiebler/gateio-api)
+[![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
+
+[![sdk logo](https://github.com/tiagosiebler/gateio-api/blob/master/docs/images/logo1.svg?raw=true)][1]
 
 [1]: https://www.npmjs.com/package/gateio-api
 
@@ -13,18 +16,18 @@ Updated & performant JavaScript & Node.js SDK for the Gate.io REST APIs and WebS
 
 - Extensive integration with Gate.io REST APIs and WebSockets.
 - TypeScript support (with type declarations for most API requests & responses).
-- Supports Gate.io REST APIs for Gate.io Spot, Margin, Perpetual Futures, Delivery Futures, Options & Announcements APIs.
+- Gate.io REST APIs for Gate.io Spot, Margin, Perpetual Futures, Delivery Futures, Options & Announcements APIs.
   - Strongly typed on most requests and responses.
 - Extremely robust & performant JavaScript/Node.js Gate.io SDK.
 - Actively maintained with a modern, promise-driven interface.
 - Support for seamless API authentication for private Gate.io REST API and WebSocket calls.
-- Supports Websockets for Gate.io Spot, Margin, Perpetual Futures, Delivery Futures & Options.
+- Gate.io Spot, Margin, Perpetual Futures, Delivery Futures & Options.
   - Event driven messaging.
   - Smart websocket persistence
     - Automatically handle silent websocket disconnections through timed heartbeats, including the scheduled 24hr disconnect.
     - Automatically handle listenKey persistence and expiration/refresh.
     - Emit `reconnected` event when dropped connection is restored.
-- Supports Websocket API for Gate.io Spot, Margin, Perpetual Futures & Delivery Futures.
+- Websocket API for Gate.io Spot, Margin, Perpetual Futures & Delivery Futures.
   - Automatic connectivity via existing WebsocketClient, just call sendWSAPIRequest to trigger a request.
   - Automatic authentication, just call sendWSAPIRequest with channel & parameters.
   - Choose between two interfaces for WS API communication:
