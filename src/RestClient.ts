@@ -254,7 +254,7 @@ import {
   BrokerCommissionHistoryRecord,
   BrokerTransactionHistoryRecord,
 } from './types/response/rebate.js';
-import { APIResponse } from './types/response/shared.types.js';
+import { APIResponse } from './types/response/shared.js';
 import {
   DeleteSpotBatchOrdersResp,
   GetSpotOpenOrdersResp,
