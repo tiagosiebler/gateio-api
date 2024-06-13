@@ -1,12 +1,4 @@
-# Node.js & JavaScript SDK for Gate.io REST APIs and WebSockets (including WebSocket API).
-
-[![npm version](https://img.shields.io/npm/v/gateio-api)][1]
-[![npm size](https://img.shields.io/bundlephobia/min/gateio-api/latest)][1]
-[![npm downloads](https://img.shields.io/npm/dt/gateio-api)][1]
-[![Build & Test](https://github.com/tiagosiebler/gateio-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/gateio-api/actions/workflows/e2etest.yml)
-[![last commit](https://img.shields.io/github/last-commit/tiagosiebler/gateio-api)][1]
-[![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/gateio-api/badge)](https://www.codefactor.io/repository/github/tiagosiebler/gateio-api)
-[![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
+# Node.js & JavaScript SDK for Gate.io REST APIs and WebSockets (& WebSocket API).
 
 <a href="[1]#gh-light-mode-only">
   <img src="https://github.com/tiagosiebler/gateio-api/blob/master/docs/images/logoBrightMode1.svg?raw=true#gh-light-mode-only" alt="SDK Logo" />
@@ -15,6 +7,14 @@
 <a href="[1]#gh-dark-mode-only">
   <img src="https://github.com/tiagosiebler/gateio-api/blob/master/docs/images/logoDarkMode1.svg?raw=true#gh-dark-mode-only" alt="SDK Logo" />
 </a>
+
+[![npm version](https://img.shields.io/npm/v/gateio-api)][1]
+[![npm size](https://img.shields.io/bundlephobia/min/gateio-api/latest)][1]
+[![npm downloads](https://img.shields.io/npm/dt/gateio-api)][1]
+[![Build & Test](https://github.com/tiagosiebler/gateio-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/gateio-api/actions/workflows/e2etest.yml)
+[![last commit](https://img.shields.io/github/last-commit/tiagosiebler/gateio-api)][1]
+[![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/gateio-api/badge)](https://www.codefactor.io/repository/github/tiagosiebler/gateio-api)
+[![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
 
 [1]: https://www.npmjs.com/package/gateio-api
 
