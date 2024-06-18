@@ -27,3 +27,4 @@ localtest.sh
 
 ws-private-spot-wsapi-performance.ts
 ws-private-perp-futures-wsapi-readonly.ts
+privatetest.ts
