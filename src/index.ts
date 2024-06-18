@@ -35,7 +35,6 @@ export * from './types/response/marginuni.js';
 export * from './types/response/multicollateralLoan.js';
 export * from './types/response/options.js';
 export * from './types/response/rebate.js';
-export * from './types/response/shared.js';
 export * from './types/response/spot.js';
 export * from './types/response/subaccount.js';
 export * from './types/response/unified.js';

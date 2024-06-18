@@ -254,7 +254,6 @@ import {
   BrokerCommissionHistoryRecord,
   BrokerTransactionHistoryRecord,
 } from './types/response/rebate.js';
-import { APIResponse } from './types/response/shared.js';
 import {
   DeleteSpotBatchOrdersResp,
   GetSpotOpenOrdersResp,
@@ -487,12 +486,10 @@ export class RestClient extends BaseRestClient {
       }[]>
    */
   getSubBalance(params?: { sub_uid?: string }): Promise<
-    APIResponse<
-      {
-        uid: string;
-        available: { [key: string]: string };
-      }[]
-    >
+    {
+      uid: string;
+      available: { [key: string]: string };
+    }[]
   > {
     return this.getPrivate('/wallet/sub_account_balances', params);
   }
@@ -505,9 +502,7 @@ export class RestClient extends BaseRestClient {
    */
   getSubMarginBalances(params?: {
     sub_uid?: string;
-  }): Promise<
-    APIResponse<{ uid: string; available: SubAccountMarginBalance[] }>
-  > {
+  }): Promise<{ uid: string; available: SubAccountMarginBalance[] }> {
     return this.getPrivate('/wallet/sub_account_margin_balances', params);
   }
 
@@ -756,12 +751,10 @@ export class RestClient extends BaseRestClient {
    *   amount: string;
    * }>
    */
-  getUnifiedMaxBorrow(params: { currency: string }): Promise<
-    APIResponse<{
-      currency: string;
-      amount: string;
-    }>
-  > {
+  getUnifiedMaxBorrow(params: { currency: string }): Promise<{
+    currency: string;
+    amount: string;
+  }> {
     return this.getPrivate('/unified/borrowable', params);
   }
 
@@ -774,12 +767,10 @@ export class RestClient extends BaseRestClient {
    *   amount: string;
    * }>
    */
-  getUnifiedMaxTransferable(params: { currency: string }): Promise<
-    APIResponse<{
-      currency: string;
-      amount: string;
-    }>
-  > {
+  getUnifiedMaxTransferable(params: { currency: string }): Promise<{
+    currency: string;
+    amount: string;
+  }> {
     return this.getPrivate('/unified/transferable', params);
   }
 
@@ -890,9 +881,7 @@ export class RestClient extends BaseRestClient {
    *
    * @returns Promise<GetUnifiedCurrencyDiscountTiersResp[]>
    */
-  getUnifiedCurrencyDiscountTiers(): Promise<
-    APIResponse<UnifiedCurrencyDiscountTiers[]>
-  > {
+  getUnifiedCurrencyDiscountTiers(): Promise<UnifiedCurrencyDiscountTiers[]> {
     return this.get('/unified/currency_discount_tiers');
   }
 
@@ -1240,11 +1229,9 @@ export class RestClient extends BaseRestClient {
    *   server_time: number;
    * }>
    */
-  getServerTime(): Promise<
-    APIResponse<{
-      server_time: number;
-    }>
-  > {
+  getServerTime(): Promise<{
+    server_time: number;
+  }> {
     return this.get('/spot/time');
   }
 
@@ -1261,11 +1248,9 @@ export class RestClient extends BaseRestClient {
   submitSpotCountdownOrders(params: {
     timeout: number;
     currency_pair?: string;
-  }): Promise<
-    APIResponse<{
-      triggerTime: number;
-    }>
-  > {
+  }): Promise<{
+    triggerTime: number;
+  }> {
     return this.postPrivate('/spot/countdown_cancel_all', { body: params });
   }
 
@@ -1291,11 +1276,9 @@ export class RestClient extends BaseRestClient {
    *   id: number;
    * }>
    */
-  submitSpotPriceTriggerOrder(params: SpotPriceTriggeredOrder): Promise<
-    APIResponse<{
-      id: number;
-    }>
-  > {
+  submitSpotPriceTriggerOrder(params: SpotPriceTriggeredOrder): Promise<{
+    id: number;
+  }> {
     return this.postPrivate('/spot/price_orders', { body: params });
   }
 
@@ -1392,15 +1375,13 @@ export class RestClient extends BaseRestClient {
    * }[]>
    */
   getFundingAccounts(params?: { currency?: string }): Promise<
-    APIResponse<
-      {
-        currency: string;
-        available: string;
-        locked: string;
-        lent: string;
-        total_lent: string;
-      }[]
-    >
+    {
+      currency: string;
+      available: string;
+      locked: string;
+      lent: string;
+      total_lent: string;
+    }[]
   > {
     return this.getPrivate('/margin/funding_accounts', params);
   }
@@ -1439,13 +1420,11 @@ export class RestClient extends BaseRestClient {
   getMarginTransferableAmount(params: {
     currency: string;
     currency_pair?: string;
-  }): Promise<
-    APIResponse<{
-      currency: string;
-      currency_pair?: string;
-      amount: string;
-    }>
-  > {
+  }): Promise<{
+    currency: string;
+    currency_pair?: string;
+    amount: string;
+  }> {
     return this.getPrivate('/margin/transferable', params);
   }
 
@@ -1582,12 +1561,10 @@ export class RestClient extends BaseRestClient {
    *   amount: string;
    * }>
    */
-  getCrossMarginTransferableAmount(params: { currency: string }): Promise<
-    APIResponse<{
-      currency: string;
-      amount: string;
-    }>
-  > {
+  getCrossMarginTransferableAmount(params: { currency: string }): Promise<{
+    currency: string;
+    amount: string;
+  }> {
     return this.getPrivate('/margin/cross/transferable', params);
   }
 
@@ -1612,12 +1589,10 @@ export class RestClient extends BaseRestClient {
    *   amount: string;
    * }>
    */
-  getCrossMarginBorrowableAmount(params: { currency: string }): Promise<
-    APIResponse<{
-      currency: string;
-      amount: string;
-    }>
-  > {
+  getCrossMarginBorrowableAmount(params: { currency: string }): Promise<{
+    currency: string;
+    amount: string;
+  }> {
     return this.getPrivate('/margin/cross/borrowable', params);
   }
 
@@ -1904,12 +1879,10 @@ export class RestClient extends BaseRestClient {
     contract: string;
     limit?: number;
   }): Promise<
-    APIResponse<
-      {
-        t: number;
-        r: string;
-      }[]
-    >
+    {
+      t: number;
+      r: string;
+    }[]
   > {
     const { settle, ...query } = params;
     return this.get(`/futures/${settle}/funding_rate`, query);
@@ -1928,12 +1901,10 @@ export class RestClient extends BaseRestClient {
     settle: 'btc' | 'usdt' | 'usd';
     limit?: number;
   }): Promise<
-    APIResponse<
-      {
-        t: number;
-        b: string;
-      }[]
-    >
+    {
+      t: number;
+      b: string;
+    }[]
   > {
     const { settle, ...query } = params;
     return this.get(`/futures/${settle}/insurance`, query);
@@ -2594,12 +2565,10 @@ export class RestClient extends BaseRestClient {
     settle: 'usdt';
     limit?: number;
   }): Promise<
-    APIResponse<
-      {
-        t: number;
-        b: string;
-      }[]
-    >
+    {
+      t: number;
+      b: string;
+    }[]
   > {
     const { settle, ...query } = params;
     return this.get(`/delivery/${settle}/insurance`, query);
@@ -2920,9 +2889,7 @@ export class RestClient extends BaseRestClient {
    *
    * @returns Promise<{ name: string; index_price: string }[]>
    */
-  getOptionsUnderlyings(): Promise<
-    APIResponse<{ name: string; index_price: string }[]>
-  > {
+  getOptionsUnderlyings(): Promise<{ name: string; index_price: string }[]> {
     return this.get(`/options/underlyings`);
   }
 
@@ -3032,13 +2999,11 @@ export class RestClient extends BaseRestClient {
    *   index_price: string;
    * }>
    */
-  getOptionsUnderlyingTicker(params: { underlying: string }): Promise<
-    APIResponse<{
-      trade_put: number;
-      trade_call: number;
-      index_price: string;
-    }>
-  > {
+  getOptionsUnderlyingTicker(params: { underlying: string }): Promise<{
+    trade_put: number;
+    trade_call: number;
+    index_price: string;
+  }> {
     return this.get(`/options/underlying/tickers/${params.underlying}`);
   }
 
@@ -3284,12 +3249,10 @@ export class RestClient extends BaseRestClient {
    *   interest: string;
    * }>
    */
-  getLendingTotalInterest(params: { currency: string }): Promise<
-    APIResponse<{
-      currency: string;
-      interest: string;
-    }>
-  > {
+  getLendingTotalInterest(params: { currency: string }): Promise<{
+    currency: string;
+    interest: string;
+  }> {
     return this.getPrivate(`/earn/uni/interests/${params.currency}`);
   }
 
@@ -3327,12 +3290,10 @@ export class RestClient extends BaseRestClient {
    *   interest_status: string;
    * }>
    */
-  getLendingInterestStatus(params: { currency: string }): Promise<
-    APIResponse<{
-      currency: string;
-      interest_status: string;
-    }>
-  > {
+  getLendingInterestStatus(params: { currency: string }): Promise<{
+    currency: string;
+    interest_status: string;
+  }> {
     return this.getPrivate(`/earn/uni/interest_status/${params.currency}`);
   }
 
@@ -3383,12 +3344,10 @@ export class RestClient extends BaseRestClient {
     order_id: number;
     repay_amount: string;
     repaid_all: boolean;
-  }): Promise<
-    APIResponse<{
-      repaid_principal: string;
-      repaid_interest: string;
-    }>
-  > {
+  }): Promise<{
+    repaid_principal: string;
+    repaid_interest: string;
+  }> {
     return this.postPrivate(`/loan/collateral/repay`, { body: params });
   }
 
@@ -3434,12 +3393,10 @@ export class RestClient extends BaseRestClient {
    *   collateral_amount: string;
    * }>
    */
-  getLoanTotalAmount(): Promise<
-    APIResponse<{
-      borrow_amount: string;
-      collateral_amount: string;
-    }>
-  > {
+  getLoanTotalAmount(): Promise<{
+    borrow_amount: string;
+    collateral_amount: string;
+  }> {
     return this.getPrivate(`/loan/collateral/total_amount`);
   }
 
@@ -3466,12 +3423,10 @@ export class RestClient extends BaseRestClient {
    * }[]>
    */
   getLoanSupportedCurrencies(params?: { loan_currency?: string }): Promise<
-    APIResponse<
-      {
-        loan_currency: string;
-        collateral_currency: string[];
-      }[]
-    >
+    {
+      loan_currency: string;
+      collateral_currency: string[];
+    }[]
   > {
     return this.get(`/loan/collateral/currencies`, params);
   }
@@ -3579,9 +3534,7 @@ export class RestClient extends BaseRestClient {
    *
    * @returns Promise<GetMultiLoanSupportedCurrenciesResp>
    */
-  getMultiLoanSupportedCurrencies(): Promise<
-    APIResponse<MultiLoanSupportedCurrencies>
-  > {
+  getMultiLoanSupportedCurrencies(): Promise<MultiLoanSupportedCurrencies> {
     return this.get(`/loan/multi_collateral/currencies`);
   }
 
@@ -3774,9 +3727,7 @@ export class RestClient extends BaseRestClient {
    */
   getAgencyTransactionHistory(
     params: GetAgencyTransactionHistoryReq,
-  ): Promise<
-    APIResponse<{ total: number; list: AgencyTransactionHistoryRecord[] }>
-  > {
+  ): Promise<{ total: number; list: AgencyTransactionHistoryRecord[] }> {
     return this.getPrivate('/rebate/agency/transaction_history', params);
   }
 
@@ -3789,9 +3740,7 @@ export class RestClient extends BaseRestClient {
    */
   getAgencyCommissionHistory(
     params: GetAgencyCommissionHistoryReq,
-  ): Promise<
-    APIResponse<{ total: number; list: AgencyCommissionHistoryRecord[] }>
-  > {
+  ): Promise<{ total: number; list: AgencyCommissionHistoryRecord[] }> {
     return this.getPrivate('/rebate/agency/commission_history', params);
   }
 
@@ -3804,9 +3753,7 @@ export class RestClient extends BaseRestClient {
    */
   getBrokerCommissionHistory(
     params: GetBrokerCommissionHistoryReq,
-  ): Promise<
-    APIResponse<{ total: number; list: BrokerCommissionHistoryRecord[] }>
-  > {
+  ): Promise<{ total: number; list: BrokerCommissionHistoryRecord[] }> {
     return this.getPrivate('/rebate/broker/commission_history', params);
   }
 
@@ -3819,9 +3766,7 @@ export class RestClient extends BaseRestClient {
    */
   getBrokerTransactionHistory(
     params: GetBrokerTransactionHistoryReq,
-  ): Promise<
-    APIResponse<{ total: number; list: BrokerTransactionHistoryRecord[] }>
-  > {
+  ): Promise<{ total: number; list: BrokerTransactionHistoryRecord[] }> {
     return this.getPrivate('/rebate/broker/transaction_history', params);
   }
 
