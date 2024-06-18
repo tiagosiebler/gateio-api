@@ -318,7 +318,7 @@ export class RestClient extends BaseRestClient {
     return REST_CLIENT_TYPE_ENUM.main;
   }
 
-  getSystemMaintenanceStatus(): Promise<APIResponse<any>> {
+  getSystemMaintenanceStatus(): Promise<any> {
     return this.get('/v1/public/system_info');
   }
 
@@ -333,11 +333,9 @@ export class RestClient extends BaseRestClient {
    * Withdrawals to Gate addresses do not incur transaction fees.
    *
    * @param params Withdrawal parameters
-   * @returns Promise<APIResponse<Withdraw>>
+   * @returns Promise<Withdraw>
    */
-  submitWithdrawal(
-    params: SubmitWithdrawalReq,
-  ): Promise<APIResponse<WithdrawalRecord>> {
+  submitWithdrawal(params: SubmitWithdrawalReq): Promise<WithdrawalRecord> {
     return this.postPrivate('/withdrawals', { query: params });
   }
 
@@ -345,11 +343,11 @@ export class RestClient extends BaseRestClient {
    * Cancel withdrawal with specified ID
    *
    * @param params Parameters containing the withdrawal ID
-   * @returns Promise<APIResponse<Withdraw>>
+   * @returns Promise<Withdraw>
    */
   cancelWithdrawal(params: {
     withdrawal_id: string;
-  }): Promise<APIResponse<WithdrawalRecord>> {
+  }): Promise<WithdrawalRecord> {
     return this.deletePrivate(`/withdrawals/${params.withdrawal_id}`);
   }
 
@@ -362,11 +360,9 @@ export class RestClient extends BaseRestClient {
    * List chains supported for specified currency
    *
    * @param params Parameters containing the currency name
-   * @returns Promise<APIResponse< GetCurrencyChainsResp[][]>>
+   * @returns Promise< GetCurrencyChainsResp[][]>
    */
-  getCurrencyChains(params: {
-    currency: string;
-  }): Promise<APIResponse<CurrencyChain[]>> {
+  getCurrencyChains(params: { currency: string }): Promise<CurrencyChain[]> {
     return this.get('/wallet/currency_chains', params);
   }
 
@@ -374,11 +370,11 @@ export class RestClient extends BaseRestClient {
    * Generate currency deposit address
    *
    * @param params Parameters containing the currency name
-   * @returns Promise<APIResponse<CreateDepositAddressResp>>
+   * @returns Promise<CreateDepositAddressResp>
    */
   createDepositAddress(params: {
     currency: string;
-  }): Promise<APIResponse<CreateDepositAddressResp>> {
+  }): Promise<CreateDepositAddressResp> {
     return this.getPrivate('/wallet/deposit_address', params);
   }
 
@@ -388,11 +384,11 @@ export class RestClient extends BaseRestClient {
    * Record time range cannot exceed 30 days
    *
    * @param params Parameters for filtering withdrawal records
-   * @returns Promise<APIResponse<Withdraw[]>>
+   * @returns Promise<Withdraw[]>
    */
   getWithdrawalRecords(
     params?: GetWithdrawalDepositRecordsReq,
-  ): Promise<APIResponse<WithdrawalRecord[]>> {
+  ): Promise<WithdrawalRecord[]> {
     return this.getPrivate('/wallet/withdrawals', params);
   }
 
@@ -402,11 +398,11 @@ export class RestClient extends BaseRestClient {
    * Record time range cannot exceed 30 days
    *
    * @param params Parameters for filtering deposit records
-   * @returns Promise<APIResponse<Withdraw[]>>
+   * @returns Promise<Withdraw[]>
    */
   getDepositRecords(
     params?: GetWithdrawalDepositRecordsReq,
-  ): Promise<APIResponse<WithdrawalRecord[]>> {
+  ): Promise<WithdrawalRecord[]> {
     return this.getPrivate('/wallet/deposits', params);
   }
 
@@ -421,11 +417,9 @@ export class RestClient extends BaseRestClient {
    * - spot - options
    *
    * @param params Transfer parameters
-   * @returns Promise<APIResponse<TransferResponse>>
+   * @returns Promise<TransferResponse>
    */
-  submitTransfer(
-    params: SubmitTransferReq,
-  ): Promise<APIResponse<{ tx_id: number }>> {
+  submitTransfer(params: SubmitTransferReq): Promise<{ tx_id: number }> {
     return this.postPrivate('/wallet/transfers', { body: params });
   }
 
@@ -435,11 +429,9 @@ export class RestClient extends BaseRestClient {
    * Support transferring with sub user's spot or futures account. Note that only main user's spot account is used no matter which sub user's account is operated.
    *
    * @param params Transfer parameters
-   * @returns Promise<APIResponse<any>>
+   * @returns Promise<any>
    */
-  submitMainSubTransfer(
-    params: SubmitMainSubTransferReq,
-  ): Promise<APIResponse<any>> {
+  submitMainSubTransfer(params: SubmitMainSubTransferReq): Promise<any> {
     return this.postPrivate('/wallet/sub_account_transfers', { body: params });
   }
 
@@ -451,11 +443,11 @@ export class RestClient extends BaseRestClient {
    * Note: only records after 2020-04-10 can be retrieved
    *
    * @param params Parameters for filtering transfer records
-   * @returns Promise<APIResponse<SubAccountTransferRecordResp[]>>
+   * @returns Promise<SubAccountTransferRecordResp[]>
    */
   getMainSubTransfers(
     params?: GetMainSubTransfersReq,
-  ): Promise<APIResponse<SubAccountTransferRecord[]>> {
+  ): Promise<SubAccountTransferRecord[]> {
     return this.getPrivate('/wallet/sub_account_transfers', params);
   }
 
@@ -465,11 +457,9 @@ export class RestClient extends BaseRestClient {
    * It is possible to perform balance transfers between two sub-accounts under the same main account. You can use either the API Key of the main account or the API Key of the sub-account to initiate the transfer.
    *
    * @param params Transfer parameters
-   * @returns Promise<APIResponse<any>>
+   * @returns Promise<any>
    */
-  submitSubToSubTransfer(
-    params: SubmitSubToSubTransferReq,
-  ): Promise<APIResponse<any>> {
+  submitSubToSubTransfer(params: SubmitSubToSubTransferReq): Promise<any> {
     return this.postPrivate('/wallet/sub_account_to_sub_account', {
       body: params,
     });
@@ -479,11 +469,11 @@ export class RestClient extends BaseRestClient {
    * Retrieve withdrawal status
    *
    * @param params Parameters for retrieving withdrawal status
-   * @returns Promise<APIResponse<GetWithdrawalStatusResp[]>>
+   * @returns Promise<GetWithdrawalStatusResp[]>
    */
   getWithdrawalStatus(params?: {
     currency?: string;
-  }): Promise<APIResponse<WithdrawalStatus[]>> {
+  }): Promise<WithdrawalStatus[]> {
     return this.getPrivate('/wallet/withdraw_status', params);
   }
 
@@ -491,10 +481,10 @@ export class RestClient extends BaseRestClient {
    * Retrieve sub account balances
    *
    * @param params Parameters for retrieving sub account balances
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
         uid: string;
         available: { [key: string]: string };
-      }[]>>
+      }[]>
    */
   getSubBalance(params?: { sub_uid?: string }): Promise<
     APIResponse<
@@ -511,7 +501,7 @@ export class RestClient extends BaseRestClient {
    * Query sub accounts' margin balances
    *
    * @param params Parameters for querying sub accounts' margin balances
-   * @returns Promise<APIResponse<SubAccountMarginBalancesResp[]>>
+   * @returns Promise<SubAccountMarginBalancesResp[]>
    */
   getSubMarginBalances(params?: {
     sub_uid?: string;
@@ -525,12 +515,12 @@ export class RestClient extends BaseRestClient {
    * Query sub accounts' futures account balances
    *
    * @param params Parameters for querying sub accounts' futures account balances
-   * @returns Promise<APIResponse<SubAccountFuturesBalancesResp[]>>
+   * @returns Promise<SubAccountFuturesBalancesResp[]>
    */
   getSubFuturesBalances(params?: {
     sub_uid?: string;
     settle?: string;
-  }): Promise<APIResponse<SubAccountFuturesBalancesResp[]>> {
+  }): Promise<SubAccountFuturesBalancesResp[]> {
     return this.getPrivate('/wallet/sub_account_futures_balances', params);
   }
 
@@ -538,11 +528,11 @@ export class RestClient extends BaseRestClient {
    * Query subaccount's cross_margin account info
    *
    * @param params Parameters for querying subaccount's cross_margin account info
-   * @returns Promise<APIResponse<SubAccountCrossMarginBalancesResp[]>>
+   * @returns Promise<SubAccountCrossMarginBalancesResp[]>
    */
   getSubCrossMarginBalances(params?: {
     sub_uid?: string;
-  }): Promise<APIResponse<SubAccountCrossMarginBalancesResp[]>> {
+  }): Promise<SubAccountCrossMarginBalancesResp[]> {
     return this.getPrivate('/wallet/sub_account_cross_margin_balances', params);
   }
 
@@ -550,11 +540,9 @@ export class RestClient extends BaseRestClient {
    * Query saved addresses
    *
    * @param params Parameters for querying saved address
-   * @returns Promise<APIResponse<GetSavedAddressResp[]>>
+   * @returns Promise<GetSavedAddressResp[]>
    */
-  getSavedAddresses(
-    params: GetSavedAddressReq,
-  ): Promise<APIResponse<SavedAddress[]>> {
+  getSavedAddresses(params: GetSavedAddressReq): Promise<SavedAddress[]> {
     return this.getPrivate('/wallet/saved_address', params);
   }
 
@@ -562,12 +550,12 @@ export class RestClient extends BaseRestClient {
    * Retrieve personal trading fee
    *
    * @param params Parameters for retrieving personal trading fee
-   * @returns Promise<APIResponse<GetTradingFeesResp>>
+   * @returns Promise<GetTradingFeesResp>
    */
   getTradingFees(params?: {
     currency_pair?: string;
     settle?: 'BTC' | 'USDT' | 'USD';
-  }): Promise<APIResponse<TradingFees>> {
+  }): Promise<TradingFees> {
     return this.getPrivate('/wallet/fee', params);
   }
 
@@ -583,20 +571,18 @@ export class RestClient extends BaseRestClient {
    * - GET /futures/{settle}/accounts to query futures account balance
    *
    * @param params Parameters for retrieving total balances
-   * @returns Promise<APIResponse<GetBalancesResp>>
+   * @returns Promise<GetBalancesResp>
    */
-  getBalances(params?: {
-    currency?: string;
-  }): Promise<APIResponse<GetBalancesResp>> {
+  getBalances(params?: { currency?: string }): Promise<GetBalancesResp> {
     return this.getPrivate('/wallet/total_balance', params);
   }
 
   /**
    * List small balance
    *
-   * @returns Promise<APIResponse<GetSmallBalancesResp>>
+   * @returns Promise<GetSmallBalancesResp>
    */
-  getSmallBalances(): Promise<APIResponse<SmallBalanceRecord>> {
+  getSmallBalances(): Promise<SmallBalanceRecord> {
     return this.getPrivate('/wallet/small_balance');
   }
 
@@ -604,11 +590,9 @@ export class RestClient extends BaseRestClient {
    * Convert small balance
    *
    * @param params Parameters for converting small balance
-   * @returns Promise<APIResponse<any>>
+   * @returns Promise<any>
    */
-  convertSmallBalance(params?: {
-    currency?: string[];
-  }): Promise<APIResponse<any>> {
+  convertSmallBalance(params?: { currency?: string[] }): Promise<any> {
     return this.postPrivate('/wallet/small_balance', { body: params });
   }
 
@@ -616,11 +600,11 @@ export class RestClient extends BaseRestClient {
    * List small balance history
    *
    * @param params Parameters for listing small balance history
-   * @returns Promise<APIResponse<GetSmallBalanceHistoryResp[]>>
+   * @returns Promise<GetSmallBalanceHistoryResp[]>
    */
   getSmallBalanceHistory(
     params?: GetSmallBalanceHistoryReq,
-  ): Promise<APIResponse<SmallBalanceHistoryRecord[]>> {
+  ): Promise<SmallBalanceHistoryRecord[]> {
     return this.getPrivate('/wallet/small_balance_history', params);
   }
 
@@ -633,11 +617,9 @@ export class RestClient extends BaseRestClient {
    * Create a new sub-account
    *
    * @param params Parameters for creating a new sub-account
-   * @returns Promise<APIResponse<CreateSubAccountResp>>
+   * @returns Promise<CreateSubAccountResp>
    */
-  createSubAccount(
-    params: CreateSubAccountReq,
-  ): Promise<APIResponse<SubAccount>> {
+  createSubAccount(params: CreateSubAccountReq): Promise<SubAccount> {
     return this.postPrivate('/sub_accounts', { body: params });
   }
 
@@ -645,12 +627,10 @@ export class RestClient extends BaseRestClient {
    * List sub-accounts
    *
    * @param params Parameters for listing sub-accounts
-   * @returns Promise<APIResponse<GetSubAccountsResp[]>>
+   * @returns Promise<GetSubAccountsResp[]>
    */
 
-  getSubAccounts(params?: {
-    type?: string;
-  }): Promise<APIResponse<SubAccount[]>> {
+  getSubAccounts(params?: { type?: string }): Promise<SubAccount[]> {
     return this.getPrivate('/sub_accounts', params);
   }
 
@@ -658,9 +638,9 @@ export class RestClient extends BaseRestClient {
    * Get the sub-account
    *
    * @param params Parameters containing the sub-account user ID
-   * @returns Promise<APIResponse<SubAccountResp>>
+   * @returns Promise<SubAccountResp>
    */
-  getSubAccount(params: { user_id: number }): Promise<APIResponse<SubAccount>> {
+  getSubAccount(params: { user_id: number }): Promise<SubAccount> {
     return this.getPrivate(`/sub_accounts/${params.user_id}`);
   }
 
@@ -668,11 +648,11 @@ export class RestClient extends BaseRestClient {
    * Create API Key of the sub-account
    *
    * @param params Parameters for creating API Key of the sub-account
-   * @returns Promise<APIResponse<CreateSubAccountApiKeyResp>>
+   * @returns Promise<CreateSubAccountApiKeyResp>
    */
   createSubAccountApiKey(
     params: CreateSubAccountApiKeyReq,
-  ): Promise<APIResponse<CreatedSubAccountAPIKey>> {
+  ): Promise<CreatedSubAccountAPIKey> {
     const { user_id, ...body } = params;
     return this.postPrivate(`/sub_accounts/${user_id}/keys`, { body: body });
   }
@@ -680,11 +660,11 @@ export class RestClient extends BaseRestClient {
    * List all API Key of the sub-account
    *
    * @param params Parameters containing the sub-account user ID
-   * @returns Promise<APIResponse<SubAccountKey[]>>
+   * @returns Promise<SubAccountKey[]>
    */
   getSubAccountApiKeys(params: {
     user_id: number;
-  }): Promise<APIResponse<SubAccountAPIKey[]>> {
+  }): Promise<SubAccountAPIKey[]> {
     return this.getPrivate(`/sub_accounts/${params.user_id}/keys`);
   }
 
@@ -692,11 +672,9 @@ export class RestClient extends BaseRestClient {
    * Update API key of the sub-account
    *
    * @param params Parameters for updating API key of the sub-account
-   * @returns Promise<APIResponse<any>>
+   * @returns Promise<any>
    */
-  updateSubAccountApiKey(
-    params: UpdateSubAccountApiKeyReq,
-  ): Promise<APIResponse<any>> {
+  updateSubAccountApiKey(params: UpdateSubAccountApiKeyReq): Promise<any> {
     const { user_id, key, ...body } = params;
     return this.putPrivate(`/sub_accounts/${user_id}/keys/${key}`, { body });
   }
@@ -705,12 +683,12 @@ export class RestClient extends BaseRestClient {
    * Delete API key of the sub-account
    *
    * @param params Parameters for deleting API key of the sub-account
-   * @returns Promise<APIResponse<any>>
+   * @returns Promise<any>
    */
   deleteSubAccountApiKey(params: {
     user_id: number;
     key: string;
-  }): Promise<APIResponse<any>> {
+  }): Promise<any> {
     return this.deletePrivate(
       `/sub_accounts/${params.user_id}/keys/${params.key}`,
     );
@@ -720,12 +698,12 @@ export class RestClient extends BaseRestClient {
    * Get the API Key of the sub-account
    *
    * @param params Parameters containing the sub-account user ID and API key
-   * @returns Promise<APIResponse<SubAccountKey>>
+   * @returns Promise<SubAccountKey>
    */
   getSubAccountApiKey(params: {
     user_id: number;
     key: string;
-  }): Promise<APIResponse<SubAccountAPIKey>> {
+  }): Promise<SubAccountAPIKey> {
     return this.getPrivate(
       `/sub_accounts/${params.user_id}/keys/${params.key}`,
     );
@@ -735,9 +713,9 @@ export class RestClient extends BaseRestClient {
    * Lock the sub-account
    *
    * @param params Parameters containing the sub-account user ID
-   * @returns Promise<APIResponse<any>>
+   * @returns Promise<any>
    */
-  lockSubAccount(params: { user_id: number }): Promise<APIResponse<any>> {
+  lockSubAccount(params: { user_id: number }): Promise<any> {
     return this.postPrivate(`/sub_accounts/${params.user_id}/lock`);
   }
 
@@ -745,9 +723,9 @@ export class RestClient extends BaseRestClient {
    * Unlock the sub-account
    *
    * @param params Parameters containing the sub-account user ID
-   * @returns Promise<APIResponse<any>>
+   * @returns Promise<any>
    */
-  unlockSubAccount(params: { user_id: number }): Promise<APIResponse<any>> {
+  unlockSubAccount(params: { user_id: number }): Promise<any> {
     return this.postPrivate(`/sub_accounts/${params.user_id}/unlock`);
   }
   /**==========================================================================================================================
@@ -761,11 +739,11 @@ export class RestClient extends BaseRestClient {
    * The assets of each currency in the account will be adjusted according to their liquidity, defined by corresponding adjustment coefficients, and then uniformly converted to USD to calculate the total asset value and position value of the account.
    *
    * @param params Parameters for retrieving unified account information
-   * @returns Promise<APIResponse<GetUnifiedAccountInfoResp>>
+   * @returns Promise<GetUnifiedAccountInfoResp>
    */
   getUnifiedAccountInfo(params?: {
     currency?: string;
-  }): Promise<APIResponse<UnifiedAccountInfo>> {
+  }): Promise<UnifiedAccountInfo> {
     return this.getPrivate('/unified/accounts', params);
   }
 
@@ -773,10 +751,10 @@ export class RestClient extends BaseRestClient {
    * Query about the maximum borrowing for the unified account
    *
    * @param params Parameters for querying the maximum borrowing for the unified account
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   currency: string;
    *   amount: string;
-   * }>>
+   * }>
    */
   getUnifiedMaxBorrow(params: { currency: string }): Promise<
     APIResponse<{
@@ -791,10 +769,10 @@ export class RestClient extends BaseRestClient {
    * Query about the maximum transferable for the unified account
    *
    * @param params Parameters for querying the maximum transferable for the unified account
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   currency: string;
    *   amount: string;
-   * }>>
+   * }>
    */
   getUnifiedMaxTransferable(params: { currency: string }): Promise<
     APIResponse<{
@@ -815,11 +793,11 @@ export class RestClient extends BaseRestClient {
    * For repayment, the option to repay the entire borrowed amount is available by setting the parameter repaid_all=true
    *
    * @param params Parameters for borrowing or repaying
-   * @returns Promise<APIResponse<any>>
+   * @returns Promise<any>
    */
   submitUnifiedBorrowOrRepay(
     params: SubmitUnifiedBorrowOrRepayReq,
-  ): Promise<APIResponse<any>> {
+  ): Promise<any> {
     return this.postPrivate('/unified/loans', { body: params });
   }
 
@@ -827,11 +805,9 @@ export class RestClient extends BaseRestClient {
    * List loans
    *
    * @param params Parameters for listing loans
-   * @returns Promise<APIResponse<GetUnifiedLoansResp[]>>
+   * @returns Promise<GetUnifiedLoansResp[]>
    */
-  getUnifiedLoans(
-    params?: GetUnifiedLoansReq,
-  ): Promise<APIResponse<UnifiedLoan[]>> {
+  getUnifiedLoans(params?: GetUnifiedLoansReq): Promise<UnifiedLoan[]> {
     return this.getPrivate('/unified/loans', params);
   }
 
@@ -839,11 +815,11 @@ export class RestClient extends BaseRestClient {
    * Get loan records
    *
    * @param params Parameters for getting loan records
-   * @returns Promise<APIResponse<GetUnifiedLoanRecordsResp[]>>
+   * @returns Promise<GetUnifiedLoanRecordsResp[]>
    */
   getUnifiedLoanRecords(
     params?: GetUnifiedLoanRecordsReq,
-  ): Promise<APIResponse<UnifiedLoanRecord[]>> {
+  ): Promise<UnifiedLoanRecord[]> {
     return this.getPrivate('/unified/loan_records', params);
   }
 
@@ -851,20 +827,20 @@ export class RestClient extends BaseRestClient {
    * List interest records
    *
    * @param params Parameters for listing interest records
-   * @returns Promise<APIResponse<GetUnifiedInterestRecordsResp[]>>
+   * @returns Promise<GetUnifiedInterestRecordsResp[]>
    */
   getUnifiedInterestRecords(
     params?: GetUnifiedInterestRecordsReq,
-  ): Promise<APIResponse<UnifiedInterestRecord[]>> {
+  ): Promise<UnifiedInterestRecord[]> {
     return this.getPrivate('/unified/interest_records', params);
   }
 
   /**
    * Retrieve user risk unit details, only valid in portfolio margin mode
    *
-   * @returns Promise<APIResponse<GetUnifiedRiskUnitDetailsResp>>
+   * @returns Promise<GetUnifiedRiskUnitDetailsResp>
    */
-  getUnifiedRiskUnitDetails(): Promise<APIResponse<UnifiedRiskUnitDetails>> {
+  getUnifiedRiskUnitDetails(): Promise<UnifiedRiskUnitDetails> {
     return this.getPrivate('/unified/risk_units');
   }
 
@@ -874,26 +850,24 @@ export class RestClient extends BaseRestClient {
    * Switching between different account modes requires only passing the parameters corresponding to the target account mode. It also supports opening or closing configuration switches for the corresponding account mode when switching.
    *
    * @param params Parameters for setting the mode of the unified account
-   * @returns Promise<APIResponse<any>>
+   * @returns Promise<any>
    */
-  setUnifiedAccountMode(
-    params: SetUnifiedAccountModeReq,
-  ): Promise<APIResponse<any>> {
+  setUnifiedAccountMode(params: SetUnifiedAccountModeReq): Promise<any> {
     return this.putPrivate('/unified/unified_mode', { body: params });
   }
 
   /**
    * Query mode of the unified account
    *
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   mode: 'classic' | 'multi_currency' | 'portfolio';
    *   settings: {
    *     usdt_futures?: boolean;
    *     spot_hedge?: boolean;
    *   };
-   * }>>
+   * }>
    */
-  getUnifiedAccountMode(): Promise<APIResponse<SetUnifiedAccountModeReq>> {
+  getUnifiedAccountMode(): Promise<SetUnifiedAccountModeReq> {
     return this.getPrivate('/unified/unified_mode');
   }
 
@@ -903,18 +877,18 @@ export class RestClient extends BaseRestClient {
    * Due to fluctuations in lending depth, hourly interest rates may vary, and thus, I cannot provide exact rates. When a currency is not supported, the interest rate returned will be an empty string.
    *
    * @param params Parameters for querying estimate rates
-   * @returns Promise<APIResponse<{ [key: string]: string }>>
+   * @returns Promise<{ [key: string]: string }>
    */
   getUnifiedEstimateRate(params: {
     currencies: string[];
-  }): Promise<APIResponse<{ [key: string]: string }>> {
+  }): Promise<{ [key: string]: string }> {
     return this.getPrivate('/unified/estimate_rate', params);
   }
 
   /**
    * List currency discount tiers
    *
-   * @returns Promise<APIResponse<GetUnifiedCurrencyDiscountTiersResp[]>>
+   * @returns Promise<GetUnifiedCurrencyDiscountTiersResp[]>
    */
   getUnifiedCurrencyDiscountTiers(): Promise<
     APIResponse<UnifiedCurrencyDiscountTiers[]>
@@ -928,11 +902,11 @@ export class RestClient extends BaseRestClient {
    * Portfolio Margin Calculator When inputting a simulated position portfolio, each position includes the position name and quantity held, supporting markets within the range of BTC and ETH perpetual contracts, options, and spot markets. When inputting simulated orders, each order includes the market identifier, order price, and order quantity, supporting markets within the range of BTC and ETH perpetual contracts, options, and spot markets. Market orders are not included.
    *
    * @param params Parameters for portfolio margin calculator
-   * @returns Promise<APIResponse<PortfolioMarginCalculatorResp>>
+   * @returns Promise<PortfolioMarginCalculatorResp>
    */
   portfolioMarginCalculate(
     params: PortfolioMarginCalculatorReq,
-  ): Promise<APIResponse<PortfolioMarginCalculation>> {
+  ): Promise<PortfolioMarginCalculation> {
     return this.post('/unified/portfolio_calculator', { body: params });
   }
 
@@ -950,9 +924,9 @@ export class RestClient extends BaseRestClient {
    *
    * The latter one occurs when one currency has multiple chains. Currency detail contains a chain field whatever the form is. To retrieve all chains of one currency, you can use all the details which have the name of the currency or name starting with <currency>_.
    *
-   * @returns Promise<APIResponse<GetSpotCurrenciesResp[]>>
+   * @returns Promise<GetSpotCurrenciesResp[]>
    */
-  getSpotCurrencies(): Promise<APIResponse<SpotCurrency[]>> {
+  getSpotCurrencies(): Promise<SpotCurrency[]> {
     return this.get('/spot/currencies');
   }
 
@@ -960,20 +934,18 @@ export class RestClient extends BaseRestClient {
    * Get details of a specific currency
    *
    * @param params Parameters for retrieving details of a specific currency
-   * @returns Promise<APIResponse<GetSpotCurrenciesResp>>
+   * @returns Promise<GetSpotCurrenciesResp>
    */
-  getSpotCurrency(params: {
-    currency: string;
-  }): Promise<APIResponse<SpotCurrency>> {
+  getSpotCurrency(params: { currency: string }): Promise<SpotCurrency> {
     return this.get(`/spot/currencies/${params.currency}`);
   }
 
   /**
    * List all currency pairs supported
    *
-   * @returns Promise<APIResponse<CurrencyPair[]>>
+   * @returns Promise<CurrencyPair[]>
    */
-  getSpotCurrencyPairs(): Promise<APIResponse<CurrencyPair[]>> {
+  getSpotCurrencyPairs(): Promise<CurrencyPair[]> {
     return this.get('/spot/currency_pairs');
   }
 
@@ -981,11 +953,11 @@ export class RestClient extends BaseRestClient {
    * Get details of a specific currency pair
    *
    * @param params Parameters for retrieving details of a specific currency pair
-   * @returns Promise<APIResponse<CurrencyPair>>
+   * @returns Promise<CurrencyPair>
    */
   getSpotCurrencyPair(params: {
     currency_pair: string;
-  }): Promise<APIResponse<CurrencyPair>> {
+  }): Promise<CurrencyPair> {
     return this.get(`/spot/currency_pairs/${params.currency_pair}`);
   }
 
@@ -995,12 +967,12 @@ export class RestClient extends BaseRestClient {
    * Return only related data if currency_pair is specified; otherwise return all of them.
    *
    * @param params Parameters for retrieving ticker information
-   * @returns Promise<APIResponse<GetSpotTickerResp[]>>
+   * @returns Promise<GetSpotTickerResp[]>
    */
   getSpotTicker(params?: {
     currency_pair?: string;
     timezone?: 'utc0' | 'utc8' | 'all';
-  }): Promise<APIResponse<SpotTicker[]>> {
+  }): Promise<SpotTicker[]> {
     return this.get('/spot/tickers', params);
   }
 
@@ -1010,11 +982,9 @@ export class RestClient extends BaseRestClient {
    * Order book will be sorted by price from high to low on bids; low to high on asks.
    *
    * @param params Parameters for retrieving order book
-   * @returns Promise<APIResponse<GetSpotOrderBookResp>>
+   * @returns Promise<GetSpotOrderBookResp>
    */
-  getSpotOrderBook(
-    params: GetSpotOrderBookReq,
-  ): Promise<APIResponse<SpotOrderBook>> {
+  getSpotOrderBook(params: GetSpotOrderBookReq): Promise<SpotOrderBook> {
     return this.get('/spot/order_book', params);
   }
 
@@ -1025,9 +995,9 @@ export class RestClient extends BaseRestClient {
    * Scrolling query using last_id is not recommended any more. If last_id is specified, time range query parameters will be ignored.
    *
    * @param params Parameters for retrieving market trades
-   * @returns Promise<APIResponse<GetSpotTradesResp[]>>
+   * @returns Promise<GetSpotTradesResp[]>
    */
-  getSpotTrades(params: GetSpotTradesReq): Promise<APIResponse<SpotTrade[]>> {
+  getSpotTrades(params: GetSpotTradesReq): Promise<SpotTrade[]> {
     return this.get('/spot/trades', params);
   }
 
@@ -1037,11 +1007,9 @@ export class RestClient extends BaseRestClient {
    * Maximum of 1000 points can be returned in a query. Be sure not to exceed the limit when specifying from, to and interval.
    *
    * @param params Parameters for retrieving market Candles
-   * @returns Promise<APIResponse<GetSpotCandlesResp>>
+   * @returns Promise<GetSpotCandlesResp>
    */
-  getSpotCandles(
-    params: GetSpotCandlesReq,
-  ): Promise<APIResponse<SpotCandle[]>> {
+  getSpotCandles(params: GetSpotCandlesReq): Promise<SpotCandle[]> {
     return this.get('/spot/Candles', params);
   }
 
@@ -1051,11 +1019,9 @@ export class RestClient extends BaseRestClient {
    * This API is deprecated in favour of new fee retrieving API /wallet/fee.
    *
    * @param params Parameters for querying user trading fee rates
-   * @returns Promise<APIResponse<GetSpotFeeRatesResp>>
+   * @returns Promise<GetSpotFeeRatesResp>
    */
-  getSpotFeeRates(params?: {
-    currency_pair?: string;
-  }): Promise<APIResponse<SpotFeeRates>> {
+  getSpotFeeRates(params?: { currency_pair?: string }): Promise<SpotFeeRates> {
     return this.getPrivate('/spot/fee', params);
   }
 
@@ -1066,7 +1032,7 @@ export class RestClient extends BaseRestClient {
    */
   getSpotBatchFeeRates(params: {
     currency_pairs: string;
-  }): Promise<APIResponse<Record<string, SpotFeeRates>>> {
+  }): Promise<Record<string, SpotFeeRates>> {
     return this.getPrivate('/spot/batch_fee', params);
   }
 
@@ -1074,11 +1040,9 @@ export class RestClient extends BaseRestClient {
    * List spot accounts
    *
    * @param params Parameters for listing spot accounts
-   * @returns Promise<APIResponse<GetSpotAccountsResp[]>>
+   * @returns Promise<GetSpotAccountsResp[]>
    */
-  getSpotAccounts(params?: {
-    currency?: string;
-  }): Promise<APIResponse<SpotAccount[]>> {
+  getSpotAccounts(params?: { currency?: string }): Promise<SpotAccount[]> {
     return this.getPrivate('/spot/accounts', params);
   }
 
@@ -1088,11 +1052,11 @@ export class RestClient extends BaseRestClient {
    * Record time range cannot exceed 30 days.
    *
    * @param params Parameters for querying account book
-   * @returns Promise<APIResponse<GetSpotAccountBookResp[]>>
+   * @returns Promise<GetSpotAccountBookResp[]>
    */
   getSpotAccountBook(
     params?: GetSpotAccountBookReq,
-  ): Promise<APIResponse<SpotAccountBook[]>> {
+  ): Promise<SpotAccountBook[]> {
     return this.getPrivate('/spot/account_book', params);
   }
 
@@ -1105,11 +1069,11 @@ export class RestClient extends BaseRestClient {
    * - No mixture of spot orders and margin orders, i.e. account must be identical for all orders
    *
    * @param params Parameters for creating a batch of orders
-   * @returns Promise<APIResponse<SubmitSpotBatchOrdersResp[]>>
+   * @returns Promise<SubmitSpotBatchOrdersResp[]>
    */
   submitSpotBatchOrders(
     params: SpotOrder[],
-  ): Promise<APIResponse<SubmitSpotBatchOrdersResp[]>> {
+  ): Promise<SubmitSpotBatchOrdersResp[]> {
     return this.postPrivate('/spot/batch_orders', { body: params });
   }
 
@@ -1121,13 +1085,13 @@ export class RestClient extends BaseRestClient {
    * Spot, portfolio, and margin orders are returned by default. To list cross margin orders, account must be set to cross_margin.
    *
    * @param params Parameters for listing all open orders
-   * @returns Promise<APIResponse<GetSpotOpenOrdersResp[]>>
+   * @returns Promise<GetSpotOpenOrdersResp[]>
    */
   getSpotOpenOrders(params?: {
     page?: number;
     limit?: number;
     account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
-  }): Promise<APIResponse<GetSpotOpenOrdersResp[]>> {
+  }): Promise<GetSpotOpenOrdersResp[]> {
     return this.getPrivate('/spot/open_orders', params);
   }
 
@@ -1137,11 +1101,11 @@ export class RestClient extends BaseRestClient {
    * Currently, only cross-margin accounts are supported to close position when cross currencies are disabled. Maximum buy quantity = (unpaid principal and interest - currency balance - the amount of the currency in the order book) / 0.998
    *
    * @param params Parameters for closing position when cross-currency is disabled
-   * @returns Promise<APIResponse<Order>>
+   * @returns Promise<Order>
    */
   submitSpotClosePosCrossDisabled(
     params: SubmitSpotClosePosCrossDisabledReq,
-  ): Promise<APIResponse<SpotOrder>> {
+  ): Promise<SpotOrder> {
     return this.postPrivate('/spot/cross_liquidate_orders', { body: params });
   }
 
@@ -1151,9 +1115,9 @@ export class RestClient extends BaseRestClient {
    * You can place orders with spot, portfolio, margin or cross margin account through setting the account field. It defaults to spot, which means spot account is used to place orders. If the user is using unified account, it defaults to the unified account.
    *
    * @param params Parameters for creating an order
-   * @returns Promise<APIResponse<Order>>
+   * @returns Promise<Order>
    */
-  submitSpotOrder(params: SubmitSpotOrderReq): Promise<APIResponse<SpotOrder>> {
+  submitSpotOrder(params: SubmitSpotOrderReq): Promise<SpotOrder> {
     return this.postPrivate('/spot/orders', { body: params });
   }
 
@@ -1163,9 +1127,9 @@ export class RestClient extends BaseRestClient {
    * Spot, portfolio and margin orders are returned by default. If cross margin orders are needed, account must be set to cross_margin.
    *
    * @param params Parameters for listing orders
-   * @returns Promise<APIResponse<Order[]>>
+   * @returns Promise<Order[]>
    */
-  getSpotOrders(params: GetSpotOrdersReq): Promise<APIResponse<SpotOrder[]>> {
+  getSpotOrders(params: GetSpotOrdersReq): Promise<SpotOrder[]> {
     return this.getPrivate('/spot/orders', params);
   }
 
@@ -1176,14 +1140,14 @@ export class RestClient extends BaseRestClient {
    * You can set account to cancel only orders within the specified account.
    *
    * @param params Parameters for cancelling all open orders in specified currency pair
-   * @returns Promise<APIResponse<Order[]>>
+   * @returns Promise<Order[]>
    */
   cancelSpotOpenOrders(params: {
     currency_pair: string;
     side?: 'buy' | 'sell';
     account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
     action_mode?: 'ACK' | 'RESULT' | 'FULL';
-  }): Promise<APIResponse<SpotOrder[]>> {
+  }): Promise<SpotOrder[]> {
     return this.deletePrivate('/spot/orders', { query: params });
   }
 
@@ -1193,11 +1157,11 @@ export class RestClient extends BaseRestClient {
    * Multiple currency pairs can be specified, but maximum 20 orders are allowed per request.
    *
    * @param params Parameters for cancelling a batch of orders
-   * @returns Promise<APIResponse<DeleteSpotBatchOrdersResp[]>>
+   * @returns Promise<DeleteSpotBatchOrdersResp[]>
    */
   batchCancelSpotOrders(
     params: CancelSpotBatchOrdersReq[],
-  ): Promise<APIResponse<DeleteSpotBatchOrdersResp[]>> {
+  ): Promise<DeleteSpotBatchOrdersResp[]> {
     return this.postPrivate('/spot/cancel_batch_orders', { body: params });
   }
 
@@ -1207,9 +1171,9 @@ export class RestClient extends BaseRestClient {
    * Spot, portfolio and margin orders are queried by default. If cross margin orders are needed or portfolio margin account are used, account must be set to cross_margin.
    *
    * @param params Parameters for getting a single order
-   * @returns Promise<APIResponse<Order>>
+   * @returns Promise<Order>
    */
-  getSpotOrder(params: GetSpotOrderReq): Promise<APIResponse<SpotOrder>> {
+  getSpotOrder(params: GetSpotOrderReq): Promise<SpotOrder> {
     const { order_id, ...query } = params;
     return this.getPrivate(`/spot/orders/${order_id}`, query);
   }
@@ -1222,9 +1186,9 @@ export class RestClient extends BaseRestClient {
    * Currently, only supports modification of price or amount fields.
    *
    * @param params Parameters for amending an order
-   * @returns Promise<APIResponse<Order>>
+   * @returns Promise<Order>
    */
-  updateSpotOrder(params: UpdateSpotOrderReq): Promise<APIResponse<SpotOrder>> {
+  updateSpotOrder(params: UpdateSpotOrderReq): Promise<SpotOrder> {
     const { order_id, currency_pair, account, ...body } = params;
 
     const query = {
@@ -1244,9 +1208,9 @@ export class RestClient extends BaseRestClient {
    * Spot, portfolio and margin orders are cancelled by default. If trying to cancel cross margin orders or portfolio margin account are used, account must be set to cross_margin.
    *
    * @param params Parameters for cancelling a single order
-   * @returns Promise<APIResponse<Order>>
+   * @returns Promise<Order>
    */
-  cancelSpotOrder(params: DeleteSpotOrderReq): Promise<APIResponse<SpotOrder>> {
+  cancelSpotOrder(params: DeleteSpotOrderReq): Promise<SpotOrder> {
     const { order_id, ...query } = params;
     return this.deletePrivate(`/spot/orders/${order_id}`, {
       query: query,
@@ -1261,20 +1225,20 @@ export class RestClient extends BaseRestClient {
    * You can also set from and/or to to query by time range. If you don't specify from and/or to parameters, only the last 7 days of data will be returned. The range of from and to is not allowed to exceed 30 days. Time range parameters are handled as order finish time.
    *
    * @param params Parameters for listing personal trading history
-   * @returns Promise<APIResponse<GetSpotTradingHistoryResp[]>>
+   * @returns Promise<GetSpotTradingHistoryResp[]>
    */
   getSpotTradingHistory(
     params?: GetSpotTradingHistoryReq,
-  ): Promise<APIResponse<SpotHistoricTradeRecord[]>> {
+  ): Promise<SpotHistoricTradeRecord[]> {
     return this.getPrivate('/spot/my_trades', params);
   }
 
   /**
    * Get server current time
    *
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   server_time: number;
-   * }>>
+   * }>
    */
   getServerTime(): Promise<
     APIResponse<{
@@ -1290,9 +1254,9 @@ export class RestClient extends BaseRestClient {
    * When the timeout set by the user is reached, if there is no cancel or set a new countdown, the related pending orders will be automatically cancelled. This endpoint can be called repeatedly to set a new countdown or cancel the countdown.
    *
    * @param params Parameters for setting countdown cancel orders
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   triggerTime: number;
-   * }>>
+   * }>
    */
   submitSpotCountdownOrders(params: {
     timeout: number;
@@ -1311,11 +1275,11 @@ export class RestClient extends BaseRestClient {
    * Default modification of orders for spot, portfolio, and margin accounts. To modify orders for a cross margin account, the account parameter must be specified as cross_margin. For portfolio margin accounts, the account parameter can only be specified as cross_margin. Currently, only modifications to price or quantity (choose one) are supported.
    *
    * @param params Parameters for batch modification of orders
-   * @returns Promise<APIResponse<Order[]>>
+   * @returns Promise<Order[]>
    */
   batchUpdateSpotOrders(
     params: UpdateSpotBatchOrdersReq[],
-  ): Promise<APIResponse<SpotOrder[]>> {
+  ): Promise<SpotOrder[]> {
     return this.postPrivate('/spot/amend_batch_orders', { body: params });
   }
 
@@ -1323,9 +1287,9 @@ export class RestClient extends BaseRestClient {
    * Create a price-triggered order
    *
    * @param params Parameters for creating a price-triggered order
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   id: number;
-   * }>>
+   * }>
    */
   submitSpotPriceTriggerOrder(params: SpotPriceTriggeredOrder): Promise<
     APIResponse<{
@@ -1339,11 +1303,11 @@ export class RestClient extends BaseRestClient {
    * Retrieve running auto order list
    *
    * @param params Parameters for retrieving running auto order list
-   * @returns Promise<APIResponse<SpotPriceTriggeredOrder[]>>
+   * @returns Promise<SpotPriceTriggeredOrder[]>
    */
   getSpotAutoOrders(
     params: GetSpotAutoOrdersReq,
-  ): Promise<APIResponse<SpotPriceTriggeredOrder[]>> {
+  ): Promise<SpotPriceTriggeredOrder[]> {
     return this.getPrivate('/spot/price_orders', params);
   }
 
@@ -1351,12 +1315,12 @@ export class RestClient extends BaseRestClient {
    * Cancel all open orders
    *
    * @param params Parameters for cancelling all open orders
-   * @returns Promise<APIResponse<SpotPriceTriggeredOrder[]>>
+   * @returns Promise<SpotPriceTriggeredOrder[]>
    */
   cancelAllOpenSpotOrders(params?: {
     market?: string;
     account?: 'normal' | 'margin' | 'cross_margin';
-  }): Promise<APIResponse<SpotPriceTriggeredOrder[]>> {
+  }): Promise<SpotPriceTriggeredOrder[]> {
     return this.deletePrivate('/spot/price_orders', { query: params });
   }
 
@@ -1364,11 +1328,11 @@ export class RestClient extends BaseRestClient {
    * Get a price-triggered order
    *
    * @param params Parameters for getting a price-triggered order
-   * @returns Promise<APIResponse<SpotPriceTriggeredOrder>>
+   * @returns Promise<SpotPriceTriggeredOrder>
    */
   getPriceTriggeredOrder(params: {
     order_id: string;
-  }): Promise<APIResponse<SpotPriceTriggeredOrder>> {
+  }): Promise<SpotPriceTriggeredOrder> {
     return this.getPrivate(`/spot/price_orders/${params.order_id}`);
   }
 
@@ -1376,11 +1340,11 @@ export class RestClient extends BaseRestClient {
    * Cancel a price-triggered order
    *
    * @param params Parameters for cancelling a price-triggered order
-   * @returns Promise<APIResponse<SpotPriceTriggeredOrder>>
+   * @returns Promise<SpotPriceTriggeredOrder>
    */
   cancelSpotTriggeredOrder(params: {
     order_id: string;
-  }): Promise<APIResponse<SpotPriceTriggeredOrder>> {
+  }): Promise<SpotPriceTriggeredOrder> {
     return this.deletePrivate(`/spot/price_orders/${params.order_id}`);
   }
 
@@ -1393,11 +1357,11 @@ export class RestClient extends BaseRestClient {
    * Margin account list
    *
    * @param params Parameters for listing margin accounts
-   * @returns Promise<APIResponse<GetMarginAccountsResp[]>>
+   * @returns Promise<GetMarginAccountsResp[]>
    */
   getMarginAccounts(params?: {
     currency_pair?: string;
-  }): Promise<APIResponse<MarginAccount[]>> {
+  }): Promise<MarginAccount[]> {
     return this.getPrivate('/margin/accounts', params);
   }
 
@@ -1407,11 +1371,11 @@ export class RestClient extends BaseRestClient {
    * Only transferals from and to margin account are provided for now. Time range allows 30 days at most.
    *
    * @param params Parameters for listing margin account balance change history
-   * @returns Promise<APIResponse<GetMarginBalanceHistoryResp[]>>
+   * @returns Promise<GetMarginBalanceHistoryResp[]>
    */
   getMarginBalanceHistory(
     params?: GetMarginBalanceHistoryReq,
-  ): Promise<APIResponse<MarginBalanceHistoryRecord[]>> {
+  ): Promise<MarginBalanceHistoryRecord[]> {
     return this.getPrivate('/margin/account_book', params);
   }
 
@@ -1419,13 +1383,13 @@ export class RestClient extends BaseRestClient {
    * Funding account list
    *
    * @param params Parameters for listing funding accounts
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   currency: string;
    *   available: string;
    *   locked: string;
    *   lent: string;
    *   total_lent: string;
-   * }[]>>
+   * }[]>
    */
   getFundingAccounts(params?: { currency?: string }): Promise<
     APIResponse<
@@ -1445,20 +1409,20 @@ export class RestClient extends BaseRestClient {
    * Update user's auto repayment setting
    *
    * @param params Parameters for updating auto repayment setting
-   * @returns Promise<APIResponse<{ status: 'on' | 'off' }>>
+   * @returns Promise<{ status: 'on' | 'off' }>
    */
   updateAutoRepaymentSetting(params: {
     status: 'on' | 'off';
-  }): Promise<APIResponse<{ status: 'on' | 'off' }>> {
+  }): Promise<{ status: 'on' | 'off' }> {
     return this.postPrivate('/margin/auto_repay', { query: params });
   }
 
   /**
    * Retrieve user auto repayment setting
    *
-   * @returns Promise<APIResponse<{ status: 'on' | 'off' }>>
+   * @returns Promise<{ status: 'on' | 'off' }>
    */
-  getAutoRepaymentSetting(): Promise<APIResponse<{ status: 'on' | 'off' }>> {
+  getAutoRepaymentSetting(): Promise<{ status: 'on' | 'off' }> {
     return this.getPrivate('/margin/auto_repay');
   }
 
@@ -1466,11 +1430,11 @@ export class RestClient extends BaseRestClient {
    * Get the max transferable amount for a specific margin currency
    *
    * @param params Parameters for retrieving the max transferable amount
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   currency: string;
    *   currency_pair?: string;
    *   amount: string;
-   * }>>
+   * }>
    */
   getMarginTransferableAmount(params: {
     currency: string;
@@ -1488,9 +1452,9 @@ export class RestClient extends BaseRestClient {
   /**
    * Currencies supported by cross margin
    *
-   * @returns Promise<APIResponse<GetCrossMarginCurrenciesResp[]>>
+   * @returns Promise<GetCrossMarginCurrenciesResp[]>
    */
-  getCrossMarginCurrencies(): Promise<APIResponse<CrossMarginCurrency[]>> {
+  getCrossMarginCurrencies(): Promise<CrossMarginCurrency[]> {
     return this.get('/margin/cross/currencies');
   }
 
@@ -1498,20 +1462,20 @@ export class RestClient extends BaseRestClient {
    * Retrieve detail of one single currency supported by cross margin
    *
    * @param params Parameters containing the currency name
-   * @returns Promise<APIResponse<GetCrossMarginCurrenciesResp>>
+   * @returns Promise<GetCrossMarginCurrenciesResp>
    */
   getCrossMarginCurrency(params: {
     currency: string;
-  }): Promise<APIResponse<CrossMarginCurrency>> {
+  }): Promise<CrossMarginCurrency> {
     return this.get(`/margin/cross/currencies/${params.currency}`);
   }
 
   /**
    * Retrieve cross margin account
    *
-   * @returns Promise<APIResponse<GetCrossMarginAccountResp>>
+   * @returns Promise<GetCrossMarginAccountResp>
    */
-  getCrossMarginAccount(): Promise<APIResponse<CrossMarginAccount>> {
+  getCrossMarginAccount(): Promise<CrossMarginAccount> {
     return this.getPrivate('/margin/cross/accounts');
   }
 
@@ -1521,11 +1485,11 @@ export class RestClient extends BaseRestClient {
    * Record time range cannot exceed 30 days.
    *
    * @param params Parameters for retrieving cross margin account change history
-   * @returns Promise<APIResponse<GetCrossMarginAccountHistoryResp[]>>
+   * @returns Promise<GetCrossMarginAccountHistoryResp[]>
    */
   getCrossMarginAccountHistory(
     params?: GetCrossMarginAccountHistoryReq,
-  ): Promise<APIResponse<CrossMarginAccountHistoryRecord[]>> {
+  ): Promise<CrossMarginAccountHistoryRecord[]> {
     return this.getPrivate('/margin/cross/account_book', params);
   }
 
@@ -1535,11 +1499,11 @@ export class RestClient extends BaseRestClient {
    * Borrow amount cannot be less than currency minimum borrow amount.
    *
    * @param params Parameters for creating a cross margin borrow loan
-   * @returns Promise<APIResponse<SubmitCrossMarginBorrowLoanResp>>
+   * @returns Promise<SubmitCrossMarginBorrowLoanResp>
    */
   submitCrossMarginBorrowLoan(
     params: SubmitCrossMarginBorrowLoanReq,
-  ): Promise<APIResponse<CrossMarginMorrowLoanRecord>> {
+  ): Promise<CrossMarginMorrowLoanRecord> {
     return this.postPrivate('/margin/cross/loans', { body: params });
   }
 
@@ -1549,11 +1513,11 @@ export class RestClient extends BaseRestClient {
    * Sort by creation time in descending order by default. Set reverse=false to return ascending results.
    *
    * @param params Parameters for listing cross margin borrow history
-   * @returns Promise<APIResponse<SubmitCrossMarginBorrowLoanResp[]>>
+   * @returns Promise<SubmitCrossMarginBorrowLoanResp[]>
    */
   getCrossMarginBorrowHistory(
     params: GetCrossMarginBorrowHistoryReq,
-  ): Promise<APIResponse<CrossMarginMorrowLoanRecord[]>> {
+  ): Promise<CrossMarginMorrowLoanRecord[]> {
     return this.getPrivate('/margin/cross/loans', params);
   }
 
@@ -1561,11 +1525,11 @@ export class RestClient extends BaseRestClient {
    * Retrieve single borrow loan detail
    *
    * @param params Parameters containing the borrow loan ID
-   * @returns Promise<APIResponse<SubmitCrossMarginBorrowLoanResp>>
+   * @returns Promise<SubmitCrossMarginBorrowLoanResp>
    */
   getCrossMarginBorrowLoan(params: {
     loan_id: string;
-  }): Promise<APIResponse<CrossMarginMorrowLoanRecord>> {
+  }): Promise<CrossMarginMorrowLoanRecord> {
     return this.getPrivate(`/margin/cross/loans/${params.loan_id}`);
   }
   /**
@@ -1574,12 +1538,12 @@ export class RestClient extends BaseRestClient {
    * When the liquidity of the currency is insufficient and the transaction risk is high, the currency will be disabled, and funds cannot be transferred. When the available balance of cross-margin is insufficient, the balance of the spot account can be used for repayment. Please ensure that the balance of the spot account is sufficient, and system uses cross-margin account for repayment first.
    *
    * @param params Parameters for cross margin repayments
-   * @returns Promise<APIResponse<SubmitCrossMarginBorrowLoanResp[]>>
+   * @returns Promise<SubmitCrossMarginBorrowLoanResp[]>
    */
   submitCrossMarginRepayment(params: {
     currency: string;
     amount: string;
-  }): Promise<APIResponse<CrossMarginMorrowLoanRecord[]>> {
+  }): Promise<CrossMarginMorrowLoanRecord[]> {
     return this.postPrivate('/margin/cross/repayments', { body: params });
   }
 
@@ -1589,11 +1553,11 @@ export class RestClient extends BaseRestClient {
    * Sort by creation time in descending order by default. Set reverse=false to return ascending results.
    *
    * @param params Parameters for retrieving cross margin repayments
-   * @returns Promise<APIResponse<GetCrossMarginRepaymentsResp[]>>
+   * @returns Promise<GetCrossMarginRepaymentsResp[]>
    */
   getCrossMarginRepayments(
     params?: GetCrossMarginRepaymentsReq,
-  ): Promise<APIResponse<CrossMarginAccount[]>> {
+  ): Promise<CrossMarginAccount[]> {
     return this.getPrivate('/margin/cross/repayments', params);
   }
 
@@ -1601,11 +1565,11 @@ export class RestClient extends BaseRestClient {
    * Interest records for the cross margin account
    *
    * @param params Parameters for retrieving interest records
-   * @returns Promise<APIResponse<GetCrossMarginInterestRecordsResp[]>>
+   * @returns Promise<GetCrossMarginInterestRecordsResp[]>
    */
   getCrossMarginInterestRecords(
     params?: GetCrossMarginInterestRecordsReq,
-  ): Promise<APIResponse<GetCrossMarginInterestRecordsReq[]>> {
+  ): Promise<GetCrossMarginInterestRecordsReq[]> {
     return this.getPrivate('/margin/cross/interest_records', params);
   }
 
@@ -1613,10 +1577,10 @@ export class RestClient extends BaseRestClient {
    * Get the max transferable amount for a specific cross margin currency
    *
    * @param params Parameters for retrieving the max transferable amount
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   currency: string;
    *   amount: string;
-   * }>>
+   * }>
    */
   getCrossMarginTransferableAmount(params: { currency: string }): Promise<
     APIResponse<{
@@ -1633,11 +1597,9 @@ export class RestClient extends BaseRestClient {
    * Please note that the interest rates are subject to change based on the borrowing and lending demand, and therefore, the provided rates may not be entirely accurate.
    *
    * @param params Parameters for retrieving estimated interest rates
-   * @returns Promise<APIResponse<any>>
+   * @returns Promise<any>
    */
-  getEstimatedInterestRates(params: {
-    currencies: string[];
-  }): Promise<APIResponse<any>> {
+  getEstimatedInterestRates(params: { currencies: string[] }): Promise<any> {
     return this.getPrivate('/margin/cross/estimate_rate', params);
   }
 
@@ -1645,10 +1607,10 @@ export class RestClient extends BaseRestClient {
    * Get the max borrowable amount for a specific cross margin currency
    *
    * @param params Parameters for retrieving the max borrowable amount
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   currency: string;
    *   amount: string;
-   * }>>
+   * }>
    */
   getCrossMarginBorrowableAmount(params: { currency: string }): Promise<
     APIResponse<{
@@ -1666,9 +1628,9 @@ export class RestClient extends BaseRestClient {
   /**
    * List lending markets
    *
-   * @returns Promise<APIResponse<GetLendingMarketsResp[]>>
+   * @returns Promise<GetLendingMarketsResp[]>
    */
-  getLendingMarkets(): Promise<APIResponse<LendingMarket[]>> {
+  getLendingMarkets(): Promise<LendingMarket[]> {
     return this.get('/margin/uni/currency_pairs');
   }
 
@@ -1676,16 +1638,14 @@ export class RestClient extends BaseRestClient {
    * Get detail of lending market
    *
    * @param params Parameters containing the currency pair
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   currency_pair: string;
    *   base_min_borrow_amount: string;
    *   quote_min_borrow_amount: string;
    *   leverage: string;
-   * }>>
+   * }>
    */
-  getLendingMarket(params: {
-    currency_pair: string;
-  }): Promise<APIResponse<LendingMarket>> {
+  getLendingMarket(params: { currency_pair: string }): Promise<LendingMarket> {
     return this.get(`/margin/uni/currency_pairs/${params.currency_pair}`);
   }
 
@@ -1695,11 +1655,9 @@ export class RestClient extends BaseRestClient {
    * Please note that the interest rates are subject to change based on the borrowing and lending demand, and therefore, the provided rates may not be entirely accurate.
    *
    * @param params Parameters for retrieving estimated interest rates
-   * @returns Promise<APIResponse<any>>
+   * @returns Promise<any>
    */
-  getEstimatedInterestRate(params: {
-    currencies: string[];
-  }): Promise<APIResponse<any>> {
+  getEstimatedInterestRate(params: { currencies: string[] }): Promise<any> {
     return this.getPrivate('/margin/uni/estimate_rate', params);
   }
 
@@ -1723,11 +1681,9 @@ export class RestClient extends BaseRestClient {
    * List loans
    *
    * @param params Parameters for listing loans
-   * @returns Promise<APIResponse<GetMarginUNILoansResp[]>>
+   * @returns Promise<GetMarginUNILoansResp[]>
    */
-  getMarginUNILoans(
-    params?: GetMarginUNILoansReq,
-  ): Promise<APIResponse<MarginUNILoan[]>> {
+  getMarginUNILoans(params?: GetMarginUNILoansReq): Promise<MarginUNILoan[]> {
     return this.getPrivate('/margin/uni/loans', params);
   }
 
@@ -1735,11 +1691,11 @@ export class RestClient extends BaseRestClient {
    * Get loan records
    *
    * @param params Parameters for retrieving loan records
-   * @returns Promise<APIResponse<GetMarginUNILoanRecordsResp[]>>
+   * @returns Promise<GetMarginUNILoanRecordsResp[]>
    */
   getMarginUNILoanRecords(
     params?: GetMarginUNILoanRecordsReq,
-  ): Promise<APIResponse<MarginUNILoanRecord[]>> {
+  ): Promise<MarginUNILoanRecord[]> {
     return this.getPrivate('/margin/uni/loan_records', params);
   }
 
@@ -1747,11 +1703,11 @@ export class RestClient extends BaseRestClient {
    * List interest records
    *
    * @param params Parameters for listing interest records
-   * @returns Promise<APIResponse<GetMarginUNIInterestRecordsResp[]>>
+   * @returns Promise<GetMarginUNIInterestRecordsResp[]>
    */
   getMarginUNIInterestRecords(
     params?: GetMarginUNIInterestRecordsReq,
-  ): Promise<APIResponse<MarginUNIInterestRecord[]>> {
+  ): Promise<MarginUNIInterestRecord[]> {
     return this.getPrivate('/margin/uni/interest_records', params);
   }
 
@@ -1759,11 +1715,11 @@ export class RestClient extends BaseRestClient {
    * Get maximum borrowable
    *
    * @param params Parameters for retrieving the maximum borrowable amount
-   * @returns Promise<APIResponse<GetMarginUNIMaxBorrowResp>>
+   * @returns Promise<GetMarginUNIMaxBorrowResp>
    */
   getMarginUNIMaxBorrow(
     params: GetMarginUNIMaxBorrowReq,
-  ): Promise<APIResponse<MarginUNIMaxBorrowable>> {
+  ): Promise<MarginUNIMaxBorrowable> {
     return this.getPrivate('/margin/uni/borrowable', params);
   }
   /**==========================================================================================================================
@@ -1775,11 +1731,11 @@ export class RestClient extends BaseRestClient {
    * List All Supported Currency Pairs In Flash Swap
    *
    * @param params Parameters for retrieving data of the specified currency
-   * @returns Promise<APIResponse<GetFlashSwapCurrencyPairsResp[]>>
+   * @returns Promise<GetFlashSwapCurrencyPairsResp[]>
    */
   getFlashSwapCurrencyPairs(params?: {
     currency?: string;
-  }): Promise<APIResponse<FlashSwapCurrencyPair[]>> {
+  }): Promise<FlashSwapCurrencyPair[]> {
     return this.get('/flash_swap/currency_pairs', params);
   }
 
@@ -1789,11 +1745,11 @@ export class RestClient extends BaseRestClient {
    * Initiate a flash swap preview in advance because order creation requires a preview result.
    *
    * @param params Parameters for creating a flash swap order
-   * @returns Promise<APIResponse<SubmitFlashSwapOrderResp>>
+   * @returns Promise<SubmitFlashSwapOrderResp>
    */
   submitFlashSwapOrder(
     params: SubmitFlashSwapOrderReq,
-  ): Promise<APIResponse<FlashSwapOrder>> {
+  ): Promise<FlashSwapOrder> {
     return this.postPrivate('/flash_swap/orders', { body: params });
   }
 
@@ -1801,11 +1757,11 @@ export class RestClient extends BaseRestClient {
    * List all flash swap orders
    *
    * @param params Parameters for listing flash swap orders
-   * @returns Promise<APIResponse<GetFlashSwapOrdersResp[]>>
+   * @returns Promise<GetFlashSwapOrdersResp[]>
    */
   getFlashSwapOrders(
     params?: GetFlashSwapOrdersReq,
-  ): Promise<APIResponse<FlashSwapOrder[]>> {
+  ): Promise<FlashSwapOrder[]> {
     return this.getPrivate('/flash_swap/orders', params);
   }
 
@@ -1813,11 +1769,9 @@ export class RestClient extends BaseRestClient {
    * Get a single flash swap order's detail
    *
    * @param params Parameters containing the flash swap order ID
-   * @returns Promise<APIResponse<GetFlashSwapOrderResp>>
+   * @returns Promise<GetFlashSwapOrderResp>
    */
-  getFlashSwapOrder(params: {
-    order_id: number;
-  }): Promise<APIResponse<FlashSwapOrder>> {
+  getFlashSwapOrder(params: { order_id: number }): Promise<FlashSwapOrder> {
     return this.getPrivate(`/flash_swap/orders/${params.order_id}`);
   }
 
@@ -1825,11 +1779,11 @@ export class RestClient extends BaseRestClient {
    * Initiate a flash swap order preview
    *
    * @param params Parameters for initiating a flash swap order preview
-   * @returns Promise<APIResponse<SubmitFlashSwapOrderPreviewResp>>
+   * @returns Promise<SubmitFlashSwapOrderPreviewResp>
    */
   submitFlashSwapOrderPreview(
     params: SubmitFlashSwapOrderPreviewReq,
-  ): Promise<APIResponse<SubmitFlashSwapOrderPreviewResp>> {
+  ): Promise<SubmitFlashSwapOrderPreviewResp> {
     return this.postPrivate('/flash_swap/orders/preview', { body: params });
   }
 
@@ -1842,13 +1796,13 @@ export class RestClient extends BaseRestClient {
    * List all futures contracts
    *
    * @param params Parameters for listing futures contracts
-   * @returns Promise<APIResponse<Contract[]>>
+   * @returns Promise<Contract[]>
    */
   getFuturesContracts(params: {
     settle: 'btc' | 'usdt' | 'usd';
     limit?: number;
     offset?: number;
-  }): Promise<APIResponse<FuturesContract[]>> {
+  }): Promise<FuturesContract[]> {
     const { settle, ...query } = params;
     return this.get(`/futures/${settle}/contracts`, query);
   }
@@ -1857,12 +1811,12 @@ export class RestClient extends BaseRestClient {
    * Get a single contract
    *
    * @param params Parameters for retrieving a single contract
-   * @returns Promise<APIResponse<Contract>>
+   * @returns Promise<Contract>
    */
   getFuturesContract(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
-  }): Promise<APIResponse<FuturesContract>> {
+  }): Promise<FuturesContract> {
     return this.get(`/futures/${params.settle}/contracts/${params.contract}`);
   }
 
@@ -1872,11 +1826,11 @@ export class RestClient extends BaseRestClient {
    * Bids will be sorted by price from high to low, while asks sorted reversely.
    *
    * @param params Parameters for retrieving the futures order book
-   * @returns Promise<APIResponse<GetFuturesOrderBookResp>>
+   * @returns Promise<GetFuturesOrderBookResp>
    */
   getFuturesOrderBook(
     params: GetFuturesOrderBookReq,
-  ): Promise<APIResponse<FuturesOrderBook>> {
+  ): Promise<FuturesOrderBook> {
     const { settle, ...query } = params;
     return this.get(`/futures/${settle}/order_book`, query);
   }
@@ -1885,11 +1839,9 @@ export class RestClient extends BaseRestClient {
    * Futures trading history
    *
    * @param params Parameters for retrieving futures trading history
-   * @returns Promise<APIResponse<GetFuturesTradesResp[]>>
+   * @returns Promise<GetFuturesTradesResp[]>
    */
-  getFuturesTrades(
-    params: GetFuturesTradesReq,
-  ): Promise<APIResponse<FuturesTrade[]>> {
+  getFuturesTrades(params: GetFuturesTradesReq): Promise<FuturesTrade[]> {
     const { settle, ...query } = params;
     return this.get(`/futures/${settle}/trades`, query);
   }
@@ -1902,11 +1854,9 @@ export class RestClient extends BaseRestClient {
    * Maximum of 2000 points are returned in one query. Be sure not to exceed the limit when specifying from, to and interval.
    *
    * @param params Parameters for retrieving futures Candles
-   * @returns Promise<APIResponse<GetFuturesCandlesResp[]>>
+   * @returns Promise<GetFuturesCandlesResp[]>
    */
-  getFuturesCandles(
-    params: GetFuturesCandlesReq,
-  ): Promise<APIResponse<FuturesCandle[]>> {
+  getFuturesCandles(params: GetFuturesCandlesReq): Promise<FuturesCandle[]> {
     const { settle, ...query } = params;
     return this.get(`/futures/${settle}/Candles`, query);
   }
@@ -1917,11 +1867,11 @@ export class RestClient extends BaseRestClient {
    * Maximum of 1000 points can be returned in a query. Be sure not to exceed the limit when specifying from, to and interval.
    *
    * @param params Parameters for retrieving premium index K-Line
-   * @returns Promise<APIResponse<GetPremiumIndexKLineResp[]>>
+   * @returns Promise<GetPremiumIndexKLineResp[]>
    */
   getPremiumIndexKLines(
     params: GetFuturesCandlesReq,
-  ): Promise<APIResponse<PremiumIndexKLine[]>> {
+  ): Promise<PremiumIndexKLine[]> {
     const { settle, ...query } = params;
     return this.get(`/futures/${settle}/premium_index`, query);
   }
@@ -1930,12 +1880,12 @@ export class RestClient extends BaseRestClient {
    * List futures tickers
    *
    * @param params Parameters for listing futures tickers
-   * @returns Promise<APIResponse<GetFuturesTickersResp[]>>
+   * @returns Promise<GetFuturesTickersResp[]>
    */
   getFuturesTickers(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract?: string;
-  }): Promise<APIResponse<FuturesTicker[]>> {
+  }): Promise<FuturesTicker[]> {
     const { settle, ...query } = params;
     return this.get(`/futures/${settle}/tickers`, query);
   }
@@ -1944,10 +1894,10 @@ export class RestClient extends BaseRestClient {
    * Funding rate history
    *
    * @param params Parameters for retrieving funding rate history
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   t: number;
    *   r: string;
-   * }[]>>
+   * }[]>
    */
   getFundingRates(params: {
     settle: 'btc' | 'usdt' | 'usd';
@@ -1969,10 +1919,10 @@ export class RestClient extends BaseRestClient {
    * Futures insurance balance history
    *
    * @param params Parameters for retrieving futures insurance balance history
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   t: number;
    *   b: string;
-   * }[]>>
+   * }[]>
    */
   getFuturesInsuranceBalanceHistory(params: {
     settle: 'btc' | 'usdt' | 'usd';
@@ -1993,11 +1943,9 @@ export class RestClient extends BaseRestClient {
    * Futures stats
    *
    * @param params Parameters for retrieving futures stats
-   * @returns Promise<APIResponse<GetFuturesStatsResp[]>>
+   * @returns Promise<GetFuturesStatsResp[]>
    */
-  getFuturesStats(
-    params: GetFuturesStatsReq,
-  ): Promise<APIResponse<FuturesStats[]>> {
+  getFuturesStats(params: GetFuturesStatsReq): Promise<FuturesStats[]> {
     const { settle, ...query } = params;
     return this.get(`/futures/${settle}/contract_stats`, query);
   }
@@ -2006,12 +1954,12 @@ export class RestClient extends BaseRestClient {
    * Get index constituents
    *
    * @param params Parameters for retrieving index constituents
-   * @returns Promise<APIResponse<GetIndexConstituentsResp>>
+   * @returns Promise<GetIndexConstituentsResp>
    */
   getIndexConstituents(params: {
     settle: 'btc' | 'usdt' | 'usd';
     index: string;
-  }): Promise<APIResponse<IndexConstituents>> {
+  }): Promise<IndexConstituents> {
     return this.get(
       `/futures/${params.settle}/index_constituents/${params.index}`,
     );
@@ -2023,11 +1971,11 @@ export class RestClient extends BaseRestClient {
    * Interval between from and to cannot exceed 3600. Some private fields will not be returned in public endpoints. Refer to field description for detail.
    *
    * @param params Parameters for retrieving liquidation history
-   * @returns Promise<APIResponse<GetLiquidationHistoryResp[]>>
+   * @returns Promise<GetLiquidationHistoryResp[]>
    */
   getLiquidationHistory(
     params: GetLiquidationHistoryReq,
-  ): Promise<APIResponse<LiquidationHistoryRecord[]>> {
+  ): Promise<LiquidationHistoryRecord[]> {
     const { settle, ...query } = params;
     return this.get(`/futures/${settle}/liq_orders`, query);
   }
@@ -2040,11 +1988,9 @@ export class RestClient extends BaseRestClient {
    * This only takes effect when the 'contract' parameter is empty.
    *
    * @param params Parameters for listing risk limit tiers
-   * @returns Promise<APIResponse<GetRiskLimitTiersResp[]>>
+   * @returns Promise<GetRiskLimitTiersResp[]>
    */
-  getRiskLimitTiers(
-    params: GetRiskLimitTiersReq,
-  ): Promise<APIResponse<RiskLimitTier[]>> {
+  getRiskLimitTiers(params: GetRiskLimitTiersReq): Promise<RiskLimitTier[]> {
     const { settle, ...query } = params;
     return this.get(`/futures/${settle}/risk_limit_tiers`, query);
   }
@@ -2053,11 +1999,11 @@ export class RestClient extends BaseRestClient {
    * Query futures account
    *
    * @param params Parameters for querying futures account
-   * @returns Promise<APIResponse<GetFuturesAccountResp>>
+   * @returns Promise<GetFuturesAccountResp>
    */
   getFuturesAccount(params: {
     settle: 'btc' | 'usdt' | 'usd';
-  }): Promise<APIResponse<FuturesAccount>> {
+  }): Promise<FuturesAccount> {
     return this.getPrivate(`/futures/${params.settle}/accounts`);
   }
 
@@ -2067,11 +2013,11 @@ export class RestClient extends BaseRestClient {
    * If the contract field is provided, it can only filter records that include this field after 2023-10-30.
    *
    * @param params Parameters for querying account book
-   * @returns Promise<APIResponse<GetFuturesAccountBookResp[]>>
+   * @returns Promise<GetFuturesAccountBookResp[]>
    */
   getFuturesAccountBook(
     params: GetFuturesAccountBookReq,
-  ): Promise<APIResponse<GetFuturesAccountBookReq[]>> {
+  ): Promise<GetFuturesAccountBookReq[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/futures/${settle}/account_book`, query);
   }
@@ -2080,11 +2026,11 @@ export class RestClient extends BaseRestClient {
    * List all positions of a user
    *
    * @param params Parameters for listing all positions of a user
-   * @returns Promise<APIResponse<Position[]>>
+   * @returns Promise<Position[]>
    */
   getFuturesPositions(
     params: GetFuturesPositionsReq,
-  ): Promise<APIResponse<FuturesPosition[]>> {
+  ): Promise<FuturesPosition[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/futures/${settle}/positions`, query);
   }
@@ -2092,12 +2038,12 @@ export class RestClient extends BaseRestClient {
    * Get single position
    *
    * @param params Parameters for retrieving a single position
-   * @returns Promise<APIResponse<Position>>
+   * @returns Promise<Position>
    */
   getFuturesPosition(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
-  }): Promise<APIResponse<FuturesPosition>> {
+  }): Promise<FuturesPosition> {
     return this.getPrivate(
       `/futures/${params.settle}/positions/${params.contract}`,
     );
@@ -2107,13 +2053,13 @@ export class RestClient extends BaseRestClient {
    * Update position margin
    *
    * @param params Parameters for updating position margin
-   * @returns Promise<APIResponse<Position>>
+   * @returns Promise<Position>
    */
   updateFuturesMargin(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
     change: string;
-  }): Promise<APIResponse<FuturesPosition>> {
+  }): Promise<FuturesPosition> {
     const { settle, contract, ...query } = params;
     return this.postPrivate(`/futures/${settle}/positions/${contract}/margin`, {
       query: query,
@@ -2124,14 +2070,14 @@ export class RestClient extends BaseRestClient {
    * Update position leverage
    *
    * @param params Parameters for updating position leverage
-   * @returns Promise<APIResponse<Position>>
+   * @returns Promise<Position>
    */
   updateFuturesLeverage(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
     leverage: string;
     cross_leverage_limit?: string;
-  }): Promise<APIResponse<FuturesPosition>> {
+  }): Promise<FuturesPosition> {
     const { settle, contract, ...query } = params;
     return this.postPrivate(
       `/futures/${settle}/positions/${contract}/leverage`,
@@ -2143,13 +2089,13 @@ export class RestClient extends BaseRestClient {
    * Update position risk limit
    *
    * @param params Parameters for updating position risk limit
-   * @returns Promise<APIResponse<Position>>
+   * @returns Promise<Position>
    */
   updatePositionRiskLimit(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
     risk_limit: string;
-  }): Promise<APIResponse<FuturesPosition>> {
+  }): Promise<FuturesPosition> {
     const { settle, contract, ...query } = params;
     return this.postPrivate(
       `/futures/${settle}/positions/${contract}/risk_limit`,
@@ -2163,12 +2109,12 @@ export class RestClient extends BaseRestClient {
    * Before setting dual mode, make sure all positions are closed and no orders are open.
    *
    * @param params Parameters for enabling or disabling dual mode
-   * @returns Promise<APIResponse<ToggleFuturesDualModeResp>>
+   * @returns Promise<ToggleFuturesDualModeResp>
    */
   updateFuturesDualMode(params: {
     settle: 'btc' | 'usdt' | 'usd';
     dual_mode: boolean;
-  }): Promise<APIResponse<UpdateFuturesDualModeResp>> {
+  }): Promise<UpdateFuturesDualModeResp> {
     const { settle, ...query } = params;
     return this.postPrivate(`/futures/${settle}/dual_mode`, {
       query: query,
@@ -2179,12 +2125,12 @@ export class RestClient extends BaseRestClient {
    * Retrieve position detail in dual mode
    *
    * @param params Parameters for retrieving position detail in dual mode
-   * @returns Promise<APIResponse<Position[]>>
+   * @returns Promise<Position[]>
    */
   getDualModePosition(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
-  }): Promise<APIResponse<FuturesPosition[]>> {
+  }): Promise<FuturesPosition[]> {
     return this.getPrivate(
       `/futures/${params.settle}/dual_comp/positions/${params.contract}`,
     );
@@ -2194,11 +2140,11 @@ export class RestClient extends BaseRestClient {
    * Update position margin in dual mode
    *
    * @param params Parameters for updating position margin in dual mode
-   * @returns Promise<APIResponse<Position[]>>
+   * @returns Promise<Position[]>
    */
   updateDualModePositionMargin(
     params: UpdateDualModePositionMarginReq,
-  ): Promise<APIResponse<FuturesPosition[]>> {
+  ): Promise<FuturesPosition[]> {
     const { settle, contract, ...query } = params;
     return this.postPrivate(
       `/futures/${settle}/dual_comp/positions/${contract}/margin`,
@@ -2210,11 +2156,11 @@ export class RestClient extends BaseRestClient {
    * Update position leverage in dual mode
    *
    * @param params Parameters for updating position leverage in dual mode
-   * @returns Promise<APIResponse<Position[]>>
+   * @returns Promise<Position[]>
    */
   updateDualModePositionLeverage(
     params: UpdateDualModePositionLeverageReq,
-  ): Promise<APIResponse<FuturesPosition[]>> {
+  ): Promise<FuturesPosition[]> {
     const { settle, contract, ...query } = params;
     return this.postPrivate(
       `/futures/${settle}/dual_comp/positions/${contract}/leverage`,
@@ -2226,13 +2172,13 @@ export class RestClient extends BaseRestClient {
    * Update position risk limit in dual mode
    *
    * @param params Parameters for updating position risk limit in dual mode
-   * @returns Promise<APIResponse<Position[]>>
+   * @returns Promise<Position[]>
    */
   updateDualModePositionRiskLimit(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
     risk_limit: string;
-  }): Promise<APIResponse<FuturesPosition[]>> {
+  }): Promise<FuturesPosition[]> {
     const { settle, contract, ...query } = params;
     return this.postPrivate(
       `/futures/${settle}/dual_comp/positions/${contract}/risk_limit`,
@@ -2251,11 +2197,9 @@ export class RestClient extends BaseRestClient {
    * Set stp_act to decide the strategy of self-trade prevention. For detailed usage, refer to the stp_act parameter in the request body.
    *
    * @param params Parameters for creating a futures order
-   * @returns Promise<APIResponse<SubmitFuturesOrderReq>>
+   * @returns Promise<SubmitFuturesOrderReq>
    */
-  submitFuturesOrder(
-    params: SubmitFuturesOrderReq,
-  ): Promise<APIResponse<FuturesOrder>> {
+  submitFuturesOrder(params: SubmitFuturesOrderReq): Promise<FuturesOrder> {
     const { settle, ...body } = params;
     return this.postPrivate(`/futures/${settle}/orders`, { body: body });
   }
@@ -2267,11 +2211,9 @@ export class RestClient extends BaseRestClient {
    * Historical orders, by default, only data within the past 6 months is supported. If you need to query data for a longer period, please use GET /futures/{settle}/orders_timerange.
    *
    * @param params Parameters for listing futures orders
-   * @returns Promise<APIResponse<FuturesOrder[]>>
+   * @returns Promise<FuturesOrder[]>
    */
-  getFuturesOrders(
-    params: GetFuturesOrdersReq,
-  ): Promise<APIResponse<FuturesOrder[]>> {
+  getFuturesOrders(params: GetFuturesOrdersReq): Promise<FuturesOrder[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/futures/${settle}/orders`, query);
   }
@@ -2282,11 +2224,11 @@ export class RestClient extends BaseRestClient {
    * Zero-filled order cannot be retrieved 10 minutes after order cancellation.
    *
    * @param params Parameters for cancelling all open orders matched
-   * @returns Promise<APIResponse<FuturesOrder[]>>
+   * @returns Promise<FuturesOrder[]>
    */
   cancelAllFuturesOrders(
     params: DeleteAllFuturesOrdersReq,
-  ): Promise<APIResponse<FuturesOrder[]>> {
+  ): Promise<FuturesOrder[]> {
     const { settle, ...query } = params;
     return this.deletePrivate(`/futures/${settle}/orders`, {
       query: query,
@@ -2297,11 +2239,11 @@ export class RestClient extends BaseRestClient {
    * List Futures Orders By Time Range
    *
    * @param params Parameters for listing futures orders by time range
-   * @returns Promise<APIResponse<FuturesOrder[]>>
+   * @returns Promise<FuturesOrder[]>
    */
   getFuturesOrdersByTimeRange(
     params: GetFuturesOrdersByTimeRangeReq,
-  ): Promise<APIResponse<FuturesOrder[]>> {
+  ): Promise<FuturesOrder[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/futures/${settle}/orders_timerange`, query);
   }
@@ -2318,12 +2260,12 @@ export class RestClient extends BaseRestClient {
    * In the rate limiting, each order is counted individually.
    *
    * @param params Parameters for creating a batch of futures orders
-   * @returns Promise<APIResponse<FuturesOrder[]>>
+   * @returns Promise<FuturesOrder[]>
    */
   submitFuturesBatchOrders(params: {
     settle: 'btc' | 'usdt' | 'usd';
     orders: SubmitFuturesOrderReq[];
-  }): Promise<APIResponse<FuturesOrder[]>> {
+  }): Promise<FuturesOrder[]> {
     const { settle, orders } = params;
     return this.postPrivate(`/futures/${settle}/batch_orders`, {
       body: orders,
@@ -2337,12 +2279,12 @@ export class RestClient extends BaseRestClient {
    * Historical orders, by default, only data within the past 6 months is supported.
    *
    * @param params Parameters for retrieving a single order
-   * @returns Promise<APIResponse<FuturesOrder>>
+   * @returns Promise<FuturesOrder>
    */
   getFuturesOrder(params: {
     settle: 'btc' | 'usdt' | 'usd';
     order_id: string;
-  }): Promise<APIResponse<FuturesOrder>> {
+  }): Promise<FuturesOrder> {
     return this.getPrivate(
       `/futures/${params.settle}/orders/${params.order_id}`,
     );
@@ -2352,12 +2294,12 @@ export class RestClient extends BaseRestClient {
    * Cancel a single order
    *
    * @param params Parameters for cancelling a single order
-   * @returns Promise<APIResponse<FuturesOrder>>
+   * @returns Promise<FuturesOrder>
    */
   cancelFuturesOrder(params: {
     settle: 'btc' | 'usdt' | 'usd';
     order_id: string;
-  }): Promise<APIResponse<FuturesOrder>> {
+  }): Promise<FuturesOrder> {
     return this.deletePrivate(
       `/futures/${params.settle}/orders/${params.order_id}`,
     );
@@ -2367,11 +2309,9 @@ export class RestClient extends BaseRestClient {
    * Amend an order
    *
    * @param params Parameters for amending an order
-   * @returns Promise<APIResponse<FuturesOrder>>
+   * @returns Promise<FuturesOrder>
    */
-  updateFuturesOrder(
-    params: UpdateFuturesOrderReq,
-  ): Promise<APIResponse<FuturesOrder>> {
+  updateFuturesOrder(params: UpdateFuturesOrderReq): Promise<FuturesOrder> {
     const { settle, order_id, ...body } = params;
     return this.putPrivate(`/futures/${settle}/orders/${order_id}`, {
       body: body,
@@ -2384,11 +2324,11 @@ export class RestClient extends BaseRestClient {
    * By default, only data within the past 6 months is supported. If you need to query data for a longer period, please use GET /futures/{settle}/my_trades_timerange.
    *
    * @param params Parameters for listing personal trading history
-   * @returns Promise<APIResponse<GetFuturesTradingHistoryResp[]>>
+   * @returns Promise<GetFuturesTradingHistoryResp[]>
    */
   getFuturesTradingHistory(
     params: GetFuturesTradingHistoryReq,
-  ): Promise<APIResponse<FuturesTradingHistoryRecord[]>> {
+  ): Promise<FuturesTradingHistoryRecord[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/futures/${settle}/my_trades`, query);
   }
@@ -2397,11 +2337,11 @@ export class RestClient extends BaseRestClient {
    * List position close history
    *
    * @param params Parameters for listing position close history
-   * @returns Promise<APIResponse<GetFuturesPositionHistoryResp[]>>
+   * @returns Promise<GetFuturesPositionHistoryResp[]>
    */
   getFuturesPositionHistory(
     params: GetFuturesPositionHistoryReq,
-  ): Promise<APIResponse<FuturesPositionHistoryRecord[]>> {
+  ): Promise<FuturesPositionHistoryRecord[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/futures/${settle}/position_close`, query);
   }
@@ -2410,11 +2350,11 @@ export class RestClient extends BaseRestClient {
    * List liquidation history
    *
    * @param params Parameters for listing liquidation history
-   * @returns Promise<APIResponse<GetFuturesLiquidationHistoryResp[]>>
+   * @returns Promise<GetFuturesLiquidationHistoryResp[]>
    */
   getFuturesLiquidationHistory(
     params: GetFuturesLiquidationHistoryReq,
-  ): Promise<APIResponse<FuturesLiquidationHistoryRecord[]>> {
+  ): Promise<FuturesLiquidationHistoryRecord[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/futures/${settle}/liquidates`, query);
   }
@@ -2423,11 +2363,11 @@ export class RestClient extends BaseRestClient {
    * List Auto-Deleveraging History
    *
    * @param params Parameters for listing auto-deleveraging history
-   * @returns Promise<APIResponse<GetFuturesAutoDeleveragingHistoryResp[]>>
+   * @returns Promise<GetFuturesAutoDeleveragingHistoryResp[]>
    */
   getFuturesAutoDeleveragingHistory(
     params: GetFuturesLiquidationHistoryReq,
-  ): Promise<APIResponse<FuturesAutoDeleveragingHistoryRecord[]>> {
+  ): Promise<FuturesAutoDeleveragingHistoryRecord[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/futures/${settle}/auto_deleverages`, query);
   }
@@ -2440,13 +2380,13 @@ export class RestClient extends BaseRestClient {
    * If the timeout is set to 0 within 30 seconds, the countdown timer will expire and the cancel function will be cancelled.
    *
    * @param params Parameters for setting countdown cancel orders
-   * @returns Promise<APIResponse<{ triggerTime: number }>>
+   * @returns Promise<{ triggerTime: number }>
    */
   setFuturesOrderCancelCountdown(params: {
     settle: 'btc' | 'usdt' | 'usd';
     timeout: number;
     contract?: string;
-  }): Promise<APIResponse<{ triggerTime: number }>> {
+  }): Promise<{ triggerTime: number }> {
     const { settle, ...body } = params;
     return this.postPrivate(`/futures/${settle}/countdown_cancel_all`, {
       body: body,
@@ -2457,12 +2397,12 @@ export class RestClient extends BaseRestClient {
    * Query user trading fee rates
    *
    * @param params Parameters for querying user trading fee rates
-   * @returns Promise<APIResponse<any>>>
+   * @returns Promise<any>
    */
   getFuturesUserTradingFees(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract?: string;
-  }): Promise<APIResponse<any>> {
+  }): Promise<any> {
     const { settle, ...query } = params;
     return this.getPrivate(`/futures/${settle}/fee`, query);
   }
@@ -2473,12 +2413,12 @@ export class RestClient extends BaseRestClient {
    * Multiple distinct order ID list can be specified. Each request can cancel a maximum of 20 records.
    *
    * @param params Parameters for cancelling a batch of orders with an ID list
-   * @returns Promise<APIResponse<DeleteFuturesBatchOrdersResp[]>>
+   * @returns Promise<DeleteFuturesBatchOrdersResp[]>
    */
   batchCancelFuturesOrders(params: {
     settle: 'btc' | 'usdt' | 'usd';
     orderIds: string[];
-  }): Promise<APIResponse<DeleteFuturesBatchOrdersResp[]>> {
+  }): Promise<DeleteFuturesBatchOrdersResp[]> {
     const { settle, ...orderIds } = params;
     return this.postPrivate(`/futures/${settle}/batch_cancel_orders`, {
       body: orderIds,
@@ -2489,11 +2429,11 @@ export class RestClient extends BaseRestClient {
    * Create a price-triggered order
    *
    * @param params Parameters for creating a price-triggered order
-   * @returns Promise<APIResponse<{ id: number }>>
+   * @returns Promise<{ id: number }>
    */
   submitFuturesPriceTriggeredOrder(
     params: SubmitFuturesTriggeredOrderReq,
-  ): Promise<APIResponse<{ id: number }>> {
+  ): Promise<{ id: number }> {
     const { settle, ...body } = params;
     return this.postPrivate(`/futures/${settle}/price_orders`, { body: body });
   }
@@ -2502,11 +2442,11 @@ export class RestClient extends BaseRestClient {
    * List all auto orders
    *
    * @param params Parameters for listing all auto orders
-   * @returns Promise<APIResponse<FuturesPriceTriggeredOrder[]>>
+   * @returns Promise<FuturesPriceTriggeredOrder[]>
    */
   getFuturesAutoOrders(
     params: GetFuturesAutoOrdersReq,
-  ): Promise<APIResponse<FuturesPriceTriggeredOrder[]>> {
+  ): Promise<FuturesPriceTriggeredOrder[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/futures/${settle}/price_orders`, query);
   }
@@ -2515,12 +2455,12 @@ export class RestClient extends BaseRestClient {
    * Cancel all open orders
    *
    * @param params Parameters for cancelling all open orders
-   * @returns Promise<APIResponse<FuturesPriceTriggeredOrder[]>>
+   * @returns Promise<FuturesPriceTriggeredOrder[]>
    */
   cancelAllOpenFuturesOrders(params: {
     settle: 'btc' | 'usdt' | 'usd';
     contract: string;
-  }): Promise<APIResponse<FuturesPriceTriggeredOrder[]>> {
+  }): Promise<FuturesPriceTriggeredOrder[]> {
     const { settle, ...query } = params;
     return this.deletePrivate(`/futures/${settle}/price_orders`, {
       query: query,
@@ -2531,12 +2471,12 @@ export class RestClient extends BaseRestClient {
    * Get a price-triggered order
    *
    * @param params Parameters for retrieving a price-triggered order
-   * @returns Promise<APIResponse<FuturesPriceTriggeredOrder>>
+   * @returns Promise<FuturesPriceTriggeredOrder>
    */
   getFuturesPriceTriggeredOrder(params: {
     settle: 'btc' | 'usdt' | 'usd';
     order_id: string;
-  }): Promise<APIResponse<FuturesPriceTriggeredOrder>> {
+  }): Promise<FuturesPriceTriggeredOrder> {
     return this.getPrivate(
       `/futures/${params.settle}/price_orders/${params.order_id}`,
     );
@@ -2546,12 +2486,12 @@ export class RestClient extends BaseRestClient {
    * Cancel a price-triggered order
    *
    * @param params Parameters for cancelling a price-triggered order
-   * @returns Promise<APIResponse<FuturesPriceTriggeredOrder>>
+   * @returns Promise<FuturesPriceTriggeredOrder>
    */
   cancelFuturesPriceTriggeredOrder(params: {
     settle: 'btc' | 'usdt' | 'usd';
     order_id: string;
-  }): Promise<APIResponse<FuturesPriceTriggeredOrder>> {
+  }): Promise<FuturesPriceTriggeredOrder> {
     return this.deletePrivate(
       `/futures/${params.settle}/price_orders/${params.order_id}`,
     );
@@ -2566,11 +2506,11 @@ export class RestClient extends BaseRestClient {
    * List all futures contracts
    *
    * @param params Parameters for listing all futures contracts
-   * @returns Promise<APIResponse<DeliveryContract[]>>
+   * @returns Promise<DeliveryContract[]>
    */
   getAllDeliveryContracts(params: {
     settle: 'usdt';
-  }): Promise<APIResponse<FuturesDeliveryContract[]>> {
+  }): Promise<FuturesDeliveryContract[]> {
     return this.get(`/delivery/${params.settle}/contracts`);
   }
 
@@ -2578,12 +2518,12 @@ export class RestClient extends BaseRestClient {
    * Get a single contract
    *
    * @param params Parameters for retrieving a single contract
-   * @returns Promise<APIResponse<DeliveryContract>>
+   * @returns Promise<DeliveryContract>
    */
   getDeliveryContract(params: {
     settle: 'usdt';
     contract: string;
-  }): Promise<APIResponse<FuturesDeliveryContract>> {
+  }): Promise<FuturesDeliveryContract> {
     return this.get(`/delivery/${params.settle}/contracts/${params.contract}`);
   }
 
@@ -2593,11 +2533,11 @@ export class RestClient extends BaseRestClient {
    * Bids will be sorted by price from high to low, while asks sorted reversely
    *
    * @param params Parameters for retrieving the futures order book
-   * @returns Promise<APIResponse<GetDeliveryOrderBookResp>>
+   * @returns Promise<GetDeliveryOrderBookResp>
    */
   getDeliveryOrderBook(
     params: GetDeliveryOrderBookReq,
-  ): Promise<APIResponse<DeliveryOrderBook>> {
+  ): Promise<DeliveryOrderBook> {
     const { settle, ...query } = params;
     return this.get(`/delivery/${settle}/order_book`, query);
   }
@@ -2606,11 +2546,9 @@ export class RestClient extends BaseRestClient {
    * Futures trading history
    *
    * @param params Parameters for retrieving the futures trading history
-   * @returns Promise<APIResponse<GetDeliveryTradesResp[]>>
+   * @returns Promise<GetDeliveryTradesResp[]>
    */
-  getDeliveryTrades(
-    params: GetDeliveryTradesReq,
-  ): Promise<APIResponse<DeliveryTrade[]>> {
+  getDeliveryTrades(params: GetDeliveryTradesReq): Promise<DeliveryTrade[]> {
     const { settle, ...query } = params;
     return this.get(`/delivery/${settle}/trades`, query);
   }
@@ -2622,11 +2560,9 @@ export class RestClient extends BaseRestClient {
    * Maximum of 2000 points are returned in one query. Be sure not to exceed the limit when specifying from, to and interval.
    *
    * @param params Parameters for retrieving futures Candles
-   * @returns Promise<APIResponse<GetDeliveryCandlesResp[]>>
+   * @returns Promise<GetDeliveryCandlesResp[]>
    */
-  getDeliveryCandles(
-    params: GetDeliveryCandlesReq,
-  ): Promise<APIResponse<DeliveryCandle[]>> {
+  getDeliveryCandles(params: GetDeliveryCandlesReq): Promise<DeliveryCandle[]> {
     const { settle, ...query } = params;
     return this.get(`/delivery/${settle}/Candles`, query);
   }
@@ -2635,12 +2571,12 @@ export class RestClient extends BaseRestClient {
    * List futures tickers
    *
    * @param params Parameters for listing futures tickers
-   * @returns Promise<APIResponse<GetDeliveryTickersResp[]>>
+   * @returns Promise<GetDeliveryTickersResp[]>
    */
   getDeliveryTickers(params: {
     settle: 'usdt';
     contract?: string;
-  }): Promise<APIResponse<DeliveryTicker[]>> {
+  }): Promise<DeliveryTicker[]> {
     const { settle, ...query } = params;
     return this.get(`/delivery/${settle}/tickers`, query);
   }
@@ -2649,10 +2585,10 @@ export class RestClient extends BaseRestClient {
    * Futures insurance balance history
    *
    * @param params Parameters for retrieving the futures insurance balance history
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   t: number;
    *   b: string;
-   * }[]>>
+   * }[]>
    */
   getDeliveryInsuranceBalanceHistory(params: {
     settle: 'usdt';
@@ -2673,11 +2609,9 @@ export class RestClient extends BaseRestClient {
    * Query futures account
    *
    * @param params Parameters for querying futures account
-   * @returns Promise<APIResponse<GetDeliveryAccountResp>>
+   * @returns Promise<GetDeliveryAccountResp>
    */
-  getDeliveryAccount(params: {
-    settle: 'usdt';
-  }): Promise<APIResponse<DeliveryAccount>> {
+  getDeliveryAccount(params: { settle: 'usdt' }): Promise<DeliveryAccount> {
     const { settle, ...query } = params;
     return this.getPrivate(`/delivery/${settle}/accounts`, query);
   }
@@ -2686,11 +2620,9 @@ export class RestClient extends BaseRestClient {
    * Query account book
    *
    * @param params Parameters for querying account book
-   * @returns Promise<APIResponse<GetDeliveryBookResp[]>>
+   * @returns Promise<GetDeliveryBookResp[]>
    */
-  getDeliveryBook(
-    params: GetDeliveryBookReq,
-  ): Promise<APIResponse<DeliveryBook[]>> {
+  getDeliveryBook(params: GetDeliveryBookReq): Promise<DeliveryBook[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/delivery/${settle}/account_book`, query);
   }
@@ -2699,11 +2631,9 @@ export class RestClient extends BaseRestClient {
    * List all positions of a user
    *
    * @param params Parameters for listing all positions of a user
-   * @returns Promise<APIResponse<Position[]>>
+   * @returns Promise<Position[]>
    */
-  getDeliveryPositions(params: {
-    settle: 'usdt';
-  }): Promise<APIResponse<FuturesPosition[]>> {
+  getDeliveryPositions(params: { settle: 'usdt' }): Promise<FuturesPosition[]> {
     return this.getPrivate(`/delivery/${params.settle}/positions`);
   }
 
@@ -2711,12 +2641,12 @@ export class RestClient extends BaseRestClient {
    * Get single position
    *
    * @param params Parameters for retrieving a single position
-   * @returns Promise<APIResponse<Position>>
+   * @returns Promise<Position>
    */
   getDeliveryPosition(params: {
     settle: 'usdt';
     contract: string;
-  }): Promise<APIResponse<FuturesPosition>> {
+  }): Promise<FuturesPosition> {
     return this.getPrivate(
       `/delivery/${params.settle}/positions/${params.contract}`,
     );
@@ -2726,13 +2656,13 @@ export class RestClient extends BaseRestClient {
    * Update position margin
    *
    * @param params Parameters for updating position margin
-   * @returns Promise<APIResponse<Position>>
+   * @returns Promise<Position>
    */
   updateDeliveryMargin(params: {
     settle: 'usdt';
     contract: string;
     change: string;
-  }): Promise<APIResponse<FuturesPosition>> {
+  }): Promise<FuturesPosition> {
     const { settle, contract, ...query } = params;
     return this.postPrivate(
       `/delivery/${settle}/positions/${contract}/margin`,
@@ -2744,13 +2674,13 @@ export class RestClient extends BaseRestClient {
    * Update position leverage
    *
    * @param params Parameters for updating position leverage
-   * @returns Promise<APIResponse<Position>>
+   * @returns Promise<Position>
    */
   updateDeliveryLeverage(params: {
     settle: 'usdt';
     contract: string;
     leverage: string;
-  }): Promise<APIResponse<FuturesPosition>> {
+  }): Promise<FuturesPosition> {
     const { settle, contract, ...query } = params;
     return this.postPrivate(
       `/delivery/${settle}/positions/${contract}/leverage`,
@@ -2762,13 +2692,13 @@ export class RestClient extends BaseRestClient {
    * Update position risk limit
    *
    * @param params Parameters for updating position risk limit
-   * @returns Promise<APIResponse<Position>>
+   * @returns Promise<Position>
    */
   updateDeliveryRiskLimit(params: {
     settle: 'usdt';
     contract: string;
     risk_limit: string;
-  }): Promise<APIResponse<FuturesPosition>> {
+  }): Promise<FuturesPosition> {
     const { settle, contract, ...query } = params;
     return this.postPrivate(
       `/delivery/${settle}/positions/${contract}/risk_limit`,
@@ -2782,11 +2712,11 @@ export class RestClient extends BaseRestClient {
    * Zero-filled order cannot be retrieved 10 minutes after order cancellation
    *
    * @param params Parameters for creating a futures order
-   * @returns Promise<APIResponse<FuturesOrder>>
+   * @returns Promise<FuturesOrder>
    */
   submitDeliveryOrder(
     params: SubmitDeliveryFuturesOrderReq,
-  ): Promise<APIResponse<FuturesOrder>> {
+  ): Promise<FuturesOrder> {
     const { settle, ...body } = params;
     return this.postPrivate(`/delivery/${settle}/orders`, { body: body });
   }
@@ -2797,11 +2727,9 @@ export class RestClient extends BaseRestClient {
    * Zero-fill order cannot be retrieved 10 minutes after order cancellation.
    *
    * @param params Parameters for listing futures orders
-   * @returns Promise<APIResponse<FuturesOrder[]>>
+   * @returns Promise<FuturesOrder[]>
    */
-  getDeliveryOrders(
-    params: GetDeliveryOrdersReq,
-  ): Promise<APIResponse<FuturesOrder[]>> {
+  getDeliveryOrders(params: GetDeliveryOrdersReq): Promise<FuturesOrder[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/delivery/${settle}/orders`, query);
   }
@@ -2811,13 +2739,13 @@ export class RestClient extends BaseRestClient {
    * Zero-filled order cannot be retrieved 10 minutes after order cancellation
    *
    * @param params Parameters for cancelling all open orders matched
-   * @returns Promise<APIResponse<FuturesOrder[]>>
+   * @returns Promise<FuturesOrder[]>
    */
   cancelAllDeliveryOrders(params: {
     settle: 'usdt';
     contract: string;
     side?: 'ask' | 'bid';
-  }): Promise<APIResponse<FuturesOrder[]>> {
+  }): Promise<FuturesOrder[]> {
     const { settle, ...query } = params;
     return this.deletePrivate(`/delivery/${settle}/orders`, {
       query: query,
@@ -2830,12 +2758,12 @@ export class RestClient extends BaseRestClient {
    * Zero-filled order cannot be retrieved 10 minutes after order cancellation
    *
    * @param params Parameters for retrieving a single order
-   * @returns Promise<APIResponse<FuturesOrder>>
+   * @returns Promise<FuturesOrder>
    */
   getDeliveryOrder(params: {
     settle: 'usdt';
     order_id: string;
-  }): Promise<APIResponse<FuturesOrder>> {
+  }): Promise<FuturesOrder> {
     return this.getPrivate(
       `/delivery/${params.settle}/orders/${params.order_id}`,
     );
@@ -2845,12 +2773,12 @@ export class RestClient extends BaseRestClient {
    * Cancel a single order
    *
    * @param params Parameters for cancelling a single order
-   * @returns Promise<APIResponse<FuturesOrder>>
+   * @returns Promise<FuturesOrder>
    */
   cancelDeliveryOrder(params: {
     settle: 'usdt';
     order_id: string;
-  }): Promise<APIResponse<FuturesOrder>> {
+  }): Promise<FuturesOrder> {
     return this.deletePrivate(
       `/delivery/${params.settle}/orders/${params.order_id}`,
     );
@@ -2860,11 +2788,11 @@ export class RestClient extends BaseRestClient {
    * List personal trading history
    *
    * @param params Parameters for listing personal trading history
-   * @returns Promise<APIResponse<GetDeliveryTradingHistoryResp[]>>
+   * @returns Promise<GetDeliveryTradingHistoryResp[]>
    */
   getDeliveryTradingHistory(
     params: GetDeliveryTradingHistoryReq,
-  ): Promise<APIResponse<DeliveryTradingHistoryRecord[]>> {
+  ): Promise<DeliveryTradingHistoryRecord[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/delivery/${settle}/my_trades`, query);
   }
@@ -2873,11 +2801,11 @@ export class RestClient extends BaseRestClient {
    * List position close history
    *
    * @param params Parameters for listing position close history
-   * @returns Promise<APIResponse<GetDeliveryClosedPositionsResp[]>>
+   * @returns Promise<GetDeliveryClosedPositionsResp[]>
    */
   getDeliveryClosedPositions(
     params: GetDeliveryClosedPositionsReq,
-  ): Promise<APIResponse<DeliveryClosedPosition[]>> {
+  ): Promise<DeliveryClosedPosition[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/delivery/${settle}/position_close`, query);
   }
@@ -2886,11 +2814,11 @@ export class RestClient extends BaseRestClient {
    * List liquidation history
    *
    * @param params Parameters for listing liquidation history
-   * @returns Promise<APIResponse<GetDeliveryLiquidationHistoryResp[]>>
+   * @returns Promise<GetDeliveryLiquidationHistoryResp[]>
    */
   getDeliveryLiquidationHistory(
     params: GetDeliveryLiquidationHistoryReq,
-  ): Promise<APIResponse<DeliveryLiquidationHistoryRecord[]>> {
+  ): Promise<DeliveryLiquidationHistoryRecord[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/delivery/${settle}/liquidates`, query);
   }
@@ -2899,11 +2827,11 @@ export class RestClient extends BaseRestClient {
    * List settlement history
    *
    * @param params Parameters for listing settlement history
-   * @returns Promise<APIResponse<GetDeliverySettlementHistoryResp[]>>
+   * @returns Promise<GetDeliverySettlementHistoryResp[]>
    */
   getDeliverySettlementHistory(
     params: GetDeliverySettlementHistoryReq,
-  ): Promise<APIResponse<DeliverySettlementHistoryRecord[]>> {
+  ): Promise<DeliverySettlementHistoryRecord[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/delivery/${settle}/settlements`, query);
   }
@@ -2912,11 +2840,11 @@ export class RestClient extends BaseRestClient {
    * Create a price-triggered order
    *
    * @param params Parameters for creating a price-triggered order
-   * @returns Promise<APIResponse<{ id: number }>>
+   * @returns Promise<{ id: number }>
    */
   submitDeliveryTriggeredOrder(
     params: SubmitFuturesTriggeredOrderReq,
-  ): Promise<APIResponse<{ id: number }>> {
+  ): Promise<{ id: number }> {
     const { settle, ...body } = params;
     return this.postPrivate(`/delivery/${settle}/price_orders`, {
       body: body,
@@ -2927,11 +2855,11 @@ export class RestClient extends BaseRestClient {
    * List all auto orders
    *
    * @param params Parameters for listing all auto orders
-   * @returns Promise<APIResponse<FuturesPriceTriggeredOrder[]>>
+   * @returns Promise<FuturesPriceTriggeredOrder[]>
    */
   getDeliveryAutoOrders(
     params: GetDeliveryAutoOrdersReq,
-  ): Promise<APIResponse<FuturesPriceTriggeredOrder[]>> {
+  ): Promise<FuturesPriceTriggeredOrder[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/delivery/${settle}/price_orders`, query);
   }
@@ -2940,12 +2868,12 @@ export class RestClient extends BaseRestClient {
    * Cancel all open orders
    *
    * @param params Parameters for cancelling all open orders
-   * @returns Promise<APIResponse<FuturesPriceTriggeredOrder[]>>
+   * @returns Promise<FuturesPriceTriggeredOrder[]>
    */
   cancelAllOpenDeliveryOrders(params: {
     settle: 'usdt';
     contract: string;
-  }): Promise<APIResponse<FuturesPriceTriggeredOrder[]>> {
+  }): Promise<FuturesPriceTriggeredOrder[]> {
     const { settle, ...query } = params;
     return this.deletePrivate(`/delivery/${settle}/price_orders`, {
       query: query,
@@ -2956,12 +2884,12 @@ export class RestClient extends BaseRestClient {
    * Get a price-triggered order
    *
    * @param params Parameters for retrieving a price-triggered order
-   * @returns Promise<APIResponse<FuturesPriceTriggeredOrder>>
+   * @returns Promise<FuturesPriceTriggeredOrder>
    */
   getDeliveryTriggeredOrder(params: {
     settle: 'usdt';
     order_id: string;
-  }): Promise<APIResponse<FuturesPriceTriggeredOrder>> {
+  }): Promise<FuturesPriceTriggeredOrder> {
     return this.getPrivate(
       `/delivery/${params.settle}/price_orders/${params.order_id}`,
     );
@@ -2971,12 +2899,12 @@ export class RestClient extends BaseRestClient {
    * Cancel a price-triggered order
    *
    * @param params Parameters for cancelling a price-triggered order
-   * @returns Promise<APIResponse<FuturesPriceTriggeredOrder>>
+   * @returns Promise<FuturesPriceTriggeredOrder>
    */
   cancelTriggeredDeliveryOrder(params: {
     settle: 'usdt';
     order_id: string;
-  }): Promise<APIResponse<FuturesPriceTriggeredOrder>> {
+  }): Promise<FuturesPriceTriggeredOrder> {
     return this.deletePrivate(
       `/delivery/${params.settle}/price_orders/${params.order_id}`,
     );
@@ -2990,7 +2918,7 @@ export class RestClient extends BaseRestClient {
   /**
    * List all underlyings
    *
-   * @returns Promise<APIResponse<{ name: string; index_price: string }[]>>
+   * @returns Promise<{ name: string; index_price: string }[]>
    */
   getOptionsUnderlyings(): Promise<
     APIResponse<{ name: string; index_price: string }[]>
@@ -3002,11 +2930,9 @@ export class RestClient extends BaseRestClient {
    * List all expiration times
    *
    * @param params Parameters for listing expiration times
-   * @returns Promise<APIResponse<number[]>>
+   * @returns Promise<number[]>
    */
-  getOptionsExpirationTimes(params: {
-    underlying: string;
-  }): Promise<APIResponse<number[]>> {
+  getOptionsExpirationTimes(params: { underlying: string }): Promise<number[]> {
     return this.get(`/options/expirations`, params);
   }
 
@@ -3014,12 +2940,12 @@ export class RestClient extends BaseRestClient {
    * List all the contracts with specified underlying and expiration time
    *
    * @param params Parameters for listing contracts
-   * @returns Promise<APIResponse<GetOptionsContractsResp[]>>
+   * @returns Promise<GetOptionsContractsResp[]>
    */
   getOptionsContracts(params: {
     underlying: string;
     expiration?: number;
-  }): Promise<APIResponse<OptionsContract[]>> {
+  }): Promise<OptionsContract[]> {
     return this.get(`/options/contracts`, params);
   }
 
@@ -3027,11 +2953,9 @@ export class RestClient extends BaseRestClient {
    * Query specified contract detail
    *
    * @param params Parameters for querying specified contract detail
-   * @returns Promise<APIResponse<GetOptionsContractsResp>>
+   * @returns Promise<GetOptionsContractsResp>
    */
-  getOptionsContract(params: {
-    contract: string;
-  }): Promise<APIResponse<OptionsContract>> {
+  getOptionsContract(params: { contract: string }): Promise<OptionsContract> {
     return this.get(`/options/contracts/${params.contract}`);
   }
 
@@ -3039,11 +2963,11 @@ export class RestClient extends BaseRestClient {
    * List settlement history
    *
    * @param params Parameters for listing settlement history
-   * @returns Promise<APIResponse<GetOptionsSettlementHistoryResp[]>>
+   * @returns Promise<GetOptionsSettlementHistoryResp[]>
    */
   getOptionsSettlementHistory(
     params: GetOptionsSettlementHistoryReq,
-  ): Promise<APIResponse<OptionsSettlementHistoryRecord[]>> {
+  ): Promise<OptionsSettlementHistoryRecord[]> {
     return this.get(`/options/settlements`, params);
   }
 
@@ -3051,13 +2975,13 @@ export class RestClient extends BaseRestClient {
    * Get specified contract's settlement
    *
    * @param params Parameters for retrieving specified contract's settlement
-   * @returns Promise<APIResponse<GetOptionsSettlementHistoryResp}>>
+   * @returns Promise<GetOptionsSettlementHistoryResp}>
    */
   getOptionsContractSettlement(params: {
     contract: string;
     underlying: string;
     at: number;
-  }): Promise<APIResponse<OptionsSettlementHistoryRecord>> {
+  }): Promise<OptionsSettlementHistoryRecord> {
     const { contract, ...query } = params;
     return this.get(`/options/settlements/${contract}`, query);
   }
@@ -3066,11 +2990,11 @@ export class RestClient extends BaseRestClient {
    * List my options settlements
    *
    * @param params Parameters for listing my options settlements
-   * @returns Promise<APIResponse<GetOptionsMySettlementsResp[]>>
+   * @returns Promise<GetOptionsMySettlementsResp[]>
    */
   getOptionsMySettlements(
     params: GetOptionsMySettlementsReq,
-  ): Promise<APIResponse<OptionsUserSettlement[]>> {
+  ): Promise<OptionsUserSettlement[]> {
     return this.getPrivate(`/options/my_settlements`, params);
   }
 
@@ -3080,11 +3004,11 @@ export class RestClient extends BaseRestClient {
    * Bids will be sorted by price from high to low, while asks sorted reversely
    *
    * @param params Parameters for retrieving options order book
-   * @returns Promise<APIResponse<GetOptionsOrderBookResp>>
+   * @returns Promise<GetOptionsOrderBookResp>
    */
   getOptionsOrderBook(
     params: GetOptionsOrderBookReq,
-  ): Promise<APIResponse<OptionsOrderBook>> {
+  ): Promise<OptionsOrderBook> {
     return this.get(`/options/order_book`, params);
   }
 
@@ -3092,11 +3016,9 @@ export class RestClient extends BaseRestClient {
    * List tickers of options contracts
    *
    * @param params Parameters for listing tickers of options contracts
-   * @returns Promise<APIResponse<GetOptionsTickersResp[]>>
+   * @returns Promise<GetOptionsTickersResp[]>
    */
-  getOptionsTickers(params: {
-    underlying: string;
-  }): Promise<APIResponse<OptionsTicker[]>> {
+  getOptionsTickers(params: { underlying: string }): Promise<OptionsTicker[]> {
     return this.get(`/options/tickers`, params);
   }
 
@@ -3104,11 +3026,11 @@ export class RestClient extends BaseRestClient {
    * Get underlying ticker
    *
    * @param params Parameters for retrieving underlying ticker
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   trade_put: number;
    *   trade_call: number;
    *   index_price: string;
-   * }>>
+   * }>
    */
   getOptionsUnderlyingTicker(params: { underlying: string }): Promise<
     APIResponse<{
@@ -3124,11 +3046,9 @@ export class RestClient extends BaseRestClient {
    * Get options Candles
    *
    * @param params Parameters for retrieving options Candles
-   * @returns Promise<APIResponse<GetOptionsCandlesResp[]>>
+   * @returns Promise<GetOptionsCandlesResp[]>
    */
-  getOptionsCandles(
-    params: GetOptionsCandlesReq,
-  ): Promise<APIResponse<OptionsCandle[]>> {
+  getOptionsCandles(params: GetOptionsCandlesReq): Promise<OptionsCandle[]> {
     return this.get(`/options/Candles`, params);
   }
 
@@ -3136,11 +3056,11 @@ export class RestClient extends BaseRestClient {
    * Mark price Candles of an underlying
    *
    * @param params Parameters for retrieving mark price Candles of an underlying
-   * @returns Promise<APIResponse<GetOptionsUnderlyingCandlesResp[]>>
+   * @returns Promise<GetOptionsUnderlyingCandlesResp[]>
    */
   getOptionsUnderlyingCandles(
     params: GetOptionsUnderlyingCandlesReq,
-  ): Promise<APIResponse<OptionsUnderlyingCandle[]>> {
+  ): Promise<OptionsUnderlyingCandle[]> {
     return this.get(`/options/underlying/Candles`, params);
   }
 
@@ -3148,20 +3068,18 @@ export class RestClient extends BaseRestClient {
    * Options trade history
    *
    * @param params Parameters for retrieving options trade history
-   * @returns Promise<APIResponse<GetOptionsTradesResp[]>>
+   * @returns Promise<GetOptionsTradesResp[]>
    */
-  getOptionsTrades(
-    params: GetOptionsTradesReq,
-  ): Promise<APIResponse<OptionsTrade[]>> {
+  getOptionsTrades(params: GetOptionsTradesReq): Promise<OptionsTrade[]> {
     return this.get(`/options/trades`, params);
   }
 
   /**
    * List options account
    *
-   * @returns Promise<APIResponse<GetOptionsAccountResp>>
+   * @returns Promise<GetOptionsAccountResp>
    */
-  getOptionsAccount(): Promise<APIResponse<OptionsAccount>> {
+  getOptionsAccount(): Promise<OptionsAccount> {
     return this.getPrivate(`/options/accounts`);
   }
 
@@ -3169,11 +3087,11 @@ export class RestClient extends BaseRestClient {
    * List account changing history
    *
    * @param params Parameters for listing account changing history
-   * @returns Promise<APIResponse<GetOptionsAccountChangeResp[]>>
+   * @returns Promise<GetOptionsAccountChangeResp[]>
    */
   getOptionsAccountChange(
     params?: GetOptionsAccountChangeReq,
-  ): Promise<APIResponse<OptionsAccountChangeRecord[]>> {
+  ): Promise<OptionsAccountChangeRecord[]> {
     return this.getPrivate(`/options/account_book`, params);
   }
 
@@ -3181,11 +3099,11 @@ export class RestClient extends BaseRestClient {
    * List user's positions of specified underlying
    *
    * @param params Parameters for listing user's positions of specified underlying
-   * @returns Promise<APIResponse<GetOptionsPositionsUnderlyingResp[]>>
+   * @returns Promise<GetOptionsPositionsUnderlyingResp[]>
    */
   getOptionsPositionsUnderlying(params: {
     underlying?: string;
-  }): Promise<APIResponse<OptionsPositionsUnderlying[]>> {
+  }): Promise<OptionsPositionsUnderlying[]> {
     return this.getPrivate(`/options/positions`, params);
   }
 
@@ -3193,11 +3111,11 @@ export class RestClient extends BaseRestClient {
    * Get specified contract position
    *
    * @param params Parameters for retrieving specified contract position
-   * @returns Promise<APIResponse<GetOptionsPositionsUnderlyingResp>>
+   * @returns Promise<GetOptionsPositionsUnderlyingResp>
    */
   getOptionsPositionContract(params: {
     contract: string;
-  }): Promise<APIResponse<OptionsPositionsUnderlying>> {
+  }): Promise<OptionsPositionsUnderlying> {
     return this.getPrivate(`/options/positions/${params.contract}`);
   }
 
@@ -3205,12 +3123,12 @@ export class RestClient extends BaseRestClient {
    * List user's liquidation history of specified underlying
    *
    * @param params Parameters for listing user's liquidation history of specified underlying
-   * @returns Promise<APIResponse<GetOptionsLiquidationResp[]>>
+   * @returns Promise<GetOptionsLiquidationResp[]>
    */
   getOptionsLiquidation(params: {
     underlying: string;
     contract?: string;
-  }): Promise<APIResponse<GetOptionsLiquidationResp[]>> {
+  }): Promise<GetOptionsLiquidationResp[]> {
     return this.getPrivate(`/options/position_close`, params);
   }
 
@@ -3218,11 +3136,11 @@ export class RestClient extends BaseRestClient {
    * Create an options order
    *
    * @param params Parameters for creating an options order
-   * @returns Promise<APIResponse<SubmitOptionsOrderResp>>
+   * @returns Promise<SubmitOptionsOrderResp>
    */
   submitOptionsOrder(
     params: SubmitOptionsOrderReq,
-  ): Promise<APIResponse<SubmitOptionsOrderResp>> {
+  ): Promise<SubmitOptionsOrderResp> {
     return this.postPrivate(`/options/orders`, { body: params });
   }
 
@@ -3230,11 +3148,11 @@ export class RestClient extends BaseRestClient {
    * List options orders
    *
    * @param params Parameters for listing options orders
-   * @returns Promise<APIResponse<SubmitOptionsOrderResp[]>>
+   * @returns Promise<SubmitOptionsOrderResp[]>
    */
   getOptionsOrders(
     params: GetOptionsOrdersReq,
-  ): Promise<APIResponse<SubmitOptionsOrderResp[]>> {
+  ): Promise<SubmitOptionsOrderResp[]> {
     return this.getPrivate(`/options/orders`, params);
   }
 
@@ -3242,13 +3160,13 @@ export class RestClient extends BaseRestClient {
    * Cancel all open orders matched
    *
    * @param params Parameters for canceling all open orders matched
-   * @returns Promise<APIResponse<SubmitOptionsOrderResp[]>>
+   * @returns Promise<SubmitOptionsOrderResp[]>
    */
   cancelAllOpenOptionsOrders(params: {
     contract?: string;
     underlying?: string;
     side?: 'ask' | 'bid';
-  }): Promise<APIResponse<SubmitOptionsOrderResp[]>> {
+  }): Promise<SubmitOptionsOrderResp[]> {
     return this.deletePrivate(`/options/orders`, { query: params });
   }
 
@@ -3256,11 +3174,11 @@ export class RestClient extends BaseRestClient {
    * Get a single order
    *
    * @param params Parameters for retrieving a single order
-   * @returns Promise<APIResponse<SubmitOptionsOrderResp>>
+   * @returns Promise<SubmitOptionsOrderResp>
    */
   getOptionsOrder(params: {
     order_id: number;
-  }): Promise<APIResponse<SubmitOptionsOrderResp>> {
+  }): Promise<SubmitOptionsOrderResp> {
     return this.getPrivate(`/options/orders/${params.order_id}`);
   }
 
@@ -3268,11 +3186,11 @@ export class RestClient extends BaseRestClient {
    * Cancel a single order
    *
    * @param params Parameters for canceling a single order
-   * @returns Promise<APIResponse<SubmitOptionsOrderResp>>
+   * @returns Promise<SubmitOptionsOrderResp>
    */
   cancelOptionsOrder(params: {
     order_id: number;
-  }): Promise<APIResponse<SubmitOptionsOrderResp>> {
+  }): Promise<SubmitOptionsOrderResp> {
     return this.deletePrivate(`/options/orders/${params.order_id}`);
   }
 
@@ -3280,11 +3198,11 @@ export class RestClient extends BaseRestClient {
    * List personal trading history
    *
    * @param params Parameters for listing personal trading history
-   * @returns Promise<APIResponse<GetOptionsPersonalHistoryResp[]>>
+   * @returns Promise<GetOptionsPersonalHistoryResp[]>
    */
   getOptionsPersonalHistory(
     params: GetOptionsPersonalHistoryReq,
-  ): Promise<APIResponse<OptionsUserHistoryRecord[]>> {
+  ): Promise<OptionsUserHistoryRecord[]> {
     return this.getPrivate(`/options/my_trades`, params);
   }
 
@@ -3296,9 +3214,9 @@ export class RestClient extends BaseRestClient {
   /**
    * List currencies for lending
    *
-   * @returns Promise<APIResponse<GetLendingCurrenciesResp[]>>
+   * @returns Promise<GetLendingCurrenciesResp[]>
    */
-  getLendingCurrencies(): Promise<APIResponse<LendingCurrency[]>> {
+  getLendingCurrencies(): Promise<LendingCurrency[]> {
     return this.get(`/earn/uni/currencies`);
   }
 
@@ -3306,11 +3224,9 @@ export class RestClient extends BaseRestClient {
    * Get currency detail for lending
    *
    * @param params Parameters for retrieving currency detail for lending
-   * @returns Promise<APIResponse<GetLendingCurrenciesResp>>
+   * @returns Promise<GetLendingCurrenciesResp>
    */
-  getLendingCurrency(params: {
-    currency: string;
-  }): Promise<APIResponse<LendingCurrency>> {
+  getLendingCurrency(params: { currency: string }): Promise<LendingCurrency> {
     return this.get(`/earn/uni/currencies/${params.currency}`);
   }
 
@@ -3318,11 +3234,9 @@ export class RestClient extends BaseRestClient {
    * Lend or redeem
    *
    * @param params Parameters for lending or redeeming
-   * @returns Promise<APIResponse<any>>
+   * @returns Promise<any>
    */
-  submitLendOrRedeemOrder(
-    params: SubmitLendOrRedeemReq,
-  ): Promise<APIResponse<any>> {
+  submitLendOrRedeemOrder(params: SubmitLendOrRedeemReq): Promise<any> {
     return this.postPrivate(`/earn/uni/lends`, { body: params });
   }
 
@@ -3330,11 +3244,9 @@ export class RestClient extends BaseRestClient {
    * List user's lending orders
    *
    * @param params Parameters for listing user's lending orders
-   * @returns Promise<APIResponse<GetLendingOrdersResp[]>>
+   * @returns Promise<GetLendingOrdersResp[]>
    */
-  getLendingOrders(
-    params?: GetLendingOrdersReq,
-  ): Promise<APIResponse<LendingOrder[]>> {
+  getLendingOrders(params?: GetLendingOrdersReq): Promise<LendingOrder[]> {
     return this.getPrivate(`/earn/uni/lends`, params);
   }
 
@@ -3344,12 +3256,12 @@ export class RestClient extends BaseRestClient {
    * Currently only supports amending the minimum interest rate (hour)
    *
    * @param params Parameters for amending lending order
-   * @returns Promise<APIResponse<any>>
+   * @returns Promise<any>
    */
   updateLendingOrder(params: {
     currency?: string;
     min_rate?: string;
-  }): Promise<APIResponse<any>> {
+  }): Promise<any> {
     return this.patchPrivate(`/earn/uni/lends`, { query: params });
   }
 
@@ -3357,11 +3269,9 @@ export class RestClient extends BaseRestClient {
    * List records of lending
    *
    * @param params Parameters for listing records of lending
-   * @returns Promise<APIResponse<GetLendingRecordsResp[]>>
+   * @returns Promise<GetLendingRecordsResp[]>
    */
-  getLendingRecords(
-    params?: GetLendingRecordsReq,
-  ): Promise<APIResponse<LendingRecord[]>> {
+  getLendingRecords(params?: GetLendingRecordsReq): Promise<LendingRecord[]> {
     return this.getPrivate(`/earn/uni/lend_records`, params);
   }
 
@@ -3369,10 +3279,10 @@ export class RestClient extends BaseRestClient {
    * Get the user's total interest income of specified currency
    *
    * @param params Parameters for retrieving the user's total interest income of specified currency
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   currency: string;
    *   interest: string;
-   * }>>
+   * }>
    */
   getLendingTotalInterest(params: { currency: string }): Promise<
     APIResponse<{
@@ -3387,11 +3297,11 @@ export class RestClient extends BaseRestClient {
    * List interest records
    *
    * @param params Parameters for listing interest records
-   * @returns Promise<APIResponse<GetLendingInterestRecordsResp[]>>
+   * @returns Promise<GetLendingInterestRecordsResp[]>
    */
   getLendingInterestRecords(
     params?: GetLendingInterestRecordsReq,
-  ): Promise<APIResponse<LendingInterestRecord[]>> {
+  ): Promise<LendingInterestRecord[]> {
     return this.getPrivate(`/earn/uni/interest_records`, params);
   }
 
@@ -3399,12 +3309,12 @@ export class RestClient extends BaseRestClient {
    * Set interest reinvestment toggle
    *
    * @param params Parameters for setting interest reinvestment toggle
-   * @returns Promise<APIResponse<any>>
+   * @returns Promise<any>
    */
   updateInterestReinvestment(params: {
     currency: string;
     status: boolean;
-  }): Promise<APIResponse<any>> {
+  }): Promise<any> {
     return this.putPrivate(`/earn/uni/interest_reinvest`, { body: params });
   }
 
@@ -3412,10 +3322,10 @@ export class RestClient extends BaseRestClient {
    * Query currency interest compounding status
    *
    * @param params Parameters for querying currency interest compounding status
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   currency: string;
    *   interest_status: string;
-   * }>>
+   * }>
    */
   getLendingInterestStatus(params: { currency: string }): Promise<
     APIResponse<{
@@ -3435,11 +3345,9 @@ export class RestClient extends BaseRestClient {
    * Place order
    *
    * @param params Parameters for placing an order
-   * @returns Promise<APIResponse<{ order_id: number }>>
+   * @returns Promise<{ order_id: number }>
    */
-  submitLoanOrder(
-    params: SubmitLoanOrderReq,
-  ): Promise<APIResponse<{ order_id: number }>> {
+  submitLoanOrder(params: SubmitLoanOrderReq): Promise<{ order_id: number }> {
     return this.postPrivate(`/loan/collateral/orders`, { body: params });
   }
 
@@ -3447,18 +3355,18 @@ export class RestClient extends BaseRestClient {
    * List Orders
    *
    * @param params Parameters for listing orders
-   * @returns Promise<APIResponse<GetLoanOrdersResp[]>>
+   * @returns Promise<GetLoanOrdersResp[]>
    */
-  getLoanOrders(params?: GetLoanOrdersReq): Promise<APIResponse<LoanOrder[]>> {
+  getLoanOrders(params?: GetLoanOrdersReq): Promise<LoanOrder[]> {
     return this.getPrivate(`/loan/collateral/orders`, params);
   }
   /**
    * Get a single order
    *
    * @param params Parameters for retrieving a single order
-   * @returns Promise<APIResponse<GetLoanOrdersResp>>
+   * @returns Promise<GetLoanOrdersResp>
    */
-  getLoanOrder(params: { order_id: number }): Promise<APIResponse<LoanOrder>> {
+  getLoanOrder(params: { order_id: number }): Promise<LoanOrder> {
     return this.getPrivate(`/loan/collateral/orders/${params.order_id}`);
   }
 
@@ -3466,10 +3374,10 @@ export class RestClient extends BaseRestClient {
    * Repayment
    *
    * @param params Parameters for repayment
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   repaid_principal: string;
    *   repaid_interest: string;
-   * }>>
+   * }>
    */
   submitLoanRepay(params: {
     order_id: number;
@@ -3488,11 +3396,11 @@ export class RestClient extends BaseRestClient {
    * Repayment history
    *
    * @param params Parameters for retrieving repayment history
-   * @returns Promise<APIResponse<GetLoanRepaymentHistoryResp[]>>
+   * @returns Promise<GetLoanRepaymentHistoryResp[]>
    */
   getLoanRepaymentHistory(
     params: GetLoanRepaymentHistoryReq,
-  ): Promise<APIResponse<LoanRepaymentHistoryRecord[]>> {
+  ): Promise<LoanRepaymentHistoryRecord[]> {
     return this.getPrivate(`/loan/collateral/repay_records`, params);
   }
 
@@ -3500,11 +3408,9 @@ export class RestClient extends BaseRestClient {
    * Increase or redeem collateral
    *
    * @param params Parameters for increasing or redeeming collateral
-   * @returns Promise<APIResponse<any>>
+   * @returns Promise<any>
    */
-  updateLoanCollateral(
-    params: UpdateLoanCollateralReq,
-  ): Promise<APIResponse<any>> {
+  updateLoanCollateral(params: UpdateLoanCollateralReq): Promise<any> {
     return this.postPrivate(`/loan/collateral/collaterals`, { body: params });
   }
 
@@ -3512,21 +3418,21 @@ export class RestClient extends BaseRestClient {
    * Query collateral adjustment records
    *
    * @param params Parameters for querying collateral adjustment records
-   * @returns Promise<APIResponse<GetLoanCollateralRecordsResp[]>>
+   * @returns Promise<GetLoanCollateralRecordsResp[]>
    */
   getLoanCollateralRecords(
     params?: GetLoanCollateralRecordsReq,
-  ): Promise<APIResponse<LoanCollateralRecord[]>> {
+  ): Promise<LoanCollateralRecord[]> {
     return this.getPrivate(`/loan/collateral/collaterals`, params);
   }
 
   /**
    * Query the total borrowing and collateral amount for the user
    *
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   borrow_amount: string;
    *   collateral_amount: string;
-   * }>>
+   * }>
    */
   getLoanTotalAmount(): Promise<
     APIResponse<{
@@ -3541,12 +3447,12 @@ export class RestClient extends BaseRestClient {
    * Query user's collateralization ratio
    *
    * @param params Parameters for querying user's collateralization ratio
-   * @returns Promise<APIResponse<GetLoanCollateralizationRatioResp>>
+   * @returns Promise<GetLoanCollateralizationRatioResp>
    */
   getLoanCollateralizationRatio(params: {
     collateral_currency: string;
     borrow_currency: string;
-  }): Promise<APIResponse<LoanCollateralRatio>> {
+  }): Promise<LoanCollateralRatio> {
     return this.getPrivate(`/loan/collateral/ltv`, params);
   }
 
@@ -3554,10 +3460,10 @@ export class RestClient extends BaseRestClient {
    * Query supported borrowing and collateral currencies
    *
    * @param params Parameters for querying supported borrowing and collateral currencies
-   * @returns Promise<APIResponse<{
+   * @returns Promise<{
    *   loan_currency: string;
    *   collateral_currency: string[];
-   * }[]>>
+   * }[]>
    */
   getLoanSupportedCurrencies(params?: { loan_currency?: string }): Promise<
     APIResponse<
@@ -3579,11 +3485,11 @@ export class RestClient extends BaseRestClient {
    * Create Multi-Collateral Order
    *
    * @param params Parameters for creating a multi-collateral order
-   * @returns Promise<APIResponse<{ order_id: number }>>
+   * @returns Promise<{ order_id: number }>
    */
   submitMultiLoanOrder(
     params: SubmitMultiLoanOrderReq,
-  ): Promise<APIResponse<{ order_id: number }>> {
+  ): Promise<{ order_id: number }> {
     return this.postPrivate(`/loan/multi_collateral/orders`, { body: params });
   }
 
@@ -3591,11 +3497,11 @@ export class RestClient extends BaseRestClient {
    * List Multi-Collateral Orders
    *
    * @param params Parameters for listing multi-collateral orders
-   * @returns Promise<APIResponse<GetMultiLoanOrdersResp[]>>
+   * @returns Promise<GetMultiLoanOrdersResp[]>
    */
   getMultiLoanOrders(
     params?: GetMultiLoanOrdersReq,
-  ): Promise<APIResponse<MultiLoanOrder[]>> {
+  ): Promise<MultiLoanOrder[]> {
     return this.getPrivate(`/loan/multi_collateral/orders`, params);
   }
 
@@ -3603,11 +3509,9 @@ export class RestClient extends BaseRestClient {
    * Get Multi-Collateral Order Detail
    *
    * @param params Parameters for retrieving a multi-collateral order detail
-   * @returns Promise<APIResponse<GetMultiLoanOrdersResp>>
+   * @returns Promise<GetMultiLoanOrdersResp>
    */
-  getMultiLoanOrder(params: {
-    order_id: string;
-  }): Promise<APIResponse<MultiLoanOrder>> {
+  getMultiLoanOrder(params: { order_id: string }): Promise<MultiLoanOrder> {
     return this.getPrivate(`/loan/multi_collateral/orders/${params.order_id}`);
   }
 
@@ -3615,11 +3519,9 @@ export class RestClient extends BaseRestClient {
    * Repay Multi-Collateral Loan
    *
    * @param params Parameters for repaying a multi-collateral loan
-   * @returns Promise<APIResponse<RepayMultiLoanResp>>
+   * @returns Promise<RepayMultiLoanResp>
    */
-  repayMultiLoan(
-    params: RepayMultiLoanReq,
-  ): Promise<APIResponse<RepayMultiLoanResp>> {
+  repayMultiLoan(params: RepayMultiLoanReq): Promise<RepayMultiLoanResp> {
     return this.postPrivate(`/loan/multi_collateral/repay`, { body: params });
   }
 
@@ -3627,11 +3529,11 @@ export class RestClient extends BaseRestClient {
    * List Multi-Collateral Repay Records
    *
    * @param params Parameters for listing multi-collateral repay records
-   * @returns Promise<APIResponse<GetMultiLoanRepayRecordsResp[]>>
+   * @returns Promise<GetMultiLoanRepayRecordsResp[]>
    */
   getMultiLoanRepayRecords(
     params: GetMultiLoanRepayRecordsReq,
-  ): Promise<APIResponse<MultiLoanRepayRecord[]>> {
+  ): Promise<MultiLoanRepayRecord[]> {
     return this.getPrivate(`/loan/multi_collateral/repay`, params);
   }
 
@@ -3639,11 +3541,9 @@ export class RestClient extends BaseRestClient {
    * Operate Multi-Collateral
    *
    * @param params Parameters for operating multi-collateral
-   * @returns Promise<APIResponse<UpdateMultiLoanResp>>
+   * @returns Promise<UpdateMultiLoanResp>
    */
-  updateMultiLoan(
-    params: UpdateMultiLoanReq,
-  ): Promise<APIResponse<UpdateMultiLoanResp>> {
+  updateMultiLoan(params: UpdateMultiLoanReq): Promise<UpdateMultiLoanResp> {
     return this.postPrivate(`/loan/multi_collateral/mortgage`, {
       body: params,
     });
@@ -3653,11 +3553,11 @@ export class RestClient extends BaseRestClient {
    * Query collateral adjustment records
    *
    * @param params Parameters for querying collateral adjustment records
-   * @returns Promise<APIResponse<GetMultiLoanAdjustmentRecordsResp[]>>
+   * @returns Promise<GetMultiLoanAdjustmentRecordsResp[]>
    */
   getMultiLoanAdjustmentRecords(
     params?: GetMultiLoanAdjustmentRecordsReq,
-  ): Promise<APIResponse<MultiLoanAdjustmentRecord[]>> {
+  ): Promise<MultiLoanAdjustmentRecord[]> {
     return this.getPrivate(`/loan/multi_collateral/mortgage`, params);
   }
 
@@ -3665,19 +3565,19 @@ export class RestClient extends BaseRestClient {
    * List User Currency Quota
    *
    * @param params Parameters for listing user currency quota
-   * @returns Promise<APIResponse<GetMultiLoanCurrencyQuotaResp[]>>
+   * @returns Promise<GetMultiLoanCurrencyQuotaResp[]>
    */
   getMultiLoanCurrencyQuota(params: {
     type: 'collateral' | 'borrow';
     currency: string;
-  }): Promise<APIResponse<MultiLoanCurrencyQuota[]>> {
+  }): Promise<MultiLoanCurrencyQuota[]> {
     return this.getPrivate(`/loan/multi_collateral/currency_quota`, params);
   }
 
   /**
    * Query supported borrowing and collateral currencies in Multi-Collateral
    *
-   * @returns Promise<APIResponse<GetMultiLoanSupportedCurrenciesResp>>
+   * @returns Promise<GetMultiLoanSupportedCurrenciesResp>
    */
   getMultiLoanSupportedCurrencies(): Promise<
     APIResponse<MultiLoanSupportedCurrencies>
@@ -3688,18 +3588,18 @@ export class RestClient extends BaseRestClient {
   /**
    * Get Multi-Collateral ratio
    *
-   * @returns Promise<APIResponse<GetMultiLoanRatioResp>>
+   * @returns Promise<GetMultiLoanRatioResp>
    */
-  getMultiLoanRatio(): Promise<APIResponse<MultiLoanRatio>> {
+  getMultiLoanRatio(): Promise<MultiLoanRatio> {
     return this.get(`/loan/multi_collateral/ltv`);
   }
 
   /**
    * Query fixed interest rates for the currency for 7 days and 30 days
    *
-   * @returns Promise<APIResponse<GetMultiLoanFixedRatesResp[]>>
+   * @returns Promise<GetMultiLoanFixedRatesResp[]>
    */
-  getMultiLoanFixedRates(): Promise<APIResponse<MultiLoanFixedRate[]>> {
+  getMultiLoanFixedRates(): Promise<MultiLoanFixedRate[]> {
     return this.get(`/loan/multi_collateral/fixed_rate`);
   }
 
@@ -3712,42 +3612,39 @@ export class RestClient extends BaseRestClient {
    * ETH2 swap
    *
    * @param params Parameters for ETH2 swap
-   * @returns Promise<APIResponse<any>>
+   * @returns Promise<any>
    */
-  submitEth2Swap(params: {
-    side: '1' | '2';
-    amount: string;
-  }): Promise<APIResponse<any>> {
+  submitEth2Swap(params: { side: '1' | '2'; amount: string }): Promise<any> {
     return this.postPrivate(`/earn/staking/eth2/swap`, { body: params });
   }
 
   /**
    * Dual Investment product list
    *
-   * @returns Promise<APIResponse<GetDualInvestmentProductsResp[]>>
+   * @returns Promise<GetDualInvestmentProductsResp[]>
    */
-  getDualInvestmentProducts(): Promise<APIResponse<DualInvestmentProduct[]>> {
+  getDualInvestmentProducts(): Promise<DualInvestmentProduct[]> {
     return this.get(`/earn/dual/investment_plan`);
   }
 
   /**
    * Dual Investment order list
    *
-   * @returns Promise<APIResponse<GetDualInvestmentOrdersResp[]>>
+   * @returns Promise<GetDualInvestmentOrdersResp[]>
    */
-  getDualInvestmentOrders(): Promise<APIResponse<DualInvestmentOrder[]>> {
+  getDualInvestmentOrders(): Promise<DualInvestmentOrder[]> {
     return this.getPrivate(`/earn/dual/orders`);
   }
   /**
    * Place Dual Investment order
    *
    * @param params Parameters for placing a dual investment order
-   * @returns Promise<APIResponse<any>>
+   * @returns Promise<any>
    */
   submitDualInvestmentOrder(params: {
     plan_id: string;
     copies: string;
-  }): Promise<APIResponse<any>> {
+  }): Promise<any> {
     return this.postPrivate(`/earn/dual/orders`, { body: params });
   }
 
@@ -3755,11 +3652,11 @@ export class RestClient extends BaseRestClient {
    * Structured Product List
    *
    * @param params Parameters for listing structured products
-   * @returns Promise<APIResponse<GetStructuredProductListResp[]>>
+   * @returns Promise<GetStructuredProductListResp[]>
    */
   getStructuredProducts(
     params: GetStructuredProductListReq,
-  ): Promise<APIResponse<StructuredProduct[]>> {
+  ): Promise<StructuredProduct[]> {
     return this.get(`/earn/structured/products`, params);
   }
 
@@ -3767,23 +3664,23 @@ export class RestClient extends BaseRestClient {
    * Structured Product Order List
    *
    * @param params Parameters for listing structured product orders
-   * @returns Promise<APIResponse<GetStructuredProductOrdersResp[]>>
+   * @returns Promise<GetStructuredProductOrdersResp[]>
    */
   getStructuredProductOrders(
     params?: GetStructuredProductOrdersReq,
-  ): Promise<APIResponse<StructuredProductOrder[]>> {
+  ): Promise<StructuredProductOrder[]> {
     return this.getPrivate(`/earn/structured/orders`, params);
   }
   /**
    * Place Structured Product Order
    *
    * @param params Parameters for placing a structured product order
-   * @returns Promise<APIResponse<any>>
+   * @returns Promise<any>
    */
   submitStructuredProductOrder(params: {
     pid?: string;
     amount?: string;
-  }): Promise<APIResponse<any>> {
+  }): Promise<any> {
     return this.postPrivate(`/earn/structured/orders`, { body: params });
   }
 
@@ -3795,9 +3692,9 @@ export class RestClient extends BaseRestClient {
   /**
    * Get account detail
    *
-   * @returns Promise<APIResponse<GetAccountDetailResp>>
+   * @returns Promise<GetAccountDetailResp>
    */
-  getAccountDetail(): Promise<APIResponse<AccountDetail>> {
+  getAccountDetail(): Promise<AccountDetail> {
     return this.getPrivate(`/account/detail`);
   }
 
@@ -3805,9 +3702,9 @@ export class RestClient extends BaseRestClient {
    * Create STP Group
    *
    * @param params Parameters for creating an STP group
-   * @returns Promise<APIResponse<CreateStpGroupResp>>
+   * @returns Promise<CreateStpGroupResp>
    */
-  createStpGroup(params: CreateStpGroupReq): Promise<APIResponse<StpGroup>> {
+  createStpGroup(params: CreateStpGroupReq): Promise<StpGroup> {
     return this.postPrivate(`/account/stp_groups`, { body: params });
   }
 
@@ -3815,9 +3712,9 @@ export class RestClient extends BaseRestClient {
    * List STP Groups
    *
    * @param params Parameters for listing STP groups
-   * @returns Promise<APIResponse<CreateStpGroupResp[]>>
+   * @returns Promise<CreateStpGroupResp[]>
    */
-  getStpGroups(params?: { name?: string }): Promise<APIResponse<StpGroup[]>> {
+  getStpGroups(params?: { name?: string }): Promise<StpGroup[]> {
     return this.getPrivate(`/account/stp_groups`, params);
   }
 
@@ -3825,11 +3722,9 @@ export class RestClient extends BaseRestClient {
    * List users of the STP group
    *
    * @param params Parameters for listing users of the STP group
-   * @returns Promise<APIResponse<StpResp[]>>
+   * @returns Promise<StpResp[]>
    */
-  getStpGroupUsers(params: {
-    stp_id: number;
-  }): Promise<APIResponse<StpGroupUser[]>> {
+  getStpGroupUsers(params: { stp_id: number }): Promise<StpGroupUser[]> {
     return this.getPrivate(`/account/stp_groups/${params.stp_id}/users`);
   }
 
@@ -3837,12 +3732,12 @@ export class RestClient extends BaseRestClient {
    * Add users to the STP group
    *
    * @param params Parameters for adding users to the STP group
-   * @returns Promise<APIResponse<StpResp[]>>
+   * @returns Promise<StpResp[]>
    */
   addUsersToStpGroup(params: {
     stp_id: number;
     body: number[];
-  }): Promise<APIResponse<StpGroupUser[]>> {
+  }): Promise<StpGroupUser[]> {
     const { stp_id, ...body } = params;
     return this.postPrivate(`/account/stp_groups/${stp_id}/users`, {
       body: body,
@@ -3853,12 +3748,12 @@ export class RestClient extends BaseRestClient {
    * Delete the user in the STP group
    *
    * @param params Parameters for deleting users from the STP group
-   * @returns Promise<APIResponse<StpResp[]>>
+   * @returns Promise<StpResp[]>
    */
   deleteUserFromStpGroup(params: {
     stp_id: number;
     user_id: number;
-  }): Promise<APIResponse<StpGroupUser[]>> {
+  }): Promise<StpGroupUser[]> {
     const { stp_id, ...query } = params;
     return this.deletePrivate(`/account/stp_groups/${stp_id}/users`, {
       query: query,
@@ -3875,7 +3770,7 @@ export class RestClient extends BaseRestClient {
    * Record time range cannot exceed 30 days.
    *
    * @param params Parameters for retrieving transaction history
-   * @returns Promise<APIResponse<GetAgencyTransactionHistoryResp>>
+   * @returns Promise<GetAgencyTransactionHistoryResp>
    */
   getAgencyTransactionHistory(
     params: GetAgencyTransactionHistoryReq,
@@ -3890,7 +3785,7 @@ export class RestClient extends BaseRestClient {
    * Record time range cannot exceed 30 days.
    *
    * @param params Parameters for retrieving commission history
-   * @returns Promise<APIResponse<GetAgencyCommissionHistoryResp>>
+   * @returns Promise<GetAgencyCommissionHistoryResp>
    */
   getAgencyCommissionHistory(
     params: GetAgencyCommissionHistoryReq,
@@ -3905,7 +3800,7 @@ export class RestClient extends BaseRestClient {
    * Record time range cannot exceed 30 days.
    *
    * @param params Parameters for retrieving commission rebate records
-   * @returns Promise<APIResponse<GetBrokerCommissionHistoryResp>>
+   * @returns Promise<GetBrokerCommissionHistoryResp>
    */
   getBrokerCommissionHistory(
     params: GetBrokerCommissionHistoryReq,
@@ -3920,7 +3815,7 @@ export class RestClient extends BaseRestClient {
    * Record time range cannot exceed 30 days.
    *
    * @param params Parameters for retrieving trading history
-   * @returns Promise<APIResponse<GetBrokerTransactionHistoryResp>>
+   * @returns Promise<GetBrokerTransactionHistoryResp>
    */
   getBrokerTransactionHistory(
     params: GetBrokerTransactionHistoryReq,
@@ -3933,7 +3828,7 @@ export class RestClient extends BaseRestClient {
   /**
    * User retrieves rebate information.
    */
-  getUserRebateInfo(): Promise<APIResponse<{ invite_uid: number }>> {
+  getUserRebateInfo(): Promise<{ invite_uid: number }> {
     return this.getPrivate('/rebate/user/info');
   }
 }
