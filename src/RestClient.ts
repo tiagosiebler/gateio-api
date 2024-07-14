@@ -1010,7 +1010,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<GetSpotCandlesResp>
    */
   getSpotCandles(params: GetSpotCandlesReq): Promise<SpotCandle[]> {
-    return this.get('/spot/Candles', params);
+    return this.get('/spot/candlesticks', params);
   }
 
   /**
