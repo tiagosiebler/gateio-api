@@ -21,7 +21,6 @@ async function getSpotCandles() {
     const balances = await gateRestClient.getSpotCandles({
       currency_pair: 'BTC_USDT',
       interval: '1m',
-      limit: 1000,
     });
     console.log('Response: ', balances); // Log the response to the console
   } catch (e) {
