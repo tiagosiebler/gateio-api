@@ -1833,7 +1833,7 @@ export class RestClient extends BaseRestClient {
    */
   getFuturesCandles(params: GetFuturesCandlesReq): Promise<FuturesCandle[]> {
     const { settle, ...query } = params;
-    return this.get(`/futures/${settle}/Candles`, query);
+    return this.get(`/futures/${settle}/candlesticks`, query);
   }
 
   /**
@@ -2535,7 +2535,7 @@ export class RestClient extends BaseRestClient {
    */
   getDeliveryCandles(params: GetDeliveryCandlesReq): Promise<DeliveryCandle[]> {
     const { settle, ...query } = params;
-    return this.get(`/delivery/${settle}/Candles`, query);
+    return this.get(`/delivery/${settle}/candlesticks`, query);
   }
 
   /**
