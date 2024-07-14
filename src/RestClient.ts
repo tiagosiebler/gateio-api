@@ -3014,7 +3014,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<GetOptionsCandlesResp[]>
    */
   getOptionsCandles(params: GetOptionsCandlesReq): Promise<OptionsCandle[]> {
-    return this.get(`/options/Candles`, params);
+    return this.get(`/options/candlesticks`, params);
   }
 
   /**
@@ -3026,7 +3026,7 @@ export class RestClient extends BaseRestClient {
   getOptionsUnderlyingCandles(
     params: GetOptionsUnderlyingCandlesReq,
   ): Promise<OptionsUnderlyingCandle[]> {
-    return this.get(`/options/underlying/Candles`, params);
+    return this.get(`/options/underlying/candlesticks`, params);
   }
 
   /**
