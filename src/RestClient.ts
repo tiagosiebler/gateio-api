@@ -103,6 +103,7 @@ import {
   GetAgencyTransactionHistoryReq,
   GetBrokerCommissionHistoryReq,
   GetBrokerTransactionHistoryReq,
+  PartnerTransactionReq,
 } from './types/request/rebate.js';
 import {
   CancelSpotBatchOrdersReq,
@@ -253,6 +254,8 @@ import {
   AgencyTransactionHistoryRecord,
   BrokerCommissionHistoryRecord,
   BrokerTransactionHistoryRecord,
+  PartnerCommission,
+  PartnerTransaction,
 } from './types/response/rebate.js';
 import {
   DeleteSpotBatchOrdersResp,
@@ -276,6 +279,7 @@ import {
   SubAccountAPIKey,
 } from './types/response/subaccount.js';
 import {
+  MarginTier,
   PortfolioMarginCalculation,
   UnifiedAccountInfo,
   UnifiedCurrencyDiscountTiers,
@@ -587,7 +591,10 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for converting small balance
    * @returns Promise<any>
    */
-  convertSmallBalance(params?: { currency?: string[] }): Promise<any> {
+  convertSmallBalance(params?: {
+    currency?: string[];
+    is_all?: boolean;
+  }): Promise<any> {
     return this.postPrivate('/wallet/small_balance', { body: params });
   }
 
@@ -883,6 +890,23 @@ export class RestClient extends BaseRestClient {
    */
   getUnifiedCurrencyDiscountTiers(): Promise<UnifiedCurrencyDiscountTiers[]> {
     return this.get('/unified/currency_discount_tiers');
+  }
+
+  /**
+   * List loan margin tiers
+   *
+   * @returns Promise<{
+   *   currency: string;
+   *   margin_tiers: MarginTier[];
+   * }[]>
+   */
+  getLoanMarginTiers(): Promise<
+    {
+      currency: string;
+      margin_tiers: MarginTier[];
+    }[]
+  > {
+    return this.get('/unified/loan_margin_tiers');
   }
 
   /**
@@ -3713,6 +3737,29 @@ export class RestClient extends BaseRestClient {
     });
   }
 
+  /**
+   * Set GT deduction
+   *
+   * Enable or disable GT deduction for the current account.
+   *
+   * @param params Parameters for setting GT deduction
+   * @returns Promise<void>
+   */
+  setGTDeduction(params: { enabled: boolean }): Promise<void> {
+    return this.postPrivate('/account/debit_fee', { body: params });
+  }
+
+  /**
+   * Query GT deduction configuration
+   *
+   * Query the current GT deduction configuration for the account.
+   *
+   * @returns Promise<{ enabled: boolean }>
+   */
+  getGTDeduction(): Promise<{ enabled: boolean }> {
+    return this.getPrivate('/account/debit_fee');
+  }
+
   /**==========================================================================================================================
    * REBATES
    * ==========================================================================================================================
@@ -3742,6 +3789,36 @@ export class RestClient extends BaseRestClient {
     params: GetAgencyCommissionHistoryReq,
   ): Promise<{ total: number; list: AgencyCommissionHistoryRecord[] }> {
     return this.getPrivate('/rebate/agency/commission_history', params);
+  }
+
+  /**
+   * Partner obtains transaction records of recommended users
+   *
+   * Record time range cannot exceed 30 days.
+   *
+   * @param params Parameters for retrieving transaction records
+   * @returns Promise<GetPartnerTransactionHistoryResp>
+   */
+  getPartnerTransactionHistory(params?: PartnerTransactionReq): Promise<{
+    total: number;
+    list: PartnerTransaction[];
+  }> {
+    return this.getPrivate('/rebate/partner/transaction_history', params);
+  }
+
+  /**
+   * Partner obtains commission records of recommended users
+   *
+   * Record time range cannot exceed 30 days.
+   *
+   * @param params Parameters for retrieving commission records
+   * @returns Promise<GetPartnerCommissionHistoryResp>
+   */
+  getPartnerCommissionHistory(params?: PartnerTransactionReq): Promise<{
+    total: number;
+    list: PartnerCommission[];
+  }> {
+    return this.getPrivate('/rebate/partner/commission_history', params);
   }
 
   /**

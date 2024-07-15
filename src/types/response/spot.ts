@@ -216,6 +216,7 @@ export interface DeleteSpotBatchOrdersResp {
   label: string;
   message: string;
   account: string;
+  text: string;
 }
 
 export interface SpotHistoricTradeRecord {
