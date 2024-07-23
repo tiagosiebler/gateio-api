@@ -272,6 +272,7 @@ export interface FuturesPositionHistoryRecord {
   first_open_time: number;
   long_price: string;
   short_price: string;
+  accum_size: string;
 }
 
 export interface FuturesLiquidationHistoryRecord {

@@ -13,6 +13,8 @@ export interface UnifiedAccountInfo {
       total_freeze: string;
       total_liab: string;
       spot_in_use: string;
+      funding: string;
+      funding_version: string;
     };
   };
   total: string;
@@ -48,6 +50,7 @@ export interface UnifiedLoanRecord {
   currency: string;
   amount: string;
   create_time: number;
+  borrow_type: string;
 }
 export interface UnifiedInterestRecord {
   currency: string;
@@ -82,6 +85,13 @@ export interface UnifiedCurrencyDiscountTiers {
     lower_limit: string;
     upper_limit: string;
   }[];
+}
+
+export interface MarginTier {
+  tier: string;
+  margin_rate: string;
+  lower_limit: string;
+  upper_limit: string;
 }
 
 export interface PortfolioMarginCalculation {

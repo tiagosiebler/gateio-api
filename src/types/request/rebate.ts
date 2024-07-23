@@ -27,3 +27,16 @@ export interface GetBrokerTransactionHistoryReq {
   offset?: number;
   user_id?: number;
 }
+
+// Interfaces for request and response
+export interface PartnerTransactionReq {
+  currency_pair?: string;
+  user_id?: number;
+  from?: number;
+  to?: number;
+  limit?: number;
+  offset?: number;
+}
+
+
+
