@@ -335,7 +335,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<Withdraw>
    */
   submitWithdrawal(params: SubmitWithdrawalReq): Promise<WithdrawalRecord> {
-    return this.postPrivate('/withdrawals', { query: params });
+    return this.postPrivate('/withdrawals', { body: params });
   }
 
   /**
