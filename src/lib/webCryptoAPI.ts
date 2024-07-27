@@ -1,4 +1,4 @@
-import { neverGuard } from './misc-util';
+import { neverGuard } from './misc-util.js';
 
 function bufferToB64(buffer: ArrayBuffer): string {
   let binary = '';
