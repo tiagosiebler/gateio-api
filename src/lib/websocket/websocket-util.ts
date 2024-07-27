@@ -1,8 +1,8 @@
-import { WSAPIRequest } from '../../types/websockets/requests';
+import { WSAPIRequest } from '../../types/websockets/requests.js';
 import {
   FuturesWSAPITopic,
   SpotWSAPITopic,
-} from '../../types/websockets/wsAPI';
+} from '../../types/websockets/wsAPI.js';
 
 /**
  * Should be one WS key per unique URL. Some URLs may need a suffix.

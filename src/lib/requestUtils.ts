@@ -1,6 +1,6 @@
 import WebSocket from 'isomorphic-ws';
 
-import { GateBaseUrlKey } from '../types/shared';
+import { GateBaseUrlKey } from '../types/shared.js';
 
 export interface RestClientOptions {
   /** Your API key */

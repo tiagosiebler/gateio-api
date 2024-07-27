@@ -27,7 +27,10 @@ jobs:
       - name: Install
         run: npm ci --ignore-scripts
 
-      - name: Build
+      - name: Check Lint
+        run: npx eslint src
+
+      - name: Check Build
         run: npm run build
 
       - name: Test

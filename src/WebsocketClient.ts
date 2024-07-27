@@ -17,7 +17,7 @@ import {
   WsMarket,
   WsTopicRequest,
 } from './lib/websocket/websocket-util.js';
-import { DeferredPromise } from './lib/websocket/WsStore.types.js';
+import { WSConnectedResult } from './lib/websocket/WsStore.types.js';
 import {
   WSAPIRequest,
   WsOperation,
@@ -43,7 +43,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
    *
    * Returns array of promises that individually resolve when each connection is successfully opened.
    */
-  public connectAll(): (DeferredPromise['promise'] | undefined)[] {
+  public connectAll(): Promise<WSConnectedResult | undefined>[] {
     return [
       this.connect(WS_KEY_MAP.spotV4),
       this.connect(WS_KEY_MAP.perpFuturesUSDTV4),
@@ -254,15 +254,11 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         wsKey,
       });
       if (!wsKey) {
-        throw new Error(
-          'Cannot send PONG due to no known websocket for this wsKey',
-        );
+        throw new Error('Cannot send PONG, no wsKey provided');
       }
       const wsState = this.getWsStore().get(wsKey);
       if (!wsState || !wsState?.ws) {
-        throw new Error(
-          `${wsKey} socket not connected yet, call "connectAll()" first then try again when the "open" event arrives`,
-        );
+        throw new Error(`Cannot send pong, ${wsKey} socket not connected yet`);
       }
 
       // Send a protocol layer pong
@@ -420,6 +416,12 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
 
         this.logger.error(
           `!! Unhandled string event type "${eventAction}. Defaulting to "update" channel...`,
+          parsed,
+        );
+      } else {
+        // TODO: test meee
+        this.logger.error(
+          `!! Unhandled non-string event type "${eventAction}. Defaulting to "update" channel...`,
           parsed,
         );
       }

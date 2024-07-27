@@ -1,16 +1,16 @@
-import { WsKey } from '../../lib/websocket/websocket-util';
+import { WsKey } from '../../lib/websocket/websocket-util.js';
 import {
   GetFuturesOrdersReq,
   SubmitFuturesOrderReq,
   UpdateFuturesOrderReq,
-} from '../request/futures';
+} from '../request/futures.js';
 import {
   CancelSpotBatchOrdersReq,
   DeleteSpotOrderReq,
   GetSpotOrderReq,
   SubmitSpotOrderReq,
   UpdateSpotOrderReq,
-} from '../request/spot';
+} from '../request/spot.js';
 
 export type SpotWSAPITopic =
   | 'spot.login'
