@@ -3,6 +3,7 @@ import WebSocket from 'isomorphic-ws';
 import { DefaultLogger } from '../logger.js';
 import {
   DeferredPromise,
+  WSConnectedResult,
   WsConnectionStateEnum,
   WsStoredState,
 } from './WsStore.types.js';
@@ -254,7 +255,7 @@ export class WsStore<
   /** Get promise designed to track a connection attempt in progress. Resolves once connected. */
   getConnectionInProgressPromise(
     wsKey: WsKey,
-  ): DeferredPromise<unknown> | undefined {
+  ): DeferredPromise<WSConnectedResult> | undefined {
     return this.getDeferredPromise(
       wsKey,
       DEFERRED_PROMISE_REF.CONNECTION_IN_PROGRESS,
@@ -269,7 +270,7 @@ export class WsStore<
   createConnectionInProgressPromise(
     wsKey: WsKey,
     throwIfExists: boolean,
-  ): DeferredPromise<unknown> {
+  ): DeferredPromise<WSConnectedResult> {
     return this.createDeferredPromise(
       wsKey,
       DEFERRED_PROMISE_REF.CONNECTION_IN_PROGRESS,
@@ -305,6 +306,19 @@ export class WsStore<
 
   isConnectionState(key: WsKey, state: WsConnectionStateEnum): boolean {
     return this.getConnectionState(key) === state;
+  }
+
+  /**
+   * Check if we're currently in the process of opening a connection for any reason. Safer than only checking "CONNECTING" as the state
+   * @param key
+   * @returns
+   */
+  isConnectionAttemptInProgress(key: WsKey): boolean {
+    const isConnectionInProgress =
+      this.isConnectionState(key, WsConnectionStateEnum.CONNECTING) ||
+      this.isConnectionState(key, WsConnectionStateEnum.RECONNECTING);
+
+    return isConnectionInProgress;
   }
 
   /* subscribed topics */

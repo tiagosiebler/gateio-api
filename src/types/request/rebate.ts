@@ -37,6 +37,3 @@ export interface PartnerTransactionReq {
   limit?: number;
   offset?: number;
 }
-
-
-

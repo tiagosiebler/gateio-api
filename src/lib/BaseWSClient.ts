@@ -15,7 +15,7 @@ import {
 } from './websocket/websocket-util.js';
 import { WsStore } from './websocket/WsStore.js';
 import {
-  DeferredPromise,
+  WSConnectedResult,
   WsConnectionStateEnum,
 } from './websocket/WsStore.types.js';
 
@@ -169,7 +169,7 @@ export abstract class BaseWebsocketClient<
   /**
    * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
    */
-  protected abstract connectAll(): (DeferredPromise['promise'] | undefined)[];
+  protected abstract connectAll(): Promise<WSConnectedResult | undefined>[];
 
   protected isPrivateWsKey(wsKey: TWSKey): boolean {
     return this.getPrivateWSKeys().includes(wsKey);
@@ -221,10 +221,8 @@ export abstract class BaseWebsocketClient<
       WsConnectionStateEnum.CONNECTED,
     );
 
-    // TODO: test this, spam loads of subscribe topic calls in intervals (and add a log line on this logic)
     const isConnectionInProgress =
-      this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.CONNECTING) ||
-      this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.RECONNECTING);
+      this.wsStore.isConnectionAttemptInProgress(wsKey);
 
     // start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
     if (!isConnected && !isConnectionInProgress) {
@@ -362,19 +360,17 @@ export abstract class BaseWebsocketClient<
    */
   protected async connect(
     wsKey: TWSKey,
-  ): Promise<DeferredPromise['promise'] | undefined> {
+  ): Promise<WSConnectedResult | undefined> {
     try {
       if (this.wsStore.isWsOpen(wsKey)) {
         this.logger.error(
           'Refused to connect to ws with existing active connection',
           { ...WS_LOGGER_CATEGORY, wsKey },
         );
-        return this.wsStore.getConnectionInProgressPromise(wsKey);
+        return { wsKey };
       }
 
-      if (
-        this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.CONNECTING)
-      ) {
+      if (this.wsStore.isConnectionAttemptInProgress(wsKey)) {
         this.logger.error(
           'Refused to connect to ws, connection attempt already active',
           { ...WS_LOGGER_CATEGORY, wsKey },
@@ -459,7 +455,6 @@ export abstract class BaseWebsocketClient<
         ...WS_LOGGER_CATEGORY,
         wsKey,
       });
-      // TODO:!
 
       const request = await this.getWsAuthRequestEvent(wsKey);
 
@@ -473,10 +468,7 @@ export abstract class BaseWebsocketClient<
 
   private reconnectWithDelay(wsKey: TWSKey, connectionDelayMs: number) {
     this.clearTimers(wsKey);
-    if (
-      this.wsStore.getConnectionState(wsKey) !==
-      WsConnectionStateEnum.CONNECTING
-    ) {
+    if (!this.wsStore.isConnectionAttemptInProgress(wsKey)) {
       this.setWsState(wsKey, WsConnectionStateEnum.RECONNECTING);
     }
 

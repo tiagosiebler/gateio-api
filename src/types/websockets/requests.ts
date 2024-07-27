@@ -1,5 +1,5 @@
-import { CHANNEL_ID } from '../../lib/requestUtils';
-import { WSAPITopic } from './wsAPI';
+import { CHANNEL_ID } from '../../lib/requestUtils.js';
+import { WSAPITopic } from './wsAPI.js';
 
 export type WsOperation = 'subscribe' | 'unsubscribe' | 'auth';
 
