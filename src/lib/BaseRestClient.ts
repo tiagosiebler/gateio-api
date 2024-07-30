@@ -245,7 +245,8 @@ export abstract class BaseRestClient {
     // Dispatch request
     return axios(options)
       .then((response) => {
-        if (response.status == 200 || response.status == 201) {
+        // See: https://www.gate.io/docs/developers/apiv4/en/#return-format
+        if (response.status >= 200 && response.status <= 204) {
           // Throw API rejections by parsing the response code from the body
           if (
             typeof response.data?.code === 'number' &&
