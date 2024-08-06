@@ -75,12 +75,7 @@ async function subscribePrivateWs() {
 
 async function main() {
   try {
-    const isSubscribed = await subscribePrivateWs();
-    if (isSubscribed != true) {
-      console.log('Failed to subscribe to private ws');
-      return;
-    }
-
+    await subscribePrivateWs();
     console.log('Subscribed to privateWs topics!');
 
     // Get futures account balance via REST
