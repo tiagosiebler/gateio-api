@@ -119,11 +119,6 @@ gateWSClient.on('open', (data) => {
   console.log('connected ', data?.wsKey);
 });
 
-// Data received
-gateWSClient.on('update', (data) => {
-  console.info('data received: ', JSON.stringify(data));
-});
-
 // Something happened, attempting to reconnect
 gateWSClient.on('reconnect', (data) => {
   console.log('reconnect: ', data);
