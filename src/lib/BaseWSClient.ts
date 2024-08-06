@@ -370,7 +370,9 @@ export abstract class BaseWebsocketClient<
         return { wsKey };
       }
 
-      if (this.wsStore.isConnectionAttemptInProgress(wsKey)) {
+      if (
+        this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.CONNECTING)
+      ) {
         this.logger.error(
           'Refused to connect to ws, connection attempt already active',
           { ...WS_LOGGER_CATEGORY, wsKey },
@@ -468,6 +470,7 @@ export abstract class BaseWebsocketClient<
 
   private reconnectWithDelay(wsKey: TWSKey, connectionDelayMs: number) {
     this.clearTimers(wsKey);
+
     if (!this.wsStore.isConnectionAttemptInProgress(wsKey)) {
       this.setWsState(wsKey, WsConnectionStateEnum.RECONNECTING);
     }
