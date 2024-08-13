@@ -148,6 +148,16 @@ export interface GetFuturesTradingHistoryReq {
   last_id?: string;
 }
 
+export interface GetFuturesTradingHistoryByTimeRangeReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract?: string;
+  from?: number;
+  to?: number;
+  limit?: number;
+  offset?: number;
+  role?: 'maker' | 'taker';
+}
+
 export interface GetFuturesPositionHistoryReq {
   settle: 'btc' | 'usdt' | 'usd';
   contract?: string;
