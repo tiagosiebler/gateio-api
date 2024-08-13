@@ -55,6 +55,7 @@ import {
   GetFuturesPositionsReq,
   GetFuturesStatsReq,
   GetFuturesTradesReq,
+  GetFuturesTradingHistoryByTimeRangeReq,
   GetFuturesTradingHistoryReq,
   GetLiquidationHistoryReq,
   GetRiskLimitTiersReq,
@@ -2326,6 +2327,21 @@ export class RestClient extends BaseRestClient {
   ): Promise<FuturesTradingHistoryRecord[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/futures/${settle}/my_trades`, query);
+  }
+
+  /**
+   * List personal trading history
+   *
+   * This endpoint is for data longer than 6 months.
+   *
+   * @param params Parameters for listing personal trading history
+   * @returns Promise<GetFuturesTradingHistoryResp[]>
+   */
+  getFuturesTradingHistoryByTimeRange(
+    params: GetFuturesTradingHistoryByTimeRangeReq,
+  ): Promise<FuturesTradingHistoryRecord[]> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/futures/${settle}/my_trades_timerange`, query);
   }
 
   /**
