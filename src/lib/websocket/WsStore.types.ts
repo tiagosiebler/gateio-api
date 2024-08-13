@@ -6,6 +6,7 @@ export enum WsConnectionStateEnum {
   CONNECTED = 2,
   CLOSING = 3,
   RECONNECTING = 4,
+  // ERROR_RECONNECTING = 5,
   // ERROR = 5,
 }
 
