@@ -211,3 +211,14 @@ export interface GetFuturesAutoOrdersReq {
   limit?: number;
   offset?: number;
 }
+
+/**
+ * Modify contract order parameters
+ */
+export interface BatchAmendOrderReq {
+  order_id?: number; // Order id, order_id and text must contain at least one
+  text?: string; // User-defined order text, at least one of order_id and text must be passed
+  size?: number; // The new order size, including the executed order size
+  price?: string; // New order price
+  amend_text?: string; // Custom info during amending order
+}
