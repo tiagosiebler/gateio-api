@@ -194,6 +194,13 @@ export interface PushOrder {
   currency: string;
   amount: string;
   create_time: number;
-  status: 'CREATING' | 'PENDING' | 'CANCELLING' | 'CANCELLED' | 'REFUSING' | 'REFUSED' | 'RECEIVING' | 'RECEIVED';
+  status:
+    | 'CREATING'
+    | 'PENDING'
+    | 'CANCELLING'
+    | 'CANCELLED'
+    | 'REFUSING'
+    | 'REFUSED'
+    | 'RECEIVING'
+    | 'RECEIVED';
 }
-
