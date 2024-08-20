@@ -260,7 +260,7 @@ import {
   BrokerCommissionHistoryRecord,
   BrokerTransactionHistoryRecord,
   PartnerCommission,
-  PartnerSubordinateListRecord,
+  PartnerSubordinate,
   PartnerTransaction,
 } from './types/response/rebate.js';
 import {
@@ -3927,7 +3927,7 @@ export class RestClient extends BaseRestClient {
    */
   getPartnerSubordinateList(params?: GetPartnerSubordinateListReq): Promise<{
     total: number;
-    list: PartnerSubordinateListRecord[];
+    list: PartnerSubordinate[];
   }> {
     return this.getPrivate('/rebate/partner/sub_list', params);
   }

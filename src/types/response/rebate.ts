@@ -19,7 +19,7 @@ export interface AgencyCommissionHistoryRecord {
   source: string;
 }
 
-export interface PartnerSubordinateListRecord {
+export interface PartnerSubordinate {
   user_id: number;
   user_join_time: number;
   type: number;
