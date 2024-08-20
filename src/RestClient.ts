@@ -644,7 +644,7 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters for listing push orders
    * @returns Promise<PushOrder[]>
    */
-  listPushOrders(params?: ListPushOrdersReq): Promise<PushOrder[]> {
+  getPushOrders(params?: ListPushOrdersReq): Promise<PushOrder[]> {
     return this.getPrivate('/wallet/push', params);
   }
 
