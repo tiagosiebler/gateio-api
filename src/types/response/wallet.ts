@@ -186,3 +186,14 @@ export interface SmallBalanceHistoryRecord {
   gt_amount: string;
   create_time: number;
 }
+
+export interface PushOrder {
+  id: number;
+  push_uid: number;
+  receive_uid: number;
+  currency: string;
+  amount: string;
+  create_time: number;
+  status: 'CREATING' | 'PENDING' | 'CANCELLING' | 'CANCELLED' | 'REFUSING' | 'REFUSED' | 'RECEIVING' | 'RECEIVED';
+}
+

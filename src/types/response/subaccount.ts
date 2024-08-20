@@ -58,3 +58,9 @@ export interface SubAccountAPIKey {
   updated_at?: number;
   last_access?: number;
 }
+
+export interface SubAccountMode {
+  user_id: number;
+  is_unified: boolean;
+  mode: 'classic' | 'multi_currency' | 'portfolio';
+}

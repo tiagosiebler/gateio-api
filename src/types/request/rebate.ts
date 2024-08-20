@@ -16,16 +16,26 @@ export interface GetAgencyCommissionHistoryReq {
   offset?: number;
 }
 
+export interface GetPartnerSubordinateListReq {
+  user_id?: number;
+  limit?: number;
+  offset?: number;
+}
+
 export interface GetBrokerCommissionHistoryReq {
   limit?: number;
   offset?: number;
   user_id?: number;
+  from?: number;
+  to?: number;
 }
 
 export interface GetBrokerTransactionHistoryReq {
   limit?: number;
   offset?: number;
   user_id?: number;
+  from?: number;
+  to?: number;
 }
 
 // Interfaces for request and response

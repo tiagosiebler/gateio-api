@@ -43,6 +43,7 @@ import {
   SubmitFlashSwapOrderReq,
 } from './types/request/flashswap.js';
 import {
+  BatchAmendOrderReq,
   DeleteAllFuturesOrdersReq,
   GetFuturesAccountBookReq,
   GetFuturesAutoOrdersReq,
@@ -104,6 +105,7 @@ import {
   GetAgencyTransactionHistoryReq,
   GetBrokerCommissionHistoryReq,
   GetBrokerTransactionHistoryReq,
+  GetPartnerSubordinateListReq,
   PartnerTransactionReq,
 } from './types/request/rebate.js';
 import {
@@ -140,6 +142,7 @@ import {
   GetSavedAddressReq,
   GetSmallBalanceHistoryReq,
   GetWithdrawalDepositRecordsReq,
+  ListPushOrdersReq,
   SubmitMainSubTransferReq,
   SubmitSubToSubTransferReq,
   SubmitTransferReq,
@@ -186,6 +189,7 @@ import {
   SubmitFlashSwapOrderPreviewResp,
 } from './types/response/flashswap.js';
 import {
+  BatchAmendOrderResp,
   DeleteFuturesBatchOrdersResp,
   FuturesAccount,
   FuturesAutoDeleveragingHistoryRecord,
@@ -256,6 +260,7 @@ import {
   BrokerCommissionHistoryRecord,
   BrokerTransactionHistoryRecord,
   PartnerCommission,
+  PartnerSubordinateListRecord,
   PartnerTransaction,
 } from './types/response/rebate.js';
 import {
@@ -278,6 +283,7 @@ import {
   CreatedSubAccountAPIKey,
   SubAccount,
   SubAccountAPIKey,
+  SubAccountMode,
 } from './types/response/subaccount.js';
 import {
   MarginTier,
@@ -293,6 +299,7 @@ import {
   CreateDepositAddressResp,
   CurrencyChain,
   GetBalancesResp,
+  PushOrder,
   SavedAddress,
   SmallBalanceHistoryRecord,
   SmallBalanceRecord,
@@ -341,6 +348,26 @@ export class RestClient extends BaseRestClient {
    */
   submitWithdrawal(params: SubmitWithdrawalReq): Promise<WithdrawalRecord> {
     return this.postPrivate('/withdrawals', { body: params });
+  }
+
+  /**
+   * Transfer between spot main accounts
+   *
+   * Both parties cannot be sub-accounts.
+   *
+   * @param params Transfer parameters
+   * @returns Promise<{
+   *   id: number;
+   * }>
+   */
+  submitSpotMainAccountTransfer(params: {
+    receive_uid: number;
+    currency: string;
+    amount: string;
+  }): Promise<{
+    id: number;
+  }> {
+    return this.postPrivate('/withdrawals/push', { body: params });
   }
 
   /**
@@ -611,6 +638,16 @@ export class RestClient extends BaseRestClient {
     return this.getPrivate('/wallet/small_balance_history', params);
   }
 
+  /**
+   * List push orders
+   *
+   * @param params Parameters for listing push orders
+   * @returns Promise<PushOrder[]>
+   */
+  listPushOrders(params?: ListPushOrdersReq): Promise<PushOrder[]> {
+    return this.getPrivate('/wallet/push', params);
+  }
+
   /**==========================================================================================================================
    * SUBACCOUNT
    * ==========================================================================================================================
@@ -731,6 +768,21 @@ export class RestClient extends BaseRestClient {
   unlockSubAccount(params: { user_id: number }): Promise<any> {
     return this.postPrivate(`/sub_accounts/${params.user_id}/unlock`);
   }
+
+  /**
+   * Get sub-account mode
+   *
+   * Unified account mode:
+   * - classic: Classic account mode
+   * - multi_currency: Multi-currency margin mode
+   * - portfolio: Portfolio margin mode
+   *
+   * @returns Promise<SubAccountMode>
+   */
+  getSubAccountMode(): Promise<SubAccountMode> {
+    return this.getPrivate('/sub_accounts/unified_mode');
+  }
+
   /**==========================================================================================================================
    * UNIFIED
    * ==========================================================================================================================
@@ -1735,6 +1787,8 @@ export class RestClient extends BaseRestClient {
    */
   getFlashSwapCurrencyPairs(params?: {
     currency?: string;
+    page?: number;
+    limit?: number;
   }): Promise<FlashSwapCurrencyPair[]> {
     return this.get('/flash_swap/currency_pairs', params);
   }
@@ -2433,6 +2487,24 @@ export class RestClient extends BaseRestClient {
     const { settle, ...orderIds } = params;
     return this.postPrivate(`/futures/${settle}/batch_cancel_orders`, {
       body: orderIds,
+    });
+  }
+
+  /**
+   * Batch modify orders with specified IDs
+   *
+   * You can specify multiple different order IDs. You can only modify up to 10 orders in one request.
+   *
+   * @param params Array of BatchAmendOrderReq objects
+   * @param settle Settlement currency (e.g., 'btc', 'usdt', 'usd')
+   * @returns Promise<BatchAmendOrderResp[]>
+   */
+  batchUpdateFuturesOrders(
+    settle: 'btc' | 'usdt' | 'usd',
+    params: BatchAmendOrderReq[],
+  ): Promise<BatchAmendOrderResp[]> {
+    return this.postPrivate(`/futures/${settle}/batch_amend_orders`, {
+      body: params,
     });
   }
 
@@ -3835,6 +3907,29 @@ export class RestClient extends BaseRestClient {
     list: PartnerCommission[];
   }> {
     return this.getPrivate('/rebate/partner/commission_history', params);
+  }
+
+  /**
+   * Partner subordinate list
+   *
+   * Including sub-agents, direct customers, indirect customers
+   *
+   * @param params Parameters for retrieving partner subordinate list
+   * @returns Promise<{
+   *   total: number;
+   *   list: {
+   *     user_id: number;
+   *     user_join_time: number;
+   *     type: number;
+   *     desc: string;
+   *   }[];
+   * }>
+   */
+  getPartnerSubordinateList(params?: GetPartnerSubordinateListReq): Promise<{
+    total: number;
+    list: PartnerSubordinateListRecord[];
+  }> {
+    return this.getPrivate('/rebate/partner/sub_list', params);
   }
 
   /**

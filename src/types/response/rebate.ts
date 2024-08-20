@@ -19,6 +19,13 @@ export interface AgencyCommissionHistoryRecord {
   source: string;
 }
 
+export interface PartnerSubordinateListRecord {
+  user_id: number;
+  user_join_time: number;
+  type: number;
+  desc: string;
+}
+
 export interface BrokerCommissionHistoryRecord {
   commission_time: number;
   user_id: number;

@@ -36,6 +36,14 @@ export interface GetSmallBalanceHistoryReq {
   limit?: number;
 }
 
+export interface ListPushOrdersReq {
+  id?: number;
+  from?: number;
+  to?: number;
+  limit?: number;
+  offset?: number;
+}
+
 export interface SubmitSubToSubTransferReq {
   currency: string;
   sub_account_from: string;

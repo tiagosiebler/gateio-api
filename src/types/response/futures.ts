@@ -257,6 +257,7 @@ export interface FuturesTradingHistoryRecord {
   text: string;
   fee: string;
   point_fee: string;
+  close_size: number;
 }
 
 export interface FuturesPositionHistoryRecord {
@@ -425,4 +426,41 @@ export interface FuturesDeliveryContract {
   config_change_time?: number;
   in_delisting?: boolean;
   orders_limit?: number;
+}
+
+export interface BatchAmendOrderResp {
+  succeeded: boolean;
+  label?: string;
+  detail?: string;
+  id: number;
+  user: number;
+  create_time: number;
+  finish_time?: number;
+  finish_as?:
+    | 'filled'
+    | 'cancelled'
+    | 'liquidated'
+    | 'ioc'
+    | 'auto_deleveraged'
+    | 'reduce_only'
+    | 'position_closed'
+    | 'reduce_out'
+    | 'stp';
+  status: 'open' | 'finished';
+  contract: string;
+  size: number;
+  iceberg: number;
+  price: string;
+  is_close: boolean;
+  is_reduce_only: boolean;
+  is_liq: boolean;
+  tif: 'gtc' | 'ioc' | 'poc' | 'fok';
+  left: number;
+  fill_price: string;
+  text: string;
+  tkfr: string;
+  mkfr: string;
+  refu: number;
+  stp_act: 'co' | 'cn' | 'cb' | '-';
+  stp_id: number;
 }
