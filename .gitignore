@@ -30,3 +30,4 @@ ws-private-perp-futures-wsapi-readonly.ts
 privatetest.ts
 
 privaterepotracker
+restClientRegex.ts
