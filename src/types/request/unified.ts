@@ -23,6 +23,8 @@ export interface GetUnifiedInterestRecordsReq {
   currency?: string;
   page?: number;
   limit?: number;
+  from?: number;
+  to?: number;
   type?: 'platform' | 'margin';
 }
 
@@ -31,6 +33,8 @@ export interface SetUnifiedAccountModeReq {
   settings?: {
     usdt_futures?: boolean;
     spot_hedge?: boolean;
+    use_funding?: boolean;
+    options?: boolean;
   };
 }
 

@@ -98,6 +98,7 @@ import {
   GetOptionsSettlementHistoryReq,
   GetOptionsTradesReq,
   GetOptionsUnderlyingCandlesReq,
+  OptionsMMPSettingsReq,
   SubmitOptionsOrderReq,
 } from './types/request/options.js';
 import {
@@ -244,6 +245,7 @@ import {
   OptionsAccountChangeRecord,
   OptionsCandle,
   OptionsContract,
+  OptionsMMPSettings,
   OptionsOrderBook,
   OptionsPositionsUnderlying,
   OptionsSettlementHistoryRecord,
@@ -910,13 +912,7 @@ export class RestClient extends BaseRestClient {
   /**
    * Query mode of the unified account
    *
-   * @returns Promise<{
-   *   mode: 'classic' | 'multi_currency' | 'portfolio';
-   *   settings: {
-   *     usdt_futures?: boolean;
-   *     spot_hedge?: boolean;
-   *   };
-   * }>
+   * @returns Promise<SetUnifiedAccountModeReq>
    */
   getUnifiedAccountMode(): Promise<SetUnifiedAccountModeReq> {
     return this.getPrivate('/unified/unified_mode');
@@ -3281,6 +3277,42 @@ export class RestClient extends BaseRestClient {
     params: GetOptionsPersonalHistoryReq,
   ): Promise<OptionsUserHistoryRecord[]> {
     return this.getPrivate(`/options/my_trades`, params);
+  }
+
+  /**
+   * Set MMP (Market Maker Protection) settings
+   *
+   * @param params Parameters for setting MMP settings
+   * @returns Promise<OptionsMMPSetings>
+   */
+  setOptionsMMPSettings(
+    params: OptionsMMPSettingsReq,
+  ): Promise<OptionsMMPSettings> {
+    return this.postPrivate('/options/mmp', { body: params });
+  }
+
+  /**
+   * Query MMP (Market Maker Protection) settings
+   *
+   * @param params Parameters for querying MMP settings
+   * @returns Promise<OptionsMMPSetings[]>
+   */
+  getOptionsMMPSettings(params?: {
+    underlying?: string;
+  }): Promise<OptionsMMPSettings[]> {
+    return this.getPrivate('/options/mmp', params);
+  }
+
+  /**
+   * Reset MMP (Market Maker Protection) settings
+   *
+   * @param params Parameters for resetting MMP settings
+   * @returns Promise<OptionsMMPSettings>
+   */
+  resetOptionsMMPSettings(params: {
+    underlying: string;
+  }): Promise<OptionsMMPSettings> {
+    return this.postPrivate('/options/mmp/reset', { body: params });
   }
 
   /**==========================================================================================================================
