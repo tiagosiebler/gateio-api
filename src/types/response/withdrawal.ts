@@ -1,6 +1,7 @@
 export interface WithdrawalRecord {
   id: string;
   txid: string;
+  block_number: string;
   withdraw_order_id: string;
   timestamp: string;
   amount: string;

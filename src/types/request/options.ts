@@ -87,3 +87,11 @@ export interface GetOptionsPersonalHistoryReq {
   from?: number;
   to?: number;
 }
+
+export interface OptionsMMPSettingsReq {
+  underlying: string;
+  window: number; // Time window in milliseconds, between 1-5000, 0 to disable MMP
+  frozen_period: number; // Frozen period in milliseconds, 0 to freeze indefinitely until reset API is called
+  qty_limit: string; // Maximum transaction volume (positive number, up to 2 decimal places)
+  delta_limit: string; // Maximum net delta value (positive number, up to 2 decimal places)
+}

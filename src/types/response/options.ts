@@ -204,3 +204,13 @@ export interface OptionsUserHistoryRecord {
   underlying_price: string;
   role: 'taker' | 'maker';
 }
+
+export interface OptionsMMPSettings {
+  underlying: string;
+  window: number;
+  frozen_period: number;
+  qty_limit: string;
+  delta_limit: string;
+  trigger_time_ms: number; // Trigger freeze time in milliseconds, 0 means no freeze triggered
+  frozen_until_ms: number; // Unfreeze time in milliseconds, if no frozen period is configured, no unfreeze time after freeze is triggered
+}
