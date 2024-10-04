@@ -258,6 +258,7 @@ This table includes all endpoints from the official Exchange API docs and corres
 | `cancelAllOpenOptionsOrders()` | :closed_lock_with_key:  | DELETE | `/options/orders` |
 | `getOptionsOrder()` | :closed_lock_with_key:  | GET | `/options/orders/{order_id}` |
 | `cancelOptionsOrder()` | :closed_lock_with_key:  | DELETE | `/options/orders/{order_id}` |
+| `submitOptionsCountdownCancel()` | :closed_lock_with_key:  | POST | `/options/countdown_cancel_all` |
 | `getOptionsPersonalHistory()` | :closed_lock_with_key:  | GET | `/options/my_trades` |
 | `setOptionsMMPSettings()` | :closed_lock_with_key:  | POST | `/options/mmp` |
 | `getOptionsMMPSettings()` | :closed_lock_with_key:  | GET | `/options/mmp` |

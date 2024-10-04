@@ -45,6 +45,7 @@ import {
 import {
   BatchAmendOrderReq,
   DeleteAllFuturesOrdersReq,
+  GetFundingRatesReq,
   GetFuturesAccountBookReq,
   GetFuturesAutoOrdersReq,
   GetFuturesCandlesReq,
@@ -1949,11 +1950,7 @@ export class RestClient extends BaseRestClient {
    *   r: string;
    * }[]>
    */
-  getFundingRates(params: {
-    settle: 'btc' | 'usdt' | 'usd';
-    contract: string;
-    limit?: number;
-  }): Promise<
+  getFundingRates(params: GetFundingRatesReq): Promise<
     {
       t: number;
       r: string;
@@ -3265,6 +3262,29 @@ export class RestClient extends BaseRestClient {
     order_id: number;
   }): Promise<SubmitOptionsOrderResp> {
     return this.deletePrivate(`/options/orders/${params.order_id}`);
+  }
+
+  /**
+   * Countdown cancel orders for options
+   *
+   * Option order heartbeat detection. When the timeout set by the user is reached,
+   * if there is no cancel or new countdown set, related pending orders will be
+   * automatically cancelled. This endpoint can be called repeatedly to set a new
+   * countdown or cancel the countdown.
+   *
+   * @param params Parameters for setting countdown cancel orders
+   * @returns Promise<{
+   *   triggerTime: number;
+   * }>
+   */
+  submitOptionsCountdownCancel(params: {
+    timeout: number;
+    contract?: string;
+    underlying?: string;
+  }): Promise<{
+    triggerTime: number;
+  }> {
+    return this.postPrivate('/options/countdown_cancel_all', { body: params });
   }
 
   /**
