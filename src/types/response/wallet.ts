@@ -203,4 +203,5 @@ export interface PushOrder {
     | 'REFUSED'
     | 'RECEIVING'
     | 'RECEIVED';
+  message: string;
 }
