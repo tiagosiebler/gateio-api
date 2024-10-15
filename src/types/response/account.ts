@@ -11,6 +11,15 @@ export interface AccountDetail {
     mode: number;
   };
   tier: number;
+  copy_trading_role: number;
+}
+
+export interface AccountRateLimit {
+  type: string;
+  tier: string;
+  ratio: string;
+  main_ratio: string;
+  updated_at: string;
 }
 
 export interface StpGroup {

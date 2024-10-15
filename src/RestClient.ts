@@ -152,6 +152,7 @@ import {
 import { SubmitWithdrawalReq } from './types/request/withdrawal.js';
 import {
   AccountDetail,
+  AccountRateLimit,
   StpGroup,
   StpGroupUser,
 } from './types/response/account.js';
@@ -3813,6 +3814,15 @@ export class RestClient extends BaseRestClient {
    */
   getAccountDetail(): Promise<AccountDetail> {
     return this.getPrivate(`/account/detail`);
+  }
+
+  /**
+   * Get user transaction rate limit information
+   *
+   * @returns Promise<AccountRateLimit[]>
+   */
+  getAccountRateLimit(): Promise<AccountRateLimit[]> {
+    return this.getPrivate('/account/rate_limit');
   }
 
   /**
