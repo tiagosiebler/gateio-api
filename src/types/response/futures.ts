@@ -61,6 +61,8 @@ export interface FuturesTicker {
   basis_value: string;
   lowest_ask: string;
   highest_bid: string;
+  lowest_size: string;
+  highest_size: string;
 }
 
 export interface FuturesStats {

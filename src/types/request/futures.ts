@@ -38,6 +38,14 @@ export interface GetFuturesStatsReq {
   limit?: number;
 }
 
+export interface GetFundingRatesReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract: string;
+  limit?: number;
+  from?: number;
+  to?: number;
+}
+
 export interface GetLiquidationHistoryReq {
   settle: 'btc' | 'usdt' | 'usd';
   contract?: string;
