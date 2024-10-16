@@ -1,9 +1,11 @@
 const { RestClient } = require('gateio-api');
 
+  // This example shows how to call this Gate.io API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "gateio-api" for Gate.io exchange
+  // This Gate.io API SDK is available on npm via "npm install gateio-api"
   // ENDPOINT: /rebate/broker/commission_history
   // METHOD: GET
   // PUBLIC: NO
-  // Link to function: https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3984
+  // Link to function: https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4004
 
 const client = new RestClient({
   apiKey: 'insert_api_key_here',
@@ -11,9 +13,9 @@ const client = new RestClient({
 });
 
 client.getBrokerCommissionHistory(params)
-  .then(response => {
+  .then((response) => {
     console.log(response);
   })
-  .catch(error => {
+  .catch((error) => {
     console.error(error);
   });
