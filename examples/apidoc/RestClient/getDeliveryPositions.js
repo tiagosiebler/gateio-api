@@ -5,7 +5,6 @@ const { RestClient } = require('gateio-api');
   // ENDPOINT: /delivery/{settle}/positions
   // METHOD: GET
   // PUBLIC: NO
-  // Link to function: https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2711
 
 const client = new RestClient({
   apiKey: 'insert_api_key_here',

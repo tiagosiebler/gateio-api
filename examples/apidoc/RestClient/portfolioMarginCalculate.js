@@ -5,7 +5,6 @@ const { RestClient } = require('gateio-api');
   // ENDPOINT: /unified/portfolio_calculator
   // METHOD: POST
   // PUBLIC: YES
-  // Link to function: https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L971
 
 const client = new RestClient({
   apiKey: 'insert_api_key_here',

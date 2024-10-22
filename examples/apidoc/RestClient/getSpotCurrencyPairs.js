@@ -5,7 +5,6 @@ const { RestClient } = require('gateio-api');
   // ENDPOINT: /spot/currency_pairs
   // METHOD: GET
   // PUBLIC: YES
-  // Link to function: https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L1012
 
 const client = new RestClient({
   apiKey: 'insert_api_key_here',
