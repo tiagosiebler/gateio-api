@@ -5,7 +5,6 @@ const { RestClient } = require('gateio-api');
   // ENDPOINT: /futures/{settle}/risk_limit_tiers
   // METHOD: GET
   // PUBLIC: YES
-  // Link to function: https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2037
 
 const client = new RestClient({
   apiKey: 'insert_api_key_here',
