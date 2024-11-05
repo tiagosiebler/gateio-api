@@ -2358,7 +2358,7 @@ export class RestClient extends BaseRestClient {
    * Set stp_act to decide the strategy of self-trade prevention. For detailed usage, refer to the stp_act parameter in the request body.
    *
    * @param params Parameters for creating a futures order
-   * @returns Promise<SubmitFuturesOrderReq>
+   * @returns Promise<FuturesOrder>
    */
   submitFuturesOrder(params: SubmitFuturesOrderReq): Promise<FuturesOrder> {
     const { settle, ...body } = params;
