@@ -143,6 +143,7 @@ export interface FuturesAccountBookRecord {
   text: string;
   contract?: string;
   trade_id: string;
+  id: string;
 }
 
 export interface UpdateFuturesDualModeResp {

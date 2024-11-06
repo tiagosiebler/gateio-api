@@ -84,7 +84,18 @@ export interface UnifiedCurrencyDiscountTiers {
     discount: string;
     lower_limit: string;
     upper_limit: string;
+    leverage: string;
   }[];
+}
+
+export interface UserCurrencyLeverageConfig {
+  current_leverage: string;
+  min_leverage: string;
+  max_leverage: string;
+  debit: string;
+  available_margin: string;
+  borrowable: string;
+  except_leverage_borrowable: string;
 }
 
 export interface MarginTier {

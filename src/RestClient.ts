@@ -195,6 +195,7 @@ import {
   BatchAmendOrderResp,
   DeleteFuturesBatchOrdersResp,
   FuturesAccount,
+  FuturesAccountBookRecord,
   FuturesAutoDeleveragingHistoryRecord,
   FuturesCandle,
   FuturesContract,
@@ -298,6 +299,7 @@ import {
   UnifiedLoan,
   UnifiedLoanRecord,
   UnifiedRiskUnitDetails,
+  UserCurrencyLeverageConfig,
 } from './types/response/unified.js';
 import {
   CreateDepositAddressResp,
@@ -1041,6 +1043,52 @@ export class RestClient extends BaseRestClient {
     params: PortfolioMarginCalculatorReq,
   ): Promise<PortfolioMarginCalculation> {
     return this.post('/unified/portfolio_calculator', { body: params });
+  }
+
+  /**
+   * Query user currency leverage configuration
+   *
+   * Get the maximum and minimum leverage multiples that users can set for a currency type
+   *
+   * @param params Parameters containing the currency
+   * @returns Promise<UserCurrencyLeverageConfig>
+   */
+  getUserCurrencyLeverageConfig(params: {
+    currency: string;
+  }): Promise<UserCurrencyLeverageConfig> {
+    return this.getPrivate('/unified/leverage/user_currency_config', params);
+  }
+
+  /**
+   * Get the user's currency leverage
+   *
+   * If currency is not passed, query all currencies.
+   *
+   * @param params Optional parameters containing the currency
+   * @returns Promise<UserCurrencyLeverageSetting[]>
+   */
+  getUserCurrencyLeverageSettings(params?: { currency?: string }): Promise<
+    {
+      currency: string;
+      leverage: string;
+    }[]
+  > {
+    return this.getPrivate('/unified/leverage/user_currency_setting', params);
+  }
+
+  /**
+   * Set the currency leverage ratio
+   *
+   * @param params Parameters for setting currency leverage ratio
+   * @returns Promise<any> Returns nothing on success (204 No Content)
+   */
+  updateUserCurrencyLeverage(params: {
+    currency: string;
+    leverage: string;
+  }): Promise<any> {
+    return this.postPrivate('/unified/leverage/user_currency_setting', {
+      body: params,
+    });
   }
 
   /**==========================================================================================================================
@@ -2130,7 +2178,7 @@ export class RestClient extends BaseRestClient {
    */
   getFuturesAccountBook(
     params: GetFuturesAccountBookReq,
-  ): Promise<GetFuturesAccountBookReq[]> {
+  ): Promise<FuturesAccountBookRecord[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/futures/${settle}/account_book`, query);
   }
@@ -2310,7 +2358,7 @@ export class RestClient extends BaseRestClient {
    * Set stp_act to decide the strategy of self-trade prevention. For detailed usage, refer to the stp_act parameter in the request body.
    *
    * @param params Parameters for creating a futures order
-   * @returns Promise<SubmitFuturesOrderReq>
+   * @returns Promise<FuturesOrder>
    */
   submitFuturesOrder(params: SubmitFuturesOrderReq): Promise<FuturesOrder> {
     const { settle, ...body } = params;
@@ -3790,6 +3838,27 @@ export class RestClient extends BaseRestClient {
     return this.get(`/loan/multi_collateral/fixed_rate`);
   }
 
+  /**
+   * Query the current interest rate of currencies
+   *
+   * Query the current interest rate of currencies in the last hour.
+   * The current interest rate is updated every hour.
+   *
+   * @param params Parameters containing currencies to query and optional VIP level
+   * @returns Promise<MultiLoanCurrentRate[]>
+   */
+  getMultiLoanCurrentRates(params: {
+    currencies: string[];
+    vip_level?: string;
+  }): Promise<
+    {
+      currency: string;
+      current_rate: string;
+    }[]
+  > {
+    return this.get('/loan/multi_collateral/current_rate', params);
+  }
+
   /**==========================================================================================================================
    * EARN
    * ==========================================================================================================================
@@ -3831,6 +3900,8 @@ export class RestClient extends BaseRestClient {
   submitDualInvestmentOrder(params: {
     plan_id: string;
     copies: string;
+    is_max: number;
+    amount: string;
   }): Promise<any> {
     return this.postPrivate(`/earn/dual/orders`, { body: params });
   }
