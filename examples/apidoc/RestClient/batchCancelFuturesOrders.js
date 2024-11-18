@@ -1,18 +1,18 @@
 const { RestClient } = require('gateio-api');
 
-  // This example shows how to call this Gate.io API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "gateio-api" for Gate.io exchange
-  // This Gate.io API SDK is available on npm via "npm install gateio-api"
-  // ENDPOINT: /futures/{settle}/batch_cancel_orders
-  // METHOD: POST
-  // PUBLIC: NO
-  // Link to function: https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2477
+// This example shows how to call this Gate.io API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "gateio-api" for Gate.io exchange
+// This Gate.io API SDK is available on npm via "npm install gateio-api"
+// ENDPOINT: /futures/{settle}/batch_cancel_orders
+// METHOD: POST
+// PUBLIC: NO
 
 const client = new RestClient({
   apiKey: 'insert_api_key_here',
   apiSecret: 'insert_api_secret_here',
 });
 
-client.batchCancelFuturesOrders(params)
+client
+  .batchCancelFuturesOrders(params)
   .then((response) => {
     console.log(response);
   })

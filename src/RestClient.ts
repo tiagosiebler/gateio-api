@@ -195,6 +195,7 @@ import {
   BatchAmendOrderResp,
   DeleteFuturesBatchOrdersResp,
   FuturesAccount,
+  FuturesAccountBookRecord,
   FuturesAutoDeleveragingHistoryRecord,
   FuturesCandle,
   FuturesContract,
@@ -298,6 +299,7 @@ import {
   UnifiedLoan,
   UnifiedLoanRecord,
   UnifiedRiskUnitDetails,
+  UserCurrencyLeverageConfig,
 } from './types/response/unified.js';
 import {
   CreateDepositAddressResp,
@@ -328,6 +330,75 @@ export class RestClient extends BaseRestClient {
     super(restClientOptions, requestOptions);
     return this;
   }
+
+  /**
+   *
+   * Custom SDK functions
+   *
+   */
+
+  /**
+   * This method is used to get the latency and time sync between the client and the server.
+   * This is not official API endpoint and is only used for internal testing purposes.
+   * Use this method to check the latency and time sync between the client and the server.
+   * Final values might vary slightly, but it should be within few ms difference.
+   * If you have any suggestions or improvements to this measurement, please create an issue or pull request on GitHub.
+   */
+  async fetchLatencySummary(): Promise<any> {
+    const clientTimeReqStart = Date.now();
+    const serverTime = await this.getServerTime();
+    const clientTimeReqEnd = Date.now();
+    console.log('serverTime', serverTime);
+
+    const serverTimeMs = serverTime.server_time;
+    const roundTripTime = clientTimeReqEnd - clientTimeReqStart;
+    const estimatedOneWayLatency = Math.floor(roundTripTime / 2);
+
+    // Adjust server time by adding estimated one-way latency
+    const adjustedServerTime = serverTimeMs + estimatedOneWayLatency;
+
+    // Calculate time difference between adjusted server time and local time
+    const timeDifference = adjustedServerTime - clientTimeReqEnd;
+
+    const result = {
+      localTime: clientTimeReqEnd,
+      serverTime: serverTimeMs,
+      roundTripTime,
+      estimatedOneWayLatency,
+      adjustedServerTime,
+      timeDifference,
+    };
+
+    console.log('Time synchronization results:');
+    console.log(result);
+
+    console.log(
+      `Your approximate latency to exchange server: 
+      One way: ${estimatedOneWayLatency}ms.
+      Round trip: ${roundTripTime}ms.
+      `,
+    );
+
+    if (timeDifference > 500) {
+      console.warn(
+        `WARNING! Time difference between server and client clock is greater than 500ms. It is currently ${timeDifference}ms.
+        Consider adjusting your system clock to avoid unwanted clock sync errors!
+        Visit https://github.com/tiagosiebler/awesome-crypto-examples/wiki/Timestamp-for-this-request-is-outside-of-the-recvWindow for more information`,
+      );
+    } else {
+      console.log(
+        `Time difference between server and client clock is within acceptable range of 500ms. It is currently ${timeDifference}ms.`,
+      );
+    }
+
+    return result;
+  }
+
+  /**
+   *
+   * Gate.io misc endpoints
+   *
+   */
 
   getClientType(): RestClientType {
     return REST_CLIENT_TYPE_ENUM.main;
@@ -972,6 +1043,52 @@ export class RestClient extends BaseRestClient {
     params: PortfolioMarginCalculatorReq,
   ): Promise<PortfolioMarginCalculation> {
     return this.post('/unified/portfolio_calculator', { body: params });
+  }
+
+  /**
+   * Query user currency leverage configuration
+   *
+   * Get the maximum and minimum leverage multiples that users can set for a currency type
+   *
+   * @param params Parameters containing the currency
+   * @returns Promise<UserCurrencyLeverageConfig>
+   */
+  getUserCurrencyLeverageConfig(params: {
+    currency: string;
+  }): Promise<UserCurrencyLeverageConfig> {
+    return this.getPrivate('/unified/leverage/user_currency_config', params);
+  }
+
+  /**
+   * Get the user's currency leverage
+   *
+   * If currency is not passed, query all currencies.
+   *
+   * @param params Optional parameters containing the currency
+   * @returns Promise<UserCurrencyLeverageSetting[]>
+   */
+  getUserCurrencyLeverageSettings(params?: { currency?: string }): Promise<
+    {
+      currency: string;
+      leverage: string;
+    }[]
+  > {
+    return this.getPrivate('/unified/leverage/user_currency_setting', params);
+  }
+
+  /**
+   * Set the currency leverage ratio
+   *
+   * @param params Parameters for setting currency leverage ratio
+   * @returns Promise<any> Returns nothing on success (204 No Content)
+   */
+  updateUserCurrencyLeverage(params: {
+    currency: string;
+    leverage: string;
+  }): Promise<any> {
+    return this.postPrivate('/unified/leverage/user_currency_setting', {
+      body: params,
+    });
   }
 
   /**==========================================================================================================================
@@ -2061,7 +2178,7 @@ export class RestClient extends BaseRestClient {
    */
   getFuturesAccountBook(
     params: GetFuturesAccountBookReq,
-  ): Promise<GetFuturesAccountBookReq[]> {
+  ): Promise<FuturesAccountBookRecord[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/futures/${settle}/account_book`, query);
   }
@@ -2241,7 +2358,7 @@ export class RestClient extends BaseRestClient {
    * Set stp_act to decide the strategy of self-trade prevention. For detailed usage, refer to the stp_act parameter in the request body.
    *
    * @param params Parameters for creating a futures order
-   * @returns Promise<SubmitFuturesOrderReq>
+   * @returns Promise<FuturesOrder>
    */
   submitFuturesOrder(params: SubmitFuturesOrderReq): Promise<FuturesOrder> {
     const { settle, ...body } = params;
@@ -3721,6 +3838,27 @@ export class RestClient extends BaseRestClient {
     return this.get(`/loan/multi_collateral/fixed_rate`);
   }
 
+  /**
+   * Query the current interest rate of currencies
+   *
+   * Query the current interest rate of currencies in the last hour.
+   * The current interest rate is updated every hour.
+   *
+   * @param params Parameters containing currencies to query and optional VIP level
+   * @returns Promise<MultiLoanCurrentRate[]>
+   */
+  getMultiLoanCurrentRates(params: {
+    currencies: string[];
+    vip_level?: string;
+  }): Promise<
+    {
+      currency: string;
+      current_rate: string;
+    }[]
+  > {
+    return this.get('/loan/multi_collateral/current_rate', params);
+  }
+
   /**==========================================================================================================================
    * EARN
    * ==========================================================================================================================
@@ -3762,6 +3900,8 @@ export class RestClient extends BaseRestClient {
   submitDualInvestmentOrder(params: {
     plan_id: string;
     copies: string;
+    is_max: number;
+    amount: string;
   }): Promise<any> {
     return this.postPrivate(`/earn/dual/orders`, { body: params });
   }

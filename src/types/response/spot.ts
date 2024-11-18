@@ -18,7 +18,9 @@ export interface SpotTicker {
   currency_pair: string;
   last: string;
   lowest_ask: string;
+  lowest_size: string;
   highest_bid: string;
+  highest_size: string;
   change_percentage: string;
   change_utc0: string;
   change_utc8: string;
