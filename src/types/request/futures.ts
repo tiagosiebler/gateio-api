@@ -140,6 +140,7 @@ export interface GetFuturesOrdersByTimeRangeReq {
 }
 
 export interface UpdateFuturesOrderReq {
+  'x-gate-exptime'?: number;
   settle: 'btc' | 'usdt' | 'usd';
   order_id: string;
   size?: number;

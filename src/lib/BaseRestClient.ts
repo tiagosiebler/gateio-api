@@ -45,12 +45,16 @@ interface UnsignedRequest<T extends object | undefined = {}> {
 type SignMethod = 'gateV4';
 
 /**
- * Some requests require some params to be in the query string and some in the body.
- * This type anticipates both are possible in any combination.
+ * Some requests require some params to be in the query string and some in the body. Some even support passing params via headers.
+ * This type anticipates these are possible in any combination.
  *
  * The request builder will automatically handle where parameters should go.
  */
-type ParamsInQueryAndOrBody = { query?: object; body?: object };
+type ParamsInQueryBodyOrHeader = {
+  query?: object;
+  body?: object;
+  headers?: object;
+};
 
 /**
  * Enables:
@@ -183,7 +187,7 @@ export abstract class BaseRestClient {
     return this._call('GET', endpoint, { query: params }, isPublicAPI);
   }
 
-  protected post(endpoint: string, params?: ParamsInQueryAndOrBody) {
+  protected post(endpoint: string, params?: ParamsInQueryBodyOrHeader) {
     const isPublicAPI = true;
     return this._call('POST', endpoint, params, isPublicAPI);
   }
@@ -194,23 +198,26 @@ export abstract class BaseRestClient {
     return this._call('GET', endpoint, { query: params }, isPublicAPI);
   }
 
-  protected postPrivate(endpoint: string, params?: ParamsInQueryAndOrBody) {
+  protected postPrivate(endpoint: string, params?: ParamsInQueryBodyOrHeader) {
     const isPublicAPI = false;
     return this._call('POST', endpoint, params, isPublicAPI);
   }
 
-  protected deletePrivate(endpoint: string, params?: ParamsInQueryAndOrBody) {
+  protected deletePrivate(
+    endpoint: string,
+    params?: ParamsInQueryBodyOrHeader,
+  ) {
     const isPublicAPI = false;
     return this._call('DELETE', endpoint, params, isPublicAPI);
   }
 
-  protected putPrivate(endpoint: string, params?: ParamsInQueryAndOrBody) {
+  protected putPrivate(endpoint: string, params?: ParamsInQueryBodyOrHeader) {
     const isPublicAPI = false;
     return this._call('PUT', endpoint, params, isPublicAPI);
   }
 
   // protected patchPrivate(endpoint: string, params?: any) {
-  protected patchPrivate(endpoint: string, params?: ParamsInQueryAndOrBody) {
+  protected patchPrivate(endpoint: string, params?: ParamsInQueryBodyOrHeader) {
     const isPublicAPI = false;
     return this._call('PATCH', endpoint, params, isPublicAPI);
   }
@@ -221,7 +228,7 @@ export abstract class BaseRestClient {
   private async _call(
     method: Method,
     endpoint: string,
-    params?: ParamsInQueryAndOrBody,
+    params?: ParamsInQueryBodyOrHeader,
     isPublicApi?: boolean,
   ): Promise<any> {
     // Sanity check to make sure it's only ever prefixed by one forward slash
@@ -307,7 +314,9 @@ export abstract class BaseRestClient {
   /**
    * @private sign request and set recv window
    */
-  private async signRequest<T extends ParamsInQueryAndOrBody | undefined = {}>(
+  private async signRequest<
+    T extends ParamsInQueryBodyOrHeader | undefined = {},
+  >(
     data: T,
     endpoint: string,
     method: Method,
@@ -405,7 +414,7 @@ export abstract class BaseRestClient {
   }
 
   private async prepareSignParams<
-    TParams extends ParamsInQueryAndOrBody | undefined,
+    TParams extends ParamsInQueryBodyOrHeader | undefined,
   >(
     method: Method,
     endpoint: string,
@@ -414,7 +423,7 @@ export abstract class BaseRestClient {
     isPublicApi?: true,
   ): Promise<UnsignedRequest<TParams>>;
   private async prepareSignParams<
-    TParams extends ParamsInQueryAndOrBody | undefined,
+    TParams extends ParamsInQueryBodyOrHeader | undefined,
   >(
     method: Method,
     endpoint: string,
@@ -423,7 +432,7 @@ export abstract class BaseRestClient {
     isPublicApi?: false | undefined,
   ): Promise<SignedRequest<TParams>>;
   private async prepareSignParams<
-    TParams extends ParamsInQueryAndOrBody | undefined,
+    TParams extends ParamsInQueryBodyOrHeader | undefined,
   >(
     method: Method,
     endpoint: string,
@@ -450,18 +459,23 @@ export abstract class BaseRestClient {
     method: Method,
     endpoint: string,
     url: string,
-    params?: ParamsInQueryAndOrBody,
+    params?: ParamsInQueryBodyOrHeader,
     isPublicApi?: boolean,
   ): Promise<AxiosRequestConfig> {
     const options: AxiosRequestConfig = {
       ...this.globalRequestOptions,
       url: url,
       method: method,
+      headers: {
+        ...params?.headers,
+        ...this.globalRequestOptions.headers,
+      },
     };
 
     deleteUndefinedValues(params);
     deleteUndefinedValues(params?.body);
     deleteUndefinedValues(params?.query);
+    deleteUndefinedValues(params?.headers);
 
     if (isPublicApi || !this.apiKey || !this.apiSecret) {
       return {
