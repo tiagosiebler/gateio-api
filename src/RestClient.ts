@@ -373,7 +373,7 @@ export class RestClient extends BaseRestClient {
     console.log(result);
 
     console.log(
-      `Your approximate latency to exchange server: 
+      `Your approximate latency to exchange server:
       One way: ${estimatedOneWayLatency}ms.
       Round trip: ${roundTripTime}ms.
       `,
@@ -2473,9 +2473,16 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<FuturesOrder>
    */
   updateFuturesOrder(params: UpdateFuturesOrderReq): Promise<FuturesOrder> {
-    const { settle, order_id, ...body } = params;
+    const { settle, order_id, ...rest } = params;
+    const { ['x-gate-exptime']: xGateExptime, ...body } = rest;
+
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
     return this.putPrivate(`/futures/${settle}/orders/${order_id}`, {
       body: body,
+      headers: headers,
     });
   }
 
