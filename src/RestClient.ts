@@ -1254,16 +1254,19 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<SubmitSpotBatchOrdersResp[]>
    */
   submitSpotBatchOrders(
-    params: SpotOrder[],
-    xGateExptime?: number,
+    body: SpotOrder[],
+    params?: {
+      xGateExptime?: number;
+    },
   ): Promise<SubmitSpotBatchOrdersResp[]> {
+    const { xGateExptime } = params || {};
     const headers = xGateExptime
       ? { 'x-gate-exptime': xGateExptime }
       : undefined;
 
     return this.postPrivate('/spot/batch_orders', {
       headers: headers,
-      body: params,
+      body: body,
     });
   }
 
@@ -1370,16 +1373,19 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<DeleteSpotBatchOrdersResp[]>
    */
   batchCancelSpotOrders(
-    params: CancelSpotBatchOrdersReq[],
-    xGateExptime?: number,
+    body: CancelSpotBatchOrdersReq[],
+    params?: {
+      xGateExptime?: number;
+    },
   ): Promise<DeleteSpotBatchOrdersResp[]> {
+    const { xGateExptime } = params || {};
     const headers = xGateExptime
       ? { 'x-gate-exptime': xGateExptime }
       : undefined;
 
     return this.postPrivate('/spot/cancel_batch_orders', {
       headers: headers,
-      body: params,
+      body: body,
     });
   }
 
@@ -1507,16 +1513,19 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<Order[]>
    */
   batchUpdateSpotOrders(
-    params: UpdateSpotBatchOrdersReq[],
-    xGateExptime?: number,
+    body: UpdateSpotBatchOrdersReq[],
+    params?: {
+      xGateExptime?: number;
+    },
   ): Promise<SpotOrder[]> {
+    const { xGateExptime } = params || {};
     const headers = xGateExptime
       ? { 'x-gate-exptime': xGateExptime }
       : undefined;
 
     return this.postPrivate('/spot/amend_batch_orders', {
       headers: headers,
-      body: params,
+      body: body,
     });
   }
 
