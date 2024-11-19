@@ -79,6 +79,7 @@ export interface DeleteSpotOrderReq {
   currency_pair: string;
   account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
   action_mode?: 'ACK' | 'RESULT' | 'FULL';
+  xGateExptime?: number;
 }
 
 export interface GetSpotOrderReq {
@@ -114,6 +115,7 @@ export interface GetSpotAutoOrdersReq {
 }
 
 export interface SubmitSpotOrderReq {
+  xGateExptime?: number;
   side: 'buy' | 'sell';
   amount: string;
   text?: string;
@@ -130,6 +132,7 @@ export interface SubmitSpotOrderReq {
 }
 
 export interface UpdateSpotOrderReq {
+  xGateExptime?: number;
   order_id: string;
   currency_pair: string;
   account?: 'spot' | 'margin' | 'cross_margin' | 'unified';

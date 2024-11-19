@@ -121,6 +121,12 @@ export interface FuturesAccount {
   maintenance_margin: string;
   bonus: string;
   enable_evolved_classic: boolean;
+  cross_order_margin: string;
+  cross_initial_margin: string;
+  cross_maintenance_margin: string;
+  cross_unrealised_pnl: string;
+  cross_available: string;
+  isolated_position_margin: string;
   history: {
     dnw: string;
     pnl: string;
@@ -144,34 +150,6 @@ export interface FuturesAccountBookRecord {
   contract?: string;
   trade_id: string;
   id: string;
-}
-
-export interface UpdateFuturesDualModeResp {
-  total: string;
-  unrealised_pnl: string;
-  position_margin: string;
-  order_margin: string;
-  available: string;
-  point: string;
-  currency: string;
-  in_dual_mode: boolean;
-  enable_credit: boolean;
-  position_initial_margin: string;
-  maintenance_margin: string;
-  bonus: string;
-  enable_evolved_classic: boolean;
-  history: {
-    dnw: string;
-    pnl: string;
-    fee: string;
-    refr: string;
-    fund: string;
-    point_dnw: string;
-    point_fee: string;
-    point_refr: string;
-    bonus_dnw: string;
-    bonus_offset: string;
-  };
 }
 
 export interface FuturesOrder {
@@ -466,4 +444,35 @@ export interface BatchAmendOrderResp {
   refu: number;
   stp_act: 'co' | 'cn' | 'cb' | '-';
   stp_id: number;
+}
+
+/**
+ * @deprecated - Use FuturesAccount instead
+ */
+export interface UpdateFuturesDualModeResp {
+  total: string;
+  unrealised_pnl: string;
+  position_margin: string;
+  order_margin: string;
+  available: string;
+  point: string;
+  currency: string;
+  in_dual_mode: boolean;
+  enable_credit: boolean;
+  position_initial_margin: string;
+  maintenance_margin: string;
+  bonus: string;
+  enable_evolved_classic: boolean;
+  history: {
+    dnw: string;
+    pnl: string;
+    fee: string;
+    refr: string;
+    fund: string;
+    point_dnw: string;
+    point_fee: string;
+    point_refr: string;
+    bonus_dnw: string;
+    bonus_offset: string;
+  };
 }

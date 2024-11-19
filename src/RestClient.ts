@@ -214,7 +214,6 @@ import {
   LiquidationHistoryRecord,
   PremiumIndexKLine,
   RiskLimitTier,
-  UpdateFuturesDualModeResp,
 } from './types/response/futures.js';
 import {
   CrossMarginAccount,
@@ -1249,13 +1248,26 @@ export class RestClient extends BaseRestClient {
    * - At most 4 currency pairs, maximum 10 orders each, are allowed in one request
    * - No mixture of spot orders and margin orders, i.e. account must be identical for all orders
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for creating a batch of orders
    * @returns Promise<SubmitSpotBatchOrdersResp[]>
    */
   submitSpotBatchOrders(
-    params: SpotOrder[],
+    body: SpotOrder[],
+    params?: {
+      xGateExptime?: number;
+    },
   ): Promise<SubmitSpotBatchOrdersResp[]> {
-    return this.postPrivate('/spot/batch_orders', { body: params });
+    const { xGateExptime } = params || {};
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
+    return this.postPrivate('/spot/batch_orders', {
+      headers: headers,
+      body: body,
+    });
   }
 
   /**
@@ -1295,11 +1307,18 @@ export class RestClient extends BaseRestClient {
    *
    * You can place orders with spot, portfolio, margin or cross margin account through setting the account field. It defaults to spot, which means spot account is used to place orders. If the user is using unified account, it defaults to the unified account.
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for creating an order
    * @returns Promise<Order>
    */
   submitSpotOrder(params: SubmitSpotOrderReq): Promise<SpotOrder> {
-    return this.postPrivate('/spot/orders', { body: params });
+    const { xGateExptime, ...body } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
+    return this.postPrivate('/spot/orders', { headers: headers, body: body });
   }
 
   /**
@@ -1320,6 +1339,8 @@ export class RestClient extends BaseRestClient {
    * If account is not set, all open orders, including spot, portfolio, margin and cross margin ones, will be cancelled.
    * You can set account to cancel only orders within the specified account.
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for cancelling all open orders in specified currency pair
    * @returns Promise<Order[]>
    */
@@ -1328,8 +1349,17 @@ export class RestClient extends BaseRestClient {
     side?: 'buy' | 'sell';
     account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
     action_mode?: 'ACK' | 'RESULT' | 'FULL';
+    xGateExptime?: number;
   }): Promise<SpotOrder[]> {
-    return this.deletePrivate('/spot/orders', { query: params });
+    const { xGateExptime, ...query } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
+    return this.deletePrivate('/spot/orders', {
+      headers: headers,
+      query: query,
+    });
   }
 
   /**
@@ -1337,13 +1367,26 @@ export class RestClient extends BaseRestClient {
    *
    * Multiple currency pairs can be specified, but maximum 20 orders are allowed per request.
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for cancelling a batch of orders
    * @returns Promise<DeleteSpotBatchOrdersResp[]>
    */
   batchCancelSpotOrders(
-    params: CancelSpotBatchOrdersReq[],
+    body: CancelSpotBatchOrdersReq[],
+    params?: {
+      xGateExptime?: number;
+    },
   ): Promise<DeleteSpotBatchOrdersResp[]> {
-    return this.postPrivate('/spot/cancel_batch_orders', { body: params });
+    const { xGateExptime } = params || {};
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
+    return this.postPrivate('/spot/cancel_batch_orders', {
+      headers: headers,
+      body: body,
+    });
   }
 
   /**
@@ -1366,11 +1409,16 @@ export class RestClient extends BaseRestClient {
    *
    * Currently, only supports modification of price or amount fields.
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for amending an order
    * @returns Promise<Order>
    */
   updateSpotOrder(params: UpdateSpotOrderReq): Promise<SpotOrder> {
-    const { order_id, currency_pair, account, ...body } = params;
+    const { xGateExptime, order_id, currency_pair, account, ...body } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
 
     const query = {
       currency_pair: currency_pair,
@@ -1378,6 +1426,7 @@ export class RestClient extends BaseRestClient {
     };
 
     return this.patchPrivate(`/spot/orders/${order_id}`, {
+      headers: headers,
       query: query,
       body: body,
     });
@@ -1388,12 +1437,19 @@ export class RestClient extends BaseRestClient {
    *
    * Spot, portfolio and margin orders are cancelled by default. If trying to cancel cross margin orders or portfolio margin account are used, account must be set to cross_margin.
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for cancelling a single order
    * @returns Promise<Order>
    */
   cancelSpotOrder(params: DeleteSpotOrderReq): Promise<SpotOrder> {
-    const { order_id, ...query } = params;
+    const { xGateExptime, order_id, ...query } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
     return this.deletePrivate(`/spot/orders/${order_id}`, {
+      headers: headers,
       query: query,
     });
   }
@@ -1451,13 +1507,26 @@ export class RestClient extends BaseRestClient {
    *
    * Default modification of orders for spot, portfolio, and margin accounts. To modify orders for a cross margin account, the account parameter must be specified as cross_margin. For portfolio margin accounts, the account parameter can only be specified as cross_margin. Currently, only modifications to price or quantity (choose one) are supported.
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for batch modification of orders
    * @returns Promise<Order[]>
    */
   batchUpdateSpotOrders(
-    params: UpdateSpotBatchOrdersReq[],
+    body: UpdateSpotBatchOrdersReq[],
+    params?: {
+      xGateExptime?: number;
+    },
   ): Promise<SpotOrder[]> {
-    return this.postPrivate('/spot/amend_batch_orders', { body: params });
+    const { xGateExptime } = params || {};
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
+    return this.postPrivate('/spot/amend_batch_orders', {
+      headers: headers,
+      body: body,
+    });
   }
 
   /**
@@ -2270,12 +2339,12 @@ export class RestClient extends BaseRestClient {
    * Before setting dual mode, make sure all positions are closed and no orders are open.
    *
    * @param params Parameters for enabling or disabling dual mode
-   * @returns Promise<ToggleFuturesDualModeResp>
+   * @returns Promise<FuturesAccount>
    */
   updateFuturesDualMode(params: {
     settle: 'btc' | 'usdt' | 'usd';
     dual_mode: boolean;
-  }): Promise<UpdateFuturesDualModeResp> {
+  }): Promise<FuturesAccount> {
     const { settle, ...query } = params;
     return this.postPrivate(`/futures/${settle}/dual_mode`, {
       query: query,
@@ -2357,12 +2426,21 @@ export class RestClient extends BaseRestClient {
    * In dual position mode, to close one side position, you need to set auto_size side, reduce_only to true, and size to 0.
    * Set stp_act to decide the strategy of self-trade prevention. For detailed usage, refer to the stp_act parameter in the request body.
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for creating a futures order
    * @returns Promise<FuturesOrder>
    */
   submitFuturesOrder(params: SubmitFuturesOrderReq): Promise<FuturesOrder> {
-    const { settle, ...body } = params;
-    return this.postPrivate(`/futures/${settle}/orders`, { body: body });
+    const { xGateExptime, settle, ...body } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
+    return this.postPrivate(`/futures/${settle}/orders`, {
+      headers: headers,
+      body: body,
+    });
   }
 
   /**
@@ -2384,14 +2462,21 @@ export class RestClient extends BaseRestClient {
    *
    * Zero-filled order cannot be retrieved 10 minutes after order cancellation.
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for cancelling all open orders matched
    * @returns Promise<FuturesOrder[]>
    */
   cancelAllFuturesOrders(
     params: DeleteAllFuturesOrdersReq,
   ): Promise<FuturesOrder[]> {
-    const { settle, ...query } = params;
+    const { xGateExptime, settle, ...query } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
     return this.deletePrivate(`/futures/${settle}/orders`, {
+      headers: headers,
       query: query,
     });
   }
@@ -2420,15 +2505,23 @@ export class RestClient extends BaseRestClient {
    * If the execution is successful, the normal order content is included; if the execution fails, the label field is included to indicate the cause of the error.
    * In the rate limiting, each order is counted individually.
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for creating a batch of futures orders
    * @returns Promise<FuturesOrder[]>
    */
   submitFuturesBatchOrders(params: {
+    xGateExptime?: number;
     settle: 'btc' | 'usdt' | 'usd';
     orders: SubmitFuturesOrderReq[];
   }): Promise<FuturesOrder[]> {
-    const { settle, orders } = params;
+    const { xGateExptime, settle, orders } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
     return this.postPrivate(`/futures/${settle}/batch_orders`, {
+      headers: headers,
       body: orders,
     });
   }
@@ -2454,27 +2547,36 @@ export class RestClient extends BaseRestClient {
   /**
    * Cancel a single order
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for cancelling a single order
    * @returns Promise<FuturesOrder>
    */
   cancelFuturesOrder(params: {
+    xGateExptime?: number;
     settle: 'btc' | 'usdt' | 'usd';
     order_id: string;
   }): Promise<FuturesOrder> {
-    return this.deletePrivate(
-      `/futures/${params.settle}/orders/${params.order_id}`,
-    );
+    const { xGateExptime, settle, order_id } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
+    return this.deletePrivate(`/futures/${settle}/orders/${order_id}`, {
+      headers: headers,
+    });
   }
 
   /**
    * Amend an order
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for amending an order
    * @returns Promise<FuturesOrder>
    */
   updateFuturesOrder(params: UpdateFuturesOrderReq): Promise<FuturesOrder> {
-    const { settle, order_id, ...rest } = params;
-    const { ['x-gate-exptime']: xGateExptime, ...body } = rest;
+    const { xGateExptime, settle, order_id, ...body } = params;
 
     const headers = xGateExptime
       ? { 'x-gate-exptime': xGateExptime }
@@ -2595,15 +2697,23 @@ export class RestClient extends BaseRestClient {
    *
    * Multiple distinct order ID list can be specified. Each request can cancel a maximum of 20 records.
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for cancelling a batch of orders with an ID list
    * @returns Promise<DeleteFuturesBatchOrdersResp[]>
    */
   batchCancelFuturesOrders(params: {
+    xGateExptime?: number;
     settle: 'btc' | 'usdt' | 'usd';
     orderIds: string[];
   }): Promise<DeleteFuturesBatchOrdersResp[]> {
-    const { settle, ...orderIds } = params;
+    const { xGateExptime, settle, orderIds } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
     return this.postPrivate(`/futures/${settle}/batch_cancel_orders`, {
+      headers: headers,
       body: orderIds,
     });
   }
@@ -2613,16 +2723,25 @@ export class RestClient extends BaseRestClient {
    *
    * You can specify multiple different order IDs. You can only modify up to 10 orders in one request.
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Array of BatchAmendOrderReq objects
    * @param settle Settlement currency (e.g., 'btc', 'usdt', 'usd')
    * @returns Promise<BatchAmendOrderResp[]>
    */
-  batchUpdateFuturesOrders(
-    settle: 'btc' | 'usdt' | 'usd',
-    params: BatchAmendOrderReq[],
-  ): Promise<BatchAmendOrderResp[]> {
+  batchUpdateFuturesOrders(params: {
+    xGateExptime?: number;
+    settle: 'btc' | 'usdt' | 'usd';
+    orders: BatchAmendOrderReq[];
+  }): Promise<BatchAmendOrderResp[]> {
+    const { xGateExptime, settle, orders } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
     return this.postPrivate(`/futures/${settle}/batch_amend_orders`, {
-      body: params,
+      headers: headers,
+      body: orders,
     });
   }
 
