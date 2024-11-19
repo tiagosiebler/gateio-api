@@ -1248,6 +1248,8 @@ export class RestClient extends BaseRestClient {
    * - At most 4 currency pairs, maximum 10 orders each, are allowed in one request
    * - No mixture of spot orders and margin orders, i.e. account must be identical for all orders
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for creating a batch of orders
    * @returns Promise<SubmitSpotBatchOrdersResp[]>
    */
@@ -1302,6 +1304,8 @@ export class RestClient extends BaseRestClient {
    *
    * You can place orders with spot, portfolio, margin or cross margin account through setting the account field. It defaults to spot, which means spot account is used to place orders. If the user is using unified account, it defaults to the unified account.
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for creating an order
    * @returns Promise<Order>
    */
@@ -1332,6 +1336,8 @@ export class RestClient extends BaseRestClient {
    * If account is not set, all open orders, including spot, portfolio, margin and cross margin ones, will be cancelled.
    * You can set account to cancel only orders within the specified account.
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for cancelling all open orders in specified currency pair
    * @returns Promise<Order[]>
    */
@@ -1357,6 +1363,8 @@ export class RestClient extends BaseRestClient {
    * Cancel a batch of orders with an ID list
    *
    * Multiple currency pairs can be specified, but maximum 20 orders are allowed per request.
+   *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
    *
    * @param params Parameters for cancelling a batch of orders
    * @returns Promise<DeleteSpotBatchOrdersResp[]>
@@ -1395,6 +1403,8 @@ export class RestClient extends BaseRestClient {
    *
    * Currently, only supports modification of price or amount fields.
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for amending an order
    * @returns Promise<Order>
    */
@@ -1420,6 +1430,8 @@ export class RestClient extends BaseRestClient {
    * Cancel a single order
    *
    * Spot, portfolio and margin orders are cancelled by default. If trying to cancel cross margin orders or portfolio margin account are used, account must be set to cross_margin.
+   *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
    *
    * @param params Parameters for cancelling a single order
    * @returns Promise<Order>
@@ -1488,6 +1500,8 @@ export class RestClient extends BaseRestClient {
    * Batch modification of orders
    *
    * Default modification of orders for spot, portfolio, and margin accounts. To modify orders for a cross margin account, the account parameter must be specified as cross_margin. For portfolio margin accounts, the account parameter can only be specified as cross_margin. Currently, only modifications to price or quantity (choose one) are supported.
+   *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
    *
    * @param params Parameters for batch modification of orders
    * @returns Promise<Order[]>
@@ -2403,6 +2417,8 @@ export class RestClient extends BaseRestClient {
    * In dual position mode, to close one side position, you need to set auto_size side, reduce_only to true, and size to 0.
    * Set stp_act to decide the strategy of self-trade prevention. For detailed usage, refer to the stp_act parameter in the request body.
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for creating a futures order
    * @returns Promise<FuturesOrder>
    */
@@ -2436,6 +2452,8 @@ export class RestClient extends BaseRestClient {
    * Cancel all open orders matched
    *
    * Zero-filled order cannot be retrieved 10 minutes after order cancellation.
+   *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
    *
    * @param params Parameters for cancelling all open orders matched
    * @returns Promise<FuturesOrder[]>
@@ -2478,6 +2496,8 @@ export class RestClient extends BaseRestClient {
    * If the execution is successful, the normal order content is included; if the execution fails, the label field is included to indicate the cause of the error.
    * In the rate limiting, each order is counted individually.
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for creating a batch of futures orders
    * @returns Promise<FuturesOrder[]>
    */
@@ -2518,6 +2538,8 @@ export class RestClient extends BaseRestClient {
   /**
    * Cancel a single order
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for cancelling a single order
    * @returns Promise<FuturesOrder>
    */
@@ -2538,6 +2560,8 @@ export class RestClient extends BaseRestClient {
 
   /**
    * Amend an order
+   *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
    *
    * @param params Parameters for amending an order
    * @returns Promise<FuturesOrder>
@@ -2664,6 +2688,8 @@ export class RestClient extends BaseRestClient {
    *
    * Multiple distinct order ID list can be specified. Each request can cancel a maximum of 20 records.
    *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
+   *
    * @param params Parameters for cancelling a batch of orders with an ID list
    * @returns Promise<DeleteFuturesBatchOrdersResp[]>
    */
@@ -2687,6 +2713,8 @@ export class RestClient extends BaseRestClient {
    * Batch modify orders with specified IDs
    *
    * You can specify multiple different order IDs. You can only modify up to 10 orders in one request.
+   *
+   * NOTE: The "xGateExptime" parameter will translate to the "x-gate-exptime" header.
    *
    * @param params Array of BatchAmendOrderReq objects
    * @param settle Settlement currency (e.g., 'btc', 'usdt', 'usd')
