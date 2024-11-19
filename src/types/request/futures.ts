@@ -102,6 +102,7 @@ export interface UpdateDualModePositionLeverageReq {
 }
 
 export interface SubmitFuturesOrderReq {
+  xGateExptime?: number;
   settle: 'btc' | 'usdt' | 'usd';
   contract: string;
   size: number;
@@ -125,6 +126,7 @@ export interface GetFuturesOrdersReq {
 }
 
 export interface DeleteAllFuturesOrdersReq {
+  xGateExptime?: number;
   settle: 'btc' | 'usdt' | 'usd';
   contract: string;
   side?: string;
@@ -140,7 +142,7 @@ export interface GetFuturesOrdersByTimeRangeReq {
 }
 
 export interface UpdateFuturesOrderReq {
-  'x-gate-exptime'?: number;
+  xGateExptime?: number;
   settle: 'btc' | 'usdt' | 'usd';
   order_id: string;
   size?: number;

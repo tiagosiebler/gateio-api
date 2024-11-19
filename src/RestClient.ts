@@ -214,7 +214,6 @@ import {
   LiquidationHistoryRecord,
   PremiumIndexKLine,
   RiskLimitTier,
-  UpdateFuturesDualModeResp,
 } from './types/response/futures.js';
 import {
   CrossMarginAccount,
@@ -1254,8 +1253,16 @@ export class RestClient extends BaseRestClient {
    */
   submitSpotBatchOrders(
     params: SpotOrder[],
+    xGateExptime?: number,
   ): Promise<SubmitSpotBatchOrdersResp[]> {
-    return this.postPrivate('/spot/batch_orders', { body: params });
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
+    return this.postPrivate('/spot/batch_orders', {
+      headers: headers,
+      body: params,
+    });
   }
 
   /**
@@ -1299,7 +1306,12 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<Order>
    */
   submitSpotOrder(params: SubmitSpotOrderReq): Promise<SpotOrder> {
-    return this.postPrivate('/spot/orders', { body: params });
+    const { xGateExptime, ...body } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
+    return this.postPrivate('/spot/orders', { headers: headers, body: body });
   }
 
   /**
@@ -1328,8 +1340,17 @@ export class RestClient extends BaseRestClient {
     side?: 'buy' | 'sell';
     account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
     action_mode?: 'ACK' | 'RESULT' | 'FULL';
+    xGateExptime?: number;
   }): Promise<SpotOrder[]> {
-    return this.deletePrivate('/spot/orders', { query: params });
+    const { xGateExptime, ...query } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
+    return this.deletePrivate('/spot/orders', {
+      headers: headers,
+      query: query,
+    });
   }
 
   /**
@@ -1342,8 +1363,16 @@ export class RestClient extends BaseRestClient {
    */
   batchCancelSpotOrders(
     params: CancelSpotBatchOrdersReq[],
+    xGateExptime?: number,
   ): Promise<DeleteSpotBatchOrdersResp[]> {
-    return this.postPrivate('/spot/cancel_batch_orders', { body: params });
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
+    return this.postPrivate('/spot/cancel_batch_orders', {
+      headers: headers,
+      body: params,
+    });
   }
 
   /**
@@ -1370,7 +1399,10 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<Order>
    */
   updateSpotOrder(params: UpdateSpotOrderReq): Promise<SpotOrder> {
-    const { order_id, currency_pair, account, ...body } = params;
+    const { xGateExptime, order_id, currency_pair, account, ...body } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
 
     const query = {
       currency_pair: currency_pair,
@@ -1378,6 +1410,7 @@ export class RestClient extends BaseRestClient {
     };
 
     return this.patchPrivate(`/spot/orders/${order_id}`, {
+      headers: headers,
       query: query,
       body: body,
     });
@@ -1392,8 +1425,13 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<Order>
    */
   cancelSpotOrder(params: DeleteSpotOrderReq): Promise<SpotOrder> {
-    const { order_id, ...query } = params;
+    const { xGateExptime, order_id, ...query } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
     return this.deletePrivate(`/spot/orders/${order_id}`, {
+      headers: headers,
       query: query,
     });
   }
@@ -1456,8 +1494,16 @@ export class RestClient extends BaseRestClient {
    */
   batchUpdateSpotOrders(
     params: UpdateSpotBatchOrdersReq[],
+    xGateExptime?: number,
   ): Promise<SpotOrder[]> {
-    return this.postPrivate('/spot/amend_batch_orders', { body: params });
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
+    return this.postPrivate('/spot/amend_batch_orders', {
+      headers: headers,
+      body: params,
+    });
   }
 
   /**
@@ -2270,12 +2316,12 @@ export class RestClient extends BaseRestClient {
    * Before setting dual mode, make sure all positions are closed and no orders are open.
    *
    * @param params Parameters for enabling or disabling dual mode
-   * @returns Promise<ToggleFuturesDualModeResp>
+   * @returns Promise<FuturesAccount>
    */
   updateFuturesDualMode(params: {
     settle: 'btc' | 'usdt' | 'usd';
     dual_mode: boolean;
-  }): Promise<UpdateFuturesDualModeResp> {
+  }): Promise<FuturesAccount> {
     const { settle, ...query } = params;
     return this.postPrivate(`/futures/${settle}/dual_mode`, {
       query: query,
@@ -2361,8 +2407,15 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<FuturesOrder>
    */
   submitFuturesOrder(params: SubmitFuturesOrderReq): Promise<FuturesOrder> {
-    const { settle, ...body } = params;
-    return this.postPrivate(`/futures/${settle}/orders`, { body: body });
+    const { xGateExptime, settle, ...body } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
+    return this.postPrivate(`/futures/${settle}/orders`, {
+      headers: headers,
+      body: body,
+    });
   }
 
   /**
@@ -2390,8 +2443,13 @@ export class RestClient extends BaseRestClient {
   cancelAllFuturesOrders(
     params: DeleteAllFuturesOrdersReq,
   ): Promise<FuturesOrder[]> {
-    const { settle, ...query } = params;
+    const { xGateExptime, settle, ...query } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
     return this.deletePrivate(`/futures/${settle}/orders`, {
+      headers: headers,
       query: query,
     });
   }
@@ -2424,11 +2482,17 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<FuturesOrder[]>
    */
   submitFuturesBatchOrders(params: {
+    xGateExptime?: number;
     settle: 'btc' | 'usdt' | 'usd';
     orders: SubmitFuturesOrderReq[];
   }): Promise<FuturesOrder[]> {
-    const { settle, orders } = params;
+    const { xGateExptime, settle, orders } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
     return this.postPrivate(`/futures/${settle}/batch_orders`, {
+      headers: headers,
       body: orders,
     });
   }
@@ -2458,12 +2522,18 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<FuturesOrder>
    */
   cancelFuturesOrder(params: {
+    xGateExptime?: number;
     settle: 'btc' | 'usdt' | 'usd';
     order_id: string;
   }): Promise<FuturesOrder> {
-    return this.deletePrivate(
-      `/futures/${params.settle}/orders/${params.order_id}`,
-    );
+    const { xGateExptime, settle, order_id } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
+    return this.deletePrivate(`/futures/${settle}/orders/${order_id}`, {
+      headers: headers,
+    });
   }
 
   /**
@@ -2473,8 +2543,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<FuturesOrder>
    */
   updateFuturesOrder(params: UpdateFuturesOrderReq): Promise<FuturesOrder> {
-    const { settle, order_id, ...rest } = params;
-    const { ['x-gate-exptime']: xGateExptime, ...body } = rest;
+    const { xGateExptime, settle, order_id, ...body } = params;
 
     const headers = xGateExptime
       ? { 'x-gate-exptime': xGateExptime }
@@ -2599,11 +2668,17 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<DeleteFuturesBatchOrdersResp[]>
    */
   batchCancelFuturesOrders(params: {
+    xGateExptime?: number;
     settle: 'btc' | 'usdt' | 'usd';
     orderIds: string[];
   }): Promise<DeleteFuturesBatchOrdersResp[]> {
-    const { settle, ...orderIds } = params;
+    const { xGateExptime, settle, orderIds } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
     return this.postPrivate(`/futures/${settle}/batch_cancel_orders`, {
+      headers: headers,
       body: orderIds,
     });
   }
@@ -2617,12 +2692,19 @@ export class RestClient extends BaseRestClient {
    * @param settle Settlement currency (e.g., 'btc', 'usdt', 'usd')
    * @returns Promise<BatchAmendOrderResp[]>
    */
-  batchUpdateFuturesOrders(
-    settle: 'btc' | 'usdt' | 'usd',
-    params: BatchAmendOrderReq[],
-  ): Promise<BatchAmendOrderResp[]> {
+  batchUpdateFuturesOrders(params: {
+    xGateExptime?: number;
+    settle: 'btc' | 'usdt' | 'usd';
+    orders: BatchAmendOrderReq[];
+  }): Promise<BatchAmendOrderResp[]> {
+    const { xGateExptime, settle, orders } = params;
+    const headers = xGateExptime
+      ? { 'x-gate-exptime': xGateExptime }
+      : undefined;
+
     return this.postPrivate(`/futures/${settle}/batch_amend_orders`, {
-      body: params,
+      headers: headers,
+      body: orders,
     });
   }
 

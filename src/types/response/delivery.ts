@@ -68,6 +68,12 @@ export interface DeliveryAccount {
   maintenance_margin: string;
   bonus: string;
   enable_evolved_classic: boolean;
+  cross_order_margin: string;
+  cross_initial_margin: string;
+  cross_maintenance_margin: string;
+  cross_unrealised_pnl: string;
+  cross_available: string;
+  isolated_position_margin: string;
   history: {
     dnw: string;
     pnl: string;
