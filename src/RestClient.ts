@@ -571,6 +571,25 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
+   * Query transfer status based on client_order_id or tx_id
+   *
+   * @param params Parameters for querying transfer status
+   * @returns Promise<{
+   *   tx_id: string;
+   *   status: 'PENDING' | 'SUCCESS' | 'FAIL' | 'PARTIAL_SUCCESS';
+   * }>
+   */
+  getTransferStatus(params: {
+    client_order_id?: string;
+    tx_id?: string;
+  }): Promise<{
+    tx_id: string;
+    status: 'PENDING' | 'SUCCESS' | 'FAIL' | 'PARTIAL_SUCCESS';
+  }> {
+    return this.getPrivate('/wallet/order_status', params);
+  }
+
+  /**
    * Retrieve withdrawal status
    *
    * @param params Parameters for retrieving withdrawal status

@@ -224,6 +224,7 @@ export interface FuturesPosition {
   mode?: 'single' | 'dual_long' | 'dual_short';
   cross_leverage_limit?: string;
   update_time?: number;
+  update_id?: number;
   open_time?: number;
 }
 
