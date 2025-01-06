@@ -106,6 +106,15 @@ export interface UpdateSpotBatchOrdersReq {
   amend_text?: string;
 }
 
+export interface GetSpotInsuranceHistoryReq {
+  business: 'margin' | 'unified';
+  currency: string;
+  from: number;
+  to: number;
+  page?: number;
+  limit?: number;
+}
+
 export interface GetSpotAutoOrdersReq {
   status: 'open' | 'finished';
   market?: string;

@@ -15,6 +15,13 @@ export interface UnifiedAccountInfo {
       spot_in_use: string;
       funding: string;
       funding_version: string;
+      cross_balance: string;
+      iso_balance: string;
+      im: string;
+      mm: string;
+      mmr: string;
+      margin_balance: string;
+      available_margin: string;
     };
   };
   total: string;
@@ -96,6 +103,16 @@ export interface UserCurrencyLeverageConfig {
   available_margin: string;
   borrowable: string;
   except_leverage_borrowable: string;
+}
+
+export interface UnifiedHistoryLendingRate {
+  currency: string;
+  tier: string;
+  tier_up_rate: string;
+  rates: {
+    time: number;
+    rate: string;
+  }[];
 }
 
 export interface MarginTier {

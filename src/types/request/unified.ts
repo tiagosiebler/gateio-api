@@ -29,7 +29,7 @@ export interface GetUnifiedInterestRecordsReq {
 }
 
 export interface SetUnifiedAccountModeReq {
-  mode: 'classic' | 'multi_currency' | 'portfolio';
+  mode: 'classic' | 'multi_currency' | 'portfolio' | 'single_currency';
   settings?: {
     usdt_futures?: boolean;
     spot_hedge?: boolean;
@@ -69,4 +69,11 @@ export interface PortfolioMarginCalculatorReq {
     left: string;
   }[];
   spot_hedge?: boolean;
+}
+
+export interface GetUnifiedHistoryLendingRateReq {
+  currency: string;
+  tier?: string;
+  page?: number;
+  limit?: number;
 }

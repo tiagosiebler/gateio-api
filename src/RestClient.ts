@@ -116,6 +116,7 @@ import {
   GetSpotAccountBookReq,
   GetSpotAutoOrdersReq,
   GetSpotCandlesReq,
+  GetSpotInsuranceHistoryReq,
   GetSpotOrderBookReq,
   GetSpotOrderReq,
   GetSpotOrdersReq,
@@ -132,6 +133,7 @@ import {
   UpdateSubAccountApiKeyReq,
 } from './types/request/subaccount.js';
 import {
+  GetUnifiedHistoryLendingRateReq,
   GetUnifiedInterestRecordsReq,
   GetUnifiedLoanRecordsReq,
   GetUnifiedLoansReq,
@@ -276,6 +278,7 @@ import {
   SpotCurrency,
   SpotFeeRates,
   SpotHistoricTradeRecord,
+  SpotInsuranceHistory,
   SpotOrder,
   SpotOrderBook,
   SpotPriceTriggeredOrder,
@@ -294,6 +297,7 @@ import {
   PortfolioMarginCalculation,
   UnifiedAccountInfo,
   UnifiedCurrencyDiscountTiers,
+  UnifiedHistoryLendingRate,
   UnifiedInterestRecord,
   UnifiedLoan,
   UnifiedLoanRecord,
@@ -1109,6 +1113,18 @@ export class RestClient extends BaseRestClient {
     });
   }
 
+  /**
+   * Get historical lending rates
+   *
+   * @param params Parameters for retrieving historical lending rates
+   * @returns Promise<UnifiedHistoryLendingRate>
+   */
+  getHistoricalLendingRates(
+    params: GetUnifiedHistoryLendingRateReq,
+  ): Promise<UnifiedHistoryLendingRate> {
+    return this.getPrivate('/unified/history_loan_rate', params);
+  }
+
   /**==========================================================================================================================
    * SPOT
    * ==========================================================================================================================
@@ -1546,6 +1562,22 @@ export class RestClient extends BaseRestClient {
       headers: headers,
       body: body,
     });
+  }
+
+  /**
+   * Query spot insurance fund historical data
+   *
+   * @param params Parameters for querying spot insurance fund history
+   * @returns Promise<{
+   *   currency: string;
+   *   balance: string;
+   *   time: number;
+   * }[]>
+   */
+  getSpotInsuranceHistory(
+    params: GetSpotInsuranceHistoryReq,
+  ): Promise<SpotInsuranceHistory[]> {
+    return this.getPrivate('/spot/insurance_history', params);
   }
 
   /**
