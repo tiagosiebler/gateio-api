@@ -180,6 +180,12 @@ export interface SpotOrder {
   action_mode?: 'ACK' | 'RESULT' | 'FULL';
 }
 
+export interface SpotInsuranceHistory {
+  currency: string;
+  balance: string;
+  time: number;
+}
+
 export interface SpotPriceTriggeredOrder {
   trigger: {
     price: string;
