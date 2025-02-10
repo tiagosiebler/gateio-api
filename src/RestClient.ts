@@ -1741,6 +1741,7 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
+   * @deprecated  as of 2025-02-10
    * Currencies supported by cross margin
    *
    * @returns Promise<GetCrossMarginCurrenciesResp[]>
@@ -1750,6 +1751,7 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
+   * @deprecated  as of 2025-02-10
    * Retrieve detail of one single currency supported by cross margin
    *
    * @param params Parameters containing the currency name
@@ -1762,6 +1764,7 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
+   * @deprecated  as of 2025-02-10
    * Retrieve cross margin account
    *
    * @returns Promise<GetCrossMarginAccountResp>
@@ -1771,6 +1774,7 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
+   * @deprecated  as of 2025-02-10
    * Retrieve cross margin account change history
    *
    * Record time range cannot exceed 30 days.
@@ -1785,12 +1789,15 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
+   *
+   * @deprecated  as of 2025-02-10
    * Create a cross margin borrow loan
    *
    * Borrow amount cannot be less than currency minimum borrow amount.
    *
    * @param params Parameters for creating a cross margin borrow loan
    * @returns Promise<SubmitCrossMarginBorrowLoanResp>
+   *
    */
   submitCrossMarginBorrowLoan(
     params: SubmitCrossMarginBorrowLoanReq,
@@ -1799,6 +1806,7 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
+   *
    * List cross margin borrow history
    *
    * Sort by creation time in descending order by default. Set reverse=false to return ascending results.
@@ -1813,6 +1821,7 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
+   * @deprecated  as of 2025-02-10
    * Retrieve single borrow loan detail
    *
    * @param params Parameters containing the borrow loan ID
@@ -1824,6 +1833,7 @@ export class RestClient extends BaseRestClient {
     return this.getPrivate(`/margin/cross/loans/${params.loan_id}`);
   }
   /**
+   * @deprecated  as of 2025-02-10
    * Cross margin repayments
    *
    * When the liquidity of the currency is insufficient and the transaction risk is high, the currency will be disabled, and funds cannot be transferred. When the available balance of cross-margin is insufficient, the balance of the spot account can be used for repayment. Please ensure that the balance of the spot account is sufficient, and system uses cross-margin account for repayment first.
@@ -1839,6 +1849,7 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
+   * @deprecated  as of 2025-02-10
    * Retrieve cross margin repayments
    *
    * Sort by creation time in descending order by default. Set reverse=false to return ascending results.
@@ -1853,6 +1864,7 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
+   * @deprecated  as of 2025-02-10
    * Interest records for the cross margin account
    *
    * @param params Parameters for retrieving interest records
@@ -1865,6 +1877,7 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
+   * @deprecated  as of 2025-02-10
    * Get the max transferable amount for a specific cross margin currency
    *
    * @param params Parameters for retrieving the max transferable amount
@@ -1881,6 +1894,7 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
+   * @deprecated  as of 2025-02-10
    * Estimated interest rates
    *
    * Please note that the interest rates are subject to change based on the borrowing and lending demand, and therefore, the provided rates may not be entirely accurate.
@@ -1893,6 +1907,7 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
+   * @deprecated  as of 2025-02-10
    * Get the max borrowable amount for a specific cross margin currency
    *
    * @param params Parameters for retrieving the max borrowable amount
@@ -4342,5 +4357,23 @@ export class RestClient extends BaseRestClient {
    */
   getUserRebateInfo(): Promise<{ invite_uid: number }> {
     return this.getPrivate('/rebate/user/info');
+  }
+
+  /**
+   * Query user-subordinate relationship
+   *
+   * Checks whether specified users are in the system and their relationship status
+   */
+  getUserSubordinateRelationships(params: {
+    user_id_list: string; // Comma-separated list of user IDs (max 100)
+  }): Promise<{
+    list: {
+      uid: number;
+      belong: string;
+      type: number;
+      ref_uid: number;
+    }[];
+  }> {
+    return this.getPrivate('/rebate/user/sub_relation', params);
   }
 }
