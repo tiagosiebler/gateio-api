@@ -93,6 +93,7 @@ export interface LiquidationHistoryRecord {
   time: number;
   contract: string;
   size: number;
+  order_size: number;
   order_price: string;
   fill_price: string;
   left: number;

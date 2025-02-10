@@ -42,6 +42,7 @@ export interface ListPushOrdersReq {
   to?: number;
   limit?: number;
   offset?: number;
+  transaction_type?: string;
 }
 
 export interface SubmitSubToSubTransferReq {
