@@ -10,6 +10,7 @@ import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
 import { DefaultLogger } from './logger.js';
 import { isMessageEvent, MessageEventLike } from './requestUtils.js';
 import {
+  safeTerminateWs,
   WsTopicRequest,
   WsTopicRequestOrStringTopic,
 } from './websocket/websocket-util.js';
@@ -338,7 +339,7 @@ export abstract class BaseWebsocketClient<
     const ws = this.getWs(wsKey);
     ws?.close();
     if (force) {
-      ws?.terminate();
+      safeTerminateWs(ws);
     }
   }
 
@@ -509,7 +510,7 @@ export abstract class BaseWebsocketClient<
       });
       this.clearPongTimer(wsKey);
 
-      this.getWs(wsKey)?.terminate();
+      safeTerminateWs(this.getWs(wsKey), true);
     }, this.options.pongTimeout);
   }
 

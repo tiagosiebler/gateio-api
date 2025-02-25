@@ -118,7 +118,7 @@ export interface GetSpotInsuranceHistoryReq {
 export interface GetSpotAutoOrdersReq {
   status: 'open' | 'finished';
   market?: string;
-  account?: 'normal' | 'margin' | 'cross_margin';
+  account?: 'normal' | 'margin' | 'cross_margin' | 'unified';
   limit?: number;
   offset?: number;
 }
