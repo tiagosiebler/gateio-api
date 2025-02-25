@@ -1,4 +1,4 @@
-import WebSocket from 'ws';
+import WebSocket from 'isomorphic-ws';
 
 import { WSAPIRequest } from '../../types/websockets/requests.js';
 import {
