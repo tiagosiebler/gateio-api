@@ -895,6 +895,7 @@ export class RestClient extends BaseRestClient {
    */
   getUnifiedAccountInfo(params?: {
     currency?: string;
+    sub_uid?: string;
   }): Promise<UnifiedAccountInfo> {
     return this.getPrivate('/unified/accounts', params);
   }
