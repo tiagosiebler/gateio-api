@@ -414,6 +414,14 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
           return results;
         }
 
+        if (parsed.channel === 'futures.order_book' || parsed.channel === 'spot.order_book') {
+          results.push({
+            eventType: 'update',
+            event: parsed,
+          });
+          return results;
+        }
+
         this.logger.error(
           `!! Unhandled string event type "${eventAction}. Defaulting to "update" channel...`,
           parsed,
