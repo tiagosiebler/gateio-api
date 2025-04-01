@@ -416,8 +416,6 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
           return results;
         }
 
-        
-
         this.logger.error(
           `!! Unhandled string event type "${eventAction}. Defaulting to "update" channel...`,
           parsed,
