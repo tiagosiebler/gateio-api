@@ -388,7 +388,9 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
           return results;
         }
 
-        if (eventAction === 'update') {
+        // Most events use "event: 'update'" for topic updates
+        // The legacy "futures.order_book" topic uses "all" for this field
+        if (['update', 'all'].includes(eventAction)) {
           results.push({
             eventType: 'update',
             event: parsed,
