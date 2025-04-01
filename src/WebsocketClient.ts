@@ -388,7 +388,9 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
           return results;
         }
 
-        if (eventAction === 'update') {
+        // Most events use "event: 'update'" for topic updates
+        // The legacy "futures.order_book" topic uses "all" for this field
+        if (['update', 'all'].includes(eventAction)) {
           results.push({
             eventType: 'update',
             event: parsed,
@@ -414,13 +416,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
           return results;
         }
 
-        if (parsed.channel === 'futures.order_book' || parsed.channel === 'spot.order_book') {
-          results.push({
-            eventType: 'update',
-            event: parsed,
-          });
-          return results;
-        }
+        
 
         this.logger.error(
           `!! Unhandled string event type "${eventAction}. Defaulting to "update" channel...`,
