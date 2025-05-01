@@ -224,6 +224,7 @@ import {
   CrossMarginMorrowLoanRecord,
   MarginAccount,
   MarginBalanceHistoryRecord,
+  MarginUserAccount,
 } from './types/response/margin.js';
 import {
   LendingMarket,
@@ -300,6 +301,7 @@ import {
   UnifiedHistoryLendingRate,
   UnifiedInterestRecord,
   UnifiedLoan,
+  UnifiedLoanCurrency,
   UnifiedLoanRecord,
   UnifiedRiskUnitDetails,
   UserCurrencyLeverageConfig,
@@ -320,7 +322,7 @@ import {
   WithdrawalStatus,
 } from './types/response/wallet.js';
 import { WithdrawalRecord } from './types/response/withdrawal.js';
-import { CurrencyPair } from './types/shared.js';
+import { CurrencyPair, FromToPageLimit } from './types/shared.js';
 
 /**
  * Unified REST API client for all of Gate's REST APIs
@@ -933,6 +935,23 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
+   * Batch query maximum transferable amounts for unified accounts
+   *
+   * After withdrawing currency, the transferable amount will change.
+   *
+   * @param params Parameters containing currencies to query (up to 100 at once)
+   * @returns Promise with array of currency and maximum transferable amount
+   */
+  getUnifiedMaxTransferables(params: { currencies: string }): Promise<
+    {
+      currency: string;
+      amount: string;
+    }[]
+  > {
+    return this.getPrivate('/unified/transferables', params);
+  }
+
+  /**
    * Borrow or repay
    *
    * When borrowing, it is essential to ensure that the borrowed amount is not below the minimum borrowing threshold for the specific cryptocurrency and does not exceed the maximum borrowing limit set by the platform and the user.
@@ -1112,6 +1131,18 @@ export class RestClient extends BaseRestClient {
     return this.postPrivate('/unified/leverage/user_currency_setting', {
       body: params,
     });
+  }
+
+  /**
+   * List loan currencies supported by unified account
+   *
+   * @param params Optional parameters for filtering
+   * @returns Promise with array of loan currencies
+   */
+  getUnifiedLoanCurrencies(params?: {
+    currency?: string;
+  }): Promise<UnifiedLoanCurrency[]> {
+    return this.getPrivate('/unified/currencies', params);
   }
 
   /**
@@ -1922,6 +1953,67 @@ export class RestClient extends BaseRestClient {
     amount: string;
   }> {
     return this.getPrivate('/margin/cross/borrowable', params);
+  }
+
+  /**
+   * Check the user's own leverage lending gradient in the current market
+   *
+   * @param params Parameters containing currency pair to query
+   * @returns Promise with array of market gradient information
+   */
+  getMarginUserLoanTiers(params: { currency_pair: string }): Promise<
+    {
+      tier_amount: string;
+      mmr: string;
+      leverage: string;
+    }[]
+  > {
+    return this.getPrivate('/margin/user/loan_margin_tiers', params);
+  }
+
+  /**
+   * Query the current market leverage lending gradient
+   *
+   * @param params Parameters containing currency pair to query
+   * @returns Promise with array of market gradient information
+   */
+  getMarginPublicLoanTiers(params: { currency_pair: string }): Promise<
+    {
+      tier_amount: string;
+      mmr: string;
+      leverage: string;
+    }[]
+  > {
+    return this.get('/margin/loan_margin_tiers', params);
+  }
+
+  /**
+   * Set the user market leverage multiple
+   *
+   * @param params Parameters containing currency pair and leverage value
+   * @returns Promise<void> - Returns nothing on success (204 No Content)
+   */
+  setMarginUserLeverage(params: {
+    currency_pair: string;
+    leverage: string;
+  }): Promise<any> {
+    return this.postPrivate('/margin/leverage/user_market_setting', {
+      body: params,
+    });
+  }
+
+  /**
+   * Query the user's leverage account list
+   *
+   * Supports querying risk rate per position account and margin rate per position account
+   *
+   * @param params Optional parameters for filtering by currency pair
+   * @returns Promise with array of margin account details
+   */
+  getMarginUserAccounts(params?: {
+    currency_pair?: string;
+  }): Promise<MarginUserAccount[]> {
+    return this.getPrivate('/margin/user/account', params);
   }
 
   /**==========================================================================================================================
@@ -4068,12 +4160,27 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
+   * Get ETH2 historical rate of return data
+   *
+   * Returns the ETH earnings rate record for the last 31 days
+   *
+   * @returns Promise<Array<{date_time: number, date: string, rate: string}>>
+   */
+  getEth2RateHistory(): Promise<
+    { date_time: number; date: string; rate: string }[]
+  > {
+    return this.getPrivate(`/earn/staking/eth2/rate_records`);
+  }
+
+  /**
    * Dual Investment product list
    *
    * @returns Promise<GetDualInvestmentProductsResp[]>
    */
-  getDualInvestmentProducts(): Promise<DualInvestmentProduct[]> {
-    return this.get(`/earn/dual/investment_plan`);
+  getDualInvestmentProducts(params?: {
+    plan_id?: string;
+  }): Promise<DualInvestmentProduct[]> {
+    return this.get(`/earn/dual/investment_plan`, params);
   }
 
   /**
@@ -4081,8 +4188,10 @@ export class RestClient extends BaseRestClient {
    *
    * @returns Promise<GetDualInvestmentOrdersResp[]>
    */
-  getDualInvestmentOrders(): Promise<DualInvestmentOrder[]> {
-    return this.getPrivate(`/earn/dual/orders`);
+  getDualInvestmentOrders(
+    params?: FromToPageLimit,
+  ): Promise<DualInvestmentOrder[]> {
+    return this.getPrivate(`/earn/dual/orders`, params);
   }
   /**
    * Place Dual Investment order

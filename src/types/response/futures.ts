@@ -127,7 +127,12 @@ export interface FuturesAccount {
   cross_maintenance_margin: string;
   cross_unrealised_pnl: string;
   cross_available: string;
+  cross_margin_balance: string;
+  cross_mmr: string;
+  cross_imr: string;
   isolated_position_margin: string;
+  enable_new_dual_mode: boolean;
+  margin_mode: number;
   history: {
     dnw: string;
     pnl: string;

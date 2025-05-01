@@ -5,13 +5,22 @@
 
 export interface SpotCurrency {
   currency: string;
+  name: string;
   delisted: boolean;
   withdraw_disabled: boolean;
   withdraw_delayed: boolean;
   deposit_disabled: boolean;
   trade_disabled: boolean;
-  fixed_rate: string;
   chain: string;
+  chains: SpotCurrencyChain[];
+}
+
+export interface SpotCurrencyChain {
+  name: string;
+  addr?: string;
+  withdraw_disabled: boolean;
+  withdraw_delayed: boolean;
+  deposit_disabled: boolean;
 }
 
 export interface SpotTicker {
@@ -99,6 +108,7 @@ export interface SpotAccountBook {
   change: string;
   balance: string;
   type: string;
+  code: string;
   text: string;
 }
 
