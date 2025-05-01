@@ -5,6 +5,13 @@ export type GateBaseUrlKey =
 
 // interfaces
 
+export interface FromToPageLimit {
+  from: number;
+  to: number;
+  page: number;
+  limit: number;
+}
+
 // Used for spot and flash swap
 export interface CurrencyPair {
   id?: string;

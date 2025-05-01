@@ -1,4 +1,4 @@
-import { RestClient } from '../../src';
+import { RestClient } from '../../src/index.js';
 
 describe('REST PUBLIC', () => {
   const rest = new RestClient();

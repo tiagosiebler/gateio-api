@@ -100,3 +100,26 @@ export interface CrossMarginMorrowLoanRecord {
   repaid_interest: string;
   unpaid_interest: string;
 }
+
+export interface MarginUserAccount {
+  currency_pair: string;
+  account_type: string;
+  leverage: string;
+  locked: boolean;
+  risk?: string;
+  mmr?: string;
+  base: {
+    currency: string;
+    available: string;
+    locked: string;
+    borrowed: string;
+    interest: string;
+  };
+  quote: {
+    currency: string;
+    available: string;
+    locked: string;
+    borrowed: string;
+    interest: string;
+  };
+}

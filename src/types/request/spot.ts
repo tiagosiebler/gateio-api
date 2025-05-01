@@ -46,6 +46,7 @@ export interface GetSpotAccountBookReq {
   page?: number;
   limit?: number;
   type?: string;
+  code?: string;
 }
 
 export interface SubmitSpotClosePosCrossDisabledReq {

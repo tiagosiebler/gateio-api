@@ -105,6 +105,15 @@ export interface UserCurrencyLeverageConfig {
   except_leverage_borrowable: string;
 }
 
+export interface UnifiedLoanCurrency {
+  name: string;
+  prec: string;
+  min_borrow_amount: string;
+  user_max_borrow_amount: string;
+  total_max_borrow_amount: string;
+  loan_status: string;
+}
+
 export interface UnifiedHistoryLendingRate {
   currency: string;
   tier: string;

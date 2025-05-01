@@ -41,6 +41,7 @@ export interface DualInvestmentOrder {
   apy_display: string;
   apy_settlement: string;
   delivery_time: number;
+  text: string;
 }
 
 export interface StructuredProduct {
