@@ -190,144 +190,146 @@ This table includes all endpoints from the official Exchange API docs and corres
 | [getFuturesPosition()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2432) | :closed_lock_with_key:  | GET | `/futures/{settle}/positions/{contract}` |
 | [updateFuturesMargin()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2447) | :closed_lock_with_key:  | POST | `/futures/{settle}/positions/{contract}/margin` |
 | [updateFuturesLeverage()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2464) | :closed_lock_with_key:  | POST | `/futures/{settle}/positions/{contract}/leverage` |
-| [updatePositionRiskLimit()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2483) | :closed_lock_with_key:  | POST | `/futures/{settle}/positions/{contract}/risk_limit` |
-| [updateFuturesDualMode()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2503) | :closed_lock_with_key:  | POST | `/futures/{settle}/dual_mode` |
-| [getDualModePosition()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2519) | :closed_lock_with_key:  | GET | `/futures/{settle}/dual_comp/positions/{contract}` |
-| [updateDualModePositionMargin()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2534) | :closed_lock_with_key:  | POST | `/futures/{settle}/dual_comp/positions/{contract}/margin` |
-| [updateDualModePositionLeverage()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2550) | :closed_lock_with_key:  | POST | `/futures/{settle}/dual_comp/positions/{contract}/leverage` |
-| [updateDualModePositionRiskLimit()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2566) | :closed_lock_with_key:  | POST | `/futures/{settle}/dual_comp/positions/{contract}/risk_limit` |
-| [submitFuturesOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2593) | :closed_lock_with_key:  | POST | `/futures/{settle}/orders` |
-| [getFuturesOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2614) | :closed_lock_with_key:  | GET | `/futures/{settle}/orders` |
-| [cancelAllFuturesOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2629) | :closed_lock_with_key:  | DELETE | `/futures/{settle}/orders` |
-| [getFuturesOrdersByTimeRange()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2649) | :closed_lock_with_key:  | GET | `/futures/{settle}/orders_timerange` |
-| [submitFuturesBatchOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2672) | :closed_lock_with_key:  | POST | `/futures/{settle}/batch_orders` |
-| [getFuturesOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2697) | :closed_lock_with_key:  | GET | `/futures/{settle}/orders/{order_id}` |
-| [cancelFuturesOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2714) | :closed_lock_with_key:  | DELETE | `/futures/{settle}/orders/{order_id}` |
-| [updateFuturesOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2737) | :closed_lock_with_key:  | PUT | `/futures/{settle}/orders/{order_id}` |
-| [getFuturesTradingHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2758) | :closed_lock_with_key:  | GET | `/futures/{settle}/my_trades` |
-| [getFuturesTradingHistoryByTimeRange()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2773) | :closed_lock_with_key:  | GET | `/futures/{settle}/my_trades_timerange` |
-| [getFuturesPositionHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2786) | :closed_lock_with_key:  | GET | `/futures/{settle}/position_close` |
-| [getFuturesLiquidationHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2799) | :closed_lock_with_key:  | GET | `/futures/{settle}/liquidates` |
-| [getFuturesAutoDeleveragingHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2812) | :closed_lock_with_key:  | GET | `/futures/{settle}/auto_deleverages` |
-| [setFuturesOrderCancelCountdown()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2829) | :closed_lock_with_key:  | POST | `/futures/{settle}/countdown_cancel_all` |
-| [getFuturesUserTradingFees()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2846) | :closed_lock_with_key:  | GET | `/futures/{settle}/fee` |
-| [batchCancelFuturesOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2864) | :closed_lock_with_key:  | POST | `/futures/{settle}/batch_cancel_orders` |
-| [batchUpdateFuturesOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2891) | :closed_lock_with_key:  | POST | `/futures/{settle}/batch_amend_orders` |
-| [submitFuturesPriceTriggeredOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2913) | :closed_lock_with_key:  | POST | `/futures/{settle}/price_orders` |
-| [getFuturesAutoOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2926) | :closed_lock_with_key:  | GET | `/futures/{settle}/price_orders` |
-| [cancelAllOpenFuturesOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2939) | :closed_lock_with_key:  | DELETE | `/futures/{settle}/price_orders` |
-| [getFuturesPriceTriggeredOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2955) | :closed_lock_with_key:  | GET | `/futures/{settle}/price_orders/{order_id}` |
-| [cancelFuturesPriceTriggeredOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2970) | :closed_lock_with_key:  | DELETE | `/futures/{settle}/price_orders/{order_id}` |
-| [getAllDeliveryContracts()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2990) |  | GET | `/delivery/{settle}/contracts` |
-| [getDeliveryContract()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3002) |  | GET | `/delivery/{settle}/contracts/{contract}` |
-| [getDeliveryOrderBook()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3017) |  | GET | `/delivery/{settle}/order_book` |
-| [getDeliveryTrades()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3030) |  | GET | `/delivery/{settle}/trades` |
-| [getDeliveryCandles()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3044) |  | GET | `/delivery/{settle}/candlesticks` |
-| [getDeliveryTickers()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3055) |  | GET | `/delivery/{settle}/tickers` |
-| [getDeliveryInsuranceBalanceHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3072) |  | GET | `/delivery/{settle}/insurance` |
-| [getDeliveryAccount()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3091) | :closed_lock_with_key:  | GET | `/delivery/{settle}/accounts` |
-| [getDeliveryBook()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3102) | :closed_lock_with_key:  | GET | `/delivery/{settle}/account_book` |
-| [getDeliveryPositions()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3113) | :closed_lock_with_key:  | GET | `/delivery/{settle}/positions` |
-| [getDeliveryPosition()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3123) | :closed_lock_with_key:  | GET | `/delivery/{settle}/positions/{contract}` |
-| [updateDeliveryMargin()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3138) | :closed_lock_with_key:  | POST | `/delivery/{settle}/positions/{contract}/margin` |
-| [updateDeliveryLeverage()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3156) | :closed_lock_with_key:  | POST | `/delivery/{settle}/positions/{contract}/leverage` |
-| [updateDeliveryRiskLimit()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3174) | :closed_lock_with_key:  | POST | `/delivery/{settle}/positions/{contract}/risk_limit` |
-| [submitDeliveryOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3194) | :closed_lock_with_key:  | POST | `/delivery/{settle}/orders` |
-| [getDeliveryOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3209) | :closed_lock_with_key:  | GET | `/delivery/{settle}/orders` |
-| [cancelAllDeliveryOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3221) | :closed_lock_with_key:  | DELETE | `/delivery/{settle}/orders` |
-| [getDeliveryOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3240) | :closed_lock_with_key:  | GET | `/delivery/{settle}/orders/{order_id}` |
-| [cancelDeliveryOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3255) | :closed_lock_with_key:  | DELETE | `/delivery/{settle}/orders/{order_id}` |
-| [getDeliveryTradingHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3270) | :closed_lock_with_key:  | GET | `/delivery/{settle}/my_trades` |
-| [getDeliveryClosedPositions()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3283) | :closed_lock_with_key:  | GET | `/delivery/{settle}/position_close` |
-| [getDeliveryLiquidationHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3296) | :closed_lock_with_key:  | GET | `/delivery/{settle}/liquidates` |
-| [getDeliverySettlementHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3309) | :closed_lock_with_key:  | GET | `/delivery/{settle}/settlements` |
-| [submitDeliveryTriggeredOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3322) | :closed_lock_with_key:  | POST | `/delivery/{settle}/price_orders` |
-| [getDeliveryAutoOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3337) | :closed_lock_with_key:  | GET | `/delivery/{settle}/price_orders` |
-| [cancelAllOpenDeliveryOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3350) | :closed_lock_with_key:  | DELETE | `/delivery/{settle}/price_orders` |
-| [getDeliveryTriggeredOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3366) | :closed_lock_with_key:  | GET | `/delivery/{settle}/price_orders/{order_id}` |
-| [cancelTriggeredDeliveryOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3381) | :closed_lock_with_key:  | DELETE | `/delivery/{settle}/price_orders/{order_id}` |
-| [getOptionsUnderlyings()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3400) |  | GET | `/options/underlyings` |
-| [getOptionsExpirationTimes()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3410) |  | GET | `/options/expirations` |
-| [getOptionsContracts()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3420) |  | GET | `/options/contracts` |
-| [getOptionsContract()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3433) |  | GET | `/options/contracts/{contract}` |
-| [getOptionsSettlementHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3443) |  | GET | `/options/settlements` |
-| [getOptionsContractSettlement()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3455) |  | GET | `/options/settlements/{contract}` |
-| [getOptionsMySettlements()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3470) | :closed_lock_with_key:  | GET | `/options/my_settlements` |
-| [getOptionsOrderBook()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3484) |  | GET | `/options/order_book` |
-| [getOptionsTickers()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3496) |  | GET | `/options/tickers` |
-| [getOptionsUnderlyingTicker()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3510) |  | GET | `/options/underlying/tickers/{underlying}` |
-| [getOptionsCandles()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3524) |  | GET | `/options/candlesticks` |
-| [getOptionsUnderlyingCandles()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3534) |  | GET | `/options/underlying/candlesticks` |
-| [getOptionsTrades()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3546) |  | GET | `/options/trades` |
-| [getOptionsAccount()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3555) | :closed_lock_with_key:  | GET | `/options/accounts` |
-| [getOptionsAccountChange()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3565) | :closed_lock_with_key:  | GET | `/options/account_book` |
-| [getOptionsPositionsUnderlying()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3577) | :closed_lock_with_key:  | GET | `/options/positions` |
-| [getOptionsPositionContract()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3589) | :closed_lock_with_key:  | GET | `/options/positions/{contract}` |
-| [getOptionsLiquidation()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3601) | :closed_lock_with_key:  | GET | `/options/position_close` |
-| [submitOptionsOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3614) | :closed_lock_with_key:  | POST | `/options/orders` |
-| [getOptionsOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3626) | :closed_lock_with_key:  | GET | `/options/orders` |
-| [cancelAllOpenOptionsOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3638) | :closed_lock_with_key:  | DELETE | `/options/orders` |
-| [getOptionsOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3652) | :closed_lock_with_key:  | GET | `/options/orders/{order_id}` |
-| [cancelOptionsOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3664) | :closed_lock_with_key:  | DELETE | `/options/orders/{order_id}` |
-| [submitOptionsCountdownCancel()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3683) | :closed_lock_with_key:  | POST | `/options/countdown_cancel_all` |
-| [getOptionsPersonalHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3699) | :closed_lock_with_key:  | GET | `/options/my_trades` |
-| [setOptionsMMPSettings()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3711) | :closed_lock_with_key:  | POST | `/options/mmp` |
-| [getOptionsMMPSettings()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3723) | :closed_lock_with_key:  | GET | `/options/mmp` |
-| [resetOptionsMMPSettings()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3735) | :closed_lock_with_key:  | POST | `/options/mmp/reset` |
-| [getLendingCurrencies()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3751) |  | GET | `/earn/uni/currencies` |
-| [getLendingCurrency()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3761) |  | GET | `/earn/uni/currencies/{currency}` |
-| [submitLendOrRedeemOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3771) | :closed_lock_with_key:  | POST | `/earn/uni/lends` |
-| [getLendingOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3781) | :closed_lock_with_key:  | GET | `/earn/uni/lends` |
-| [updateLendingOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3793) | :closed_lock_with_key:  | PATCH | `/earn/uni/lends` |
-| [getLendingRecords()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3806) | :closed_lock_with_key:  | GET | `/earn/uni/lend_records` |
-| [getLendingTotalInterest()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3819) | :closed_lock_with_key:  | GET | `/earn/uni/interests/{currency}` |
-| [getLendingInterestRecords()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3832) | :closed_lock_with_key:  | GET | `/earn/uni/interest_records` |
-| [updateInterestReinvestment()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3844) | :closed_lock_with_key:  | PUT | `/earn/uni/interest_reinvest` |
-| [getLendingInterestStatus()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3860) | :closed_lock_with_key:  | GET | `/earn/uni/interest_status/{currency}` |
-| [submitLoanOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3878) | :closed_lock_with_key:  | POST | `/loan/collateral/orders` |
-| [getLoanOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3888) | :closed_lock_with_key:  | GET | `/loan/collateral/orders` |
-| [getLoanOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3897) | :closed_lock_with_key:  | GET | `/loan/collateral/orders/{order_id}` |
-| [submitLoanRepay()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3910) | :closed_lock_with_key:  | POST | `/loan/collateral/repay` |
-| [getLoanRepaymentHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3927) | :closed_lock_with_key:  | GET | `/loan/collateral/repay_records` |
-| [updateLoanCollateral()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3939) | :closed_lock_with_key:  | POST | `/loan/collateral/collaterals` |
-| [getLoanCollateralRecords()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3949) | :closed_lock_with_key:  | GET | `/loan/collateral/collaterals` |
-| [getLoanTotalAmount()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3963) | :closed_lock_with_key:  | GET | `/loan/collateral/total_amount` |
-| [getLoanCollateralizationRatio()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3976) | :closed_lock_with_key:  | GET | `/loan/collateral/ltv` |
-| [getLoanSupportedCurrencies()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3992) |  | GET | `/loan/collateral/currencies` |
-| [submitMultiLoanOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4012) | :closed_lock_with_key:  | POST | `/loan/multi_collateral/orders` |
-| [getMultiLoanOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4024) | :closed_lock_with_key:  | GET | `/loan/multi_collateral/orders` |
-| [getMultiLoanOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4036) | :closed_lock_with_key:  | GET | `/loan/multi_collateral/orders/{order_id}` |
-| [repayMultiLoan()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4046) | :closed_lock_with_key:  | POST | `/loan/multi_collateral/repay` |
-| [getMultiLoanRepayRecords()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4056) | :closed_lock_with_key:  | GET | `/loan/multi_collateral/repay` |
-| [updateMultiLoan()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4068) | :closed_lock_with_key:  | POST | `/loan/multi_collateral/mortgage` |
-| [getMultiLoanAdjustmentRecords()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4080) | :closed_lock_with_key:  | GET | `/loan/multi_collateral/mortgage` |
-| [getMultiLoanCurrencyQuota()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4092) | :closed_lock_with_key:  | GET | `/loan/multi_collateral/currency_quota` |
-| [getMultiLoanSupportedCurrencies()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4104) |  | GET | `/loan/multi_collateral/currencies` |
-| [getMultiLoanRatio()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4113) |  | GET | `/loan/multi_collateral/ltv` |
-| [getMultiLoanFixedRates()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4122) |  | GET | `/loan/multi_collateral/fixed_rate` |
-| [getMultiLoanCurrentRates()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4135) |  | GET | `/loan/multi_collateral/current_rate` |
-| [submitEth2Swap()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4158) | :closed_lock_with_key:  | POST | `/earn/staking/eth2/swap` |
-| [getEth2RateHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4169) | :closed_lock_with_key:  | GET | `/earn/staking/eth2/rate_records` |
-| [getDualInvestmentProducts()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4180) |  | GET | `/earn/dual/investment_plan` |
-| [getDualInvestmentOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4191) | :closed_lock_with_key:  | GET | `/earn/dual/orders` |
-| [submitDualInvestmentOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4202) | :closed_lock_with_key:  | POST | `/earn/dual/orders` |
-| [getStructuredProducts()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4217) |  | GET | `/earn/structured/products` |
-| [getStructuredProductOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4229) | :closed_lock_with_key:  | GET | `/earn/structured/orders` |
-| [submitStructuredProductOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4240) | :closed_lock_with_key:  | POST | `/earn/structured/orders` |
-| [getAccountDetail()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4257) | :closed_lock_with_key:  | GET | `/account/detail` |
-| [getAccountRateLimit()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4266) | :closed_lock_with_key:  | GET | `/account/rate_limit` |
-| [createStpGroup()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4276) | :closed_lock_with_key:  | POST | `/account/stp_groups` |
-| [getStpGroups()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4286) | :closed_lock_with_key:  | GET | `/account/stp_groups` |
-| [getStpGroupUsers()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4296) | :closed_lock_with_key:  | GET | `/account/stp_groups/{stp_id}/users` |
-| [addUsersToStpGroup()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4306) | :closed_lock_with_key:  | POST | `/account/stp_groups/{stp_id}/users` |
-| [deleteUserFromStpGroup()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4322) | :closed_lock_with_key:  | DELETE | `/account/stp_groups/{stp_id}/users` |
-| [setGTDeduction()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4340) | :closed_lock_with_key:  | POST | `/account/debit_fee` |
-| [getGTDeduction()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4351) | :closed_lock_with_key:  | GET | `/account/debit_fee` |
-| [getAgencyTransactionHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4367) | :closed_lock_with_key:  | GET | `/rebate/agency/transaction_history` |
-| [getAgencyCommissionHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4380) | :closed_lock_with_key:  | GET | `/rebate/agency/commission_history` |
-| [getPartnerTransactionHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4394) | :closed_lock_with_key:  | GET | `/rebate/partner/transaction_history` |
-| [getPartnerCommissionHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4409) | :closed_lock_with_key:  | GET | `/rebate/partner/commission_history` |
-| [getPartnerSubordinateList()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4432) | :closed_lock_with_key:  | GET | `/rebate/partner/sub_list` |
-| [getBrokerCommissionHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4446) | :closed_lock_with_key:  | GET | `/rebate/broker/commission_history` |
-| [getBrokerTransactionHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4459) | :closed_lock_with_key:  | GET | `/rebate/broker/transaction_history` |
-| [getUserRebateInfo()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4468) | :closed_lock_with_key:  | GET | `/rebate/user/info` |
+| [updateFuturesPositionMode()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2483) | :closed_lock_with_key:  | POST | `/futures/{settle}/positions/cross_mode` |
+| [updatePositionRiskLimit()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2500) | :closed_lock_with_key:  | POST | `/futures/{settle}/positions/{contract}/risk_limit` |
+| [updateFuturesDualMode()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2520) | :closed_lock_with_key:  | POST | `/futures/{settle}/dual_mode` |
+| [getDualModePosition()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2536) | :closed_lock_with_key:  | GET | `/futures/{settle}/dual_comp/positions/{contract}` |
+| [updateDualModePositionMargin()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2551) | :closed_lock_with_key:  | POST | `/futures/{settle}/dual_comp/positions/{contract}/margin` |
+| [updateDualModePositionLeverage()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2567) | :closed_lock_with_key:  | POST | `/futures/{settle}/dual_comp/positions/{contract}/leverage` |
+| [updateDualModePositionRiskLimit()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2583) | :closed_lock_with_key:  | POST | `/futures/{settle}/dual_comp/positions/{contract}/risk_limit` |
+| [submitFuturesOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2610) | :closed_lock_with_key:  | POST | `/futures/{settle}/orders` |
+| [getFuturesOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2631) | :closed_lock_with_key:  | GET | `/futures/{settle}/orders` |
+| [cancelAllFuturesOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2646) | :closed_lock_with_key:  | DELETE | `/futures/{settle}/orders` |
+| [getFuturesOrdersByTimeRange()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2666) | :closed_lock_with_key:  | GET | `/futures/{settle}/orders_timerange` |
+| [submitFuturesBatchOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2689) | :closed_lock_with_key:  | POST | `/futures/{settle}/batch_orders` |
+| [getFuturesOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2714) | :closed_lock_with_key:  | GET | `/futures/{settle}/orders/{order_id}` |
+| [cancelFuturesOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2731) | :closed_lock_with_key:  | DELETE | `/futures/{settle}/orders/{order_id}` |
+| [updateFuturesOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2754) | :closed_lock_with_key:  | PUT | `/futures/{settle}/orders/{order_id}` |
+| [getFuturesTradingHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2775) | :closed_lock_with_key:  | GET | `/futures/{settle}/my_trades` |
+| [getFuturesTradingHistoryByTimeRange()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2790) | :closed_lock_with_key:  | GET | `/futures/{settle}/my_trades_timerange` |
+| [getFuturesPositionHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2803) | :closed_lock_with_key:  | GET | `/futures/{settle}/position_close` |
+| [getFuturesLiquidationHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2816) | :closed_lock_with_key:  | GET | `/futures/{settle}/liquidates` |
+| [getFuturesAutoDeleveragingHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2829) | :closed_lock_with_key:  | GET | `/futures/{settle}/auto_deleverages` |
+| [setFuturesOrderCancelCountdown()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2846) | :closed_lock_with_key:  | POST | `/futures/{settle}/countdown_cancel_all` |
+| [getFuturesUserTradingFees()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2863) | :closed_lock_with_key:  | GET | `/futures/{settle}/fee` |
+| [batchCancelFuturesOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2881) | :closed_lock_with_key:  | POST | `/futures/{settle}/batch_cancel_orders` |
+| [batchUpdateFuturesOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2908) | :closed_lock_with_key:  | POST | `/futures/{settle}/batch_amend_orders` |
+| [submitFuturesPriceTriggeredOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2930) | :closed_lock_with_key:  | POST | `/futures/{settle}/price_orders` |
+| [getFuturesAutoOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2943) | :closed_lock_with_key:  | GET | `/futures/{settle}/price_orders` |
+| [cancelAllOpenFuturesOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2956) | :closed_lock_with_key:  | DELETE | `/futures/{settle}/price_orders` |
+| [getFuturesPriceTriggeredOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2972) | :closed_lock_with_key:  | GET | `/futures/{settle}/price_orders/{order_id}` |
+| [cancelFuturesPriceTriggeredOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L2987) | :closed_lock_with_key:  | DELETE | `/futures/{settle}/price_orders/{order_id}` |
+| [getAllDeliveryContracts()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3007) |  | GET | `/delivery/{settle}/contracts` |
+| [getDeliveryContract()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3019) |  | GET | `/delivery/{settle}/contracts/{contract}` |
+| [getDeliveryOrderBook()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3034) |  | GET | `/delivery/{settle}/order_book` |
+| [getDeliveryTrades()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3047) |  | GET | `/delivery/{settle}/trades` |
+| [getDeliveryCandles()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3061) |  | GET | `/delivery/{settle}/candlesticks` |
+| [getDeliveryTickers()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3072) |  | GET | `/delivery/{settle}/tickers` |
+| [getDeliveryInsuranceBalanceHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3089) |  | GET | `/delivery/{settle}/insurance` |
+| [getDeliveryAccount()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3108) | :closed_lock_with_key:  | GET | `/delivery/{settle}/accounts` |
+| [getDeliveryBook()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3119) | :closed_lock_with_key:  | GET | `/delivery/{settle}/account_book` |
+| [getDeliveryPositions()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3130) | :closed_lock_with_key:  | GET | `/delivery/{settle}/positions` |
+| [getDeliveryPosition()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3140) | :closed_lock_with_key:  | GET | `/delivery/{settle}/positions/{contract}` |
+| [updateDeliveryMargin()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3155) | :closed_lock_with_key:  | POST | `/delivery/{settle}/positions/{contract}/margin` |
+| [updateDeliveryLeverage()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3173) | :closed_lock_with_key:  | POST | `/delivery/{settle}/positions/{contract}/leverage` |
+| [updateDeliveryRiskLimit()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3191) | :closed_lock_with_key:  | POST | `/delivery/{settle}/positions/{contract}/risk_limit` |
+| [submitDeliveryOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3211) | :closed_lock_with_key:  | POST | `/delivery/{settle}/orders` |
+| [getDeliveryOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3226) | :closed_lock_with_key:  | GET | `/delivery/{settle}/orders` |
+| [cancelAllDeliveryOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3238) | :closed_lock_with_key:  | DELETE | `/delivery/{settle}/orders` |
+| [getDeliveryOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3257) | :closed_lock_with_key:  | GET | `/delivery/{settle}/orders/{order_id}` |
+| [cancelDeliveryOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3272) | :closed_lock_with_key:  | DELETE | `/delivery/{settle}/orders/{order_id}` |
+| [getDeliveryTradingHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3287) | :closed_lock_with_key:  | GET | `/delivery/{settle}/my_trades` |
+| [getDeliveryClosedPositions()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3300) | :closed_lock_with_key:  | GET | `/delivery/{settle}/position_close` |
+| [getDeliveryLiquidationHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3313) | :closed_lock_with_key:  | GET | `/delivery/{settle}/liquidates` |
+| [getDeliverySettlementHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3326) | :closed_lock_with_key:  | GET | `/delivery/{settle}/settlements` |
+| [submitDeliveryTriggeredOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3339) | :closed_lock_with_key:  | POST | `/delivery/{settle}/price_orders` |
+| [getDeliveryAutoOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3354) | :closed_lock_with_key:  | GET | `/delivery/{settle}/price_orders` |
+| [cancelAllOpenDeliveryOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3367) | :closed_lock_with_key:  | DELETE | `/delivery/{settle}/price_orders` |
+| [getDeliveryTriggeredOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3383) | :closed_lock_with_key:  | GET | `/delivery/{settle}/price_orders/{order_id}` |
+| [cancelTriggeredDeliveryOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3398) | :closed_lock_with_key:  | DELETE | `/delivery/{settle}/price_orders/{order_id}` |
+| [getOptionsUnderlyings()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3417) |  | GET | `/options/underlyings` |
+| [getOptionsExpirationTimes()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3427) |  | GET | `/options/expirations` |
+| [getOptionsContracts()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3437) |  | GET | `/options/contracts` |
+| [getOptionsContract()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3450) |  | GET | `/options/contracts/{contract}` |
+| [getOptionsSettlementHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3460) |  | GET | `/options/settlements` |
+| [getOptionsContractSettlement()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3472) |  | GET | `/options/settlements/{contract}` |
+| [getOptionsMySettlements()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3487) | :closed_lock_with_key:  | GET | `/options/my_settlements` |
+| [getOptionsOrderBook()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3501) |  | GET | `/options/order_book` |
+| [getOptionsTickers()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3513) |  | GET | `/options/tickers` |
+| [getOptionsUnderlyingTicker()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3527) |  | GET | `/options/underlying/tickers/{underlying}` |
+| [getOptionsCandles()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3541) |  | GET | `/options/candlesticks` |
+| [getOptionsUnderlyingCandles()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3551) |  | GET | `/options/underlying/candlesticks` |
+| [getOptionsTrades()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3563) |  | GET | `/options/trades` |
+| [getOptionsAccount()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3572) | :closed_lock_with_key:  | GET | `/options/accounts` |
+| [getOptionsAccountChange()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3582) | :closed_lock_with_key:  | GET | `/options/account_book` |
+| [getOptionsPositionsUnderlying()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3594) | :closed_lock_with_key:  | GET | `/options/positions` |
+| [getOptionsPositionContract()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3606) | :closed_lock_with_key:  | GET | `/options/positions/{contract}` |
+| [getOptionsLiquidation()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3618) | :closed_lock_with_key:  | GET | `/options/position_close` |
+| [submitOptionsOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3631) | :closed_lock_with_key:  | POST | `/options/orders` |
+| [getOptionsOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3643) | :closed_lock_with_key:  | GET | `/options/orders` |
+| [cancelAllOpenOptionsOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3655) | :closed_lock_with_key:  | DELETE | `/options/orders` |
+| [getOptionsOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3669) | :closed_lock_with_key:  | GET | `/options/orders/{order_id}` |
+| [cancelOptionsOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3681) | :closed_lock_with_key:  | DELETE | `/options/orders/{order_id}` |
+| [submitOptionsCountdownCancel()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3700) | :closed_lock_with_key:  | POST | `/options/countdown_cancel_all` |
+| [getOptionsPersonalHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3716) | :closed_lock_with_key:  | GET | `/options/my_trades` |
+| [setOptionsMMPSettings()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3728) | :closed_lock_with_key:  | POST | `/options/mmp` |
+| [getOptionsMMPSettings()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3740) | :closed_lock_with_key:  | GET | `/options/mmp` |
+| [resetOptionsMMPSettings()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3752) | :closed_lock_with_key:  | POST | `/options/mmp/reset` |
+| [getLendingCurrencies()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3768) |  | GET | `/earn/uni/currencies` |
+| [getLendingCurrency()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3778) |  | GET | `/earn/uni/currencies/{currency}` |
+| [submitLendOrRedeemOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3788) | :closed_lock_with_key:  | POST | `/earn/uni/lends` |
+| [getLendingOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3798) | :closed_lock_with_key:  | GET | `/earn/uni/lends` |
+| [updateLendingOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3810) | :closed_lock_with_key:  | PATCH | `/earn/uni/lends` |
+| [getLendingRecords()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3823) | :closed_lock_with_key:  | GET | `/earn/uni/lend_records` |
+| [getLendingTotalInterest()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3836) | :closed_lock_with_key:  | GET | `/earn/uni/interests/{currency}` |
+| [getLendingInterestRecords()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3849) | :closed_lock_with_key:  | GET | `/earn/uni/interest_records` |
+| [updateInterestReinvestment()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3861) | :closed_lock_with_key:  | PUT | `/earn/uni/interest_reinvest` |
+| [getLendingInterestStatus()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3877) | :closed_lock_with_key:  | GET | `/earn/uni/interest_status/{currency}` |
+| [getLendingAnnualizedTrendChart()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3892) | :closed_lock_with_key:  | GET | `/earn/uni/chart` |
+| [submitLoanOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3911) | :closed_lock_with_key:  | POST | `/loan/collateral/orders` |
+| [getLoanOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3921) | :closed_lock_with_key:  | GET | `/loan/collateral/orders` |
+| [getLoanOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3930) | :closed_lock_with_key:  | GET | `/loan/collateral/orders/{order_id}` |
+| [submitLoanRepay()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3943) | :closed_lock_with_key:  | POST | `/loan/collateral/repay` |
+| [getLoanRepaymentHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3960) | :closed_lock_with_key:  | GET | `/loan/collateral/repay_records` |
+| [updateLoanCollateral()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3972) | :closed_lock_with_key:  | POST | `/loan/collateral/collaterals` |
+| [getLoanCollateralRecords()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3982) | :closed_lock_with_key:  | GET | `/loan/collateral/collaterals` |
+| [getLoanTotalAmount()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L3996) | :closed_lock_with_key:  | GET | `/loan/collateral/total_amount` |
+| [getLoanCollateralizationRatio()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4009) | :closed_lock_with_key:  | GET | `/loan/collateral/ltv` |
+| [getLoanSupportedCurrencies()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4025) |  | GET | `/loan/collateral/currencies` |
+| [submitMultiLoanOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4045) | :closed_lock_with_key:  | POST | `/loan/multi_collateral/orders` |
+| [getMultiLoanOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4057) | :closed_lock_with_key:  | GET | `/loan/multi_collateral/orders` |
+| [getMultiLoanOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4069) | :closed_lock_with_key:  | GET | `/loan/multi_collateral/orders/{order_id}` |
+| [repayMultiLoan()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4079) | :closed_lock_with_key:  | POST | `/loan/multi_collateral/repay` |
+| [getMultiLoanRepayRecords()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4089) | :closed_lock_with_key:  | GET | `/loan/multi_collateral/repay` |
+| [updateMultiLoan()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4101) | :closed_lock_with_key:  | POST | `/loan/multi_collateral/mortgage` |
+| [getMultiLoanAdjustmentRecords()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4113) | :closed_lock_with_key:  | GET | `/loan/multi_collateral/mortgage` |
+| [getMultiLoanCurrencyQuota()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4125) | :closed_lock_with_key:  | GET | `/loan/multi_collateral/currency_quota` |
+| [getMultiLoanSupportedCurrencies()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4137) |  | GET | `/loan/multi_collateral/currencies` |
+| [getMultiLoanRatio()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4146) |  | GET | `/loan/multi_collateral/ltv` |
+| [getMultiLoanFixedRates()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4155) |  | GET | `/loan/multi_collateral/fixed_rate` |
+| [getMultiLoanCurrentRates()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4168) |  | GET | `/loan/multi_collateral/current_rate` |
+| [submitEth2Swap()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4191) | :closed_lock_with_key:  | POST | `/earn/staking/eth2/swap` |
+| [getEth2RateHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4202) | :closed_lock_with_key:  | GET | `/earn/staking/eth2/rate_records` |
+| [getDualInvestmentProducts()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4213) |  | GET | `/earn/dual/investment_plan` |
+| [getDualInvestmentOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4224) | :closed_lock_with_key:  | GET | `/earn/dual/orders` |
+| [submitDualInvestmentOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4235) | :closed_lock_with_key:  | POST | `/earn/dual/orders` |
+| [getStructuredProducts()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4250) |  | GET | `/earn/structured/products` |
+| [getStructuredProductOrders()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4262) | :closed_lock_with_key:  | GET | `/earn/structured/orders` |
+| [submitStructuredProductOrder()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4273) | :closed_lock_with_key:  | POST | `/earn/structured/orders` |
+| [getAccountDetail()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4290) | :closed_lock_with_key:  | GET | `/account/detail` |
+| [getAccountRateLimit()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4299) | :closed_lock_with_key:  | GET | `/account/rate_limit` |
+| [createStpGroup()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4309) | :closed_lock_with_key:  | POST | `/account/stp_groups` |
+| [getStpGroups()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4319) | :closed_lock_with_key:  | GET | `/account/stp_groups` |
+| [getStpGroupUsers()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4329) | :closed_lock_with_key:  | GET | `/account/stp_groups/{stp_id}/users` |
+| [addUsersToStpGroup()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4339) | :closed_lock_with_key:  | POST | `/account/stp_groups/{stp_id}/users` |
+| [deleteUserFromStpGroup()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4355) | :closed_lock_with_key:  | DELETE | `/account/stp_groups/{stp_id}/users` |
+| [setGTDeduction()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4373) | :closed_lock_with_key:  | POST | `/account/debit_fee` |
+| [getGTDeduction()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4384) | :closed_lock_with_key:  | GET | `/account/debit_fee` |
+| [getAgencyTransactionHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4400) | :closed_lock_with_key:  | GET | `/rebate/agency/transaction_history` |
+| [getAgencyCommissionHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4413) | :closed_lock_with_key:  | GET | `/rebate/agency/commission_history` |
+| [getPartnerTransactionHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4427) | :closed_lock_with_key:  | GET | `/rebate/partner/transaction_history` |
+| [getPartnerCommissionHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4442) | :closed_lock_with_key:  | GET | `/rebate/partner/commission_history` |
+| [getPartnerSubordinateList()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4465) | :closed_lock_with_key:  | GET | `/rebate/partner/sub_list` |
+| [getBrokerCommissionHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4479) | :closed_lock_with_key:  | GET | `/rebate/broker/commission_history` |
+| [getBrokerTransactionHistory()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4492) | :closed_lock_with_key:  | GET | `/rebate/broker/transaction_history` |
+| [getUserRebateInfo()](https://github.com/tiagosiebler/gateio-api/blob/master/src/RestClient.ts#L4501) | :closed_lock_with_key:  | GET | `/rebate/user/info` |
