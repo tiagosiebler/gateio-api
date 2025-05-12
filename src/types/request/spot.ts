@@ -26,6 +26,7 @@ export interface GetSpotCandlesReq {
   from?: number;
   to?: number;
   interval?:
+    | '1s'
     | '10s'
     | '1m'
     | '5m'

@@ -2475,6 +2475,23 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
+   * Update position by store mode
+   *
+   * @param params Parameters for updating position by store mode
+   * @returns Promise<FuturesPosition>
+   */
+  updateFuturesPositionMode(params: {
+    settle: 'btc' | 'usdt';
+    mode: 'ISOLATED' | 'CROSS';
+    contract: string;
+  }): Promise<FuturesPosition> {
+    const { settle, ...body } = params;
+    return this.postPrivate(`/futures/${settle}/positions/cross_mode`, {
+      body: body,
+    });
+  }
+
+  /**
    * Update position risk limit
    *
    * @param params Parameters for updating position risk limit
@@ -3862,6 +3879,22 @@ export class RestClient extends BaseRestClient {
     interest_status: string;
   }> {
     return this.getPrivate(`/earn/uni/interest_status/${params.currency}`);
+  }
+
+  /**
+   * UniLoan currency annualized trend chart
+   *
+   * Get the annualized interest rate trend chart data for a specific currency
+   *
+   * @param params Parameters for retrieving the annualized trend chart
+   * @returns Promise<{ time: number; value: string }[]>
+   */
+  getLendingAnnualizedTrendChart(params: {
+    from: number;
+    to: number;
+    asset: string;
+  }): Promise<{ time: number; value: string }[]> {
+    return this.getPrivate('/earn/uni/chart', params);
   }
 
   /**==========================================================================================================================
