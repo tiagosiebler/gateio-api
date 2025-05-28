@@ -304,13 +304,19 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
 
       const eventHeaders = parsed?.header;
       const eventChannel = eventHeaders?.channel;
-      const eventType = eventHeaders?.event;
+      const eventType =
+        parsed.channel.includes('obu') === true
+          ? 'update'
+          : eventHeaders?.event;
       const eventStatusCode = eventHeaders?.status;
       const requestId = parsed?.request_id;
 
       const promiseRef = [eventChannel, requestId].join('_');
 
-      const eventAction = parsed.event || parsed.action || parsed?.header.data;
+      const eventAction =
+        parsed.channel.includes('obu') === true
+          ? 'update'
+          : parsed?.event || parsed.action || parsed?.header.data;
 
       if (eventType === 'api') {
         const isError = eventStatusCode !== '200';
@@ -483,8 +489,6 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       default:
         throw neverGuard(wsKey, `Unhandled WsKey "${wsKey}"`);
     }
-
-    return false;
   }
 
   /**
