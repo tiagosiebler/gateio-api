@@ -50,7 +50,7 @@ Updated & performant JavaScript & Node.js SDK for the Gate.io REST APIs and WebS
 
 - Issues? Check the [issues tab](https://github.com/tiagosiebler/gateio-api/issues).
 - Discuss & collaborate with other node devs? Join our [Node.js Algo Traders](https://t.me/nodetraders) engineering community on telegram.
-- Follow our announcement channel for real-time updates on [X/Twitter](https://x.com/QuantSDKs)
+- Follow our announcement channel for real-time updates on [X/Twitter](https://x.com/sieblyio)
 
 <!-- template_related_projects -->
 
