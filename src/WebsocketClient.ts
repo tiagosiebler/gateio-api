@@ -396,7 +396,8 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
 
         // Most events use "event: 'update'" for topic updates
         // The legacy "futures.order_book" topic uses "all" for this field
-        if (['update', 'all'].includes(eventAction)) {
+        // 'futures.obu' is used for the orderbook v2 event. Oddly in a different structure than the other topics.
+        if (['update', 'all', 'futures.obu'].includes(eventAction)) {
           results.push({
             eventType: 'update',
             event: parsed,
@@ -423,13 +424,12 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         }
 
         this.logger.error(
-          `!! Unhandled string event type "${eventAction}. Defaulting to "update" channel...`,
+          `!! Unhandled string event type "${eventAction}". Defaulting to "update" channel...`,
           parsed,
         );
       } else {
-        // TODO: test meee
         this.logger.error(
-          `!! Unhandled non-string event type "${eventAction}. Defaulting to "update" channel...`,
+          `!! Unhandled non-string event type "${eventAction}". Defaulting to "update" channel...`,
           parsed,
         );
       }
