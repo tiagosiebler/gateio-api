@@ -3897,6 +3897,12 @@ export class RestClient extends BaseRestClient {
     return this.getPrivate('/earn/uni/chart', params);
   }
 
+  getLendingEstimatedRates(): Promise<
+    { currency: string; est_rate: string }[]
+  > {
+    return this.getPrivate('/earn/uni/rate');
+  }
+
   /**==========================================================================================================================
    * COLLATERAL LOAN
    * ==========================================================================================================================

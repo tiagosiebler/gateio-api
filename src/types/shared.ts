@@ -30,4 +30,6 @@ export interface CurrencyPair {
   sell_start?: number;
   buy_start?: number;
   type: string;
+  delisting_time?: number;
+  trade_url?: string;
 }
