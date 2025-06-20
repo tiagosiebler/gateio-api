@@ -304,19 +304,14 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
 
       const eventHeaders = parsed?.header;
       const eventChannel = eventHeaders?.channel;
-      const eventType =
-        parsed.channel.includes('obu') === true
-          ? 'update'
-          : eventHeaders?.event;
+      const eventType = eventHeaders?.event;
       const eventStatusCode = eventHeaders?.status;
       const requestId = parsed?.request_id;
 
       const promiseRef = [eventChannel, requestId].join('_');
 
       const eventAction =
-        parsed.channel.includes('obu') === true
-          ? 'update'
-          : parsed?.event || parsed.action || parsed?.header.data;
+        parsed.event || parsed.action || parsed?.header?.data || parsed.channel;
 
       if (eventType === 'api') {
         const isError = eventStatusCode !== '200';
