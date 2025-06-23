@@ -99,6 +99,7 @@ export interface SpotAccount {
   available: string;
   locked: string;
   update_id: number;
+  refresh_time: number;
 }
 
 export interface SpotAccountBook {
