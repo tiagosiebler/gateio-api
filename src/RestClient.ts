@@ -3854,6 +3854,7 @@ export class RestClient extends BaseRestClient {
 
   /**
    * Set interest reinvestment toggle
+   * @deprecated as of v4.99.0, 23-06-2025
    *
    * @param params Parameters for setting interest reinvestment toggle
    * @returns Promise<any>
