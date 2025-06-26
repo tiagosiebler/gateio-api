@@ -104,6 +104,7 @@ export abstract class BaseWebsocketClient<
   protected options: WebsocketClientOptions;
 
   private wsApiRequestId: number = 0;
+  private timeOffsetMs: number = 0;
 
   constructor(
     options?: WSClientConfigurableOptions,
@@ -192,6 +193,15 @@ export abstract class BaseWebsocketClient<
     channel: string,
     params: any,
   ): Promise<unknown>;
+
+  public getTimeOffsetMs() {
+    return this.timeOffsetMs;
+  }
+
+  // TODO: not implemented
+  public setTimeOffsetMs(newOffset: number) {
+    this.timeOffsetMs = newOffset;
+  }
 
   /**
    * Don't call directly! Use subscribe() instead!
