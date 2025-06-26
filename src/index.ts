@@ -1,6 +1,7 @@
 export * from './lib/logger.js';
 export * from './lib/websocket/websocket-util.js';
 export * from './RestClient.js';
+export * from './WebsocketAPIClient.js';
 export * from './WebsocketClient.js';
 
 // Request Types

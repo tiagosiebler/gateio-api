@@ -12,3 +12,5 @@ export const DefaultLogger = {
     console.error(params);
   },
 };
+
+export type DefaultLogger = typeof DefaultLogger;

@@ -32,6 +32,7 @@ export type FuturesWSAPITopic =
   | 'futures.order_status';
 
 export type WSAPITopic = SpotWSAPITopic | FuturesWSAPITopic;
+export type WSAPIWsKey = keyof WsAPIWsKeyTopicMap;
 
 export interface WsAPIWsKeyTopicMap {
   spotV4: SpotWSAPITopic;
