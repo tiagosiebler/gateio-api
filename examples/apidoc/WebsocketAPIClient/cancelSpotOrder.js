@@ -4,7 +4,7 @@ const { WebsocketAPIClient } = require('gateio-api');
 // This Gate.io API SDK is available on npm via "npm install gateio-api"
 // WS API ENDPOINT: spot.order_cancel
 // METHOD: WebSocket API
-// PUBLIC: 'NO'
+// PUBLIC: NO
 
 // Create a WebSocket API client instance
 const client = new WebsocketAPIClient({
