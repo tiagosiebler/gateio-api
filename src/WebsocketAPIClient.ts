@@ -1,7 +1,29 @@
 import { DefaultLogger } from './lib/logger.js';
 import { WS_KEY_MAP } from './lib/websocket/websocket-util.js';
 import { WSClientConfigurableOptions } from './types/websockets/client.js';
-import { WSAPIResponse, WSAPIWsKey } from './types/websockets/wsAPI.js';
+import {
+  WSAPIFuturesOrder,
+  WSAPIFuturesOrderAmendReq,
+  WSAPIFuturesOrderBatchPlaceRespItem,
+  WSAPIFuturesOrderCancelCPReq,
+  WSAPIFuturesOrderCancelIdsRespItem,
+  WSAPIFuturesOrderCancelReq,
+  WSAPIFuturesOrderListReq,
+  WSAPIFuturesOrderPlaceReq,
+  WSAPIFuturesOrderStatusReq,
+  WSAPIResponse,
+  WSAPISpotOrder,
+  WSAPISpotOrderAmendReq,
+  WSAPISpotOrderCancelCPReq,
+  WSAPISpotOrderCancelIdsReq,
+  WSAPISpotOrderCancelIdsRespItem,
+  WSAPISpotOrderCancelReq,
+  WSAPISpotOrderListReq,
+  WSAPISpotOrderPlaceAckResp,
+  WSAPISpotOrderPlaceReq,
+  WSAPISpotOrderStatusReq,
+  WSAPIWsKey,
+} from './types/websockets/wsAPI.js';
 import { WebsocketClient } from './WebsocketClient.js';
 
 /**
@@ -72,22 +94,216 @@ export class WebsocketAPIClient {
 
   /**
    * Submit a spot order
-   *
-   * TODO: check SpotWSAPITopic and FuturesWSAPITopic for a list of supported ws api commands
-   *
-   * docs: https://www.gate.com/docs/developers/apiv4/ws/en/#websocket-api
-   *
-   * is it only spot and futures?
-   *
-   * do they overlap (can we just make one submitNewOrder fn) or do we need one function per product group (submitNewSpotOrder vs submitNewFuturesOrder)?
    */
   submitNewSpotOrder(
-    params: any,
+    params: WSAPISpotOrderPlaceReq,
     wsKey?: WSAPIWsKey,
-  ): Promise<WSAPIResponse<any>> {
+  ): Promise<WSAPIResponse<WSAPISpotOrder | WSAPISpotOrderPlaceAckResp>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.spotV4,
       'spot.order_place',
+      params,
+    );
+  }
+
+  /**
+   * Cancel a spot order
+   */
+  cancelSpotOrder(
+    params: WSAPISpotOrderCancelReq,
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<WSAPISpotOrder>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.spotV4,
+      'spot.order_cancel',
+      params,
+    );
+  }
+
+  /**
+   * Cancel all spot orders with the given id list
+   */
+  cancelSpotOrderById(
+    params: WSAPISpotOrderCancelIdsReq[],
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<WSAPISpotOrderCancelIdsRespItem[]>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.spotV4,
+      'spot.order_cancel_ids',
+      params,
+    );
+  }
+
+  /**
+   * Cancel a spot order for a given symbol
+   */
+  cancelSpotOrderForSymbol(
+    params: WSAPISpotOrderCancelCPReq,
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<WSAPISpotOrder[]>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.spotV4,
+      'spot.order_cancel_cp',
+      params,
+    );
+  }
+
+  /**
+   * Update a spot order
+   */
+  updateSpotOrder(
+    params: WSAPISpotOrderAmendReq,
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<WSAPISpotOrder>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.spotV4,
+      'spot.order_amend',
+      params,
+    );
+  }
+
+  /**
+   * Get the status of a spot order
+   */
+  getSpotOrderStatus(
+    params: WSAPISpotOrderStatusReq,
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<WSAPISpotOrder>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.spotV4,
+      'spot.order_status',
+      params,
+    );
+  }
+
+  /**
+   * Get all spot orders
+   */
+  getSpotOrders(
+    params: WSAPISpotOrderListReq,
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<WSAPISpotOrder[]>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.spotV4,
+      'spot.order_list',
+      params,
+    );
+  }
+
+  /*
+   *
+   * Futures - Trading requests
+   *
+   */
+
+  /**
+   * Submit a futures order
+   */
+  submitNewFuturesOrder(
+    params: WSAPIFuturesOrderPlaceReq,
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<WSAPIFuturesOrder>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.perpFuturesUSDTV4 || WS_KEY_MAP.perpFuturesBTCV4,
+      'futures.order_place',
+      params,
+    );
+  }
+
+  /**
+   * Submit a batch of futures orders
+   */
+  submitNewFuturesBatchOrder(
+    params: WSAPIFuturesOrderPlaceReq[],
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<WSAPIFuturesOrderBatchPlaceRespItem[]>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.perpFuturesUSDTV4 || WS_KEY_MAP.perpFuturesBTCV4,
+      'futures.order_batch_place',
+      params,
+    );
+  }
+
+  /**
+   * Cancel a futures order
+   */
+  cancelFuturesOrder(
+    params: WSAPIFuturesOrderCancelReq,
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<WSAPIFuturesOrder>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.perpFuturesUSDTV4 || WS_KEY_MAP.perpFuturesBTCV4,
+      'futures.order_cancel',
+      params,
+    );
+  }
+
+  /**
+   * Cancel futures orders by id list
+   */
+  cancelFuturesOrderById(
+    params: string[],
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<WSAPIFuturesOrderCancelIdsRespItem[]>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.perpFuturesUSDTV4 || WS_KEY_MAP.perpFuturesBTCV4,
+      'futures.order_cancel_ids',
+      params,
+    );
+  }
+
+  /**
+   * Cancel all open futures orders
+   */
+  cancelFuturesAllOpenOrders(
+    params: WSAPIFuturesOrderCancelCPReq,
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<WSAPIFuturesOrder[]>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.perpFuturesUSDTV4 || WS_KEY_MAP.perpFuturesBTCV4,
+      'futures.order_cancel_cp',
+      params,
+    );
+  }
+
+  /**
+   * Update a futures order
+   */
+  updateFuturesOrder(
+    params: WSAPIFuturesOrderAmendReq,
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<WSAPIFuturesOrder>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.perpFuturesUSDTV4 || WS_KEY_MAP.perpFuturesBTCV4,
+      'futures.order_amend',
+      params,
+    );
+  }
+
+  /**
+   * Get all futures orders
+   */
+  getFuturesOrders(
+    params: WSAPIFuturesOrderListReq,
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<WSAPIFuturesOrder[]>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.perpFuturesUSDTV4 || WS_KEY_MAP.perpFuturesBTCV4,
+      'futures.order_list',
+      params,
+    );
+  }
+
+  /**
+   * Get futures order status
+   */
+  getFuturesOrderStatus(
+    params: WSAPIFuturesOrderStatusReq,
+    wsKey?: WSAPIWsKey,
+  ): Promise<WSAPIResponse<WSAPIFuturesOrder>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.perpFuturesUSDTV4 || WS_KEY_MAP.perpFuturesBTCV4,
+      'futures.order_status',
       params,
     );
   }
