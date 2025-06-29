@@ -19,7 +19,6 @@ import {
   WSAPISpotOrderCancelIdsRespItem,
   WSAPISpotOrderCancelReq,
   WSAPISpotOrderListReq,
-  WSAPISpotOrderPlaceAckResp,
   WSAPISpotOrderPlaceReq,
   WSAPISpotOrderStatusReq,
   WSAPIWsKey,
@@ -98,7 +97,7 @@ export class WebsocketAPIClient {
   submitNewSpotOrder(
     params: WSAPISpotOrderPlaceReq,
     wsKey?: WSAPIWsKey,
-  ): Promise<WSAPIResponse<WSAPISpotOrder | WSAPISpotOrderPlaceAckResp>> {
+  ): Promise<WSAPIResponse<WSAPISpotOrder>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.spotV4,
       'spot.order_place',

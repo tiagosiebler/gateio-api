@@ -116,10 +116,7 @@ export interface WsAPITopicResponseMap {
   'spot.login': WSAPIResponse<WSAPILoginResponse, 'spot.login'>;
   'futures.login': WSAPIResponse<WSAPILoginResponse, 'futures.login'>;
 
-  'spot.order_place': WSAPIResponse<
-    WSAPISpotOrder | WSAPISpotOrderPlaceAckResp,
-    'spot.order_place'
-  >;
+  'spot.order_place': WSAPIResponse<WSAPISpotOrder, 'spot.order_place'>;
   'spot.order_cancel': WSAPIResponse<WSAPISpotOrder, 'spot.order_cancel'>;
   'spot.order_cancel_ids': WSAPIResponse<
     WSAPISpotOrderCancelIdsRespItem[],
@@ -333,12 +330,6 @@ export interface WSAPISpotOrder {
   stp_id?: number;
   stp_act?: string;
   finish_as: string;
-}
-
-export interface WSAPISpotOrderPlaceAckResp {
-  id: string;
-  text: string;
-  amend_text: string;
 }
 
 export interface WSAPISpotOrderCancelIdsRespItem {
