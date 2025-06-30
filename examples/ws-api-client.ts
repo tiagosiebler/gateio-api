@@ -2,10 +2,8 @@ import { WebsocketAPIClient } from '../src/index.js';
 // import { LogParams, WebsocketClient } from 'gateio-api'; // normally you should install this module via npm: `npm install gateio-api`
 
 const account = {
-  key: process.env.API_KEY || '3fce5eab560d223a5957de5ac47e83fb',
-  secret:
-    process.env.API_SECRET ||
-    '8e34447d93f7c049f5edae5ec154418bbcf71152064e44c99f5c358acaaf1c28',
+  key: process.env.API_KEY || 'insert_key_here',
+  secret: process.env.API_SECRET || 'insert_secret_here',
 };
 
 async function start() {
