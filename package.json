@@ -1,7 +1,7 @@
 {
   "name": "gateio-api",
   "version": "1.1.12",
-  "description": "Complete & robust Node.js SDK for Gate.io's REST APIs, WebSockets & WebSocket APIs, with TypeScript declarations.",
+  "description": "Complete & Robust Node.js SDK for Gate.com's REST APIs, WebSockets & WebSocket APIs, with TypeScript declarations.",
   "scripts": {
     "clean": "rm -rf dist/*",
     "build": "rm -fr dist/* && tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json && bash ./postBuild.sh",
@@ -49,12 +49,16 @@
   "keywords": [
     "Gate",
     "Gate.io",
+    "Gate.com",
     "Gate api",
     "Gate.io api",
+    "Gate.com api",
     "Gate nodejs",
     "Gate javascript",
+    "Gate javascript websocket api",
     "Gate typescript",
     "Gate js",
+    "Gate ts",
     "Gate api node",
     "Gate sdk javascript",
     "algo trading",

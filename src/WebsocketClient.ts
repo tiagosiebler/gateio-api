@@ -32,6 +32,11 @@ import {
 
 export const WS_LOGGER_CATEGORY = { category: 'gate-ws' };
 
+export interface WSAPIRequestFlags {
+  /** If true, will skip auth requirement for WS API connection */
+  authIsOptional?: boolean | undefined;
+}
+
 /**
  * WS topics are always a string for gate. Some exchanges use complex objects
  */
@@ -138,7 +143,8 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   >(
     wsKey: TWSKey,
     channel: TWSChannel,
-    ...params: TWSParams extends undefined ? [] : [TWSParams]
+    params?: TWSParams extends void | never ? undefined : TWSParams,
+    requestFlags?: WSAPIRequestFlags,
   ): Promise<TWSAPIResponse>;
 
   async sendWSAPIRequest<
@@ -147,9 +153,24 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     TWSParams extends
       WsAPITopicRequestParamMap[TWSChannel] = WsAPITopicRequestParamMap[TWSChannel],
     TWSAPIResponse = object,
-  >(wsKey: TWSKey, channel: TWSChannel, params?: TWSParams): Promise<any> {
+  >(
+    wsKey: TWSKey,
+    channel: TWSChannel,
+    params: TWSParams & { signRequest?: boolean },
+    requestFlags?: WSAPIRequestFlags,
+  ): Promise<any> {
     this.logger.trace(`sendWSAPIRequest(): assert "${wsKey}" is connected`);
+
+    const timestampBeforeAuth = Date.now();
     await this.assertIsConnected(wsKey);
+
+    // Some commands don't require authentication.
+    if (requestFlags?.authIsOptional !== true) {
+      // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey})...');
+      await this.assertIsAuthenticated(wsKey);
+      // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey}) ok');
+    }
+    const timestampAfterAuth = Date.now();
 
     const signTimestamp = Date.now() + this.options.recvWindow;
     const timeInSeconds = +(signTimestamp / 1000).toFixed(0);
@@ -169,6 +190,23 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         timestamp: `${timeInSeconds}`,
       },
     };
+
+    /**
+     * Some WS API requests require a timestamp to be included. assertIsConnected and assertIsAuthenticated
+     * can introduce a small delay before the actual request is sent, if not connected before that request is
+     * made. This can lead to a curious race condition, where the request timestamp is before
+     * the "authorizedSince" timestamp - as such, binance does not recognise the session as already authenticated.
+     *
+     * The below mechanism measures any delay introduced from the assert calls, and if the request includes a timestamp,
+     * it offsets that timestamp by the delay.
+     */
+    const delayFromAuthAssert = timestampAfterAuth - timestampBeforeAuth;
+    if (delayFromAuthAssert && requestEvent.payload?.timestamp) {
+      requestEvent.payload.timestamp += delayFromAuthAssert;
+      this.logger.trace(
+        `sendWSAPIRequest(): adjust timestamp - delay seen by connect/auth assert and delayed request includes timestamp, adjusting timestamp by ${delayFromAuthAssert}ms`,
+      );
+    }
 
     // Sign request
     const signedEvent = await this.signWSAPIRequest(requestEvent);
@@ -502,6 +540,10 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     return [];
   }
 
+  protected isAuthOnConnectWsKey(wsKey: WsKey): boolean {
+    return this.getPrivateWSKeys().includes(wsKey);
+  }
+
   /** Force subscription requests to be sent in smaller batches, if a number is returned */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected getMaxTopicsPerSubscribeEvent(_wsKey: WsKey): number | null {
@@ -677,41 +719,64 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   }
 
   protected async getWsAuthRequestEvent(wsKey: WsKey): Promise<object> {
-    const market = this.getWsMarketForWsKey(wsKey);
     if (!this.options.apiKey || !this.options.apiSecret) {
       throw new Error(
         `Cannot auth - missing api key, secret or memo in config`,
       );
     }
 
-    const signTimestamp = Date.now() + this.options.recvWindow;
-    const signMessageInput = `|${signTimestamp}`;
+    // const signTimestamp = Date.now() + this.options.recvWindow;
+    // const signMessageInput = `|${signTimestamp}`;
+    // const signature = await this.signMessage(
+    //   signMessageInput,
+    //   this.options.apiSecret,
+    //   'hex',
+    //   'SHA-512',
+    // );
 
-    const signature = await this.signMessage(
-      signMessageInput,
-      this.options.apiSecret,
-      'hex',
-      'SHA-512',
-    );
-
-    switch (market) {
-      case 'all': {
-        const wsRequestEvent = {
-          id: 'auth' + signTimestamp,
-          event: 'auth',
-          params: {
-            apikey: this.options.apiKey,
-            sign: signature,
-            timestamp: signTimestamp,
-          },
-        };
-
-        return wsRequestEvent;
+    let channel: string;
+    switch (wsKey) {
+      case 'spotV4': {
+        channel = 'spot.login';
+        break;
+      }
+      case 'perpFuturesBTCV4':
+      case 'perpFuturesUSDTV4': {
+        channel = 'futures.login';
+        break;
+      }
+      case 'announcementsV4':
+      case 'deliveryFuturesBTCV4':
+      case 'deliveryFuturesUSDTV4':
+      case 'optionsV4': {
+        return {};
       }
       default: {
-        throw neverGuard(market, `Unhandled market "${market}"`);
+        throw neverGuard(wsKey, `Unhandled wsKey "${wsKey}"`);
       }
     }
+
+    const signTimestamp = Date.now() + this.options.recvWindow;
+    const timeInSeconds = +(signTimestamp / 1000).toFixed(0);
+
+    const requestEvent: WSAPIRequest<WsAPITopicRequestParamMap> = {
+      time: timeInSeconds,
+      // id: timeInSeconds,
+      channel,
+      event: 'api',
+      payload: {
+        req_id: this.getNewRequestId(),
+        req_header: {
+          'X-Gate-Channel-Id': CHANNEL_ID,
+        },
+        api_key: this.options.apiKey,
+        req_param: '',
+        timestamp: `${timeInSeconds}`,
+      },
+    };
+
+    const signedEvent = await this.signWSAPIRequest(requestEvent);
+    return signedEvent;
   }
 
   /**
