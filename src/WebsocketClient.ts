@@ -214,17 +214,43 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     // Store deferred promise
     const promiseRef = getPromiseRefForWSAPIRequest(requestEvent);
 
-    const deferredPromise =
-      this.getWsStore().createDeferredPromise<TWSAPIResponse>(
-        wsKey,
-        promiseRef,
-        false,
-      );
+    const deferredPromise = this.getWsStore().createDeferredPromise<
+      TWSAPIResponse & { request: any }
+    >(wsKey, promiseRef, false);
+
+    // Enrich returned promise with request context for easier debugging
+    deferredPromise.promise
+      ?.then((res) => {
+        if (!Array.isArray(res)) {
+          res.request = {
+            wsKey: wsKey,
+            ...signedEvent,
+          };
+        }
+
+        return res;
+      })
+      .catch((e) => {
+        if (typeof e === 'string') {
+          this.logger.error('unexpcted string', { e });
+          return e;
+        }
+        e.request = {
+          wsKey: wsKey,
+          channel,
+          payload: signedEvent.payload,
+        };
+        // throw e;
+        return e;
+      });
 
     // Send event
-    this.tryWsSend(wsKey, JSON.stringify(signedEvent));
+    const throwExceptions = true;
+    this.tryWsSend(wsKey, JSON.stringify(signedEvent), throwExceptions);
 
-    this.logger.trace(`sendWSAPIRequest(): sent ${channel} event`);
+    this.logger.trace(
+      `sendWSAPIRequest(): sent "${channel}" event with promiseRef(${promiseRef})`,
+    );
 
     // Return deferred promise, so caller can await this call
     return deferredPromise.promise!;
