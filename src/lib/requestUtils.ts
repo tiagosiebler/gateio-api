@@ -31,6 +31,19 @@ export interface RestClientOptions {
   parseExceptions?: boolean;
 
   /**
+   * Enable keep alive for REST API requests (via axios).
+   * See: https://github.com/tiagosiebler/bybit-api/issues/368
+   */
+  keepAlive?: boolean;
+
+  /**
+   * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+   * Only relevant if keepAlive is set to true.
+   * Default: 1000 (defaults comes from https agent)
+   */
+  keepAliveMsecs?: number;
+
+  /**
    * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
    *
    * Look in the examples folder for a demonstration on using node's createHmac instead.
