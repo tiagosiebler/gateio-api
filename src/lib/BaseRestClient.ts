@@ -477,6 +477,12 @@ export abstract class BaseRestClient {
     deleteUndefinedValues(params?.query);
     deleteUndefinedValues(params?.headers);
 
+    if (!isPublicApi && (!this.apiKey || !this.apiSecret)) {
+      throw new Error(
+        'API Key & Secret are both required for private endpoints',
+      );
+    }
+
     if (isPublicApi || !this.apiKey || !this.apiSecret) {
       return {
         ...options,
