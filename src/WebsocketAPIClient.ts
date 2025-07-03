@@ -91,13 +91,6 @@ export class WebsocketAPIClient {
    *
    */
 
-  loginSpot(wsKey?: WSAPIWsKey): Promise<any> {
-    return this.wsClient.sendWSAPIRequest(
-      wsKey || WS_KEY_MAP.spotV4,
-      'spot.login',
-    );
-  }
-
   /**
    * Submit a spot order
    */
@@ -201,13 +194,6 @@ export class WebsocketAPIClient {
    * Futures - Trading requests
    *
    */
-
-  loginFutures(wsKey?: WSAPIWsKey): Promise<any> {
-    return this.wsClient.sendWSAPIRequest(
-      wsKey || WS_KEY_MAP.perpFuturesUSDTV4 || WS_KEY_MAP.perpFuturesBTCV4,
-      'futures.login',
-    );
-  }
 
   /**
    * Submit a futures order

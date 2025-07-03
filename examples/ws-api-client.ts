@@ -14,9 +14,13 @@ async function start() {
   });
 
   try {
-    console.log(new Date(), 'try authenticate');
-    const loginResult = await client.loginSpot();
-    console.log(new Date(), 'Result:', loginResult);
+    /**
+     * Optional: authenticate in advance. This will prepare and authenticate a connection.
+     * Useful to save time for the first request but completely optional. It will also happen automatically when you make your first request.
+     */
+    // console.log(new Date(), 'Authenticating in advance...');
+    // await client.getWSClient().connectWSAPI('spotV4');
+    // console.log(new Date(), 'Authenticating in advance...OK!');
 
     /* ============ SPOT TRADING EXAMPLES ============ */
 
@@ -97,9 +101,15 @@ async function start() {
 
     /* ============ FUTURES TRADING EXAMPLES ============ */
 
-    // FUTURES LOGIN - Login to futures API
-    const futuresLoginResult = await client.loginFutures();
-    console.log(new Date(), 'Futures login result:', futuresLoginResult);
+    /**
+     * Also optional, as for spot. Keep in mind the first parameter (wsKey) might vary depending on which WS URL is needed.
+     */
+    // console.log(new Date(), 'Authenticating in advance...');
+    await client.getWSClient().connectWSAPI('perpFuturesUSDTV4');
+    // await client.getWSClient().connectWSAPI('perpFuturesBTCV4');
+    // await client.getWSClient().connectWSAPI('deliveryFuturesUSDTV4');
+    // await client.getWSClient().connectWSAPI('perpFuturesBTCV4');
+    // console.log(new Date(), 'Authenticating in advance...OK!');
 
     // FUTURES ORDER PLACE - Submit a new futures order
     const newFuturesOrder = await client.submitNewFuturesOrder({
