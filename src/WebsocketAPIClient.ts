@@ -55,7 +55,7 @@ export interface WSAPIClientConfigurableOptions {
  * may find the below methods slightly more intuitive.
  *
  * Refer to the WS API promises example for a more detailed example on using sendWSAPIRequest() directly:
- * https://github.com/tiagosiebler/binance/blob/master/examples/WebSockets/ws-api-raw-promises.ts#L108
+ * https://github.com/tiagosiebler/gateio-api/blob/master/examples/ws-private-spot-wsapi.ts#L119
  */
 export class WebsocketAPIClient {
   private wsClient: WebsocketClient;
