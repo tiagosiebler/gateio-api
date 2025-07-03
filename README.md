@@ -255,7 +255,8 @@ See [WebsocketClient](./src/WebsocketClient.ts) for further information and make
 The [WebsocketClient](./src/WebsocketClient.ts) supports this exchange's Websocket API. There are two ways to use the WS API, depending on individual preference:
 
 - event-driven:
-  - send requests via `client.sendWSAPIRequest(wsKey, channel, params)`, fire and forget, don't use await
+  - send requests via `client.sendWSAPIRequest(wsKey, channel, params).catch(e => console.error('WS API
+  exception for channel', channel, e))`, fire and forget, don't use await
   - handle async replies via event handlers on `client.on('exception', cb)` and `client.on('response', cb)`
 - promise-driven:
   - send requests via `const result = await client.sendWSAPIRequest(wsKey, channel, params)`, which returns a promise

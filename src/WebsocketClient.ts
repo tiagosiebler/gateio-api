@@ -27,6 +27,7 @@ import {
 import {
   WsAPITopicRequestParamMap,
   WsAPITopicResponseMap,
+  WSAPIWsKey,
   WsAPIWsKeyTopicMap,
 } from './types/websockets/wsAPI.js';
 
@@ -56,6 +57,21 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       this.connect(WS_KEY_MAP.optionsV4),
       this.connect(WS_KEY_MAP.announcementsV4),
     ];
+  }
+
+  /**
+   * Ensures the WS API connection is active and ready.
+   *
+   * You do not need to call this, but if you call this before making any WS API requests,
+   * it can accelerate the first request (by preparing the connection in advance).
+   */
+  public connectWSAPI(wsKey: WSAPIWsKey, skipAuth?: boolean): Promise<unknown> {
+    if (skipAuth) {
+      return this.assertIsConnected(wsKey);
+    }
+
+    /** This call automatically ensures the connection is active AND authenticated before resolving */
+    return this.assertIsAuthenticated(wsKey);
   }
 
   /**
@@ -161,7 +177,6 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   ): Promise<any> {
     this.logger.trace(`sendWSAPIRequest(): assert "${wsKey}" is connected`);
 
-    const timestampBeforeAuth = Date.now();
     await this.assertIsConnected(wsKey);
 
     // Some commands don't require authentication.
@@ -170,8 +185,8 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       await this.assertIsAuthenticated(wsKey);
       // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey}) ok');
     }
-    const timestampAfterAuth = Date.now();
 
+    const timestampBeforeAuth = Date.now();
     const signTimestamp = Date.now() + this.options.recvWindow;
     const timeInSeconds = +(signTimestamp / 1000).toFixed(0);
 
@@ -190,6 +205,8 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         timestamp: `${timeInSeconds}`,
       },
     };
+
+    const timestampAfterAuth = Date.now();
 
     /**
      * Some WS API requests require a timestamp to be included. assertIsConnected and assertIsAuthenticated

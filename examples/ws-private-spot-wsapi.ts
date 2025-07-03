@@ -36,8 +36,6 @@ async function start() {
     customLogger,
   );
 
-  client.sendWSAPIRequest('perpFuturesUSDTV4', 'futures.login');
-
   client.on('open', (data) => {
     console.log(new Date(), 'ws connected ', data?.wsKey);
   });
@@ -94,14 +92,13 @@ async function start() {
      */
 
     /**
-     * To authenticate, send an empty request to "spot.login". The SDK will handle all the parameters.
+     * No need to authenticate first - the SDK will automatically authenticate for you when you send your first request.
      *
-     * Optional - you can inject rich types to set the response type
-     *    const loginResult = await client.sendWSAPIRequest<WSAPIResponse<WSAPILoginResponse>>('spotV4', 'spot.login');
+     * Unless you want to prepare the connection before your first request, to speed up your first request.
      */
     console.log(new Date(), 'try authenticate');
-    const loginResult = await client.sendWSAPIRequest('spotV4', 'spot.login');
-    console.log(new Date(), 'authenticated!', loginResult);
+    await client.connectWSAPI('spotV4');
+    console.log(new Date(), 'authenticated!');
 
     /**
      * For other channels, the 3rd parameter should have any parameters for the request (the payload that goes in req_param in the docs).
@@ -202,6 +199,21 @@ async function start() {
     );
 
     console.log(new Date(), 'orderStatus result!', orderStatus);
+
+    /**
+     * If you don't want to use await (and prefer the async event emitter), make sure to still include a catch block.
+     *
+     * The response will come async via the event emitter in the WS Client.
+     */
+
+    // client
+    //   .sendWSAPIRequest('spotV4', 'spot.order_status', {
+    //     order_id: '600995435390',
+    //     currency_pair: 'BTC_USDT',
+    //   })
+    //   .catch((e) => {
+    //     console.error(`exception ws api call, get spot order status: `, e);
+    //   });
   } catch (e) {
     console.error(`WS API Error: `, e);
   }
