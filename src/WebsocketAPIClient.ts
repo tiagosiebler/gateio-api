@@ -196,14 +196,16 @@ export class WebsocketAPIClient {
    */
 
   /**
-   * Submit a futures order
+   * Submit a futures order.
+   *
+   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
    */
   submitNewFuturesOrder(
     params: WSAPIFuturesOrderPlaceReq,
     wsKey?: WSAPIWsKey,
   ): Promise<WSAPIResponse<WSAPIFuturesOrder>> {
     return this.wsClient.sendWSAPIRequest(
-      wsKey || WS_KEY_MAP.perpFuturesUSDTV4 || WS_KEY_MAP.perpFuturesBTCV4,
+      wsKey || WS_KEY_MAP.perpFuturesUSDTV4,
       'futures.order_place',
       params,
     );
@@ -211,13 +213,15 @@ export class WebsocketAPIClient {
 
   /**
    * Submit a batch of futures orders
+   *
+   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
    */
   submitNewFuturesBatchOrder(
     params: WSAPIFuturesOrderPlaceReq[],
     wsKey?: WSAPIWsKey,
   ): Promise<WSAPIResponse<WSAPIFuturesOrderBatchPlaceRespItem[]>> {
     return this.wsClient.sendWSAPIRequest(
-      wsKey || WS_KEY_MAP.perpFuturesUSDTV4 || WS_KEY_MAP.perpFuturesBTCV4,
+      wsKey || WS_KEY_MAP.perpFuturesUSDTV4,
       'futures.order_batch_place',
       params,
     );
@@ -225,13 +229,15 @@ export class WebsocketAPIClient {
 
   /**
    * Cancel a futures order
+   *
+   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
    */
   cancelFuturesOrder(
     params: WSAPIFuturesOrderCancelReq,
     wsKey?: WSAPIWsKey,
   ): Promise<WSAPIResponse<WSAPIFuturesOrder>> {
     return this.wsClient.sendWSAPIRequest(
-      wsKey || WS_KEY_MAP.perpFuturesUSDTV4 || WS_KEY_MAP.perpFuturesBTCV4,
+      wsKey || WS_KEY_MAP.perpFuturesUSDTV4,
       'futures.order_cancel',
       params,
     );
@@ -239,13 +245,15 @@ export class WebsocketAPIClient {
 
   /**
    * Cancel futures orders by id list
+   *
+   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
    */
   cancelFuturesOrderById(
     params: string[],
     wsKey?: WSAPIWsKey,
   ): Promise<WSAPIResponse<WSAPIFuturesOrderCancelIdsRespItem[]>> {
     return this.wsClient.sendWSAPIRequest(
-      wsKey || WS_KEY_MAP.perpFuturesUSDTV4 || WS_KEY_MAP.perpFuturesBTCV4,
+      wsKey || WS_KEY_MAP.perpFuturesUSDTV4,
       'futures.order_cancel_ids',
       params,
     );
@@ -253,13 +261,15 @@ export class WebsocketAPIClient {
 
   /**
    * Cancel all open futures orders
+   *
+   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
    */
   cancelFuturesAllOpenOrders(
     params: WSAPIFuturesOrderCancelCPReq,
     wsKey?: WSAPIWsKey,
   ): Promise<WSAPIResponse<WSAPIFuturesOrder[]>> {
     return this.wsClient.sendWSAPIRequest(
-      wsKey || WS_KEY_MAP.perpFuturesUSDTV4 || WS_KEY_MAP.perpFuturesBTCV4,
+      wsKey || WS_KEY_MAP.perpFuturesUSDTV4,
       'futures.order_cancel_cp',
       params,
     );
@@ -267,13 +277,15 @@ export class WebsocketAPIClient {
 
   /**
    * Update a futures order
+   *
+   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
    */
   updateFuturesOrder(
     params: WSAPIFuturesOrderAmendReq,
     wsKey?: WSAPIWsKey,
   ): Promise<WSAPIResponse<WSAPIFuturesOrder>> {
     return this.wsClient.sendWSAPIRequest(
-      wsKey || WS_KEY_MAP.perpFuturesUSDTV4 || WS_KEY_MAP.perpFuturesBTCV4,
+      wsKey || WS_KEY_MAP.perpFuturesUSDTV4,
       'futures.order_amend',
       params,
     );
@@ -281,13 +293,15 @@ export class WebsocketAPIClient {
 
   /**
    * Get all futures orders
+   *
+   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
    */
   getFuturesOrders(
     params: WSAPIFuturesOrderListReq,
     wsKey?: WSAPIWsKey,
   ): Promise<WSAPIResponse<WSAPIFuturesOrder[]>> {
     return this.wsClient.sendWSAPIRequest(
-      wsKey || WS_KEY_MAP.perpFuturesUSDTV4 || WS_KEY_MAP.perpFuturesBTCV4,
+      wsKey || WS_KEY_MAP.perpFuturesUSDTV4,
       'futures.order_list',
       params,
     );
@@ -295,13 +309,15 @@ export class WebsocketAPIClient {
 
   /**
    * Get futures order status
+   *
+   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
    */
   getFuturesOrderStatus(
     params: WSAPIFuturesOrderStatusReq,
     wsKey?: WSAPIWsKey,
   ): Promise<WSAPIResponse<WSAPIFuturesOrder>> {
     return this.wsClient.sendWSAPIRequest(
-      wsKey || WS_KEY_MAP.perpFuturesUSDTV4 || WS_KEY_MAP.perpFuturesBTCV4,
+      wsKey || WS_KEY_MAP.perpFuturesUSDTV4,
       'futures.order_status',
       params,
     );

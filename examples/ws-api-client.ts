@@ -1,4 +1,4 @@
-import { WebsocketAPIClient } from '../src/index.js';
+import { WebsocketAPIClient, WS_KEY_MAP } from '../src/index.js';
 // import { LogParams, WebsocketClient } from 'gateio-api'; // normally you should install this module via npm: `npm install gateio-api`
 
 const account = {
@@ -102,9 +102,18 @@ async function start() {
     /* ============ FUTURES TRADING EXAMPLES ============ */
 
     /**
+     * Gate has different websocket groups depending on the futures product.
+     *
+     * This affects which connection your command is sent to, so make sure to pass one matching your request. Look at WS_KEY_MAP (or the examples below) for details on the available product groups.
+     */
+    const FUTURES_CONNECTION_GROUP_WS_KEY = WS_KEY_MAP.perpFuturesUSDTV4;
+
+    /**
      * Also optional, as for spot. Keep in mind the first parameter (wsKey) might vary depending on which WS URL is needed.
      */
+
     // console.log(new Date(), 'Authenticating in advance...');
+    // await client.getWSClient().connectWSAPI(futuresConnectionGroup);
     // await client.getWSClient().connectWSAPI('perpFuturesUSDTV4');
     // await client.getWSClient().connectWSAPI('perpFuturesBTCV4');
     // await client.getWSClient().connectWSAPI('deliveryFuturesUSDTV4');
@@ -112,37 +121,43 @@ async function start() {
     // console.log(new Date(), 'Authenticating in advance...OK!');
 
     // FUTURES ORDER PLACE - Submit a new futures order
-    const newFuturesOrder = await client.submitNewFuturesOrder({
-      contract: 'BTC_USDT',
-      size: 10,
-      price: '31503.28',
-      tif: 'gtc',
-      text: 't-my-custom-id',
-      iceberg: 0,
-      close: false,
-      reduce_only: false,
-      auto_size: undefined,
-      stp_act: 'cn',
-    });
-    console.log(new Date(), 'New futures order result:', newFuturesOrder.data);
-
-    // FUTURES ORDER BATCH PLACE - Submit multiple futures orders
-    const batchFuturesOrders = await client.submitNewFuturesBatchOrder([
+    const newFuturesOrder = await client.submitNewFuturesOrder(
       {
         contract: 'BTC_USDT',
         size: 10,
-        price: '31403.18',
+        price: '31503.28',
         tif: 'gtc',
-        text: 't-my-custom-id-1',
+        text: 't-my-custom-id',
+        iceberg: 0,
+        close: false,
+        reduce_only: false,
+        auto_size: undefined,
+        stp_act: 'cn',
       },
-      {
-        contract: 'ETH_USDT',
-        size: 20,
-        price: '2500.50',
-        tif: 'gtc',
-        text: 't-my-custom-id-2',
-      },
-    ]);
+      FUTURES_CONNECTION_GROUP_WS_KEY,
+    );
+    console.log(new Date(), 'New futures order result:', newFuturesOrder.data);
+
+    // FUTURES ORDER BATCH PLACE - Submit multiple futures orders
+    const batchFuturesOrders = await client.submitNewFuturesBatchOrder(
+      [
+        {
+          contract: 'BTC_USDT',
+          size: 10,
+          price: '31403.18',
+          tif: 'gtc',
+          text: 't-my-custom-id-1',
+        },
+        {
+          contract: 'ETH_USDT',
+          size: 20,
+          price: '2500.50',
+          tif: 'gtc',
+          text: 't-my-custom-id-2',
+        },
+      ],
+      FUTURES_CONNECTION_GROUP_WS_KEY,
+    );
     console.log(
       new Date(),
       'Batch futures orders result:',
@@ -150,9 +165,12 @@ async function start() {
     );
 
     // FUTURES ORDER CANCEL - Cancel a specific futures order
-    const cancelFuturesOrder = await client.cancelFuturesOrder({
-      order_id: '74046514',
-    });
+    const cancelFuturesOrder = await client.cancelFuturesOrder(
+      {
+        order_id: '74046514',
+      },
+      FUTURES_CONNECTION_GROUP_WS_KEY,
+    );
     console.log(
       new Date(),
       'Cancel futures order result:',
@@ -160,10 +178,10 @@ async function start() {
     );
 
     // FUTURES ORDER CANCEL BY IDS - Cancel futures orders by ID list
-    const cancelFuturesOrdersByIds = await client.cancelFuturesOrderById([
-      '1694883366',
-      '123',
-    ]);
+    const cancelFuturesOrdersByIds = await client.cancelFuturesOrderById(
+      ['1694883366', '123'],
+      FUTURES_CONNECTION_GROUP_WS_KEY,
+    );
     console.log(
       new Date(),
       'Cancel futures orders by IDs result:',
@@ -171,10 +189,13 @@ async function start() {
     );
 
     // FUTURES ORDER CANCEL ALL - Cancel all open futures orders
-    const cancelAllFuturesOrders = await client.cancelFuturesAllOpenOrders({
-      contract: 'BTC_USDT',
-      side: 'bid',
-    });
+    const cancelAllFuturesOrders = await client.cancelFuturesAllOpenOrders(
+      {
+        contract: 'BTC_USDT',
+        side: 'bid',
+      },
+      FUTURES_CONNECTION_GROUP_WS_KEY,
+    );
     console.log(
       new Date(),
       'Cancel all futures orders result:',
@@ -182,12 +203,15 @@ async function start() {
     );
 
     // FUTURES ORDER AMEND - Update an existing futures order
-    const amendFuturesOrder = await client.updateFuturesOrder({
-      order_id: '74046543',
-      price: '31303.18',
-      size: 15,
-      amend_text: 'price-and-size-update',
-    });
+    const amendFuturesOrder = await client.updateFuturesOrder(
+      {
+        order_id: '74046543',
+        price: '31303.18',
+        size: 15,
+        amend_text: 'price-and-size-update',
+      },
+      FUTURES_CONNECTION_GROUP_WS_KEY,
+    );
     console.log(
       new Date(),
       'Amend futures order result:',
@@ -195,14 +219,17 @@ async function start() {
     );
 
     // FUTURES ORDER LIST - Get list of futures orders
-    const getFuturesOrders = await client.getFuturesOrders({
-      contract: 'BTC_USDT',
-      status: 'open',
-      limit: 10,
-      offset: 0,
-      last_id: undefined,
-      count_total: 0,
-    });
+    const getFuturesOrders = await client.getFuturesOrders(
+      {
+        contract: 'BTC_USDT',
+        status: 'open',
+        limit: 10,
+        offset: 0,
+        last_id: undefined,
+        count_total: 0,
+      },
+      FUTURES_CONNECTION_GROUP_WS_KEY,
+    );
     console.log(
       new Date(),
       'Futures orders list result:',
@@ -210,9 +237,12 @@ async function start() {
     );
 
     // FUTURES ORDER STATUS - Get status of a specific futures order
-    const futuresOrderStatus = await client.getFuturesOrderStatus({
-      order_id: '74046543',
-    });
+    const futuresOrderStatus = await client.getFuturesOrderStatus(
+      {
+        order_id: '74046543',
+      },
+      FUTURES_CONNECTION_GROUP_WS_KEY,
+    );
     console.log(
       new Date(),
       'Futures order status result:',
