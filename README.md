@@ -38,7 +38,7 @@ Updated & performant JavaScript & Node.js SDK for the Gate.com (gate.io) REST AP
   - Automatic authentication, just call sendWSAPIRequest with channel & parameters.
   - Choose between two interfaces for WS API communication:
     - Event-driven interface, fire & forget via sendWSAPIRequest and receive async replies via wsClient's event emitter.
-    - Promise-driven interface, simply call and await sendWSAPIRequest for a REST-API-like behaviour with the WS API.
+    - Promise-driven interface, simply use the WebsocketAPIClient for a REST-like experience. Use the WebSocket API like a REST API! See [examples/ws-api-client.ts](./examples/ws-api-client.ts) for a demonstration.
 - Proxy support via axios integration.
 - Active community support & collaboration in telegram: [Node.js Algo Traders](https://t.me/nodetraders).
 
