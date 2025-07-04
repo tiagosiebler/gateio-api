@@ -252,107 +252,113 @@ See [WebsocketClient](./src/WebsocketClient.ts) for further information and make
 
 ### Websocket API
 
-The [WebsocketClient](./src/WebsocketClient.ts) supports this exchange's Websocket API. There are two ways to use the WS API, depending on individual preference:
+Gate.com supports sending requests (commands) over an active WebSocket connection. This is called the WebSocket API.
+
+The WebSocket API is available through two approaches, depending on individual preference:
+
+#### Event Driven API
+
+The WebSocket API is available in the [WebsocketClient](./src/WebsocketClient.ts) via the `sendWSAPIRequest(wsKey, channel, params)` method.
+
+Each call to this method is wrapped in a promise, which you can async await for a response, or handle it in a raw event-driven design.
 
 - event-driven:
-  - send requests via `client.sendWSAPIRequest(wsKey, channel, params).catch(e => console.error('WS API
-  exception for channel', channel, e))`, fire and forget, don't use await
+  - send requests via `client.sendWSAPIRequest(wsKey, channel, params).catch(e => console.error('WS API exception for channel', channel, e))`, fire and forget, don't use await
   - handle async replies via event handlers on `client.on('exception', cb)` and `client.on('response', cb)`
 - promise-driven:
   - send requests via `const result = await client.sendWSAPIRequest(wsKey, channel, params)`, which returns a promise
   - await each call
   - use try/catch blocks to handle promise rejections
 
-The below example demonstrates the promise-driven approach, which behaves similar to a REST API. For more detailed examples, refer to the [examples](./examples/) folder (e.g the [ws-private-spot-wsapi.ts](./examples/ws-private-spot-wsapi.ts) example).
+#### REST-like API
+
+The WebSocket API is also available in a promise-wrapped REST-like format. Either, as above, await any calls to `sendWSAPIRequest(...)`, or directly use the convenient WebsocketAPIClient. This class is very similar to existing REST API classes (such as the RestClient).
+
+It provides one function per endpoint, feels like a REST API and will automatically route your request via an automatically persisted, authenticated and health-checked WebSocket API connection.
+
+Below is an example showing how easy it is to use the WebSocket API without any concern for the complexity of managing WebSockets.
 
 ```javascript
-const { WebsocketClient } = require('gateio-api');
+const { WebsocketAPIClient } = require('gateio-api');
 
 const API_KEY = 'xxx';
-const PRIVATE_KEY = 'yyy';
+const API_SECRET = 'yyy';
 
 async function start() {
-  const client = new WebsocketClient({
+  // Make an instance of the WS API Client
+  const wsClient = new WebsocketAPIClient({
     apiKey: API_KEY,
-    apiSecret: PRIVATE_KEY,
+    apiSecret: API_SECRET,
     // Automatically re-auth WS API, if we were auth'd before and get reconnected
     reauthWSAPIOnReconnect: true,
   });
 
-  /**
-   * Setup basic event handlers for core connectivity events.
-   * Note for this approach, the `response` and `update` events are not needed (but you can use them too/instead if you prefer).
-   **/
-
-  // Successfully connected
-  client.on('open', (data) => {
-    console.log(new Date(), 'ws connected ', data?.wsKey);
-  });
-
-  // Something happened, attempting to reconnect
-  client.on('reconnect', (data) => {
-    console.log(new Date(), 'ws reconnect: ', data);
-  });
-
-  // Reconnect successful
-  client.on('reconnected', (data) => {
-    console.log(new Date(), 'ws reconnected: ', data);
-  });
-
-  // Connection closed. If unexpected, expect reconnect -> reconnected.
-  client.on('close', (data) => {
-    console.error(new Date(), 'ws close: ', data);
-  });
-
-  client.on('exception', (data) => {
-    console.error(new Date(), 'ws exception: ', data);
-  });
-
-  client.on('authenticated', (data) => {
-    console.error(new Date(), 'ws authenticated: ', data);
-  });
-
   try {
-    /**
-     * All WebSocket API (WS API) messaging should be done via the sendWSAPIRequest method.
-     */
+    // Connection will authenticate automatically before first request
+    // Make WebSocket API calls, very similar to a REST API:
 
-    // The WSKey identifies which connection this request is for.
-    // (e.g. "spotV4" | "perpFuturesUSDTV4" | "perpFuturesBTCV4" | "deliveryFuturesUSDTV4" | "deliveryFuturesBTCV4" | "optionsV4")
-    const wsKey = 'spotV4';
+    /* ============ SPOT TRADING EXAMPLES ============ */
 
-    /**
-     * To authenticate, send an empty request to "spot.login". The SDK will handle all the parameters.
-     *
-     * By default (reauthWSAPIOnReconnect: true), if we get reconnected later on (e.g. connection temporarily lost), we will try to re-authenticate the WS API automatically when the connection is restored.
-     */
-    console.log(new Date(), 'try authenticate');
-    const loginResult = await client.sendWSAPIRequest(wsKey, 'spot.login');
-    console.log(new Date(), 'authenticated!', loginResult);
+    // Submit a new spot order
+    const newOrder = await wsClient.submitNewSpotOrder({
+      text: 't-my-custom-id',
+      currency_pair: 'BTC_USDT',
+      type: 'limit',
+      account: 'spot',
+      side: 'buy',
+      amount: '1',
+      price: '10000',
+    });
+    console.log('Order result:', newOrder.data);
 
-    /**
-     * For other channels, you should include any parameters for the request (the payload) in your call.
-     *
-     * Note that internal parameters such as "signature" etc are all handled automatically by the SDK. Only the core request parameters are needed.
-     */
-    console.log(new Date(), 'try get order status');
-    const orderStatus = await client.sendWSAPIRequest(
-      wsKey,
-      'spot.order_status',
-      {
-        order_id: '600995435390',
-        currency_pair: 'BTC_USDT',
-      },
-    );
+    // Cancel a spot order
+    const cancelOrder = await wsClient.cancelSpotOrder({
+      order_id: '1700664330',
+      currency_pair: 'BTC_USDT',
+      account: 'spot',
+    });
+    console.log('Cancel result:', cancelOrder.data);
 
-    console.log(new Date(), 'orderStatus result!', orderStatus);
+    // Get spot order status
+    const orderStatus = await wsClient.getSpotOrderStatus({
+      order_id: '1700664330',
+      currency_pair: 'BTC_USDT',
+      account: 'spot',
+    });
+    console.log('Order status:', orderStatus.data);
+
+    /* ============ FUTURES TRADING EXAMPLES ============ */
+
+    // Submit a new futures order
+    const newFuturesOrder = await wsClient.submitNewFuturesOrder({
+      contract: 'BTC_USDT',
+      size: 10,
+      price: '31503.28',
+      tif: 'gtc',
+      text: 't-my-custom-id',
+    });
+    console.log('Futures order result:', newFuturesOrder.data);
+
+    // Cancel a futures order
+    const cancelFuturesOrder = await wsClient.cancelFuturesOrder({
+      order_id: '74046514',
+    });
+    console.log('Cancel futures order result:', cancelFuturesOrder.data);
+
+    // Get futures order status
+    const futuresOrderStatus = await wsClient.getFuturesOrderStatus({
+      order_id: '74046543',
+    });
+    console.log('Futures order status:', futuresOrderStatus.data);
   } catch (e) {
-    console.error(`WS API Error: `, e);
+    console.error('WS API Error:', e);
   }
 }
 
 start();
 ```
+
+For more detailed examples using any approach, refer to the [examples](./examples/) folder (e.g. [ws-api-client.ts](./examples/ws-api-client.ts)).
 
 ---
 
