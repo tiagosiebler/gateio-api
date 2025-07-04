@@ -105,7 +105,7 @@ async function start() {
      * Also optional, as for spot. Keep in mind the first parameter (wsKey) might vary depending on which WS URL is needed.
      */
     // console.log(new Date(), 'Authenticating in advance...');
-    await client.getWSClient().connectWSAPI('perpFuturesUSDTV4');
+    // await client.getWSClient().connectWSAPI('perpFuturesUSDTV4');
     // await client.getWSClient().connectWSAPI('perpFuturesBTCV4');
     // await client.getWSClient().connectWSAPI('deliveryFuturesUSDTV4');
     // await client.getWSClient().connectWSAPI('perpFuturesBTCV4');
