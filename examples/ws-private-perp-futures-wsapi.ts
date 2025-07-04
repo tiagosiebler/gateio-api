@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { LogParams, WebsocketClient } from '../src';
+import { LogParams, WebsocketClient } from '../src/index.js';
 // import { LogParams, WebsocketClient } from 'gateio-api'; // normally you should install this module via npm: `npm install gateio-api`
 
 const account = {
@@ -205,6 +205,7 @@ async function start() {
       'futures.order_list',
       {
         status: 'open',
+        contract: 'BTC_USDT',
       },
     );
 

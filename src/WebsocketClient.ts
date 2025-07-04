@@ -27,10 +27,16 @@ import {
 import {
   WsAPITopicRequestParamMap,
   WsAPITopicResponseMap,
+  WSAPIWsKey,
   WsAPIWsKeyTopicMap,
 } from './types/websockets/wsAPI.js';
 
 export const WS_LOGGER_CATEGORY = { category: 'gate-ws' };
+
+export interface WSAPIRequestFlags {
+  /** If true, will skip auth requirement for WS API connection */
+  authIsOptional?: boolean | undefined;
+}
 
 /**
  * WS topics are always a string for gate. Some exchanges use complex objects
@@ -51,6 +57,21 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       this.connect(WS_KEY_MAP.optionsV4),
       this.connect(WS_KEY_MAP.announcementsV4),
     ];
+  }
+
+  /**
+   * Ensures the WS API connection is active and ready.
+   *
+   * You do not need to call this, but if you call this before making any WS API requests,
+   * it can accelerate the first request (by preparing the connection in advance).
+   */
+  public connectWSAPI(wsKey: WSAPIWsKey, skipAuth?: boolean): Promise<unknown> {
+    if (skipAuth) {
+      return this.assertIsConnected(wsKey);
+    }
+
+    /** This call automatically ensures the connection is active AND authenticated before resolving */
+    return this.assertIsAuthenticated(wsKey);
   }
 
   /**
@@ -138,7 +159,8 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   >(
     wsKey: TWSKey,
     channel: TWSChannel,
-    ...params: TWSParams extends undefined ? [] : [TWSParams]
+    params?: TWSParams extends void | never ? undefined : TWSParams,
+    requestFlags?: WSAPIRequestFlags,
   ): Promise<TWSAPIResponse>;
 
   async sendWSAPIRequest<
@@ -147,10 +169,24 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     TWSParams extends
       WsAPITopicRequestParamMap[TWSChannel] = WsAPITopicRequestParamMap[TWSChannel],
     TWSAPIResponse = object,
-  >(wsKey: TWSKey, channel: TWSChannel, params?: TWSParams): Promise<any> {
+  >(
+    wsKey: TWSKey,
+    channel: TWSChannel,
+    params: TWSParams & { signRequest?: boolean },
+    requestFlags?: WSAPIRequestFlags,
+  ): Promise<any> {
     this.logger.trace(`sendWSAPIRequest(): assert "${wsKey}" is connected`);
+
     await this.assertIsConnected(wsKey);
 
+    // Some commands don't require authentication.
+    if (requestFlags?.authIsOptional !== true) {
+      // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey})...');
+      await this.assertIsAuthenticated(wsKey);
+      // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey}) ok');
+    }
+
+    const timestampBeforeAuth = Date.now();
     const signTimestamp = Date.now() + this.options.recvWindow;
     const timeInSeconds = +(signTimestamp / 1000).toFixed(0);
 
@@ -170,23 +206,68 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       },
     };
 
+    const timestampAfterAuth = Date.now();
+
+    /**
+     * Some WS API requests require a timestamp to be included. assertIsConnected and assertIsAuthenticated
+     * can introduce a small delay before the actual request is sent, if not connected before that request is
+     * made. This can lead to a curious race condition, where the request timestamp is before
+     * the "authorizedSince" timestamp - as such, binance does not recognise the session as already authenticated.
+     *
+     * The below mechanism measures any delay introduced from the assert calls, and if the request includes a timestamp,
+     * it offsets that timestamp by the delay.
+     */
+    const delayFromAuthAssert = timestampAfterAuth - timestampBeforeAuth;
+    if (delayFromAuthAssert && requestEvent.payload?.timestamp) {
+      requestEvent.payload.timestamp += delayFromAuthAssert;
+      this.logger.trace(
+        `sendWSAPIRequest(): adjust timestamp - delay seen by connect/auth assert and delayed request includes timestamp, adjusting timestamp by ${delayFromAuthAssert}ms`,
+      );
+    }
+
     // Sign request
     const signedEvent = await this.signWSAPIRequest(requestEvent);
 
     // Store deferred promise
     const promiseRef = getPromiseRefForWSAPIRequest(requestEvent);
 
-    const deferredPromise =
-      this.getWsStore().createDeferredPromise<TWSAPIResponse>(
-        wsKey,
-        promiseRef,
-        false,
-      );
+    const deferredPromise = this.getWsStore().createDeferredPromise<
+      TWSAPIResponse & { request: any }
+    >(wsKey, promiseRef, false);
+
+    // Enrich returned promise with request context for easier debugging
+    deferredPromise.promise
+      ?.then((res) => {
+        if (!Array.isArray(res)) {
+          res.request = {
+            wsKey: wsKey,
+            ...signedEvent,
+          };
+        }
+
+        return res;
+      })
+      .catch((e) => {
+        if (typeof e === 'string') {
+          this.logger.error('unexpcted string', { e });
+          return e;
+        }
+        e.request = {
+          wsKey: wsKey,
+          channel,
+          payload: signedEvent.payload,
+        };
+        // throw e;
+        return e;
+      });
 
     // Send event
-    this.tryWsSend(wsKey, JSON.stringify(signedEvent));
+    const throwExceptions = true;
+    this.tryWsSend(wsKey, JSON.stringify(signedEvent), throwExceptions);
 
-    this.logger.trace(`sendWSAPIRequest(): sent ${channel} event`);
+    this.logger.trace(
+      `sendWSAPIRequest(): sent "${channel}" event with promiseRef(${promiseRef})`,
+    );
 
     // Return deferred promise, so caller can await this call
     return deferredPromise.promise!;
@@ -502,6 +583,10 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     return [];
   }
 
+  protected isAuthOnConnectWsKey(wsKey: WsKey): boolean {
+    return this.getPrivateWSKeys().includes(wsKey);
+  }
+
   /** Force subscription requests to be sent in smaller batches, if a number is returned */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected getMaxTopicsPerSubscribeEvent(_wsKey: WsKey): number | null {
@@ -677,41 +762,55 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   }
 
   protected async getWsAuthRequestEvent(wsKey: WsKey): Promise<object> {
-    const market = this.getWsMarketForWsKey(wsKey);
     if (!this.options.apiKey || !this.options.apiSecret) {
       throw new Error(
         `Cannot auth - missing api key, secret or memo in config`,
       );
     }
 
-    const signTimestamp = Date.now() + this.options.recvWindow;
-    const signMessageInput = `|${signTimestamp}`;
-
-    const signature = await this.signMessage(
-      signMessageInput,
-      this.options.apiSecret,
-      'hex',
-      'SHA-512',
-    );
-
-    switch (market) {
-      case 'all': {
-        const wsRequestEvent = {
-          id: 'auth' + signTimestamp,
-          event: 'auth',
-          params: {
-            apikey: this.options.apiKey,
-            sign: signature,
-            timestamp: signTimestamp,
-          },
-        };
-
-        return wsRequestEvent;
+    let channel: string;
+    switch (wsKey) {
+      case 'spotV4': {
+        channel = 'spot.login';
+        break;
+      }
+      case 'perpFuturesBTCV4':
+      case 'perpFuturesUSDTV4': {
+        channel = 'futures.login';
+        break;
+      }
+      case 'announcementsV4':
+      case 'deliveryFuturesBTCV4':
+      case 'deliveryFuturesUSDTV4':
+      case 'optionsV4': {
+        return {};
       }
       default: {
-        throw neverGuard(market, `Unhandled market "${market}"`);
+        throw neverGuard(wsKey, `Unhandled wsKey "${wsKey}"`);
       }
     }
+
+    const signTimestamp = Date.now() + this.options.recvWindow;
+    const timeInSeconds = +(signTimestamp / 1000).toFixed(0);
+
+    const requestEvent: WSAPIRequest<WsAPITopicRequestParamMap> = {
+      time: timeInSeconds,
+      // id: timeInSeconds,
+      channel,
+      event: 'api',
+      payload: {
+        req_id: this.getNewRequestId(),
+        req_header: {
+          'X-Gate-Channel-Id': CHANNEL_ID,
+        },
+        api_key: this.options.apiKey,
+        req_param: '',
+        timestamp: `${timeInSeconds}`,
+      },
+    };
+
+    const signedEvent = await this.signWSAPIRequest(requestEvent);
+    return signedEvent;
   }
 
   /**

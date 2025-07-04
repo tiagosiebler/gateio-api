@@ -22,11 +22,20 @@ import {
 
 interface WSClientEventMap<WsKey extends string> {
   /** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
-  open: (evt: { wsKey: WsKey; event: any }) => void;
-  /** Reconnecting a dropped connection */
+  open: (evt: {
+    wsKey: WsKey;
+    event: any;
+    wsUrl: string;
+    ws: WebSocket;
+  }) => void /** Reconnecting a dropped connection */;
   reconnect: (evt: { wsKey: WsKey; event: any }) => void;
   /** Successfully reconnected a connection that dropped */
-  reconnected: (evt: { wsKey: WsKey; event: any }) => void;
+  reconnected: (evt: {
+    wsKey: WsKey;
+    event: any;
+    wsUrl: string;
+    ws: WebSocket;
+  }) => void;
   /** Connection closed */
   close: (evt: { wsKey: WsKey; event: any }) => void;
   /** Received reply to websocket command (e.g. after subscribing to topics) */
@@ -104,6 +113,7 @@ export abstract class BaseWebsocketClient<
   protected options: WebsocketClientOptions;
 
   private wsApiRequestId: number = 0;
+  private timeOffsetMs: number = 0;
 
   constructor(
     options?: WSClientConfigurableOptions,
@@ -129,6 +139,8 @@ export abstract class BaseWebsocketClient<
       ...options,
     };
   }
+
+  protected abstract isAuthOnConnectWsKey(wsKey: TWSKey): boolean;
 
   protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
   protected abstract sendPongEvent(wsKey: TWSKey, ws: WebSocket): void;
@@ -192,6 +204,15 @@ export abstract class BaseWebsocketClient<
     channel: string,
     params: any,
   ): Promise<unknown>;
+
+  public getTimeOffsetMs() {
+    return this.timeOffsetMs;
+  }
+
+  // TODO: not implemented
+  public setTimeOffsetMs(newOffset: number) {
+    this.timeOffsetMs = newOffset;
+  }
 
   /**
    * Don't call directly! Use subscribe() instead!
@@ -368,7 +389,7 @@ export abstract class BaseWebsocketClient<
           'Refused to connect to ws with existing active connection',
           { ...WS_LOGGER_CATEGORY, wsKey },
         );
-        return { wsKey };
+        return { wsKey, ws: this.wsStore.getWs(wsKey)! };
       }
 
       if (
@@ -378,7 +399,7 @@ export abstract class BaseWebsocketClient<
           'Refused to connect to ws, connection attempt already active',
           { ...WS_LOGGER_CATEGORY, wsKey },
         );
-        return;
+        return this.wsStore.getConnectionInProgressPromise(wsKey)?.promise;
       }
 
       if (
@@ -396,12 +417,12 @@ export abstract class BaseWebsocketClient<
       const ws = this.connectToWsUrl(url, wsKey);
 
       this.wsStore.setWs(wsKey, ws);
-
-      return this.wsStore.getConnectionInProgressPromise(wsKey)?.promise;
     } catch (err) {
       this.parseWsError('Connection failed', err, wsKey);
       this.reconnectWithDelay(wsKey, this.options.reconnectTimeout!);
     }
+
+    return this.wsStore.getConnectionInProgressPromise(wsKey)?.promise;
   }
 
   private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket {
@@ -412,7 +433,7 @@ export abstract class BaseWebsocketClient<
 
     const ws = new WebSocket(url, undefined);
 
-    ws.onopen = (event: any) => this.onWsOpen(event, wsKey);
+    ws.onopen = (event: any) => this.onWsOpen(event, wsKey, url, ws);
     ws.onmessage = (event: any) => this.onWsMessage(event, wsKey, ws);
     ws.onerror = (event: any) =>
       this.parseWsError('websocket error', event, wsKey);
@@ -452,18 +473,26 @@ export abstract class BaseWebsocketClient<
   }
 
   /** Get a signature, build the auth request and send it */
-  private async sendAuthRequest(wsKey: TWSKey): Promise<void> {
+  private async sendAuthRequest(wsKey: TWSKey): Promise<unknown> {
     try {
       this.logger.info(`Sending auth request...`, {
         ...WS_LOGGER_CATEGORY,
         wsKey,
       });
 
+      await this.assertIsConnected(wsKey);
+
+      if (!this.wsStore.getAuthenticationInProgressPromise(wsKey)) {
+        this.wsStore.createAuthenticationInProgressPromise(wsKey, false);
+      }
+
       const request = await this.getWsAuthRequestEvent(wsKey);
 
       // console.log('ws auth req', request);
 
-      return this.tryWsSend(wsKey, JSON.stringify(request));
+      this.tryWsSend(wsKey, JSON.stringify(request));
+
+      return this.wsStore.getAuthenticationInProgressPromise(wsKey)?.promise;
     } catch (e) {
       this.logger.trace(e, { ...WS_LOGGER_CATEGORY, wsKey });
     }
@@ -616,7 +645,11 @@ export abstract class BaseWebsocketClient<
   /**
    * Try sending a string event on a WS connection (identified by the WS Key)
    */
-  public tryWsSend(wsKey: TWSKey, wsMessage: string) {
+  public tryWsSend(
+    wsKey: TWSKey,
+    wsMessage: string,
+    throwExceptions?: boolean,
+  ) {
     try {
       this.logger.trace(`Sending upstream ws message: `, {
         ...WS_LOGGER_CATEGORY,
@@ -642,28 +675,40 @@ export abstract class BaseWebsocketClient<
         wsKey,
         exception: e,
       });
+      if (throwExceptions) {
+        throw e;
+      }
     }
   }
 
-  private async onWsOpen(event: any, wsKey: TWSKey) {
+  private async onWsOpen(
+    event: any,
+    wsKey: TWSKey,
+    url: string,
+    ws: WebSocket,
+  ) {
+    const isFreshConnectionAttempt = this.wsStore.isConnectionState(
+      wsKey,
+      WsConnectionStateEnum.CONNECTING,
+    );
+
     const didReconnectSuccessfully = this.wsStore.isConnectionState(
       wsKey,
       WsConnectionStateEnum.RECONNECTING,
     );
-    if (
-      this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.CONNECTING)
-    ) {
+
+    if (isFreshConnectionAttempt) {
       this.logger.info('Websocket connected', {
         ...WS_LOGGER_CATEGORY,
         wsKey,
       });
-      this.emit('open', { wsKey, event });
+      this.emit('open', { wsKey, event, wsUrl: url, ws });
     } else if (didReconnectSuccessfully) {
       this.logger.info('Websocket reconnected', {
         ...WS_LOGGER_CATEGORY,
         wsKey,
       });
-      this.emit('reconnected', { wsKey, event });
+      this.emit('reconnected', { wsKey, event, wsUrl: url, ws });
     }
 
     this.setWsState(wsKey, WsConnectionStateEnum.CONNECTED);
@@ -680,6 +725,7 @@ export abstract class BaseWebsocketClient<
         this.wsStore.getConnectionInProgressPromise(wsKey);
       if (connectionInProgressPromise?.resolve) {
         connectionInProgressPromise.resolve({
+          ws,
           wsKey,
         });
       }
@@ -694,10 +740,10 @@ export abstract class BaseWebsocketClient<
 
     // Some websockets require an auth packet to be sent after opening the connection
     if (
-      this.isPrivateWsKey(wsKey) &&
+      this.isAuthOnConnectWsKey(wsKey) &&
       this.options.authPrivateConnectionsOnConnect
     ) {
-      await this.sendAuthRequest(wsKey);
+      await this.assertIsAuthenticated(wsKey);
     }
 
     // Reconnect to topics known before it connected
@@ -776,6 +822,28 @@ export abstract class BaseWebsocketClient<
   ) {
     const wsState = this.wsStore.get(wsKey, true);
     wsState.isAuthenticated = true;
+
+    // Resolve & cleanup deferred "auth attempt in progress" promise
+    try {
+      const inProgressPromise =
+        this.wsStore.getAuthenticationInProgressPromise(wsKey);
+
+      if (inProgressPromise?.resolve) {
+        inProgressPromise.resolve({
+          wsKey,
+          event,
+          ws: wsState.ws!,
+        });
+      }
+    } catch (e) {
+      this.logger.error(
+        'Exception trying to resolve "authenticationInProgress" promise',
+        e,
+      );
+    }
+
+    // Remove before continuing, in case there's more requests queued
+    this.wsStore.removeAuthenticationInProgressPromise(wsKey);
 
     if (this.options.authPrivateConnectionsOnConnect) {
       const topics = [...this.wsStore.getTopics(wsKey)];
@@ -891,9 +959,17 @@ export abstract class BaseWebsocketClient<
       wsKey,
     });
 
+    const wsState = this.wsStore.get(wsKey, true);
+    wsState.isAuthenticated = false;
+
     if (
       this.wsStore.getConnectionState(wsKey) !== WsConnectionStateEnum.CLOSING
     ) {
+      // unintentional close, attempt recovery
+      this.logger.trace(
+        `onWsClose(${wsKey}): rejecting all deferred promises...`,
+      );
+
       // clean up any pending promises for this connection
       this.getWsStore().rejectAllDeferredPromises(
         wsKey,
@@ -905,9 +981,18 @@ export abstract class BaseWebsocketClient<
       this.reconnectWithDelay(wsKey, this.options.reconnectTimeout!);
       this.emit('reconnect', { wsKey, event });
     } else {
+      // intentional close - clean up
+      // clean up any pending promises for this connection
+      this.logger.trace(
+        `onWsClose(${wsKey}): rejecting all deferred promises...`,
+      );
       // clean up any pending promises for this connection
       this.getWsStore().rejectAllDeferredPromises(wsKey, 'disconnected');
       this.setWsState(wsKey, WsConnectionStateEnum.INITIAL);
+
+      // This was an intentional close, delete all state for this connection, as if it never existed:
+      this.wsStore.delete(wsKey);
+
       this.emit('close', { wsKey, event });
     }
   }
@@ -929,32 +1014,65 @@ export abstract class BaseWebsocketClient<
       WsConnectionStateEnum.CONNECTED,
     );
 
-    if (!isConnected) {
-      const inProgressPromise =
-        this.getWsStore().getConnectionInProgressPromise(wsKey);
-
-      // Already in progress? Await shared promise and retry
-      if (inProgressPromise) {
-        this.logger.trace(
-          `sendWSAPIRequest(): Awaiting EXISTING connection promise...`,
-        );
-        await inProgressPromise.promise;
-        this.logger.trace(
-          `sendWSAPIRequest(): EXISTING connection promise resolved!`,
-        );
-        return;
-      }
-
-      // Start connection, it should automatically store/return a promise.
-      this.logger.trace(
-        `sendWSAPIRequest(): Not connected yet...queue await connection...`,
-      );
-
-      await this.connect(wsKey);
-
-      this.logger.trace(
-        `sendWSAPIRequest(): New connection promise resolved! `,
-      );
+    if (isConnected) {
+      return true;
     }
+
+    const inProgressPromise =
+      this.getWsStore().getConnectionInProgressPromise(wsKey);
+
+    // Already in progress? Await shared promise and retry
+    if (inProgressPromise) {
+      this.logger.trace('assertIsConnected(): awaiting...');
+      await inProgressPromise.promise;
+      this.logger.trace('assertIsConnected(): awaiting...connected!');
+      return inProgressPromise.promise;
+    }
+
+    // Start connection, it should automatically store/return a promise.
+    this.logger.trace('assertIsConnected(): connecting...');
+
+    await this.connect(wsKey);
+
+    this.logger.trace('assertIsConnected(): connecting...newly connected!');
+  }
+
+  /**
+   * Promise-driven method to assert that a ws has been successfully authenticated (will await until auth is confirmed)
+   */
+  public async assertIsAuthenticated(wsKey: TWSKey): Promise<unknown> {
+    const isConnected = this.getWsStore().isConnectionState(
+      wsKey,
+      WsConnectionStateEnum.CONNECTED,
+    );
+
+    if (!isConnected) {
+      this.logger.trace('assertIsAuthenticated(): connecting...');
+      await this.assertIsConnected(wsKey);
+    }
+
+    const inProgressPromise =
+      this.getWsStore().getAuthenticationInProgressPromise(wsKey);
+
+    // Already in progress? Await shared promise and retry
+    if (inProgressPromise) {
+      this.logger.trace('assertIsAuthenticated(): awaiting...');
+      await inProgressPromise.promise;
+      this.logger.trace('assertIsAuthenticated(): authenticated!');
+      return;
+    }
+
+    const isAuthenticated = this.wsStore.get(wsKey)?.isAuthenticated;
+    if (isAuthenticated) {
+      // this.logger.trace('assertIsAuthenticated(): ok');
+      return;
+    }
+
+    // Start authentication, it should automatically store/return a promise.
+    this.logger.trace('assertIsAuthenticated(): authenticating...');
+
+    await this.sendAuthRequest(wsKey);
+
+    this.logger.trace('assertIsAuthenticated(): newly authenticated!');
   }
 }
