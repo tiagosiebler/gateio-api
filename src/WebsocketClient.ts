@@ -768,15 +768,6 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       );
     }
 
-    // const signTimestamp = Date.now() + this.options.recvWindow;
-    // const signMessageInput = `|${signTimestamp}`;
-    // const signature = await this.signMessage(
-    //   signMessageInput,
-    //   this.options.apiSecret,
-    //   'hex',
-    //   'SHA-512',
-    // );
-
     let channel: string;
     switch (wsKey) {
       case 'spotV4': {
