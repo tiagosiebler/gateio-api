@@ -36,6 +36,12 @@ export interface BrokerCommissionHistoryRecord {
   rebate_fee: string;
   source: string;
   currency_pair: string;
+  sub_broker_info: {
+    user_id: number;
+    original_commission_rate: string;
+    relative_commission_rate: string;
+    commission_rate: string;
+  };
 }
 
 export interface BrokerTransactionHistoryRecord {
@@ -47,6 +53,12 @@ export interface BrokerTransactionHistoryRecord {
   amount: string;
   fee_asset: string;
   source: string;
+  sub_broker_info: {
+    user_id: number;
+    original_commission_rate: string;
+    relative_commission_rate: string;
+    commission_rate: string;
+  };
 }
 
 export interface PartnerCommission {
