@@ -4271,6 +4271,7 @@ export class RestClient extends BaseRestClient {
   ): Promise<StructuredProductOrder[]> {
     return this.getPrivate(`/earn/structured/orders`, params);
   }
+
   /**
    * Place Structured Product Order
    *
@@ -4282,6 +4283,34 @@ export class RestClient extends BaseRestClient {
     amount?: string;
   }): Promise<any> {
     return this.postPrivate(`/earn/structured/orders`, { body: params });
+  }
+
+  /**
+   * List staking coins
+   *
+   * @param params Parameters for listing staking coins
+   * @returns Promise<string[]>
+   */
+  getStakingCoins(params?: {
+    coin?: string;
+    cointype?: string;
+  }): Promise<string[]> {
+    return this.getPrivate('/earn/staking/coins', params);
+  }
+
+  /**
+   * On-chain Token Swap for Earned Coins
+   *
+   * @param params Parameters for staking swap
+   * @returns Promise<any>
+   */
+  submitStakingSwap(params: {
+    coin: string;
+    side: '0' | '1'; // 0 - Stake, 1 - Redeem
+    amount: string;
+    pid?: number;
+  }): Promise<any> {
+    return this.postPrivate('/earn/staking/swap', { body: params });
   }
 
   /**==========================================================================================================================
