@@ -1,11 +1,12 @@
 {
   "name": "gateio-api",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Complete & Robust Node.js SDK for Gate.com's REST APIs, WebSockets & WebSocket APIs, with TypeScript declarations.",
   "scripts": {
     "clean": "rm -rf dist/*",
     "build": "rm -fr dist/* && tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json && bash ./postBuild.sh",
-    "test": "jest --passWithNoTests"
+    "test": "jest --passWithNoTests",
+    "lint": "eslint src"
   },
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",
