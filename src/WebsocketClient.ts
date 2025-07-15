@@ -329,7 +329,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
 
   protected sendPongEvent(wsKey: WsKey) {
     try {
-      this.logger.trace(`Sending upstream ws PONG: `, {
+      this.logger.trace('Sending upstream ws PONG: ', {
         ...WS_LOGGER_CATEGORY,
         wsMessage: 'PONG',
         wsKey,
@@ -345,7 +345,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
       // Send a protocol layer pong
       wsState.ws.pong();
     } catch (e) {
-      this.logger.error(`Failed to send WS PONG`, {
+      this.logger.error('Failed to send WS PONG', {
         ...WS_LOGGER_CATEGORY,
         wsMessage: 'PONG',
         wsKey,
@@ -409,8 +409,9 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
               },
               true,
             );
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
           } catch (e) {
-            this.logger.error(`Exception trying to reject WSAPI promise`, {
+            this.logger.error('Exception trying to reject WSAPI promise', {
               wsKey,
               promiseRef,
               parsedEvent: parsed,
@@ -435,8 +436,9 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
             },
             true,
           );
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
-          this.logger.error(`Exception trying to resolve WSAPI promise`, {
+          this.logger.error('Exception trying to resolve WSAPI promise', {
             wsKey,
             promiseRef,
             parsedEvent: parsed,
@@ -524,7 +526,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
         eventType: 'exception',
       });
 
-      this.logger.error(`Failed to parse event data due to exception: `, {
+      this.logger.error('Failed to parse event data due to exception: ', {
         exception: e,
         eventData: event.data,
       });
@@ -685,7 +687,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
           // No key or secret, push event as failed
           if (!this.options.apiKey || !this.options.apiSecret) {
             wsRequestBuildingErrors.push({
-              error: `apiKey or apiSecret missing from config`,
+              error: 'apiKey or apiSecret missing from config',
               operation,
               event: wsEvent,
             });
@@ -715,7 +717,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
             });
           } catch (e) {
             wsRequestBuildingErrors.push({
-              error: `exception during sign`,
+              error: 'exception during sign',
               errorTrace: e,
               operation,
               event: wsEvent,
@@ -764,7 +766,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
   protected async getWsAuthRequestEvent(wsKey: WsKey): Promise<object> {
     if (!this.options.apiKey || !this.options.apiSecret) {
       throw new Error(
-        `Cannot auth - missing api key, secret or memo in config`,
+        'Cannot auth - missing api key, secret or memo in config',
       );
     }
 
@@ -822,7 +824,7 @@ export class WebsocketClient extends BaseWebsocketClient<WsKey> {
     requestEvent: WSAPIRequest<TRequestParams>,
   ): Promise<WSAPIRequest<TRequestParams>> {
     if (!this.options.apiSecret) {
-      throw new Error(`API Secret missing`);
+      throw new Error('API Secret missing');
     }
 
     const payload = requestEvent.payload;

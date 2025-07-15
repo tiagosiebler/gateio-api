@@ -795,6 +795,7 @@ export class RestClient extends BaseRestClient {
     const { user_id, ...body } = params;
     return this.postPrivate(`/sub_accounts/${user_id}/keys`, { body: body });
   }
+
   /**
    * List all API Key of the sub-account
    *
@@ -1864,6 +1865,7 @@ export class RestClient extends BaseRestClient {
   }): Promise<CrossMarginMorrowLoanRecord> {
     return this.getPrivate(`/margin/cross/loans/${params.loan_id}`);
   }
+
   /**
    * @deprecated  as of 2025-02-10
    * Cross margin repayments
@@ -2423,6 +2425,7 @@ export class RestClient extends BaseRestClient {
     const { settle, ...query } = params;
     return this.getPrivate(`/futures/${settle}/positions`, query);
   }
+
   /**
    * Get single position
    *
@@ -3227,6 +3230,7 @@ export class RestClient extends BaseRestClient {
     const { settle, ...query } = params;
     return this.getPrivate(`/delivery/${settle}/orders`, query);
   }
+
   /**
    * Cancel all open orders matched
    *
@@ -3415,7 +3419,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<{ name: string; index_price: string }[]>
    */
   getOptionsUnderlyings(): Promise<{ name: string; index_price: string }[]> {
-    return this.get(`/options/underlyings`);
+    return this.get('/options/underlyings');
   }
 
   /**
@@ -3425,7 +3429,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<number[]>
    */
   getOptionsExpirationTimes(params: { underlying: string }): Promise<number[]> {
-    return this.get(`/options/expirations`, params);
+    return this.get('/options/expirations', params);
   }
 
   /**
@@ -3438,7 +3442,7 @@ export class RestClient extends BaseRestClient {
     underlying: string;
     expiration?: number;
   }): Promise<OptionsContract[]> {
-    return this.get(`/options/contracts`, params);
+    return this.get('/options/contracts', params);
   }
 
   /**
@@ -3460,7 +3464,7 @@ export class RestClient extends BaseRestClient {
   getOptionsSettlementHistory(
     params: GetOptionsSettlementHistoryReq,
   ): Promise<OptionsSettlementHistoryRecord[]> {
-    return this.get(`/options/settlements`, params);
+    return this.get('/options/settlements', params);
   }
 
   /**
@@ -3487,7 +3491,7 @@ export class RestClient extends BaseRestClient {
   getOptionsMySettlements(
     params: GetOptionsMySettlementsReq,
   ): Promise<OptionsUserSettlement[]> {
-    return this.getPrivate(`/options/my_settlements`, params);
+    return this.getPrivate('/options/my_settlements', params);
   }
 
   /**
@@ -3501,7 +3505,7 @@ export class RestClient extends BaseRestClient {
   getOptionsOrderBook(
     params: GetOptionsOrderBookReq,
   ): Promise<OptionsOrderBook> {
-    return this.get(`/options/order_book`, params);
+    return this.get('/options/order_book', params);
   }
 
   /**
@@ -3511,7 +3515,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<GetOptionsTickersResp[]>
    */
   getOptionsTickers(params: { underlying: string }): Promise<OptionsTicker[]> {
-    return this.get(`/options/tickers`, params);
+    return this.get('/options/tickers', params);
   }
 
   /**
@@ -3539,7 +3543,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<GetOptionsCandlesResp[]>
    */
   getOptionsCandles(params: GetOptionsCandlesReq): Promise<OptionsCandle[]> {
-    return this.get(`/options/candlesticks`, params);
+    return this.get('/options/candlesticks', params);
   }
 
   /**
@@ -3551,7 +3555,7 @@ export class RestClient extends BaseRestClient {
   getOptionsUnderlyingCandles(
     params: GetOptionsUnderlyingCandlesReq,
   ): Promise<OptionsUnderlyingCandle[]> {
-    return this.get(`/options/underlying/candlesticks`, params);
+    return this.get('/options/underlying/candlesticks', params);
   }
 
   /**
@@ -3561,7 +3565,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<GetOptionsTradesResp[]>
    */
   getOptionsTrades(params: GetOptionsTradesReq): Promise<OptionsTrade[]> {
-    return this.get(`/options/trades`, params);
+    return this.get('/options/trades', params);
   }
 
   /**
@@ -3570,7 +3574,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<GetOptionsAccountResp>
    */
   getOptionsAccount(): Promise<OptionsAccount> {
-    return this.getPrivate(`/options/accounts`);
+    return this.getPrivate('/options/accounts');
   }
 
   /**
@@ -3582,7 +3586,7 @@ export class RestClient extends BaseRestClient {
   getOptionsAccountChange(
     params?: GetOptionsAccountChangeReq,
   ): Promise<OptionsAccountChangeRecord[]> {
-    return this.getPrivate(`/options/account_book`, params);
+    return this.getPrivate('/options/account_book', params);
   }
 
   /**
@@ -3594,7 +3598,7 @@ export class RestClient extends BaseRestClient {
   getOptionsPositionsUnderlying(params: {
     underlying?: string;
   }): Promise<OptionsPositionsUnderlying[]> {
-    return this.getPrivate(`/options/positions`, params);
+    return this.getPrivate('/options/positions', params);
   }
 
   /**
@@ -3619,7 +3623,7 @@ export class RestClient extends BaseRestClient {
     underlying: string;
     contract?: string;
   }): Promise<GetOptionsLiquidationResp[]> {
-    return this.getPrivate(`/options/position_close`, params);
+    return this.getPrivate('/options/position_close', params);
   }
 
   /**
@@ -3631,7 +3635,7 @@ export class RestClient extends BaseRestClient {
   submitOptionsOrder(
     params: SubmitOptionsOrderReq,
   ): Promise<SubmitOptionsOrderResp> {
-    return this.postPrivate(`/options/orders`, { body: params });
+    return this.postPrivate('/options/orders', { body: params });
   }
 
   /**
@@ -3643,7 +3647,7 @@ export class RestClient extends BaseRestClient {
   getOptionsOrders(
     params: GetOptionsOrdersReq,
   ): Promise<SubmitOptionsOrderResp[]> {
-    return this.getPrivate(`/options/orders`, params);
+    return this.getPrivate('/options/orders', params);
   }
 
   /**
@@ -3657,7 +3661,7 @@ export class RestClient extends BaseRestClient {
     underlying?: string;
     side?: 'ask' | 'bid';
   }): Promise<SubmitOptionsOrderResp[]> {
-    return this.deletePrivate(`/options/orders`, { query: params });
+    return this.deletePrivate('/options/orders', { query: params });
   }
 
   /**
@@ -3716,7 +3720,7 @@ export class RestClient extends BaseRestClient {
   getOptionsPersonalHistory(
     params: GetOptionsPersonalHistoryReq,
   ): Promise<OptionsUserHistoryRecord[]> {
-    return this.getPrivate(`/options/my_trades`, params);
+    return this.getPrivate('/options/my_trades', params);
   }
 
   /**
@@ -3766,7 +3770,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<GetLendingCurrenciesResp[]>
    */
   getLendingCurrencies(): Promise<LendingCurrency[]> {
-    return this.get(`/earn/uni/currencies`);
+    return this.get('/earn/uni/currencies');
   }
 
   /**
@@ -3786,7 +3790,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<any>
    */
   submitLendOrRedeemOrder(params: SubmitLendOrRedeemReq): Promise<any> {
-    return this.postPrivate(`/earn/uni/lends`, { body: params });
+    return this.postPrivate('/earn/uni/lends', { body: params });
   }
 
   /**
@@ -3796,7 +3800,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<GetLendingOrdersResp[]>
    */
   getLendingOrders(params?: GetLendingOrdersReq): Promise<LendingOrder[]> {
-    return this.getPrivate(`/earn/uni/lends`, params);
+    return this.getPrivate('/earn/uni/lends', params);
   }
 
   /**
@@ -3811,7 +3815,7 @@ export class RestClient extends BaseRestClient {
     currency?: string;
     min_rate?: string;
   }): Promise<any> {
-    return this.patchPrivate(`/earn/uni/lends`, { query: params });
+    return this.patchPrivate('/earn/uni/lends', { query: params });
   }
 
   /**
@@ -3821,7 +3825,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<GetLendingRecordsResp[]>
    */
   getLendingRecords(params?: GetLendingRecordsReq): Promise<LendingRecord[]> {
-    return this.getPrivate(`/earn/uni/lend_records`, params);
+    return this.getPrivate('/earn/uni/lend_records', params);
   }
 
   /**
@@ -3849,7 +3853,7 @@ export class RestClient extends BaseRestClient {
   getLendingInterestRecords(
     params?: GetLendingInterestRecordsReq,
   ): Promise<LendingInterestRecord[]> {
-    return this.getPrivate(`/earn/uni/interest_records`, params);
+    return this.getPrivate('/earn/uni/interest_records', params);
   }
 
   /**
@@ -3863,7 +3867,7 @@ export class RestClient extends BaseRestClient {
     currency: string;
     status: boolean;
   }): Promise<any> {
-    return this.putPrivate(`/earn/uni/interest_reinvest`, { body: params });
+    return this.putPrivate('/earn/uni/interest_reinvest', { body: params });
   }
 
   /**
@@ -3916,7 +3920,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<{ order_id: number }>
    */
   submitLoanOrder(params: SubmitLoanOrderReq): Promise<{ order_id: number }> {
-    return this.postPrivate(`/loan/collateral/orders`, { body: params });
+    return this.postPrivate('/loan/collateral/orders', { body: params });
   }
 
   /**
@@ -3926,8 +3930,9 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<GetLoanOrdersResp[]>
    */
   getLoanOrders(params?: GetLoanOrdersReq): Promise<LoanOrder[]> {
-    return this.getPrivate(`/loan/collateral/orders`, params);
+    return this.getPrivate('/loan/collateral/orders', params);
   }
+
   /**
    * Get a single order
    *
@@ -3955,7 +3960,7 @@ export class RestClient extends BaseRestClient {
     repaid_principal: string;
     repaid_interest: string;
   }> {
-    return this.postPrivate(`/loan/collateral/repay`, { body: params });
+    return this.postPrivate('/loan/collateral/repay', { body: params });
   }
 
   /**
@@ -3967,7 +3972,7 @@ export class RestClient extends BaseRestClient {
   getLoanRepaymentHistory(
     params: GetLoanRepaymentHistoryReq,
   ): Promise<LoanRepaymentHistoryRecord[]> {
-    return this.getPrivate(`/loan/collateral/repay_records`, params);
+    return this.getPrivate('/loan/collateral/repay_records', params);
   }
 
   /**
@@ -3977,7 +3982,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<any>
    */
   updateLoanCollateral(params: UpdateLoanCollateralReq): Promise<any> {
-    return this.postPrivate(`/loan/collateral/collaterals`, { body: params });
+    return this.postPrivate('/loan/collateral/collaterals', { body: params });
   }
 
   /**
@@ -3989,7 +3994,7 @@ export class RestClient extends BaseRestClient {
   getLoanCollateralRecords(
     params?: GetLoanCollateralRecordsReq,
   ): Promise<LoanCollateralRecord[]> {
-    return this.getPrivate(`/loan/collateral/collaterals`, params);
+    return this.getPrivate('/loan/collateral/collaterals', params);
   }
 
   /**
@@ -4004,7 +4009,7 @@ export class RestClient extends BaseRestClient {
     borrow_amount: string;
     collateral_amount: string;
   }> {
-    return this.getPrivate(`/loan/collateral/total_amount`);
+    return this.getPrivate('/loan/collateral/total_amount');
   }
 
   /**
@@ -4017,7 +4022,7 @@ export class RestClient extends BaseRestClient {
     collateral_currency: string;
     borrow_currency: string;
   }): Promise<LoanCollateralRatio> {
-    return this.getPrivate(`/loan/collateral/ltv`, params);
+    return this.getPrivate('/loan/collateral/ltv', params);
   }
 
   /**
@@ -4035,7 +4040,7 @@ export class RestClient extends BaseRestClient {
       collateral_currency: string[];
     }[]
   > {
-    return this.get(`/loan/collateral/currencies`, params);
+    return this.get('/loan/collateral/currencies', params);
   }
 
   /**==========================================================================================================================
@@ -4052,7 +4057,7 @@ export class RestClient extends BaseRestClient {
   submitMultiLoanOrder(
     params: SubmitMultiLoanOrderReq,
   ): Promise<{ order_id: number }> {
-    return this.postPrivate(`/loan/multi_collateral/orders`, { body: params });
+    return this.postPrivate('/loan/multi_collateral/orders', { body: params });
   }
 
   /**
@@ -4064,7 +4069,7 @@ export class RestClient extends BaseRestClient {
   getMultiLoanOrders(
     params?: GetMultiLoanOrdersReq,
   ): Promise<MultiLoanOrder[]> {
-    return this.getPrivate(`/loan/multi_collateral/orders`, params);
+    return this.getPrivate('/loan/multi_collateral/orders', params);
   }
 
   /**
@@ -4084,7 +4089,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<RepayMultiLoanResp>
    */
   repayMultiLoan(params: RepayMultiLoanReq): Promise<RepayMultiLoanResp> {
-    return this.postPrivate(`/loan/multi_collateral/repay`, { body: params });
+    return this.postPrivate('/loan/multi_collateral/repay', { body: params });
   }
 
   /**
@@ -4096,7 +4101,7 @@ export class RestClient extends BaseRestClient {
   getMultiLoanRepayRecords(
     params: GetMultiLoanRepayRecordsReq,
   ): Promise<MultiLoanRepayRecord[]> {
-    return this.getPrivate(`/loan/multi_collateral/repay`, params);
+    return this.getPrivate('/loan/multi_collateral/repay', params);
   }
 
   /**
@@ -4106,7 +4111,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<UpdateMultiLoanResp>
    */
   updateMultiLoan(params: UpdateMultiLoanReq): Promise<UpdateMultiLoanResp> {
-    return this.postPrivate(`/loan/multi_collateral/mortgage`, {
+    return this.postPrivate('/loan/multi_collateral/mortgage', {
       body: params,
     });
   }
@@ -4120,7 +4125,7 @@ export class RestClient extends BaseRestClient {
   getMultiLoanAdjustmentRecords(
     params?: GetMultiLoanAdjustmentRecordsReq,
   ): Promise<MultiLoanAdjustmentRecord[]> {
-    return this.getPrivate(`/loan/multi_collateral/mortgage`, params);
+    return this.getPrivate('/loan/multi_collateral/mortgage', params);
   }
 
   /**
@@ -4133,7 +4138,7 @@ export class RestClient extends BaseRestClient {
     type: 'collateral' | 'borrow';
     currency: string;
   }): Promise<MultiLoanCurrencyQuota[]> {
-    return this.getPrivate(`/loan/multi_collateral/currency_quota`, params);
+    return this.getPrivate('/loan/multi_collateral/currency_quota', params);
   }
 
   /**
@@ -4142,7 +4147,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<GetMultiLoanSupportedCurrenciesResp>
    */
   getMultiLoanSupportedCurrencies(): Promise<MultiLoanSupportedCurrencies> {
-    return this.get(`/loan/multi_collateral/currencies`);
+    return this.get('/loan/multi_collateral/currencies');
   }
 
   /**
@@ -4151,7 +4156,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<GetMultiLoanRatioResp>
    */
   getMultiLoanRatio(): Promise<MultiLoanRatio> {
-    return this.get(`/loan/multi_collateral/ltv`);
+    return this.get('/loan/multi_collateral/ltv');
   }
 
   /**
@@ -4160,7 +4165,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<GetMultiLoanFixedRatesResp[]>
    */
   getMultiLoanFixedRates(): Promise<MultiLoanFixedRate[]> {
-    return this.get(`/loan/multi_collateral/fixed_rate`);
+    return this.get('/loan/multi_collateral/fixed_rate');
   }
 
   /**
@@ -4196,7 +4201,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<any>
    */
   submitEth2Swap(params: { side: '1' | '2'; amount: string }): Promise<any> {
-    return this.postPrivate(`/earn/staking/eth2/swap`, { body: params });
+    return this.postPrivate('/earn/staking/eth2/swap', { body: params });
   }
 
   /**
@@ -4209,7 +4214,7 @@ export class RestClient extends BaseRestClient {
   getEth2RateHistory(): Promise<
     { date_time: number; date: string; rate: string }[]
   > {
-    return this.getPrivate(`/earn/staking/eth2/rate_records`);
+    return this.getPrivate('/earn/staking/eth2/rate_records');
   }
 
   /**
@@ -4220,7 +4225,7 @@ export class RestClient extends BaseRestClient {
   getDualInvestmentProducts(params?: {
     plan_id?: string;
   }): Promise<DualInvestmentProduct[]> {
-    return this.get(`/earn/dual/investment_plan`, params);
+    return this.get('/earn/dual/investment_plan', params);
   }
 
   /**
@@ -4231,8 +4236,9 @@ export class RestClient extends BaseRestClient {
   getDualInvestmentOrders(
     params?: FromToPageLimit,
   ): Promise<DualInvestmentOrder[]> {
-    return this.getPrivate(`/earn/dual/orders`, params);
+    return this.getPrivate('/earn/dual/orders', params);
   }
+
   /**
    * Place Dual Investment order
    *
@@ -4245,7 +4251,7 @@ export class RestClient extends BaseRestClient {
     is_max: number;
     amount: string;
   }): Promise<any> {
-    return this.postPrivate(`/earn/dual/orders`, { body: params });
+    return this.postPrivate('/earn/dual/orders', { body: params });
   }
 
   /**
@@ -4257,7 +4263,7 @@ export class RestClient extends BaseRestClient {
   getStructuredProducts(
     params: GetStructuredProductListReq,
   ): Promise<StructuredProduct[]> {
-    return this.get(`/earn/structured/products`, params);
+    return this.get('/earn/structured/products', params);
   }
 
   /**
@@ -4269,7 +4275,7 @@ export class RestClient extends BaseRestClient {
   getStructuredProductOrders(
     params?: GetStructuredProductOrdersReq,
   ): Promise<StructuredProductOrder[]> {
-    return this.getPrivate(`/earn/structured/orders`, params);
+    return this.getPrivate('/earn/structured/orders', params);
   }
 
   /**
@@ -4282,7 +4288,7 @@ export class RestClient extends BaseRestClient {
     pid?: string;
     amount?: string;
   }): Promise<any> {
-    return this.postPrivate(`/earn/structured/orders`, { body: params });
+    return this.postPrivate('/earn/structured/orders', { body: params });
   }
 
   /**
@@ -4324,7 +4330,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<GetAccountDetailResp>
    */
   getAccountDetail(): Promise<AccountDetail> {
-    return this.getPrivate(`/account/detail`);
+    return this.getPrivate('/account/detail');
   }
 
   /**
@@ -4343,7 +4349,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<CreateStpGroupResp>
    */
   createStpGroup(params: CreateStpGroupReq): Promise<StpGroup> {
-    return this.postPrivate(`/account/stp_groups`, { body: params });
+    return this.postPrivate('/account/stp_groups', { body: params });
   }
 
   /**
@@ -4353,7 +4359,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<CreateStpGroupResp[]>
    */
   getStpGroups(params?: { name?: string }): Promise<StpGroup[]> {
-    return this.getPrivate(`/account/stp_groups`, params);
+    return this.getPrivate('/account/stp_groups', params);
   }
 
   /**

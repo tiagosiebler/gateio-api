@@ -122,10 +122,15 @@ function deleteUndefinedValues(params?: any): void {
 
 export abstract class BaseRestClient {
   private options: RestClientOptions;
+
   private baseUrl: string;
+
   private baseUrlPath: string;
+
   private globalRequestOptions: AxiosRequestConfig;
+
   private apiKey: string | undefined;
+
   private apiSecret: string | undefined;
 
   /** Defines the client type (affecting how requests & signatures behave) */
@@ -440,6 +445,7 @@ export abstract class BaseRestClient {
     params?: TParams,
     isPublicApi?: true,
   ): Promise<UnsignedRequest<TParams>>;
+
   private async prepareSignParams<
     TParams extends ParamsInQueryBodyOrHeader | undefined,
   >(
@@ -449,6 +455,7 @@ export abstract class BaseRestClient {
     params?: TParams,
     isPublicApi?: false | undefined,
   ): Promise<SignedRequest<TParams>>;
+
   private async prepareSignParams<
     TParams extends ParamsInQueryBodyOrHeader | undefined,
   >(

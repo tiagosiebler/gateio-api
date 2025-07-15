@@ -2,6 +2,13 @@
  * SPOT
  * ==========================================================================================================================
  */
+export interface SpotCurrencyChain {
+  name: string;
+  addr?: string;
+  withdraw_disabled: boolean;
+  withdraw_delayed: boolean;
+  deposit_disabled: boolean;
+}
 
 export interface SpotCurrency {
   currency: string;
@@ -13,14 +20,6 @@ export interface SpotCurrency {
   trade_disabled: boolean;
   chain: string;
   chains: SpotCurrencyChain[];
-}
-
-export interface SpotCurrencyChain {
-  name: string;
-  addr?: string;
-  withdraw_disabled: boolean;
-  withdraw_delayed: boolean;
-  deposit_disabled: boolean;
 }
 
 export interface SpotTicker {
