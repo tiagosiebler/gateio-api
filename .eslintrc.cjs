@@ -31,6 +31,7 @@ module.exports = {
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
     'array-bracket-spacing': ['error', 'never'],
+    'no-param-reassign': ['error'],
     'linebreak-style': ['error', 'unix'],
     'lines-between-class-members': ['warn', 'always'],
     '@typescript-eslint/no-empty-object-type': [
