@@ -110,9 +110,11 @@ export abstract class BaseWebsocketClient<
   private wsStore: WsStore<TWSKey, WsTopicRequest<string>>;
 
   protected logger: typeof DefaultLogger;
+
   protected options: WebsocketClientOptions;
 
   private wsApiRequestId: number = 0;
+
   private timeOffsetMs: number = 0;
 
   constructor(
@@ -143,9 +145,11 @@ export abstract class BaseWebsocketClient<
   protected abstract isAuthOnConnectWsKey(wsKey: TWSKey): boolean;
 
   protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
+
   protected abstract sendPongEvent(wsKey: TWSKey, ws: WebSocket): void;
 
   protected abstract isWsPing(data: any): boolean;
+
   protected abstract isWsPong(data: any): boolean;
 
   protected abstract getWsAuthRequestEvent(wsKey: TWSKey): Promise<object>;
@@ -156,6 +160,7 @@ export abstract class BaseWebsocketClient<
   ): boolean;
 
   protected abstract getPrivateWSKeys(): TWSKey[];
+
   protected abstract getWsUrl(wsKey: TWSKey): string;
 
   protected abstract getMaxTopicsPerSubscribeEvent(
@@ -257,7 +262,7 @@ export abstract class BaseWebsocketClient<
        * Are we in the process of connection? Nothing to send yet.
        */
       this.logger.trace(
-        `WS not connected - requests queued for retry once connected.`,
+        'WS not connected - requests queued for retry once connected.',
         {
           ...WS_LOGGER_CATEGORY,
           wsKey,
@@ -475,7 +480,7 @@ export abstract class BaseWebsocketClient<
   /** Get a signature, build the auth request and send it */
   private async sendAuthRequest(wsKey: TWSKey): Promise<unknown> {
     try {
-      this.logger.info(`Sending auth request...`, {
+      this.logger.info('Sending auth request...', {
         ...WS_LOGGER_CATEGORY,
         wsKey,
       });
@@ -651,7 +656,7 @@ export abstract class BaseWebsocketClient<
     throwExceptions?: boolean,
   ) {
     try {
-      this.logger.trace(`Sending upstream ws message: `, {
+      this.logger.trace('Sending upstream ws message: ', {
         ...WS_LOGGER_CATEGORY,
         wsMessage,
         wsKey,
@@ -669,7 +674,7 @@ export abstract class BaseWebsocketClient<
       }
       ws.send(wsMessage);
     } catch (e) {
-      this.logger.error(`Failed to send WS message`, {
+      this.logger.error('Failed to send WS message', {
         ...WS_LOGGER_CATEGORY,
         wsMessage,
         wsKey,
@@ -713,7 +718,7 @@ export abstract class BaseWebsocketClient<
 
     this.setWsState(wsKey, WsConnectionStateEnum.CONNECTED);
 
-    this.logger.trace(`Enabled ping timer`, { ...WS_LOGGER_CATEGORY, wsKey });
+    this.logger.trace('Enabled ping timer', { ...WS_LOGGER_CATEGORY, wsKey });
     this.wsStore.get(wsKey, true)!.activePingTimer = setInterval(
       () => this.ping(wsKey),
       this.options.pingInterval,
@@ -729,9 +734,10 @@ export abstract class BaseWebsocketClient<
           wsKey,
         });
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       this.logger.error(
-        `Exception trying to resolve "connectionInProgress" promise`,
+        'Exception trying to resolve "connectionInProgress" promise',
       );
     }
 
@@ -772,7 +778,7 @@ export abstract class BaseWebsocketClient<
       WSAPIAuthChannel
     ) {
       this.logger.info(
-        `WS API was authenticated before reconnect - re-authenticating WS API...`,
+        'WS API was authenticated before reconnect - re-authenticating WS API...',
       );
 
       let attempt = 0;
@@ -790,6 +796,7 @@ export abstract class BaseWebsocketClient<
           );
           this.logger.trace('reauthenticated!', loginResult);
           break;
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
           const giveUp = attempt >= maxReAuthAttempts;
 
@@ -919,7 +926,7 @@ export abstract class BaseWebsocketClient<
           }
 
           if (emittable.eventType === 'authenticated') {
-            this.logger.trace(`Successfully authenticated`, {
+            this.logger.trace('Successfully authenticated', {
               ...WS_LOGGER_CATEGORY,
               wsKey,
             });
