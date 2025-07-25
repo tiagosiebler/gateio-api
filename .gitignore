@@ -24,6 +24,7 @@ bundleReport.html
 dist
 coverage
 localtest.sh
+repomix.sh
 
 ws-private-spot-wsapi-performance.ts
 ws-private-perp-futures-wsapi-readonly.ts

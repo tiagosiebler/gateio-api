@@ -375,6 +375,12 @@ DefaultLogger.silly = () => {};
 const ws = new WebsocketClient({ key: 'xxx', secret: 'yyy' }, DefaultLogger);
 ```
 
+## Use with LLMs & AI
+
+This SDK includes a bundled `llms.txt` file in the root of the repository. If you're developing with LLMs, use the included `llms.txt` with your LLM - it will significantly improve the LLMs understanding of how to correctly use this SDK.
+
+This file contains AI optimised structure of all the functions in this package, and their parameters for easier use with any learning models or artificial intelligence.
+
 ---
 
 <!-- template_contributions -->
