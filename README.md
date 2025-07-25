@@ -20,31 +20,65 @@
 
 Updated & performant JavaScript & Node.js SDK for the Gate.com (gate.io) REST APIs and WebSockets:
 
+- Professional, robust & performant Gate.com SDK with extensive production use in live trading environments.
 - Extensive integration with Gate.com (Gate.io) REST APIs and WebSockets.
-- TypeScript support (with type declarations for most API requests & responses).
-- Gate.com REST APIs for Gate.com Spot, Margin, Perpetual Futures, Delivery Futures, Options & Announcements APIs.
-  - Strongly typed on most requests and responses.
-- Extremely robust & performant JavaScript/Node.js Gate.com SDK.
+- Complete TypeScript support (with type declarations for most API requests & responses).
+  - Strongly typed requests and responses.
+  - Automated end-to-end tests ensuring reliability.
 - Actively maintained with a modern, promise-driven interface.
+- Gate.com REST APIs for Gate.com Spot, Margin, Perpetual Futures, Delivery Futures, Options & Announcements APIs.
+  - Unified RestClient for all Gate.com trading products.
+  - Strongly typed on most requests and responses.
 - Support for seamless API authentication for private Gate.com REST API and WebSocket calls.
-- Gate.com Spot, Margin, Perpetual Futures, Delivery Futures & Options.
+- Robust WebSocket integration with configurable connection heartbeats & automatic reconnect then resubscribe workflows.
   - Event driven messaging.
-  - Smart websocket persistence
+  - Smart websocket persistence with automatic reconnection handling.
     - Automatically handle silent websocket disconnections through timed heartbeats, including the scheduled 24hr disconnect.
     - Automatically handle listenKey persistence and expiration/refresh.
     - Emit `reconnected` event when dropped connection is restored.
-- Websocket API for Gate.com Spot, Margin, Perpetual Futures & Delivery Futures.
+  - Support for Gate.com Spot, Margin, Perpetual Futures, Delivery Futures & Options.
+- WebSocket API for Gate.com Spot, Margin, Perpetual Futures & Delivery Futures.
   - Automatic connectivity via existing WebsocketClient, just call sendWSAPIRequest to trigger a request.
   - Automatic authentication, just call sendWSAPIRequest with channel & parameters.
   - Choose between two interfaces for WS API communication:
     - Event-driven interface, fire & forget via sendWSAPIRequest and receive async replies via wsClient's event emitter.
     - Promise-driven interface, simply use the WebsocketAPIClient for a REST-like experience. Use the WebSocket API like a REST API! See [examples/ws-api-client.ts](./examples/ws-api-client.ts) for a demonstration.
+- Heavy automated end-to-end testing with real API calls.
 - Proxy support via axios integration.
 - Active community support & collaboration in telegram: [Node.js Algo Traders](https://t.me/nodetraders).
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Examples](#examples)
+- [Issues & Discussion](#issues--discussion)
+- [Related Projects](#related-projects)
+- [Documentation](#documentation)
+- [Structure](#structure)
+- [Usage](#usage)
+  - [REST API Client](#rest-api)
+  - [WebSocket Client](#websockets)
+    - [WebSocket Data Streams](#websocket-data-streams)
+    - [WebSocket API](#websocket-api)
+      - [Event Driven API](#event-driven-api)
+      - [REST-like API](#rest-like-api)
+- [Customise Logging](#customise-logging)
+- [LLMs & AI](#use-with-llms--ai)
+- [Contributions & Thanks](#contributions--thanks)
 
 ## Installation
 
 `npm install --save gateio-api`
+
+## Examples
+
+Refer to the [examples](./examples) folder for implementation demos, including:
+
+- **REST API Examples**: spot trading, futures trading, account management
+- **WebSocket Examples**: public market data streams, private account data, WebSocket API usage
+- **Spot Trading**: comprehensive spot market examples
+- **Futures Trading**: perpetual and delivery futures examples
+- **WebSocket API**: both event-driven and promise-driven approaches
 
 ## Issues & Discussion
 
@@ -76,9 +110,16 @@ Check out my related JavaScript/TypeScript/Node.js projects:
 
 ## Documentation
 
-Most methods accept JS objects. These can be populated using parameters specified by gateio's API documentation.
+Most methods accept JS objects. These can be populated using parameters specified by Gate.com's API documentation, or check the type definition in each class within this repository.
+
+### API Documentation Links
 
 - [Gate.com/gate.io API Documentation](https://www.gate.com/docs/developers/apiv4/en/)
+  - [Spot Trading API](https://www.gate.com/docs/developers/apiv4/en/#spot-new)
+  - [Margin Trading API](https://www.gate.com/docs/developers/apiv4/en/#margin-new)
+  - [Futures Trading API](https://www.gate.com/docs/developers/apiv4/en/#futures-new)
+  - [Options Trading API](https://www.gate.com/docs/developers/apiv4/en/#options-new)
+  - [WebSocket API](https://www.gate.com/docs/developers/apiv4/en/#websocket-api)
 - [REST Endpoint Function List](./docs/endpointFunctionList.md)
 - [TSDoc Documentation (autogenerated using typedoc)](https://tsdocs.dev/docs/gateio-api)
 
@@ -93,11 +134,13 @@ This project uses typescript. Resources are stored in 2 key structures:
 
 # Usage
 
-Create API credentials
+Create API credentials on Gate.com's website:
 
 - [Gate.com API Key Management](https://www.gate.com/myaccount/api_key_manage)
 
-### REST API
+## REST API
+
+The SDK provides a unified `RestClient` for all Gate.com trading products including Spot, Margin, Perpetual Futures, Delivery Futures, and Options. This single client handles all REST API operations across all trading markets.
 
 To use any of Gate.com's REST APIs in JavaScript/TypeScript/Node.js, import (or require) the `RestClient`:
 
@@ -137,6 +180,19 @@ client
 See [RestClient](./src/RestClient.ts) for further information, or the [examples](./examples/) for lots of usage examples.
 
 ## WebSockets
+
+All WebSocket functionality is supported via the unified `WebsocketClient`. This client handles all Gate.com WebSocket streams with automatic connection management and reconnection.
+
+Key WebSocket features:
+
+- Event driven messaging
+- Smart WebSocket persistence with automatic reconnection
+- Heartbeat mechanisms to detect disconnections
+- Automatic resubscription after reconnection
+- Support for all Gate.com trading products (Spot, Margin, Futures, Options)
+- WebSocket API support for real-time trading operations
+
+### WebSocket Data Streams
 
 All available WebSockets can be used via a shared `WebsocketClient`. The WebSocket client will automatically open/track/manage connections as needed. Each unique connection (one per server URL) is tracked using a WsKey (each WsKey is a string - see [WS_KEY_MAP](src/lib/websocket/websocket-util.ts) for a list of supported values).
 
