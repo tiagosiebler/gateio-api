@@ -9,6 +9,7 @@ import {
   serializeParams,
 } from './requestUtils.js';
 import {
+  checkWebCryptoAPISupported,
   hashMessage,
   SignAlgorithm,
   SignEncodeMethod,
@@ -186,6 +187,11 @@ export abstract class BaseRestClient {
 
     this.apiKey = this.options.apiKey;
     this.apiSecret = this.options.apiSecret;
+
+    // Check Web Crypto API support when credentials are provided and no custom sign function is used
+    if (this.apiKey && this.apiSecret && !this.options.customSignMessageFn) {
+      checkWebCryptoAPISupported();
+    }
 
     // Throw if one of the 3 values is missing, but at least one of them is set
     const credentials = [this.apiKey, this.apiSecret];
