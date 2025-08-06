@@ -145,6 +145,7 @@ export interface FuturesAccount {
     bonus_dnw: string;
     bonus_offset: string;
   };
+  enable_tiered_mm: boolean;
 }
 
 export interface FuturesAccountBookRecord {
@@ -482,4 +483,13 @@ export interface UpdateFuturesDualModeResp {
     bonus_dnw: string;
     bonus_offset: string;
   };
+}
+
+export interface RiskLimitTableTier {
+  tier: number;
+  risk_limit: string;
+  initial_rate: string;
+  maintenance_rate: string;
+  leverage_max: string;
+  deduction: string;
 }

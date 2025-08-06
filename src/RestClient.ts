@@ -60,6 +60,7 @@ import {
   GetFuturesTradingHistoryByTimeRangeReq,
   GetFuturesTradingHistoryReq,
   GetLiquidationHistoryReq,
+  GetRiskLimitTableReq,
   GetRiskLimitTiersReq,
   SubmitFuturesOrderReq,
   SubmitFuturesTriggeredOrderReq,
@@ -215,6 +216,7 @@ import {
   IndexConstituents,
   LiquidationHistoryRecord,
   PremiumIndexKLine,
+  RiskLimitTableTier,
   RiskLimitTier,
 } from './types/response/futures.js';
 import {
@@ -1676,6 +1678,24 @@ export class RestClient extends BaseRestClient {
     return this.deletePrivate(`/spot/price_orders/${params.order_id}`);
   }
 
+  /**
+   * Set collateral currency
+   *
+   * @param params Parameters for setting collateral currency
+   * @returns Promise<{
+   *   is_success: boolean;
+   * }>
+   */
+  setCollateralCurrency(params: {
+    collateral_type: 0 | 1;
+    enable_list?: string[];
+    disable_list?: string[];
+  }): Promise<{
+    is_success: boolean;
+  }> {
+    return this.postPrivate('/unified/collateral_currencies', { body: params });
+  }
+
   /**==========================================================================================================================
    * MARGIN
    * ==========================================================================================================================
@@ -2922,6 +2942,19 @@ export class RestClient extends BaseRestClient {
       headers: headers,
       body: orders,
     });
+  }
+
+  /**
+   * Query risk limit table by table_id
+   *
+   * @param params Parameters for querying risk limit table
+   * @returns Promise<RiskLimitTableTier[]>
+   */
+  getRiskLimitTable(
+    params: GetRiskLimitTableReq,
+  ): Promise<RiskLimitTableTier[]> {
+    const { settle, ...query } = params;
+    return this.get(`/futures/${settle}/risk_limit_table`, query);
   }
 
   /**

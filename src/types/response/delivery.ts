@@ -86,6 +86,7 @@ export interface DeliveryAccount {
     bonus_dnw: string;
     bonus_offset: string;
   };
+  enable_tiered_mm: boolean;
 }
 
 export interface DeliveryBook {
