@@ -9,6 +9,7 @@ import { WsOperation } from '../types/websockets/requests.js';
 import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
 import { DefaultLogger } from './logger.js';
 import { isMessageEvent, MessageEventLike } from './requestUtils.js';
+import { checkWebCryptoAPISupported } from './webCryptoAPI.js';
 import {
   safeTerminateWs,
   WsTopicRequest,
@@ -140,6 +141,15 @@ export abstract class BaseWebsocketClient<
       reauthWSAPIOnReconnect: true,
       ...options,
     };
+
+    // Check Web Crypto API support when credentials are provided and no custom sign function is used
+    if (
+      this.options.apiKey &&
+      this.options.apiSecret &&
+      !this.options.customSignMessageFn
+    ) {
+      checkWebCryptoAPISupported();
+    }
   }
 
   protected abstract isAuthOnConnectWsKey(wsKey: TWSKey): boolean;

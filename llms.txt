@@ -588,6 +588,8 @@ export async function signMessage(
   method: SignEncodeMethod,
   algorithm: SignAlgorithm,
 ): Promise<string>
+⋮----
+export function checkWebCryptoAPISupported()
 
 ================
 File: src/types/request/account.ts
@@ -3282,174 +3284,6 @@ export interface StpGroupUser {
 }
 
 ================
-File: src/types/response/delivery.ts
-================
-/**==========================================================================================================================
- * DELIVERY
- * ==========================================================================================================================
- */
-⋮----
-export interface DeliveryOrderBook {
-  id?: number;
-  current: number;
-  update: number;
-  asks: { p: string; s: number }[];
-  bids: { p: string; s: number }[];
-}
-⋮----
-export interface DeliveryTrade {
-  id: number;
-  create_time: number;
-  create_time_ms: number;
-  contract: string;
-  size: number;
-  price: string;
-  is_internal?: boolean;
-}
-⋮----
-export interface DeliveryCandle {
-  t: number;
-  v?: number;
-  c: string;
-  h: string;
-  l: string;
-  o: string;
-}
-⋮----
-export interface DeliveryTicker {
-  contract: string;
-  last: string;
-  change_percentage: string;
-  total_size: string;
-  low_24h: string;
-  high_24h: string;
-  volume_24h: string;
-  volume_24h_btc?: string;
-  volume_24h_usd?: string;
-  volume_24h_base: string;
-  volume_24h_quote: string;
-  volume_24h_settle: string;
-  mark_price: string;
-  funding_rate: string;
-  funding_rate_indicative: string;
-  index_price: string;
-  quanto_base_rate?: string;
-  basis_rate: string;
-  basis_value: string;
-  lowest_ask: string;
-  highest_bid: string;
-}
-⋮----
-export interface DeliveryAccount {
-  total: string;
-  unrealised_pnl: string;
-  position_margin: string;
-  order_margin: string;
-  available: string;
-  point: string;
-  currency: string;
-  in_dual_mode: boolean;
-  enable_credit: boolean;
-  position_initial_margin: string;
-  maintenance_margin: string;
-  bonus: string;
-  enable_evolved_classic: boolean;
-  cross_order_margin: string;
-  cross_initial_margin: string;
-  cross_maintenance_margin: string;
-  cross_unrealised_pnl: string;
-  cross_available: string;
-  isolated_position_margin: string;
-  history: {
-    dnw: string;
-    pnl: string;
-    fee: string;
-    refr: string;
-    fund: string;
-    point_dnw: string;
-    point_fee: string;
-    point_refr: string;
-    bonus_dnw: string;
-    bonus_offset: string;
-  };
-  enable_tiered_mm: boolean;
-}
-⋮----
-export interface DeliveryBook {
-  time: number;
-  change: string;
-  balance: string;
-  type:
-    | 'dnw'
-    | 'pnl'
-    | 'fee'
-    | 'refr'
-    | 'fund'
-    | 'point_dnw'
-    | 'point_fee'
-    | 'point_refr'
-    | 'bonus_offset';
-  text: string;
-  contract?: string;
-  trade_id?: string;
-}
-⋮----
-export interface DeliveryTradingHistoryRecord {
-  id: number;
-  create_time: number;
-  contract: string;
-  order_id: string;
-  size: number;
-  price: string;
-  role: 'taker' | 'maker';
-  text: string;
-  fee: string;
-  point_fee: string;
-}
-⋮----
-export interface DeliveryClosedPosition {
-  time: number;
-  contract: string;
-  side: 'long' | 'short';
-  pnl: string;
-  pnl_pnl: string;
-  pnl_fund: string;
-  pnl_fee: string;
-  text: string;
-  max_size: string;
-  first_open_time: number;
-  long_price: string;
-  short_price: string;
-}
-⋮----
-export interface DeliveryLiquidationHistoryRecord {
-  time: number;
-  contract: string;
-  leverage?: string;
-  size: number;
-  margin?: string;
-  entry_price?: string;
-  liq_price?: string;
-  mark_price?: string;
-  order_id?: number;
-  order_price: string;
-  fill_price: string;
-  left: number;
-}
-⋮----
-export interface DeliverySettlementHistoryRecord {
-  time: number;
-  contract: string;
-  leverage: string;
-  size: number;
-  margin: string;
-  entry_price: string;
-  settle_price: string;
-  profit: string;
-  fee: string;
-}
-
-================
 File: src/types/response/earn.ts
 ================
 /**==========================================================================================================================
@@ -4248,6 +4082,219 @@ export function safeTerminateWs(
 ): boolean
 
 ================
+File: src/types/response/delivery.ts
+================
+/**==========================================================================================================================
+ * DELIVERY
+ * ==========================================================================================================================
+ */
+⋮----
+export interface DeliveryOrderBook {
+  id?: number;
+  current: number;
+  update: number;
+  asks: { p: string; s: number }[];
+  bids: { p: string; s: number }[];
+}
+⋮----
+export interface DeliveryTrade {
+  id: number;
+  create_time: number;
+  create_time_ms: number;
+  contract: string;
+  size: number;
+  price: string;
+  is_internal?: boolean;
+}
+⋮----
+export interface DeliveryCandle {
+  t: number;
+  v?: number;
+  c: string;
+  h: string;
+  l: string;
+  o: string;
+}
+⋮----
+export interface DeliveryTicker {
+  contract: string;
+  last: string;
+  change_percentage: string;
+  total_size: string;
+  low_24h: string;
+  high_24h: string;
+  volume_24h: string;
+  volume_24h_btc?: string;
+  volume_24h_usd?: string;
+  volume_24h_base: string;
+  volume_24h_quote: string;
+  volume_24h_settle: string;
+  mark_price: string;
+  funding_rate: string;
+  funding_rate_indicative: string;
+  index_price: string;
+  quanto_base_rate?: string;
+  basis_rate: string;
+  basis_value: string;
+  lowest_ask: string;
+  highest_bid: string;
+}
+⋮----
+export interface DeliveryAccount {
+  total: string;
+  unrealised_pnl: string;
+  position_margin: string;
+  order_margin: string;
+  available: string;
+  point: string;
+  currency: string;
+  in_dual_mode: boolean;
+  enable_credit: boolean;
+  position_initial_margin: string;
+  maintenance_margin: string;
+  bonus: string;
+  enable_evolved_classic: boolean;
+  cross_order_margin: string;
+  cross_initial_margin: string;
+  cross_maintenance_margin: string;
+  cross_unrealised_pnl: string;
+  cross_available: string;
+  isolated_position_margin: string;
+  history: {
+    dnw: string;
+    pnl: string;
+    fee: string;
+    refr: string;
+    fund: string;
+    point_dnw: string;
+    point_fee: string;
+    point_refr: string;
+    bonus_dnw: string;
+    bonus_offset: string;
+  };
+  enable_tiered_mm: boolean;
+}
+⋮----
+export interface DeliveryBook {
+  time: number;
+  change: string;
+  balance: string;
+  type:
+    | 'dnw'
+    | 'pnl'
+    | 'fee'
+    | 'refr'
+    | 'fund'
+    | 'point_dnw'
+    | 'point_fee'
+    | 'point_refr'
+    | 'bonus_offset';
+  text: string;
+  contract?: string;
+  trade_id?: string;
+}
+⋮----
+export interface DeliveryTradingHistoryRecord {
+  id: number;
+  create_time: number;
+  contract: string;
+  order_id: string;
+  size: number;
+  price: string;
+  role: 'taker' | 'maker';
+  text: string;
+  fee: string;
+  point_fee: string;
+}
+⋮----
+export interface DeliveryClosedPosition {
+  time: number;
+  contract: string;
+  side: 'long' | 'short';
+  pnl: string;
+  pnl_pnl: string;
+  pnl_fund: string;
+  pnl_fee: string;
+  text: string;
+  max_size: string;
+  first_open_time: number;
+  long_price: string;
+  short_price: string;
+}
+⋮----
+export interface DeliveryLiquidationHistoryRecord {
+  time: number;
+  contract: string;
+  leverage?: string;
+  size: number;
+  margin?: string;
+  entry_price?: string;
+  liq_price?: string;
+  mark_price?: string;
+  order_id?: number;
+  order_price: string;
+  fill_price: string;
+  left: number;
+}
+⋮----
+export interface DeliverySettlementHistoryRecord {
+  time: number;
+  contract: string;
+  leverage: string;
+  size: number;
+  margin: string;
+  entry_price: string;
+  settle_price: string;
+  profit: string;
+  fee: string;
+}
+
+================
+File: .eslintrc.cjs
+================
+// 'no-unused-vars': ['warn'],
+
+================
+File: .gitignore
+================
+!.gitkeep
+.DS_STORE
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+pids
+*.pid
+*.seed
+*.pid.lock
+node_modules/
+.npm
+.eslintcache
+.node_repl_history
+*.tgz
+.yarn-integrity
+.env
+.env.test
+.cache
+bundleReport.html
+.history/
+dist
+coverage
+localtest.sh
+repomix.sh
+
+ws-private-spot-wsapi-performance.ts
+ws-private-perp-futures-wsapi-readonly.ts
+privatetest.ts
+
+privaterepotracker
+restClientRegex.ts
+
+testfile.ts
+
+================
 File: src/types/request/futures.ts
 ================
 /**==========================================================================================================================
@@ -4498,51 +4545,6 @@ price?: string; // New order price
 amend_text?: string; // Custom info during amending order
 
 ================
-File: .eslintrc.cjs
-================
-// 'no-unused-vars': ['warn'],
-
-================
-File: .gitignore
-================
-!.gitkeep
-.DS_STORE
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-pids
-*.pid
-*.seed
-*.pid.lock
-node_modules/
-.npm
-.eslintcache
-.node_repl_history
-*.tgz
-.yarn-integrity
-.env
-.env.test
-.cache
-bundleReport.html
-.history/
-dist
-coverage
-localtest.sh
-repomix.sh
-
-ws-private-spot-wsapi-performance.ts
-ws-private-perp-futures-wsapi-readonly.ts
-privatetest.ts
-
-privaterepotracker
-restClientRegex.ts
-
-testfile.ts
-
-================
 File: src/types/response/unified.ts
 ================
 export interface UnifiedAccountInfo {
@@ -4767,6 +4769,7 @@ import {
   serializeParams,
 } from './requestUtils.js';
 import {
+  checkWebCryptoAPISupported,
   hashMessage,
   SignAlgorithm,
   SignEncodeMethod,
@@ -4854,6 +4857,8 @@ constructor(
 ⋮----
 // For more advanced configuration, raise an issue on GitHub or use the "networkOptions"
 // parameter to define a custom httpsAgent with the desired properties
+⋮----
+// Check Web Crypto API support when credentials are provided and no custom sign function is used
 ⋮----
 // Throw if one of the 3 values is missing, but at least one of them is set
 ⋮----
@@ -5878,6 +5883,441 @@ export interface SpotHistoricTradeRecord {
 }
 
 ================
+File: src/lib/BaseWSClient.ts
+================
+import EventEmitter from 'events';
+import WebSocket from 'isomorphic-ws';
+⋮----
+import {
+  WebsocketClientOptions,
+  WSClientConfigurableOptions,
+} from '../types/websockets/client.js';
+import { WsOperation } from '../types/websockets/requests.js';
+import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
+import { DefaultLogger } from './logger.js';
+import { isMessageEvent, MessageEventLike } from './requestUtils.js';
+import { checkWebCryptoAPISupported } from './webCryptoAPI.js';
+import {
+  safeTerminateWs,
+  WsTopicRequest,
+  WsTopicRequestOrStringTopic,
+} from './websocket/websocket-util.js';
+import { WsStore } from './websocket/WsStore.js';
+import {
+  WSConnectedResult,
+  WsConnectionStateEnum,
+} from './websocket/WsStore.types.js';
+⋮----
+interface WSClientEventMap<WsKey extends string> {
+  /** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
+  open: (evt: {
+    wsKey: WsKey;
+    event: any;
+    wsUrl: string;
+    ws: WebSocket;
+  }) => void /** Reconnecting a dropped connection */;
+  reconnect: (evt: { wsKey: WsKey; event: any }) => void;
+  /** Successfully reconnected a connection that dropped */
+  reconnected: (evt: {
+    wsKey: WsKey;
+    event: any;
+    wsUrl: string;
+    ws: WebSocket;
+  }) => void;
+  /** Connection closed */
+  close: (evt: { wsKey: WsKey; event: any }) => void;
+  /** Received reply to websocket command (e.g. after subscribing to topics) */
+  response: (response: any & { wsKey: WsKey }) => void;
+  /** Received data for topic */
+  update: (response: any & { wsKey: WsKey }) => void;
+  /** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
+  exception: (response: any & { wsKey: WsKey }) => void;
+  error: (response: any & { wsKey: WsKey }) => void;
+  /** Confirmation that a connection successfully authenticated */
+  authenticated: (event: { wsKey: WsKey; event: any }) => void;
+}
+⋮----
+/** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
+⋮----
+}) => void /** Reconnecting a dropped connection */;
+⋮----
+/** Successfully reconnected a connection that dropped */
+⋮----
+/** Connection closed */
+⋮----
+/** Received reply to websocket command (e.g. after subscribing to topics) */
+⋮----
+/** Received data for topic */
+⋮----
+/** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
+⋮----
+/** Confirmation that a connection successfully authenticated */
+⋮----
+export interface EmittableEvent<TEvent = any> {
+  eventType: 'response' | 'update' | 'exception' | 'authenticated';
+  event: TEvent;
+}
+⋮----
+// Type safety for on and emit handlers: https://stackoverflow.com/a/61609010/880837
+export interface BaseWebsocketClient<TWSKey extends string> {
+  on<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    listener: WSClientEventMap<TWSKey>[U],
+  ): this;
+
+  emit<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
+  ): boolean;
+}
+⋮----
+on<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    listener: WSClientEventMap<TWSKey>[U],
+  ): this;
+⋮----
+emit<U extends keyof WSClientEventMap<TWSKey>>(
+    event: U,
+    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
+  ): boolean;
+⋮----
+/**
+ * Users can conveniently pass topics as strings or objects (object has topic name + optional params).
+ *
+ * This method normalises topics into objects (object has topic name + optional params).
+ */
+function getNormalisedTopicRequests(
+  wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
+): WsTopicRequest<string>[]
+⋮----
+// passed as string, convert to object
+⋮----
+// already a normalised object, thanks to user
+⋮----
+/**
+ * Base WebSocket abstraction layer. Handles connections, tracking each connection as a unique "WS Key"
+ */
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+export abstract class BaseWebsocketClient<
+⋮----
+/**
+   * The WS connections supported by the client, each identified by a unique primary key
+   */
+⋮----
+/**
+   * State store to track a list of topics (topic requests) we are expected to be subscribed to if reconnected
+   */
+⋮----
+constructor(
+    options?: WSClientConfigurableOptions,
+    logger?: typeof DefaultLogger,
+)
+⋮----
+// Some defaults:
+⋮----
+// Gate.io only has one connection (for both public & private). Auth works with every sub, not on connect, so this is turned off.
+⋮----
+// Gate.io requires auth to be added to every request, when subscribing to private topics. This is handled automatically.
+⋮----
+// Automatically re-auth WS API, if we were auth'd before and get reconnected
+⋮----
+// Check Web Crypto API support when credentials are provided and no custom sign function is used
+⋮----
+protected abstract isAuthOnConnectWsKey(wsKey: TWSKey): boolean;
+⋮----
+protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
+⋮----
+protected abstract sendPongEvent(wsKey: TWSKey, ws: WebSocket): void;
+⋮----
+protected abstract isWsPing(data: any): boolean;
+⋮----
+protected abstract isWsPong(data: any): boolean;
+⋮----
+protected abstract getWsAuthRequestEvent(wsKey: TWSKey): Promise<object>;
+⋮----
+protected abstract isPrivateTopicRequest(
+    request: WsTopicRequest<string>,
+    wsKey: TWSKey,
+  ): boolean;
+⋮----
+protected abstract getPrivateWSKeys(): TWSKey[];
+⋮----
+protected abstract getWsUrl(wsKey: TWSKey): string;
+⋮----
+protected abstract getMaxTopicsPerSubscribeEvent(
+    wsKey: TWSKey,
+  ): number | null;
+⋮----
+/**
+   * Returns a list of string events that can be individually sent upstream to complete subscribing/unsubscribing/etc to these topics
+   */
+protected abstract getWsOperationEventsForTopics(
+    topics: WsTopicRequest<string>[],
+    wsKey: TWSKey,
+    operation: WsOperation,
+  ): Promise<string[]>;
+⋮----
+/**
+   * Abstraction called to sort ws events into emittable event types (response to a request, data update, etc)
+   */
+protected abstract resolveEmittableEvents(
+    wsKey: TWSKey,
+    event: MessageEventLike,
+  ): EmittableEvent[];
+⋮----
+/**
+   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
+   */
+protected abstract connectAll(): Promise<WSConnectedResult | undefined>[];
+⋮----
+protected isPrivateWsKey(wsKey: TWSKey): boolean
+⋮----
+/** Returns auto-incrementing request ID, used to track promise references for async requests */
+protected getNewRequestId(): string
+⋮----
+protected abstract sendWSAPIRequest(
+    wsKey: TWSKey,
+    channel: string,
+    params?: any,
+  ): Promise<unknown>;
+⋮----
+protected abstract sendWSAPIRequest(
+    wsKey: TWSKey,
+    channel: string,
+    params: any,
+  ): Promise<unknown>;
+⋮----
+public getTimeOffsetMs()
+⋮----
+// TODO: not implemented
+public setTimeOffsetMs(newOffset: number)
+⋮----
+/**
+   * Don't call directly! Use subscribe() instead!
+   *
+   * Subscribe to one or more topics on a WS connection (identified by WS Key).
+   *
+   * - Topics are automatically cached
+   * - Connections are automatically opened, if not yet connected
+   * - Authentication is automatically handled
+   * - Topics are automatically resubscribed to, if something happens to the connection, unless you call unsubsribeTopicsForWsKey(topics, key).
+   *
+   * @param wsRequests array of topics to subscribe to
+   * @param wsKey ws key referring to the ws connection these topics should be subscribed on
+   */
+protected subscribeTopicsForWsKey(
+    wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
+    wsKey: TWSKey,
+)
+⋮----
+// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
+⋮----
+// start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
+⋮----
+// Subscribe should happen automatically once connected, nothing to do here after topics are added to wsStore.
+⋮----
+/**
+       * Are we in the process of connection? Nothing to send yet.
+       */
+⋮----
+// We're connected. Check if auth is needed and if already authenticated
+⋮----
+/**
+       * If not authenticated yet and auth is required, don't request topics yet.
+       *
+       * Auth should already automatically be in progress, so no action needed from here. Topics will automatically subscribe post-auth success.
+       */
+⋮----
+// Finally, request subscription to topics if the connection is healthy and ready
+⋮----
+protected unsubscribeTopicsForWsKey(
+    wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
+    wsKey: TWSKey,
+)
+⋮----
+// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
+⋮----
+// If not connected, don't need to do anything.
+// Removing the topic from the store is enough to stop it from being resubscribed to on reconnect.
+⋮----
+// We're connected. Check if auth is needed and if already authenticated
+⋮----
+/**
+       * If not authenticated yet and auth is required, don't need to do anything.
+       * We don't subscribe to topics until auth is complete anyway.
+       */
+⋮----
+// Finally, request subscription to topics if the connection is healthy and ready
+⋮----
+/**
+   * Splits topic requests into two groups, public & private topic requests
+   */
+private sortTopicRequestsIntoPublicPrivate(
+    wsTopicRequests: WsTopicRequest<string>[],
+    wsKey: TWSKey,
+):
+⋮----
+/** Get the WsStore that tracks websockets & topics */
+public getWsStore(): WsStore<TWSKey, WsTopicRequest<string>>
+⋮----
+public close(wsKey: TWSKey, force?: boolean)
+⋮----
+public closeAll(force?: boolean)
+⋮----
+public isConnected(wsKey: TWSKey): boolean
+⋮----
+/**
+   * Request connection to a specific websocket, instead of waiting for automatic connection.
+   */
+protected async connect(
+    wsKey: TWSKey,
+): Promise<WSConnectedResult | undefined>
+⋮----
+private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket
+⋮----
+private parseWsError(context: string, error: any, wsKey: TWSKey)
+⋮----
+/** Get a signature, build the auth request and send it */
+private async sendAuthRequest(wsKey: TWSKey): Promise<unknown>
+⋮----
+// console.log('ws auth req', request);
+⋮----
+private reconnectWithDelay(wsKey: TWSKey, connectionDelayMs: number)
+⋮----
+private ping(wsKey: TWSKey)
+⋮----
+private clearTimers(wsKey: TWSKey)
+⋮----
+// Send a ping at intervals
+private clearPingTimer(wsKey: TWSKey)
+⋮----
+// Expect a pong within a time limit
+private clearPongTimer(wsKey: TWSKey)
+⋮----
+// this.logger.trace(`Cleared pong timeout for "${wsKey}"`);
+⋮----
+// this.logger.trace(`No active pong timer for "${wsKey}"`);
+⋮----
+/**
+   * Simply builds and sends subscribe events for a list of topics for a ws key
+   *
+   * @private Use the `subscribe(topics)` or `subscribeTopicsForWsKey(topics, wsKey)` method to subscribe to topics. Send WS message to subscribe to topics.
+   */
+private async requestSubscribeTopics(
+    wsKey: TWSKey,
+    topics: WsTopicRequest<string>[],
+)
+⋮----
+// Automatically splits requests into smaller batches, if needed
+⋮----
+`Subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`, // Events: "${JSON.stringify(topics)}"
+⋮----
+// console.log(`batches: `, JSON.stringify(subscribeWsMessages, null, 2));
+⋮----
+// this.logger.trace(`Sending batch via message: "${wsMessage}"`);
+⋮----
+/**
+   * Simply builds and sends unsubscribe events for a list of topics for a ws key
+   *
+   * @private Use the `unsubscribe(topics)` method to unsubscribe from topics. Send WS message to unsubscribe from topics.
+   */
+private async requestUnsubscribeTopics(
+    wsKey: TWSKey,
+    wsTopicRequests: WsTopicRequest<string>[],
+)
+⋮----
+/**
+   * Try sending a string event on a WS connection (identified by the WS Key)
+   */
+public tryWsSend(
+    wsKey: TWSKey,
+    wsMessage: string,
+    throwExceptions?: boolean,
+)
+⋮----
+private async onWsOpen(
+    event: any,
+    wsKey: TWSKey,
+    url: string,
+    ws: WebSocket,
+)
+⋮----
+// Resolve & cleanup deferred "connection attempt in progress" promise
+⋮----
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+⋮----
+// Remove before resolving, in case there's more requests queued
+⋮----
+// Some websockets require an auth packet to be sent after opening the connection
+⋮----
+// Reconnect to topics known before it connected
+⋮----
+// Request sub to public topics, if any
+⋮----
+// Request sub to private topics, if auth on connect isn't needed
+⋮----
+// If enabled, automatically reauth WS API if reconnected
+⋮----
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+⋮----
+/**
+   * Handle subscription to private topics _after_ authentication successfully completes asynchronously.
+   *
+   * Only used for exchanges that require auth before sending private topic subscription requests
+   */
+private onWsAuthenticated(
+    wsKey: TWSKey,
+    event: { isWSAPI?: boolean; WSAPIAuthChannel?: string },
+)
+⋮----
+// Resolve & cleanup deferred "auth attempt in progress" promise
+⋮----
+// Remove before continuing, in case there's more requests queued
+⋮----
+private onWsMessage(event: unknown, wsKey: TWSKey, ws: WebSocket)
+⋮----
+// any message can clear the pong timer - wouldn't get a message if the ws wasn't working
+⋮----
+// console.log(`raw event: `, { data, dataType, emittableEvents });
+⋮----
+private onWsClose(event: unknown, wsKey: TWSKey)
+⋮----
+// unintentional close, attempt recovery
+⋮----
+// clean up any pending promises for this connection
+⋮----
+// intentional close - clean up
+// clean up any pending promises for this connection
+⋮----
+// clean up any pending promises for this connection
+⋮----
+// This was an intentional close, delete all state for this connection, as if it never existed:
+⋮----
+private getWs(wsKey: TWSKey)
+⋮----
+private setWsState(wsKey: TWSKey, state: WsConnectionStateEnum)
+⋮----
+/**
+   * Promise-driven method to assert that a ws has successfully connected (will await until connection is open)
+   */
+protected async assertIsConnected(wsKey: TWSKey): Promise<unknown>
+⋮----
+// Already in progress? Await shared promise and retry
+⋮----
+// Start connection, it should automatically store/return a promise.
+⋮----
+/**
+   * Promise-driven method to assert that a ws has been successfully authenticated (will await until auth is confirmed)
+   */
+public async assertIsAuthenticated(wsKey: TWSKey): Promise<unknown>
+⋮----
+// Already in progress? Await shared promise and retry
+⋮----
+// this.logger.trace('assertIsAuthenticated(): ok');
+⋮----
+// Start authentication, it should automatically store/return a promise.
+
+================
 File: src/types/response/futures.ts
 ================
 /**==========================================================================================================================
@@ -6377,438 +6817,6 @@ export interface RiskLimitTableTier {
 }
 
 ================
-File: src/lib/BaseWSClient.ts
-================
-import EventEmitter from 'events';
-import WebSocket from 'isomorphic-ws';
-⋮----
-import {
-  WebsocketClientOptions,
-  WSClientConfigurableOptions,
-} from '../types/websockets/client.js';
-import { WsOperation } from '../types/websockets/requests.js';
-import { WS_LOGGER_CATEGORY } from '../WebsocketClient.js';
-import { DefaultLogger } from './logger.js';
-import { isMessageEvent, MessageEventLike } from './requestUtils.js';
-import {
-  safeTerminateWs,
-  WsTopicRequest,
-  WsTopicRequestOrStringTopic,
-} from './websocket/websocket-util.js';
-import { WsStore } from './websocket/WsStore.js';
-import {
-  WSConnectedResult,
-  WsConnectionStateEnum,
-} from './websocket/WsStore.types.js';
-⋮----
-interface WSClientEventMap<WsKey extends string> {
-  /** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
-  open: (evt: {
-    wsKey: WsKey;
-    event: any;
-    wsUrl: string;
-    ws: WebSocket;
-  }) => void /** Reconnecting a dropped connection */;
-  reconnect: (evt: { wsKey: WsKey; event: any }) => void;
-  /** Successfully reconnected a connection that dropped */
-  reconnected: (evt: {
-    wsKey: WsKey;
-    event: any;
-    wsUrl: string;
-    ws: WebSocket;
-  }) => void;
-  /** Connection closed */
-  close: (evt: { wsKey: WsKey; event: any }) => void;
-  /** Received reply to websocket command (e.g. after subscribing to topics) */
-  response: (response: any & { wsKey: WsKey }) => void;
-  /** Received data for topic */
-  update: (response: any & { wsKey: WsKey }) => void;
-  /** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
-  exception: (response: any & { wsKey: WsKey }) => void;
-  error: (response: any & { wsKey: WsKey }) => void;
-  /** Confirmation that a connection successfully authenticated */
-  authenticated: (event: { wsKey: WsKey; event: any }) => void;
-}
-⋮----
-/** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
-⋮----
-}) => void /** Reconnecting a dropped connection */;
-⋮----
-/** Successfully reconnected a connection that dropped */
-⋮----
-/** Connection closed */
-⋮----
-/** Received reply to websocket command (e.g. after subscribing to topics) */
-⋮----
-/** Received data for topic */
-⋮----
-/** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
-⋮----
-/** Confirmation that a connection successfully authenticated */
-⋮----
-export interface EmittableEvent<TEvent = any> {
-  eventType: 'response' | 'update' | 'exception' | 'authenticated';
-  event: TEvent;
-}
-⋮----
-// Type safety for on and emit handlers: https://stackoverflow.com/a/61609010/880837
-export interface BaseWebsocketClient<TWSKey extends string> {
-  on<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    listener: WSClientEventMap<TWSKey>[U],
-  ): this;
-
-  emit<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
-  ): boolean;
-}
-⋮----
-on<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    listener: WSClientEventMap<TWSKey>[U],
-  ): this;
-⋮----
-emit<U extends keyof WSClientEventMap<TWSKey>>(
-    event: U,
-    ...args: Parameters<WSClientEventMap<TWSKey>[U]>
-  ): boolean;
-⋮----
-/**
- * Users can conveniently pass topics as strings or objects (object has topic name + optional params).
- *
- * This method normalises topics into objects (object has topic name + optional params).
- */
-function getNormalisedTopicRequests(
-  wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
-): WsTopicRequest<string>[]
-⋮----
-// passed as string, convert to object
-⋮----
-// already a normalised object, thanks to user
-⋮----
-/**
- * Base WebSocket abstraction layer. Handles connections, tracking each connection as a unique "WS Key"
- */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
-export abstract class BaseWebsocketClient<
-⋮----
-/**
-   * The WS connections supported by the client, each identified by a unique primary key
-   */
-⋮----
-/**
-   * State store to track a list of topics (topic requests) we are expected to be subscribed to if reconnected
-   */
-⋮----
-constructor(
-    options?: WSClientConfigurableOptions,
-    logger?: typeof DefaultLogger,
-)
-⋮----
-// Some defaults:
-⋮----
-// Gate.io only has one connection (for both public & private). Auth works with every sub, not on connect, so this is turned off.
-⋮----
-// Gate.io requires auth to be added to every request, when subscribing to private topics. This is handled automatically.
-⋮----
-// Automatically re-auth WS API, if we were auth'd before and get reconnected
-⋮----
-protected abstract isAuthOnConnectWsKey(wsKey: TWSKey): boolean;
-⋮----
-protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
-⋮----
-protected abstract sendPongEvent(wsKey: TWSKey, ws: WebSocket): void;
-⋮----
-protected abstract isWsPing(data: any): boolean;
-⋮----
-protected abstract isWsPong(data: any): boolean;
-⋮----
-protected abstract getWsAuthRequestEvent(wsKey: TWSKey): Promise<object>;
-⋮----
-protected abstract isPrivateTopicRequest(
-    request: WsTopicRequest<string>,
-    wsKey: TWSKey,
-  ): boolean;
-⋮----
-protected abstract getPrivateWSKeys(): TWSKey[];
-⋮----
-protected abstract getWsUrl(wsKey: TWSKey): string;
-⋮----
-protected abstract getMaxTopicsPerSubscribeEvent(
-    wsKey: TWSKey,
-  ): number | null;
-⋮----
-/**
-   * Returns a list of string events that can be individually sent upstream to complete subscribing/unsubscribing/etc to these topics
-   */
-protected abstract getWsOperationEventsForTopics(
-    topics: WsTopicRequest<string>[],
-    wsKey: TWSKey,
-    operation: WsOperation,
-  ): Promise<string[]>;
-⋮----
-/**
-   * Abstraction called to sort ws events into emittable event types (response to a request, data update, etc)
-   */
-protected abstract resolveEmittableEvents(
-    wsKey: TWSKey,
-    event: MessageEventLike,
-  ): EmittableEvent[];
-⋮----
-/**
-   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library
-   */
-protected abstract connectAll(): Promise<WSConnectedResult | undefined>[];
-⋮----
-protected isPrivateWsKey(wsKey: TWSKey): boolean
-⋮----
-/** Returns auto-incrementing request ID, used to track promise references for async requests */
-protected getNewRequestId(): string
-⋮----
-protected abstract sendWSAPIRequest(
-    wsKey: TWSKey,
-    channel: string,
-    params?: any,
-  ): Promise<unknown>;
-⋮----
-protected abstract sendWSAPIRequest(
-    wsKey: TWSKey,
-    channel: string,
-    params: any,
-  ): Promise<unknown>;
-⋮----
-public getTimeOffsetMs()
-⋮----
-// TODO: not implemented
-public setTimeOffsetMs(newOffset: number)
-⋮----
-/**
-   * Don't call directly! Use subscribe() instead!
-   *
-   * Subscribe to one or more topics on a WS connection (identified by WS Key).
-   *
-   * - Topics are automatically cached
-   * - Connections are automatically opened, if not yet connected
-   * - Authentication is automatically handled
-   * - Topics are automatically resubscribed to, if something happens to the connection, unless you call unsubsribeTopicsForWsKey(topics, key).
-   *
-   * @param wsRequests array of topics to subscribe to
-   * @param wsKey ws key referring to the ws connection these topics should be subscribed on
-   */
-protected subscribeTopicsForWsKey(
-    wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
-    wsKey: TWSKey,
-)
-⋮----
-// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
-⋮----
-// start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
-⋮----
-// Subscribe should happen automatically once connected, nothing to do here after topics are added to wsStore.
-⋮----
-/**
-       * Are we in the process of connection? Nothing to send yet.
-       */
-⋮----
-// We're connected. Check if auth is needed and if already authenticated
-⋮----
-/**
-       * If not authenticated yet and auth is required, don't request topics yet.
-       *
-       * Auth should already automatically be in progress, so no action needed from here. Topics will automatically subscribe post-auth success.
-       */
-⋮----
-// Finally, request subscription to topics if the connection is healthy and ready
-⋮----
-protected unsubscribeTopicsForWsKey(
-    wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
-    wsKey: TWSKey,
-)
-⋮----
-// Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
-⋮----
-// If not connected, don't need to do anything.
-// Removing the topic from the store is enough to stop it from being resubscribed to on reconnect.
-⋮----
-// We're connected. Check if auth is needed and if already authenticated
-⋮----
-/**
-       * If not authenticated yet and auth is required, don't need to do anything.
-       * We don't subscribe to topics until auth is complete anyway.
-       */
-⋮----
-// Finally, request subscription to topics if the connection is healthy and ready
-⋮----
-/**
-   * Splits topic requests into two groups, public & private topic requests
-   */
-private sortTopicRequestsIntoPublicPrivate(
-    wsTopicRequests: WsTopicRequest<string>[],
-    wsKey: TWSKey,
-):
-⋮----
-/** Get the WsStore that tracks websockets & topics */
-public getWsStore(): WsStore<TWSKey, WsTopicRequest<string>>
-⋮----
-public close(wsKey: TWSKey, force?: boolean)
-⋮----
-public closeAll(force?: boolean)
-⋮----
-public isConnected(wsKey: TWSKey): boolean
-⋮----
-/**
-   * Request connection to a specific websocket, instead of waiting for automatic connection.
-   */
-protected async connect(
-    wsKey: TWSKey,
-): Promise<WSConnectedResult | undefined>
-⋮----
-private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket
-⋮----
-private parseWsError(context: string, error: any, wsKey: TWSKey)
-⋮----
-/** Get a signature, build the auth request and send it */
-private async sendAuthRequest(wsKey: TWSKey): Promise<unknown>
-⋮----
-// console.log('ws auth req', request);
-⋮----
-private reconnectWithDelay(wsKey: TWSKey, connectionDelayMs: number)
-⋮----
-private ping(wsKey: TWSKey)
-⋮----
-private clearTimers(wsKey: TWSKey)
-⋮----
-// Send a ping at intervals
-private clearPingTimer(wsKey: TWSKey)
-⋮----
-// Expect a pong within a time limit
-private clearPongTimer(wsKey: TWSKey)
-⋮----
-// this.logger.trace(`Cleared pong timeout for "${wsKey}"`);
-⋮----
-// this.logger.trace(`No active pong timer for "${wsKey}"`);
-⋮----
-/**
-   * Simply builds and sends subscribe events for a list of topics for a ws key
-   *
-   * @private Use the `subscribe(topics)` or `subscribeTopicsForWsKey(topics, wsKey)` method to subscribe to topics. Send WS message to subscribe to topics.
-   */
-private async requestSubscribeTopics(
-    wsKey: TWSKey,
-    topics: WsTopicRequest<string>[],
-)
-⋮----
-// Automatically splits requests into smaller batches, if needed
-⋮----
-`Subscribing to ${topics.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`, // Events: "${JSON.stringify(topics)}"
-⋮----
-// console.log(`batches: `, JSON.stringify(subscribeWsMessages, null, 2));
-⋮----
-// this.logger.trace(`Sending batch via message: "${wsMessage}"`);
-⋮----
-/**
-   * Simply builds and sends unsubscribe events for a list of topics for a ws key
-   *
-   * @private Use the `unsubscribe(topics)` method to unsubscribe from topics. Send WS message to unsubscribe from topics.
-   */
-private async requestUnsubscribeTopics(
-    wsKey: TWSKey,
-    wsTopicRequests: WsTopicRequest<string>[],
-)
-⋮----
-/**
-   * Try sending a string event on a WS connection (identified by the WS Key)
-   */
-public tryWsSend(
-    wsKey: TWSKey,
-    wsMessage: string,
-    throwExceptions?: boolean,
-)
-⋮----
-private async onWsOpen(
-    event: any,
-    wsKey: TWSKey,
-    url: string,
-    ws: WebSocket,
-)
-⋮----
-// Resolve & cleanup deferred "connection attempt in progress" promise
-⋮----
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-⋮----
-// Remove before resolving, in case there's more requests queued
-⋮----
-// Some websockets require an auth packet to be sent after opening the connection
-⋮----
-// Reconnect to topics known before it connected
-⋮----
-// Request sub to public topics, if any
-⋮----
-// Request sub to private topics, if auth on connect isn't needed
-⋮----
-// If enabled, automatically reauth WS API if reconnected
-⋮----
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-⋮----
-/**
-   * Handle subscription to private topics _after_ authentication successfully completes asynchronously.
-   *
-   * Only used for exchanges that require auth before sending private topic subscription requests
-   */
-private onWsAuthenticated(
-    wsKey: TWSKey,
-    event: { isWSAPI?: boolean; WSAPIAuthChannel?: string },
-)
-⋮----
-// Resolve & cleanup deferred "auth attempt in progress" promise
-⋮----
-// Remove before continuing, in case there's more requests queued
-⋮----
-private onWsMessage(event: unknown, wsKey: TWSKey, ws: WebSocket)
-⋮----
-// any message can clear the pong timer - wouldn't get a message if the ws wasn't working
-⋮----
-// console.log(`raw event: `, { data, dataType, emittableEvents });
-⋮----
-private onWsClose(event: unknown, wsKey: TWSKey)
-⋮----
-// unintentional close, attempt recovery
-⋮----
-// clean up any pending promises for this connection
-⋮----
-// intentional close - clean up
-// clean up any pending promises for this connection
-⋮----
-// clean up any pending promises for this connection
-⋮----
-// This was an intentional close, delete all state for this connection, as if it never existed:
-⋮----
-private getWs(wsKey: TWSKey)
-⋮----
-private setWsState(wsKey: TWSKey, state: WsConnectionStateEnum)
-⋮----
-/**
-   * Promise-driven method to assert that a ws has successfully connected (will await until connection is open)
-   */
-protected async assertIsConnected(wsKey: TWSKey): Promise<unknown>
-⋮----
-// Already in progress? Await shared promise and retry
-⋮----
-// Start connection, it should automatically store/return a promise.
-⋮----
-/**
-   * Promise-driven method to assert that a ws has been successfully authenticated (will await until auth is confirmed)
-   */
-public async assertIsAuthenticated(wsKey: TWSKey): Promise<unknown>
-⋮----
-// Already in progress? Await shared promise and retry
-⋮----
-// this.logger.trace('assertIsAuthenticated(): ok');
-⋮----
-// Start authentication, it should automatically store/return a promise.
-
-================
 File: src/WebsocketAPIClient.ts
 ================
 import { DefaultLogger } from './lib/logger.js';
@@ -7133,6 +7141,7 @@ Updated & performant JavaScript & Node.js SDK for the Gate.com (gate.io) REST AP
       - [REST-like API](#rest-like-api)
 - [Customise Logging](#customise-logging)
 - [LLMs & AI](#use-with-llms--ai)
+- [Used By](#used-by)
 - [Contributions & Thanks](#contributions--thanks)
 
 ## Installation
@@ -7505,6 +7514,12 @@ const ws = new WebsocketClient({ key: 'xxx', secret: 'yyy' }, DefaultLogger);
 This SDK includes a bundled `llms.txt` file in the root of the repository. If you're developing with LLMs, use the included `llms.txt` with your LLM - it will significantly improve the LLMs understanding of how to correctly use this SDK.
 
 This file contains AI optimised structure of all the functions in this package, and their parameters for easier use with any learning models or artificial intelligence.
+
+---
+
+## Used By
+
+[![Repository Users Preview Image](https://dependents.info/tiagosiebler/gateio-api/image)](https://github.com/tiagosiebler/gateio-api/network/dependents)
 
 ---
 
@@ -11516,7 +11531,7 @@ File: package.json
 ================
 {
   "name": "gateio-api",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "Complete & Robust Node.js SDK for Gate.com's REST APIs, WebSockets & WebSocket APIs, with TypeScript declarations.",
   "scripts": {
     "clean": "rm -rf dist/*",
