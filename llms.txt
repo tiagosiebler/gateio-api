@@ -3372,6 +3372,7 @@ export interface DeliveryAccount {
     bonus_dnw: string;
     bonus_offset: string;
   };
+  enable_tiered_mm: boolean;
 }
 ⋮----
 export interface DeliveryBook {
@@ -3739,6 +3740,223 @@ export interface PartnerTransaction {
 }
 
 ================
+File: src/types/response/wallet.ts
+================
+export interface CurrencyChain {
+  chain: string;
+  name_cn: string;
+  name_en: string;
+  contract_address: string;
+  is_disabled: number;
+  is_deposit_disabled: number;
+  is_withdraw_disabled: number;
+  decimal: string;
+}
+⋮----
+export interface CreateDepositAddressResp {
+  currency: string;
+  address: string;
+  multichain_addresses: {
+    chain: string;
+    address: string;
+    payment_id: string;
+    payment_name: string;
+    obtain_failed: number;
+  }[];
+}
+⋮----
+export interface SubAccountTransferRecord {
+  currency: string;
+  sub_account: string;
+  direction: 'to' | 'from';
+  amount: string;
+  uid: string;
+  client_order_id: string;
+  timest: string;
+  source: string;
+  sub_account_type: 'spot' | 'futures' | 'cross_margin' | 'delivery';
+}
+⋮----
+export interface WithdrawalStatus {
+  currency: string;
+  name: string;
+  name_cn: string;
+  deposit: string;
+  withdraw_percent: string;
+  withdraw_fix: string;
+  withdraw_day_limit: string;
+  withdraw_amount_mini: string;
+  withdraw_day_limit_remain: string;
+  withdraw_eachtime_limit: string;
+  withdraw_fix_on_chains: { [key: string]: string };
+  withdraw_percent_on_chains: { [key: string]: string };
+}
+⋮----
+export interface SubAccountMarginBalance {
+  currency_pair: string;
+  locked: boolean;
+  risk: string;
+  base: {
+    currency: string;
+    available: string;
+    locked: string;
+    borrowed: string;
+    interest: string;
+  };
+  quote: {
+    currency: string;
+    available: string;
+    locked: string;
+    borrowed: string;
+    interest: string;
+  };
+}
+⋮----
+export interface SubAccountFuturesBalancesResp {
+  uid: string;
+  available: {
+    [key: string]: {
+      total: string;
+      unrealised_pnl: string;
+      position_margin: string;
+      order_margin: string;
+      available: string;
+      point: string;
+      currency: string;
+      in_dual_mode: boolean;
+      enable_credit: boolean;
+      position_initial_margin: string;
+      maintenance_margin: string;
+      bonus: string;
+      enable_evolved_classic: boolean;
+      cross_order_margin: string;
+      cross_initial_margin: string;
+      cross_maintenance_margin: string;
+      cross_unrealised_pnl: string;
+      cross_available: string;
+      isolated_position_margin: string;
+      history: {
+        dnw: string;
+        pnl: string;
+        fee: string;
+        refr: string;
+        fund: string;
+        point_dnw: string;
+        point_fee: string;
+        point_refr: string;
+        bonus_dnw: string;
+        bonus_offset: string;
+      };
+    };
+  };
+}
+⋮----
+export interface SubAccountCrossMarginBalancesResp {
+  uid: string;
+  available: {
+    user_id: number;
+    locked: boolean;
+    balances: {
+      [key: string]: {
+        available: string;
+        freeze: string;
+        borrowed: string;
+        interest: string;
+      };
+    };
+    total: string;
+    borrowed: string;
+    borrowed_net: string;
+    net: string;
+    leverage: string;
+    interest: string;
+    risk: string;
+    total_initial_margin: string;
+    total_margin_balance: string;
+    total_maintenance_margin: string;
+    total_initial_margin_rate: string;
+    total_maintenance_margin_rate: string;
+    total_available_margin: string;
+  };
+}
+⋮----
+export interface SavedAddress {
+  currency: string;
+  chain: string;
+  address: string;
+  name: string;
+  tag: string;
+  verified: string;
+}
+⋮----
+export interface TradingFees {
+  user_id: number;
+  taker_fee: string;
+  maker_fee: string;
+  gt_discount: boolean;
+  gt_taker_fee: string;
+  gt_maker_fee: string;
+  loan_fee: string;
+  point_type: string;
+  futures_taker_fee: string;
+  futures_maker_fee: string;
+  delivery_taker_fee: string;
+  delivery_maker_fee: string;
+  debit_fee: number;
+}
+⋮----
+export interface GetBalancesResp {
+  total: {
+    amount: string;
+    currency: string;
+    unrealised_pnl?: string;
+    borrowed?: string;
+  };
+  details: {
+    [key: string]: {
+      amount: string;
+      currency: string;
+      unrealised_pnl?: string;
+      borrowed?: string;
+    };
+  };
+}
+⋮----
+export interface SmallBalanceRecord {
+  currency: string;
+  available_balance: string;
+  estimated_as_btc: string;
+  convertible_to_gt: string;
+}
+⋮----
+export interface SmallBalanceHistoryRecord {
+  id: string;
+  currency: string;
+  amount: string;
+  gt_amount: string;
+  create_time: number;
+}
+⋮----
+export interface PushOrder {
+  id: number;
+  push_uid: number;
+  receive_uid: number;
+  currency: string;
+  amount: string;
+  create_time: number;
+  status:
+    | 'CREATING'
+    | 'PENDING'
+    | 'CANCELLING'
+    | 'CANCELLED'
+    | 'REFUSING'
+    | 'REFUSED'
+    | 'RECEIVING'
+    | 'RECEIVED';
+  message: string;
+}
+
+================
 File: src/index.ts
 ================
 // Request Types
@@ -4030,268 +4248,6 @@ export function safeTerminateWs(
 ): boolean
 
 ================
-File: src/types/response/wallet.ts
-================
-export interface CurrencyChain {
-  chain: string;
-  name_cn: string;
-  name_en: string;
-  contract_address: string;
-  is_disabled: number;
-  is_deposit_disabled: number;
-  is_withdraw_disabled: number;
-  decimal: string;
-}
-⋮----
-export interface CreateDepositAddressResp {
-  currency: string;
-  address: string;
-  multichain_addresses: {
-    chain: string;
-    address: string;
-    payment_id: string;
-    payment_name: string;
-    obtain_failed: number;
-  }[];
-}
-⋮----
-export interface SubAccountTransferRecord {
-  currency: string;
-  sub_account: string;
-  direction: 'to' | 'from';
-  amount: string;
-  uid: string;
-  client_order_id: string;
-  timest: string;
-  source: string;
-  sub_account_type: 'spot' | 'futures' | 'cross_margin' | 'delivery';
-}
-⋮----
-export interface WithdrawalStatus {
-  currency: string;
-  name: string;
-  name_cn: string;
-  deposit: string;
-  withdraw_percent: string;
-  withdraw_fix: string;
-  withdraw_day_limit: string;
-  withdraw_amount_mini: string;
-  withdraw_day_limit_remain: string;
-  withdraw_eachtime_limit: string;
-  withdraw_fix_on_chains: { [key: string]: string };
-  withdraw_percent_on_chains: { [key: string]: string };
-}
-⋮----
-export interface SubAccountMarginBalance {
-  currency_pair: string;
-  locked: boolean;
-  risk: string;
-  base: {
-    currency: string;
-    available: string;
-    locked: string;
-    borrowed: string;
-    interest: string;
-  };
-  quote: {
-    currency: string;
-    available: string;
-    locked: string;
-    borrowed: string;
-    interest: string;
-  };
-}
-⋮----
-export interface SubAccountFuturesBalancesResp {
-  uid: string;
-  available: {
-    [key: string]: {
-      total: string;
-      unrealised_pnl: string;
-      position_margin: string;
-      order_margin: string;
-      available: string;
-      point: string;
-      currency: string;
-      in_dual_mode: boolean;
-      enable_credit: boolean;
-      position_initial_margin: string;
-      maintenance_margin: string;
-      bonus: string;
-      enable_evolved_classic: boolean;
-      cross_order_margin: string;
-      cross_initial_margin: string;
-      cross_maintenance_margin: string;
-      cross_unrealised_pnl: string;
-      cross_available: string;
-      isolated_position_margin: string;
-      history: {
-        dnw: string;
-        pnl: string;
-        fee: string;
-        refr: string;
-        fund: string;
-        point_dnw: string;
-        point_fee: string;
-        point_refr: string;
-        bonus_dnw: string;
-        bonus_offset: string;
-      };
-    };
-  };
-}
-⋮----
-export interface SubAccountCrossMarginBalancesResp {
-  uid: string;
-  available: {
-    user_id: number;
-    locked: boolean;
-    balances: {
-      [key: string]: {
-        available: string;
-        freeze: string;
-        borrowed: string;
-        interest: string;
-      };
-    };
-    total: string;
-    borrowed: string;
-    borrowed_net: string;
-    net: string;
-    leverage: string;
-    interest: string;
-    risk: string;
-    total_initial_margin: string;
-    total_margin_balance: string;
-    total_maintenance_margin: string;
-    total_initial_margin_rate: string;
-    total_maintenance_margin_rate: string;
-    total_available_margin: string;
-  };
-}
-⋮----
-export interface SavedAddress {
-  currency: string;
-  chain: string;
-  address: string;
-  name: string;
-  tag: string;
-  verified: string;
-}
-⋮----
-export interface TradingFees {
-  user_id: number;
-  taker_fee: string;
-  maker_fee: string;
-  gt_discount: boolean;
-  gt_taker_fee: string;
-  gt_maker_fee: string;
-  loan_fee: string;
-  point_type: string;
-  futures_taker_fee: string;
-  futures_maker_fee: string;
-  delivery_taker_fee: string;
-  delivery_maker_fee: string;
-  debit_fee: number;
-}
-⋮----
-export interface GetBalancesResp {
-  total: {
-    amount: string;
-    currency: string;
-    unrealised_pnl?: string;
-    borrowed?: string;
-  };
-  details: {
-    [key: string]: {
-      amount: string;
-      currency: string;
-      unrealised_pnl?: string;
-      borrowed?: string;
-    };
-  };
-}
-⋮----
-export interface SmallBalanceRecord {
-  currency: string;
-  available_balance: string;
-  estimated_as_btc: string;
-  convertible_to_gt: string;
-}
-⋮----
-export interface SmallBalanceHistoryRecord {
-  id: string;
-  currency: string;
-  amount: string;
-  gt_amount: string;
-  create_time: number;
-}
-⋮----
-export interface PushOrder {
-  id: number;
-  push_uid: number;
-  receive_uid: number;
-  currency: string;
-  amount: string;
-  create_time: number;
-  status:
-    | 'CREATING'
-    | 'PENDING'
-    | 'CANCELLING'
-    | 'CANCELLED'
-    | 'REFUSING'
-    | 'REFUSED'
-    | 'RECEIVING'
-    | 'RECEIVED';
-  message: string;
-}
-
-================
-File: .eslintrc.cjs
-================
-// 'no-unused-vars': ['warn'],
-
-================
-File: .gitignore
-================
-!.gitkeep
-.DS_STORE
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-pids
-*.pid
-*.seed
-*.pid.lock
-node_modules/
-.npm
-.eslintcache
-.node_repl_history
-*.tgz
-.yarn-integrity
-.env
-.env.test
-.cache
-bundleReport.html
-.history/
-dist
-coverage
-localtest.sh
-repomix.sh
-
-ws-private-spot-wsapi-performance.ts
-ws-private-perp-futures-wsapi-readonly.ts
-privatetest.ts
-
-privaterepotracker
-restClientRegex.ts
-
-testfile.ts
-
-================
 File: src/types/request/futures.ts
 ================
 /**==========================================================================================================================
@@ -4355,6 +4311,11 @@ export interface GetRiskLimitTiersReq {
   contract: string;
   limit?: number;
   offset?: number;
+}
+⋮----
+export interface GetRiskLimitTableReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  table_id: string;
 }
 ⋮----
 export interface GetFuturesAccountBookReq {
@@ -4535,6 +4496,51 @@ text?: string; // User-defined order text, at least one of order_id and text mus
 size?: number; // The new order size, including the executed order size
 price?: string; // New order price
 amend_text?: string; // Custom info during amending order
+
+================
+File: .eslintrc.cjs
+================
+// 'no-unused-vars': ['warn'],
+
+================
+File: .gitignore
+================
+!.gitkeep
+.DS_STORE
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+pids
+*.pid
+*.seed
+*.pid.lock
+node_modules/
+.npm
+.eslintcache
+.node_repl_history
+*.tgz
+.yarn-integrity
+.env
+.env.test
+.cache
+bundleReport.html
+.history/
+dist
+coverage
+localtest.sh
+repomix.sh
+
+ws-private-spot-wsapi-performance.ts
+ws-private-perp-futures-wsapi-readonly.ts
+privatetest.ts
+
+privaterepotracker
+restClientRegex.ts
+
+testfile.ts
 
 ================
 File: src/types/response/unified.ts
@@ -5872,6 +5878,505 @@ export interface SpotHistoricTradeRecord {
 }
 
 ================
+File: src/types/response/futures.ts
+================
+/**==========================================================================================================================
+ * FUTURES
+ * ==========================================================================================================================
+ */
+⋮----
+export interface FuturesOrderBook {
+  id?: number;
+  current: number;
+  update: number;
+  asks: { p: string; s: number }[];
+  bids: { p: string; s: number }[];
+}
+⋮----
+export interface FuturesTrade {
+  id: number;
+  create_time: number;
+  create_time_ms: number;
+  contract: string;
+  size: number;
+  price: string;
+  is_internal?: boolean;
+}
+⋮----
+export interface FuturesCandle {
+  t: number;
+  v?: number;
+  c: string;
+  h: string;
+  l: string;
+  o: string;
+  sum: string;
+}
+⋮----
+export interface PremiumIndexKLine {
+  t: number;
+  c: string;
+  h: string;
+  l: string;
+  o: string;
+}
+⋮----
+export interface FuturesTicker {
+  contract: string;
+  last: string;
+  change_percentage: string;
+  total_size: string;
+  low_24h: string;
+  high_24h: string;
+  volume_24h: string;
+  volume_24h_btc?: string;
+  volume_24h_usd?: string;
+  volume_24h_base: string;
+  volume_24h_quote: string;
+  volume_24h_settle: string;
+  mark_price: string;
+  funding_rate: string;
+  funding_rate_indicative: string;
+  index_price: string;
+  quanto_base_rate?: string;
+  basis_rate: string;
+  basis_value: string;
+  lowest_ask: string;
+  highest_bid: string;
+  lowest_size: string;
+  highest_size: string;
+}
+⋮----
+export interface FuturesStats {
+  time: number;
+  lsr_taker: number;
+  lsr_account: number;
+  long_liq_size: number;
+  long_liq_amount: number;
+  long_liq_usd: number;
+  short_liq_size: number;
+  short_liq_amount: number;
+  short_liq_usd: number;
+  open_interest: number;
+  open_interest_usd: number;
+  top_lsr_account: number;
+  top_lsr_size: number;
+}
+⋮----
+export interface IndexConstituents {
+  index: string;
+  constituents: {
+    exchange: string;
+    symbols: string[];
+  }[];
+}
+⋮----
+export interface LiquidationHistoryRecord {
+  time: number;
+  contract: string;
+  size: number;
+  order_size: number;
+  order_price: string;
+  fill_price: string;
+  left: number;
+}
+⋮----
+export interface RiskLimitTier {
+  tier: number;
+  risk_limit: string;
+  initial_rate: string;
+  maintenance_rate: string;
+  leverage_max: string;
+  contract: string;
+}
+⋮----
+export interface FuturesAccount {
+  total: string;
+  unrealised_pnl: string;
+  position_margin: string;
+  order_margin: string;
+  available: string;
+  point: string;
+  currency: string;
+  in_dual_mode: boolean;
+  enable_credit: boolean;
+  position_initial_margin: string;
+  maintenance_margin: string;
+  bonus: string;
+  enable_evolved_classic: boolean;
+  cross_order_margin: string;
+  cross_initial_margin: string;
+  cross_maintenance_margin: string;
+  cross_unrealised_pnl: string;
+  cross_available: string;
+  cross_margin_balance: string;
+  cross_mmr: string;
+  cross_imr: string;
+  isolated_position_margin: string;
+  enable_new_dual_mode: boolean;
+  margin_mode: number;
+  history: {
+    dnw: string;
+    pnl: string;
+    fee: string;
+    refr: string;
+    fund: string;
+    point_dnw: string;
+    point_fee: string;
+    point_refr: string;
+    bonus_dnw: string;
+    bonus_offset: string;
+  };
+  enable_tiered_mm: boolean;
+}
+⋮----
+export interface FuturesAccountBookRecord {
+  time: number;
+  change: string;
+  balance: string;
+  type: string;
+  text: string;
+  contract?: string;
+  trade_id: string;
+  id: string;
+}
+⋮----
+export interface FuturesOrder {
+  id?: number;
+  user?: number;
+  create_time?: number;
+  finish_time?: number;
+  finish_as?:
+    | 'filled'
+    | 'cancelled'
+    | 'liquidated'
+    | 'ioc'
+    | 'auto_deleveraged'
+    | 'reduce_only'
+    | 'position_closed'
+    | 'stp';
+  status?: 'open' | 'finished';
+  contract: string;
+  size: number;
+  iceberg?: number;
+  price?: string;
+  close?: boolean;
+  is_close?: boolean;
+  reduce_only?: boolean;
+  is_reduce_only?: boolean;
+  is_liq?: boolean;
+  tif?: 'gtc' | 'ioc' | 'poc' | 'fok';
+  left?: number;
+  fill_price?: string;
+  text?: string;
+  tkfr?: string;
+  mkfr?: string;
+  refu?: number;
+  auto_size?: 'close_long' | 'close_short';
+  stp_id?: number;
+  stp_act?: 'cn' | 'co' | 'cb' | '-';
+  amend_text?: string;
+  biz_info?: string;
+}
+⋮----
+export interface FuturesPosition {
+  user?: number;
+  contract?: string;
+  size?: number;
+  leverage?: string;
+  risk_limit?: string;
+  leverage_max?: string;
+  maintenance_rate?: string;
+  value?: string;
+  margin?: string;
+  entry_price?: string;
+  liq_price?: string;
+  mark_price?: string;
+  initial_margin?: string;
+  maintenance_margin?: string;
+  unrealised_pnl?: string;
+  realised_pnl?: string;
+  pnl_pnl?: string;
+  pnl_fund?: string;
+  pnl_fee?: string;
+  history_pnl?: string;
+  last_close_pnl?: string;
+  realised_point?: string;
+  history_point?: string;
+  adl_ranking?: number;
+  pending_orders?: number;
+  close_order?: {
+    id?: number;
+    price?: string;
+    is_liq?: boolean;
+  } | null;
+  mode?: 'single' | 'dual_long' | 'dual_short';
+  cross_leverage_limit?: string;
+  update_time?: number;
+  update_id?: number;
+  open_time?: number;
+}
+⋮----
+export interface FuturesTradingHistoryRecord {
+  id: number;
+  create_time: number;
+  contract: string;
+  order_id: string;
+  size: number;
+  price: string;
+  role: 'taker' | 'maker';
+  text: string;
+  fee: string;
+  point_fee: string;
+  close_size: number;
+}
+⋮----
+export interface FuturesPositionHistoryRecord {
+  time: number;
+  contract: string;
+  side: 'long' | 'short';
+  pnl: string;
+  pnl_pnl: string;
+  pnl_fund: string;
+  pnl_fee: string;
+  text: string;
+  max_size: string;
+  first_open_time: number;
+  long_price: string;
+  short_price: string;
+  accum_size: string;
+}
+⋮----
+export interface FuturesLiquidationHistoryRecord {
+  time: number;
+  contract: string;
+  leverage: string;
+  size: number;
+  margin: string;
+  entry_price: string;
+  liq_price: string;
+  mark_price: string;
+  order_id: number;
+  order_price: string;
+  fill_price: string;
+  left: number;
+}
+export interface FuturesAutoDeleveragingHistoryRecord {
+  time: number;
+  user: number;
+  order_id: number;
+  contract: string;
+  leverage: string;
+  cross_leverage_limit: string;
+  entry_price: string;
+  fill_price: string;
+  trade_size: number;
+  position_size: number;
+}
+⋮----
+export interface DeleteFuturesBatchOrdersResp {
+  user_id: number;
+  id: string;
+  succeeded: boolean;
+  message: string;
+}
+⋮----
+export interface FuturesContract {
+  name?: string;
+  type?: 'inverse' | 'direct';
+  quanto_multiplier?: string;
+  leverage_min?: string;
+  leverage_max?: string;
+  maintenance_rate?: string;
+  mark_type?: 'internal' | 'index';
+  mark_price?: string;
+  index_price?: string;
+  last_price?: string;
+  maker_fee_rate?: string;
+  taker_fee_rate?: string;
+  order_price_round?: string;
+  mark_price_round?: string;
+  funding_rate?: string;
+  funding_interval?: number;
+  funding_next_apply?: number;
+  risk_limit_base?: string;
+  risk_limit_step?: string;
+  risk_limit_max?: string;
+  order_size_min?: number;
+  order_size_max?: number;
+  order_price_deviate?: string;
+  ref_discount_rate?: string;
+  ref_rebate_rate?: string;
+  orderbook_id?: number;
+  trade_id?: number;
+  trade_size?: number;
+  position_size?: number;
+  config_change_time?: number;
+  in_delisting?: boolean;
+  orders_limit?: number;
+  enable_bonus?: boolean;
+  enable_credit?: boolean;
+  create_time?: number;
+  funding_cap_ratio?: string;
+}
+⋮----
+export interface FuturesPriceTriggeredOrder {
+  initial: {
+    contract: string;
+    size?: number;
+    price?: string;
+    close?: boolean;
+    tif?: 'gtc' | 'ioc';
+    text?: string;
+    reduce_only?: boolean;
+    auto_size?: string;
+    is_reduce_only?: boolean;
+    is_close?: boolean;
+  };
+  trigger: {
+    strategy_type?: 0 | 1;
+    price_type?: 0 | 1 | 2;
+    price?: string;
+    rule?: 1 | 2;
+    expiration?: number;
+  };
+  id?: number;
+  user?: number;
+  create_time?: number;
+  finish_time?: number;
+  trade_id?: number;
+  status?: 'open' | 'finished' | 'inactive' | 'invalid';
+  finish_as?: 'cancelled' | 'succeeded' | 'failed' | 'expired';
+  reason?: string;
+  order_type?:
+    | 'close-long-order'
+    | 'close-short-order'
+    | 'close-long-position'
+    | 'close-short-position'
+    | 'plan-close-long-position'
+    | 'plan-close-short-position';
+  me_order_id?: number;
+}
+⋮----
+export interface FuturesDeliveryContract {
+  name?: string;
+  underlying?: string;
+  cycle?: 'WEEKLY' | 'BI-WEEKLY' | 'QUARTERLY' | 'BI-QUARTERLY';
+  type?: 'inverse' | 'direct';
+  quanto_multiplier?: string;
+  leverage_min?: string;
+  leverage_max?: string;
+  maintenance_rate?: string;
+  mark_type?: 'internal' | 'index';
+  mark_price?: string;
+  index_price?: string;
+  last_price?: string;
+  maker_fee_rate?: string;
+  taker_fee_rate?: string;
+  order_price_round?: string;
+  mark_price_round?: string;
+  basis_rate?: string;
+  basis_value?: string;
+  basis_impact_value?: string;
+  settle_price?: string;
+  settle_price_interval?: number;
+  settle_price_duration?: number;
+  expire_time?: number;
+  risk_limit_base?: string;
+  risk_limit_step?: string;
+  risk_limit_max?: string;
+  order_size_min?: number;
+  order_size_max?: number;
+  order_price_deviate?: string;
+  ref_discount_rate?: string;
+  ref_rebate_rate?: string;
+  orderbook_id?: number;
+  trade_id?: number;
+  trade_size?: number;
+  position_size?: number;
+  config_change_time?: number;
+  in_delisting?: boolean;
+  orders_limit?: number;
+}
+⋮----
+export interface BatchAmendOrderResp {
+  succeeded: boolean;
+  label?: string;
+  detail?: string;
+  id: number;
+  user: number;
+  create_time: number;
+  finish_time?: number;
+  finish_as?:
+    | 'filled'
+    | 'cancelled'
+    | 'liquidated'
+    | 'ioc'
+    | 'auto_deleveraged'
+    | 'reduce_only'
+    | 'position_closed'
+    | 'reduce_out'
+    | 'stp';
+  status: 'open' | 'finished';
+  contract: string;
+  size: number;
+  iceberg: number;
+  price: string;
+  is_close: boolean;
+  is_reduce_only: boolean;
+  is_liq: boolean;
+  tif: 'gtc' | 'ioc' | 'poc' | 'fok';
+  left: number;
+  fill_price: string;
+  text: string;
+  tkfr: string;
+  mkfr: string;
+  refu: number;
+  stp_act: 'co' | 'cn' | 'cb' | '-';
+  stp_id: number;
+}
+⋮----
+/**
+ * @deprecated - Use FuturesAccount instead
+ */
+export interface UpdateFuturesDualModeResp {
+  total: string;
+  unrealised_pnl: string;
+  position_margin: string;
+  order_margin: string;
+  available: string;
+  point: string;
+  currency: string;
+  in_dual_mode: boolean;
+  enable_credit: boolean;
+  position_initial_margin: string;
+  maintenance_margin: string;
+  bonus: string;
+  enable_evolved_classic: boolean;
+  history: {
+    dnw: string;
+    pnl: string;
+    fee: string;
+    refr: string;
+    fund: string;
+    point_dnw: string;
+    point_fee: string;
+    point_refr: string;
+    bonus_dnw: string;
+    bonus_offset: string;
+  };
+}
+⋮----
+export interface RiskLimitTableTier {
+  tier: number;
+  risk_limit: string;
+  initial_rate: string;
+  maintenance_rate: string;
+  leverage_max: string;
+  deduction: string;
+}
+
+================
 File: src/lib/BaseWSClient.ts
 ================
 import EventEmitter from 'events';
@@ -6302,495 +6807,6 @@ public async assertIsAuthenticated(wsKey: TWSKey): Promise<unknown>
 // this.logger.trace('assertIsAuthenticated(): ok');
 ⋮----
 // Start authentication, it should automatically store/return a promise.
-
-================
-File: src/types/response/futures.ts
-================
-/**==========================================================================================================================
- * FUTURES
- * ==========================================================================================================================
- */
-⋮----
-export interface FuturesOrderBook {
-  id?: number;
-  current: number;
-  update: number;
-  asks: { p: string; s: number }[];
-  bids: { p: string; s: number }[];
-}
-⋮----
-export interface FuturesTrade {
-  id: number;
-  create_time: number;
-  create_time_ms: number;
-  contract: string;
-  size: number;
-  price: string;
-  is_internal?: boolean;
-}
-⋮----
-export interface FuturesCandle {
-  t: number;
-  v?: number;
-  c: string;
-  h: string;
-  l: string;
-  o: string;
-  sum: string;
-}
-⋮----
-export interface PremiumIndexKLine {
-  t: number;
-  c: string;
-  h: string;
-  l: string;
-  o: string;
-}
-⋮----
-export interface FuturesTicker {
-  contract: string;
-  last: string;
-  change_percentage: string;
-  total_size: string;
-  low_24h: string;
-  high_24h: string;
-  volume_24h: string;
-  volume_24h_btc?: string;
-  volume_24h_usd?: string;
-  volume_24h_base: string;
-  volume_24h_quote: string;
-  volume_24h_settle: string;
-  mark_price: string;
-  funding_rate: string;
-  funding_rate_indicative: string;
-  index_price: string;
-  quanto_base_rate?: string;
-  basis_rate: string;
-  basis_value: string;
-  lowest_ask: string;
-  highest_bid: string;
-  lowest_size: string;
-  highest_size: string;
-}
-⋮----
-export interface FuturesStats {
-  time: number;
-  lsr_taker: number;
-  lsr_account: number;
-  long_liq_size: number;
-  long_liq_amount: number;
-  long_liq_usd: number;
-  short_liq_size: number;
-  short_liq_amount: number;
-  short_liq_usd: number;
-  open_interest: number;
-  open_interest_usd: number;
-  top_lsr_account: number;
-  top_lsr_size: number;
-}
-⋮----
-export interface IndexConstituents {
-  index: string;
-  constituents: {
-    exchange: string;
-    symbols: string[];
-  }[];
-}
-⋮----
-export interface LiquidationHistoryRecord {
-  time: number;
-  contract: string;
-  size: number;
-  order_size: number;
-  order_price: string;
-  fill_price: string;
-  left: number;
-}
-⋮----
-export interface RiskLimitTier {
-  tier: number;
-  risk_limit: string;
-  initial_rate: string;
-  maintenance_rate: string;
-  leverage_max: string;
-  contract: string;
-}
-⋮----
-export interface FuturesAccount {
-  total: string;
-  unrealised_pnl: string;
-  position_margin: string;
-  order_margin: string;
-  available: string;
-  point: string;
-  currency: string;
-  in_dual_mode: boolean;
-  enable_credit: boolean;
-  position_initial_margin: string;
-  maintenance_margin: string;
-  bonus: string;
-  enable_evolved_classic: boolean;
-  cross_order_margin: string;
-  cross_initial_margin: string;
-  cross_maintenance_margin: string;
-  cross_unrealised_pnl: string;
-  cross_available: string;
-  cross_margin_balance: string;
-  cross_mmr: string;
-  cross_imr: string;
-  isolated_position_margin: string;
-  enable_new_dual_mode: boolean;
-  margin_mode: number;
-  history: {
-    dnw: string;
-    pnl: string;
-    fee: string;
-    refr: string;
-    fund: string;
-    point_dnw: string;
-    point_fee: string;
-    point_refr: string;
-    bonus_dnw: string;
-    bonus_offset: string;
-  };
-}
-⋮----
-export interface FuturesAccountBookRecord {
-  time: number;
-  change: string;
-  balance: string;
-  type: string;
-  text: string;
-  contract?: string;
-  trade_id: string;
-  id: string;
-}
-⋮----
-export interface FuturesOrder {
-  id?: number;
-  user?: number;
-  create_time?: number;
-  finish_time?: number;
-  finish_as?:
-    | 'filled'
-    | 'cancelled'
-    | 'liquidated'
-    | 'ioc'
-    | 'auto_deleveraged'
-    | 'reduce_only'
-    | 'position_closed'
-    | 'stp';
-  status?: 'open' | 'finished';
-  contract: string;
-  size: number;
-  iceberg?: number;
-  price?: string;
-  close?: boolean;
-  is_close?: boolean;
-  reduce_only?: boolean;
-  is_reduce_only?: boolean;
-  is_liq?: boolean;
-  tif?: 'gtc' | 'ioc' | 'poc' | 'fok';
-  left?: number;
-  fill_price?: string;
-  text?: string;
-  tkfr?: string;
-  mkfr?: string;
-  refu?: number;
-  auto_size?: 'close_long' | 'close_short';
-  stp_id?: number;
-  stp_act?: 'cn' | 'co' | 'cb' | '-';
-  amend_text?: string;
-  biz_info?: string;
-}
-⋮----
-export interface FuturesPosition {
-  user?: number;
-  contract?: string;
-  size?: number;
-  leverage?: string;
-  risk_limit?: string;
-  leverage_max?: string;
-  maintenance_rate?: string;
-  value?: string;
-  margin?: string;
-  entry_price?: string;
-  liq_price?: string;
-  mark_price?: string;
-  initial_margin?: string;
-  maintenance_margin?: string;
-  unrealised_pnl?: string;
-  realised_pnl?: string;
-  pnl_pnl?: string;
-  pnl_fund?: string;
-  pnl_fee?: string;
-  history_pnl?: string;
-  last_close_pnl?: string;
-  realised_point?: string;
-  history_point?: string;
-  adl_ranking?: number;
-  pending_orders?: number;
-  close_order?: {
-    id?: number;
-    price?: string;
-    is_liq?: boolean;
-  } | null;
-  mode?: 'single' | 'dual_long' | 'dual_short';
-  cross_leverage_limit?: string;
-  update_time?: number;
-  update_id?: number;
-  open_time?: number;
-}
-⋮----
-export interface FuturesTradingHistoryRecord {
-  id: number;
-  create_time: number;
-  contract: string;
-  order_id: string;
-  size: number;
-  price: string;
-  role: 'taker' | 'maker';
-  text: string;
-  fee: string;
-  point_fee: string;
-  close_size: number;
-}
-⋮----
-export interface FuturesPositionHistoryRecord {
-  time: number;
-  contract: string;
-  side: 'long' | 'short';
-  pnl: string;
-  pnl_pnl: string;
-  pnl_fund: string;
-  pnl_fee: string;
-  text: string;
-  max_size: string;
-  first_open_time: number;
-  long_price: string;
-  short_price: string;
-  accum_size: string;
-}
-⋮----
-export interface FuturesLiquidationHistoryRecord {
-  time: number;
-  contract: string;
-  leverage: string;
-  size: number;
-  margin: string;
-  entry_price: string;
-  liq_price: string;
-  mark_price: string;
-  order_id: number;
-  order_price: string;
-  fill_price: string;
-  left: number;
-}
-export interface FuturesAutoDeleveragingHistoryRecord {
-  time: number;
-  user: number;
-  order_id: number;
-  contract: string;
-  leverage: string;
-  cross_leverage_limit: string;
-  entry_price: string;
-  fill_price: string;
-  trade_size: number;
-  position_size: number;
-}
-⋮----
-export interface DeleteFuturesBatchOrdersResp {
-  user_id: number;
-  id: string;
-  succeeded: boolean;
-  message: string;
-}
-⋮----
-export interface FuturesContract {
-  name?: string;
-  type?: 'inverse' | 'direct';
-  quanto_multiplier?: string;
-  leverage_min?: string;
-  leverage_max?: string;
-  maintenance_rate?: string;
-  mark_type?: 'internal' | 'index';
-  mark_price?: string;
-  index_price?: string;
-  last_price?: string;
-  maker_fee_rate?: string;
-  taker_fee_rate?: string;
-  order_price_round?: string;
-  mark_price_round?: string;
-  funding_rate?: string;
-  funding_interval?: number;
-  funding_next_apply?: number;
-  risk_limit_base?: string;
-  risk_limit_step?: string;
-  risk_limit_max?: string;
-  order_size_min?: number;
-  order_size_max?: number;
-  order_price_deviate?: string;
-  ref_discount_rate?: string;
-  ref_rebate_rate?: string;
-  orderbook_id?: number;
-  trade_id?: number;
-  trade_size?: number;
-  position_size?: number;
-  config_change_time?: number;
-  in_delisting?: boolean;
-  orders_limit?: number;
-  enable_bonus?: boolean;
-  enable_credit?: boolean;
-  create_time?: number;
-  funding_cap_ratio?: string;
-}
-⋮----
-export interface FuturesPriceTriggeredOrder {
-  initial: {
-    contract: string;
-    size?: number;
-    price?: string;
-    close?: boolean;
-    tif?: 'gtc' | 'ioc';
-    text?: string;
-    reduce_only?: boolean;
-    auto_size?: string;
-    is_reduce_only?: boolean;
-    is_close?: boolean;
-  };
-  trigger: {
-    strategy_type?: 0 | 1;
-    price_type?: 0 | 1 | 2;
-    price?: string;
-    rule?: 1 | 2;
-    expiration?: number;
-  };
-  id?: number;
-  user?: number;
-  create_time?: number;
-  finish_time?: number;
-  trade_id?: number;
-  status?: 'open' | 'finished' | 'inactive' | 'invalid';
-  finish_as?: 'cancelled' | 'succeeded' | 'failed' | 'expired';
-  reason?: string;
-  order_type?:
-    | 'close-long-order'
-    | 'close-short-order'
-    | 'close-long-position'
-    | 'close-short-position'
-    | 'plan-close-long-position'
-    | 'plan-close-short-position';
-  me_order_id?: number;
-}
-⋮----
-export interface FuturesDeliveryContract {
-  name?: string;
-  underlying?: string;
-  cycle?: 'WEEKLY' | 'BI-WEEKLY' | 'QUARTERLY' | 'BI-QUARTERLY';
-  type?: 'inverse' | 'direct';
-  quanto_multiplier?: string;
-  leverage_min?: string;
-  leverage_max?: string;
-  maintenance_rate?: string;
-  mark_type?: 'internal' | 'index';
-  mark_price?: string;
-  index_price?: string;
-  last_price?: string;
-  maker_fee_rate?: string;
-  taker_fee_rate?: string;
-  order_price_round?: string;
-  mark_price_round?: string;
-  basis_rate?: string;
-  basis_value?: string;
-  basis_impact_value?: string;
-  settle_price?: string;
-  settle_price_interval?: number;
-  settle_price_duration?: number;
-  expire_time?: number;
-  risk_limit_base?: string;
-  risk_limit_step?: string;
-  risk_limit_max?: string;
-  order_size_min?: number;
-  order_size_max?: number;
-  order_price_deviate?: string;
-  ref_discount_rate?: string;
-  ref_rebate_rate?: string;
-  orderbook_id?: number;
-  trade_id?: number;
-  trade_size?: number;
-  position_size?: number;
-  config_change_time?: number;
-  in_delisting?: boolean;
-  orders_limit?: number;
-}
-⋮----
-export interface BatchAmendOrderResp {
-  succeeded: boolean;
-  label?: string;
-  detail?: string;
-  id: number;
-  user: number;
-  create_time: number;
-  finish_time?: number;
-  finish_as?:
-    | 'filled'
-    | 'cancelled'
-    | 'liquidated'
-    | 'ioc'
-    | 'auto_deleveraged'
-    | 'reduce_only'
-    | 'position_closed'
-    | 'reduce_out'
-    | 'stp';
-  status: 'open' | 'finished';
-  contract: string;
-  size: number;
-  iceberg: number;
-  price: string;
-  is_close: boolean;
-  is_reduce_only: boolean;
-  is_liq: boolean;
-  tif: 'gtc' | 'ioc' | 'poc' | 'fok';
-  left: number;
-  fill_price: string;
-  text: string;
-  tkfr: string;
-  mkfr: string;
-  refu: number;
-  stp_act: 'co' | 'cn' | 'cb' | '-';
-  stp_id: number;
-}
-⋮----
-/**
- * @deprecated - Use FuturesAccount instead
- */
-export interface UpdateFuturesDualModeResp {
-  total: string;
-  unrealised_pnl: string;
-  position_margin: string;
-  order_margin: string;
-  available: string;
-  point: string;
-  currency: string;
-  in_dual_mode: boolean;
-  enable_credit: boolean;
-  position_initial_margin: string;
-  maintenance_margin: string;
-  bonus: string;
-  enable_evolved_classic: boolean;
-  history: {
-    dnw: string;
-    pnl: string;
-    fee: string;
-    refr: string;
-    fund: string;
-    point_dnw: string;
-    point_fee: string;
-    point_refr: string;
-    bonus_dnw: string;
-    bonus_offset: string;
-  };
-}
 
 ================
 File: src/WebsocketAPIClient.ts
@@ -7887,6 +7903,7 @@ import {
   GetFuturesTradingHistoryByTimeRangeReq,
   GetFuturesTradingHistoryReq,
   GetLiquidationHistoryReq,
+  GetRiskLimitTableReq,
   GetRiskLimitTiersReq,
   SubmitFuturesOrderReq,
   SubmitFuturesTriggeredOrderReq,
@@ -8042,6 +8059,7 @@ import {
   IndexConstituents,
   LiquidationHistoryRecord,
   PremiumIndexKLine,
+  RiskLimitTableTier,
   RiskLimitTier,
 } from './types/response/futures.js';
 import {
@@ -9196,6 +9214,20 @@ cancelSpotTriggeredOrder(params: {
     order_id: string;
 }): Promise<SpotPriceTriggeredOrder>
 ⋮----
+/**
+   * Set collateral currency
+   *
+   * @param params Parameters for setting collateral currency
+   * @returns Promise<{
+   *   is_success: boolean;
+   * }>
+   */
+setCollateralCurrency(params: {
+    collateral_type: 0 | 1;
+    enable_list?: string[];
+    disable_list?: string[];
+}): Promise<
+⋮----
 /**==========================================================================================================================
    * MARGIN
    * ==========================================================================================================================
@@ -10163,6 +10195,16 @@ batchUpdateFuturesOrders(params: {
     settle: 'btc' | 'usdt' | 'usd';
     orders: BatchAmendOrderReq[];
 }): Promise<BatchAmendOrderResp[]>
+⋮----
+/**
+   * Query risk limit table by table_id
+   *
+   * @param params Parameters for querying risk limit table
+   * @returns Promise<RiskLimitTableTier[]>
+   */
+getRiskLimitTable(
+    params: GetRiskLimitTableReq,
+): Promise<RiskLimitTableTier[]>
 ⋮----
 /**
    * Create a price-triggered order
@@ -11474,7 +11516,7 @@ File: package.json
 ================
 {
   "name": "gateio-api",
-  "version": "1.2.4",
+  "version": "1.2.6",
   "description": "Complete & Robust Node.js SDK for Gate.com's REST APIs, WebSockets & WebSocket APIs, with TypeScript declarations.",
   "scripts": {
     "clean": "rm -rf dist/*",

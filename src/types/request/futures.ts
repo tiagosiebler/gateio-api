@@ -61,6 +61,11 @@ export interface GetRiskLimitTiersReq {
   offset?: number;
 }
 
+export interface GetRiskLimitTableReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  table_id: string;
+}
+
 export interface GetFuturesAccountBookReq {
   settle: 'btc' | 'usdt' | 'usd';
   contract?: string;
