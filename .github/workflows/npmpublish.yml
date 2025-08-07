@@ -16,20 +16,17 @@ jobs:
   publish-npm:
     runs-on: ubuntu-latest
     steps:
-      - name: Package Version Updated
-        uses: MontyD/package-json-updated-action@1.0.1
-        id: version-updated
-        with:
-          path: package.json
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: 'Checkout source code'
-        if: steps.version-updated.outputs.has-updated
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # Need at least 2 commits to compare versions
+
+      - name: Check if package version changed
+        id: version-updated
+        run: node .github/scripts/check-version-change.cjs
 
       - uses: actions/setup-node@v4
-        if: steps.version-updated.outputs.has-updated
+        if: steps.version-updated.outputs.has-updated == 'true'
         with:
           node-version-file: '.nvmrc'
           registry-url: https://registry.npmjs.org/
@@ -37,15 +34,15 @@ jobs:
 
       - name: Install
         run: npm ci --ignore-scripts
-        if: steps.version-updated.outputs.has-updated
+        if: steps.version-updated.outputs.has-updated == 'true'
 
       - run: npm run clean
-        if: steps.version-updated.outputs.has-updated
+        if: steps.version-updated.outputs.has-updated == 'true'
 
       - run: npm run build
-        if: steps.version-updated.outputs.has-updated
+        if: steps.version-updated.outputs.has-updated == 'true'
 
-      - run: npm publish --ignore-scripts --provenance
-        if: steps.version-updated.outputs.has-updated
+      - run: npm publish --ignore-scripts
+        if: steps.version-updated.outputs.has-updated == 'true'
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
