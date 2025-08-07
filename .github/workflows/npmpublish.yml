@@ -26,7 +26,7 @@ jobs:
         run: node .github/scripts/check-version-change.cjs
 
       - uses: actions/setup-node@v4
-        if: steps.version-updated.outputs.has-updated
+        if: steps.version-updated.outputs.has-updated == 'true'
         with:
           node-version-file: '.nvmrc'
           registry-url: https://registry.npmjs.org/
@@ -34,15 +34,15 @@ jobs:
 
       - name: Install
         run: npm ci --ignore-scripts
-        if: steps.version-updated.outputs.has-updated
+        if: steps.version-updated.outputs.has-updated == 'true'
 
       - run: npm run clean
-        if: steps.version-updated.outputs.has-updated
+        if: steps.version-updated.outputs.has-updated == 'true'
 
       - run: npm run build
-        if: steps.version-updated.outputs.has-updated
+        if: steps.version-updated.outputs.has-updated == 'true'
 
-      - run: npm publish --ignore-scripts --provenance
-        if: steps.version-updated.outputs.has-updated
+      - run: npm publish --ignore-scripts
+        if: steps.version-updated.outputs.has-updated == 'true'
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

@@ -35,6 +35,8 @@ function checkVersionChange() {
 
     try {
       // Get the package.json content from the previous commit (HEAD~1)
+      // This works well with GitHub's merge strategies (merge, squash, rebase)
+      console.log('Comparing current package.json with HEAD~1');
       const previousPackageJsonContent = execSync('git show HEAD~1:package.json', { 
         encoding: 'utf8',
         stdio: ['pipe', 'pipe', 'pipe']
