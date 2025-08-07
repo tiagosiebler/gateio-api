@@ -16,17 +16,14 @@ jobs:
   publish-npm:
     runs-on: ubuntu-latest
     steps:
-      - name: Package Version Updated
-        uses: MontyD/package-json-updated-action@1.0.1
-        id: version-updated
-        with:
-          path: package.json
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: 'Checkout source code'
-        if: steps.version-updated.outputs.has-updated
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # Need at least 2 commits to compare versions
+
+      - name: Check if package version changed
+        id: version-updated
+        run: node .github/scripts/check-version-change.cjs
 
       - uses: actions/setup-node@v4
         if: steps.version-updated.outputs.has-updated
