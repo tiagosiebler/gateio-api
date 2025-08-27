@@ -105,7 +105,7 @@ export const WS_BASE_URL_MAP: Record<
   },
   perpFuturesUSDTV4: {
     livenet: 'wss://fx-ws.gateio.ws/v4/ws/usdt',
-    testnet: 'wss://fx-ws-testnet.gateio.ws/v4/ws/usdt',
+    testnet: 'wss://ws-testnet.gate.com/v4/ws/futures/usdt',
   },
   perpFuturesBTCV4: {
     livenet: 'wss://fx-ws.gateio.ws/v4/ws/btc',
