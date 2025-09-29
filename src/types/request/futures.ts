@@ -90,6 +90,8 @@ export interface GetFuturesPositionsReq {
   holding?: boolean;
   limit?: number;
   offset?: number;
+  position_side?: string; // v4.105.3: Add position_side parameter for hedge mode support
+  hedge_mode?: boolean; // v4.104.3: Add hedge_mode parameter
 }
 
 export interface UpdateDualModePositionMarginReq {
@@ -237,4 +239,20 @@ export interface BatchAmendOrderReq {
   size?: number; // The new order size, including the executed order size
   price?: string; // New order price
   amend_text?: string; // Custom info during amending order
+}
+
+// v4.105.8: New GET /futures/{settle}/position_close_history endpoint request
+export interface GetFuturesPositionCloseHistoryReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract?: string;
+  limit?: number;
+  offset?: number;
+  from?: number;
+  to?: number;
+}
+
+// v4.104.6: New GET /futures/{settle}/insurance endpoint request
+export interface GetFuturesInsuranceReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  limit?: number;
 }

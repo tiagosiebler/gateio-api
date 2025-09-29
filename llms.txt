@@ -561,37 +561,6 @@ File: src/lib/misc-util.ts
 export function neverGuard(x: never, msg: string): Error
 
 ================
-File: src/lib/webCryptoAPI.ts
-================
-import { neverGuard } from './misc-util.js';
-⋮----
-function bufferToB64(buffer: ArrayBuffer): string
-⋮----
-export type SignEncodeMethod = 'hex' | 'base64';
-export type SignAlgorithm = 'SHA-256' | 'SHA-512';
-⋮----
-/**
- * Similar to node crypto's `createHash()` function
- */
-export async function hashMessage(
-  message: string,
-  method: SignEncodeMethod,
-  algorithm: SignAlgorithm,
-): Promise<string>
-⋮----
-/**
- * Sign a message, with a secret, using the Web Crypto API
- */
-export async function signMessage(
-  message: string,
-  secret: string,
-  method: SignEncodeMethod,
-  algorithm: SignAlgorithm,
-): Promise<string>
-⋮----
-export function checkWebCryptoAPISupported()
-
-================
 File: src/types/request/account.ts
 ================
 /**==========================================================================================================================
@@ -1255,6 +1224,46 @@ export interface SubmitWithdrawalReq {
 }
 
 ================
+File: src/types/response/account.ts
+================
+/**==========================================================================================================================
+ * ACCOUNT
+ * ==========================================================================================================================
+ */
+⋮----
+export interface AccountDetail {
+  user_id: number;
+  ip_whitelist: string[];
+  currency_pairs: string[];
+  key: {
+    mode: number;
+  };
+  tier: number;
+  copy_trading_role: number;
+}
+⋮----
+export interface AccountRateLimit {
+  type: string;
+  tier: string;
+  ratio: string;
+  main_ratio: string;
+  updated_at: string;
+}
+⋮----
+export interface StpGroup {
+  id: number;
+  name: string;
+  creator_id: number;
+  create_time: number;
+}
+⋮----
+export interface StpGroupUser {
+  user_id: number;
+  stp_id: number;
+  create_time: number;
+}
+
+================
 File: src/types/response/collateralloan.ts
 ================
 /**==========================================================================================================================
@@ -1910,6 +1919,223 @@ export interface SubAccountMode {
   user_id: number;
   is_unified: boolean;
   mode: 'classic' | 'multi_currency' | 'portfolio';
+}
+
+================
+File: src/types/response/wallet.ts
+================
+export interface CurrencyChain {
+  chain: string;
+  name_cn: string;
+  name_en: string;
+  contract_address: string;
+  is_disabled: number;
+  is_deposit_disabled: number;
+  is_withdraw_disabled: number;
+  decimal: string;
+}
+⋮----
+export interface CreateDepositAddressResp {
+  currency: string;
+  address: string;
+  multichain_addresses: {
+    chain: string;
+    address: string;
+    payment_id: string;
+    payment_name: string;
+    obtain_failed: number;
+  }[];
+}
+⋮----
+export interface SubAccountTransferRecord {
+  currency: string;
+  sub_account: string;
+  direction: 'to' | 'from';
+  amount: string;
+  uid: string;
+  client_order_id: string;
+  timest: string;
+  source: string;
+  sub_account_type: 'spot' | 'futures' | 'cross_margin' | 'delivery';
+}
+⋮----
+export interface WithdrawalStatus {
+  currency: string;
+  name: string;
+  name_cn: string;
+  deposit: string;
+  withdraw_percent: string;
+  withdraw_fix: string;
+  withdraw_day_limit: string;
+  withdraw_amount_mini: string;
+  withdraw_day_limit_remain: string;
+  withdraw_eachtime_limit: string;
+  withdraw_fix_on_chains: { [key: string]: string };
+  withdraw_percent_on_chains: { [key: string]: string };
+}
+⋮----
+export interface SubAccountMarginBalance {
+  currency_pair: string;
+  locked: boolean;
+  risk: string;
+  base: {
+    currency: string;
+    available: string;
+    locked: string;
+    borrowed: string;
+    interest: string;
+  };
+  quote: {
+    currency: string;
+    available: string;
+    locked: string;
+    borrowed: string;
+    interest: string;
+  };
+}
+⋮----
+export interface SubAccountFuturesBalancesResp {
+  uid: string;
+  available: {
+    [key: string]: {
+      total: string;
+      unrealised_pnl: string;
+      position_margin: string;
+      order_margin: string;
+      available: string;
+      point: string;
+      currency: string;
+      in_dual_mode: boolean;
+      enable_credit: boolean;
+      position_initial_margin: string;
+      maintenance_margin: string;
+      bonus: string;
+      enable_evolved_classic: boolean;
+      cross_order_margin: string;
+      cross_initial_margin: string;
+      cross_maintenance_margin: string;
+      cross_unrealised_pnl: string;
+      cross_available: string;
+      isolated_position_margin: string;
+      history: {
+        dnw: string;
+        pnl: string;
+        fee: string;
+        refr: string;
+        fund: string;
+        point_dnw: string;
+        point_fee: string;
+        point_refr: string;
+        bonus_dnw: string;
+        bonus_offset: string;
+      };
+    };
+  };
+}
+⋮----
+export interface SubAccountCrossMarginBalancesResp {
+  uid: string;
+  available: {
+    user_id: number;
+    locked: boolean;
+    balances: {
+      [key: string]: {
+        available: string;
+        freeze: string;
+        borrowed: string;
+        interest: string;
+      };
+    };
+    total: string;
+    borrowed: string;
+    borrowed_net: string;
+    net: string;
+    leverage: string;
+    interest: string;
+    risk: string;
+    total_initial_margin: string;
+    total_margin_balance: string;
+    total_maintenance_margin: string;
+    total_initial_margin_rate: string;
+    total_maintenance_margin_rate: string;
+    total_available_margin: string;
+  };
+}
+⋮----
+export interface SavedAddress {
+  currency: string;
+  chain: string;
+  address: string;
+  name: string;
+  tag: string;
+  verified: string;
+}
+⋮----
+export interface TradingFees {
+  user_id: number;
+  taker_fee: string;
+  maker_fee: string;
+  gt_discount: boolean;
+  gt_taker_fee: string;
+  gt_maker_fee: string;
+  loan_fee: string;
+  point_type: string;
+  futures_taker_fee: string;
+  futures_maker_fee: string;
+  delivery_taker_fee: string;
+  delivery_maker_fee: string;
+  debit_fee: number;
+}
+⋮----
+export interface GetBalancesResp {
+  total: {
+    amount: string;
+    currency: string;
+    unrealised_pnl?: string;
+    borrowed?: string;
+  };
+  details: {
+    [key: string]: {
+      amount: string;
+      currency: string;
+      unrealised_pnl?: string;
+      borrowed?: string;
+    };
+  };
+}
+⋮----
+export interface SmallBalanceRecord {
+  currency: string;
+  available_balance: string;
+  estimated_as_btc: string;
+  convertible_to_gt: string;
+}
+⋮----
+export interface SmallBalanceHistoryRecord {
+  id: string;
+  currency: string;
+  amount: string;
+  gt_amount: string;
+  create_time: number;
+}
+⋮----
+export interface PushOrder {
+  id: number;
+  push_uid: number;
+  receive_uid: number;
+  currency: string;
+  amount: string;
+  create_time: number;
+  status:
+    | 'CREATING'
+    | 'PENDING'
+    | 'CANCELLING'
+    | 'CANCELLED'
+    | 'REFUSING'
+    | 'REFUSED'
+    | 'RECEIVING'
+    | 'RECEIVED';
+  message: string;
 }
 
 ================
@@ -3092,6 +3318,308 @@ export interface MessageEventLike {
 export function isMessageEvent(msg: unknown): msg is MessageEventLike
 
 ================
+File: src/lib/webCryptoAPI.ts
+================
+import { neverGuard } from './misc-util.js';
+⋮----
+function bufferToB64(buffer: ArrayBuffer): string
+⋮----
+export type SignEncodeMethod = 'hex' | 'base64';
+export type SignAlgorithm = 'SHA-256' | 'SHA-512';
+⋮----
+/**
+ * Similar to node crypto's `createHash()` function
+ */
+export async function hashMessage(
+  message: string,
+  method: SignEncodeMethod,
+  algorithm: SignAlgorithm,
+): Promise<string>
+⋮----
+/**
+ * Sign a message, with a secret, using the Web Crypto API
+ */
+export async function signMessage(
+  message: string,
+  secret: string,
+  method: SignEncodeMethod,
+  algorithm: SignAlgorithm,
+): Promise<string>
+⋮----
+export function checkWebCryptoAPISupported()
+
+================
+File: src/types/request/futures.ts
+================
+/**==========================================================================================================================
+ * FUTURES
+ * ==========================================================================================================================
+ */
+⋮----
+export interface GetFuturesOrderBookReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract: string;
+  interval?: string;
+  limit?: number;
+  with_id?: boolean;
+}
+⋮----
+export interface GetFuturesTradesReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract: string;
+  limit?: number;
+  offset?: number;
+  last_id?: string;
+  from?: number;
+  to?: number;
+}
+⋮----
+export interface GetFuturesCandlesReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract: string;
+  from?: number;
+  to?: number;
+  limit?: number;
+  interval?: string;
+}
+⋮----
+export interface GetFuturesStatsReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract: string;
+  from?: number;
+  interval?: string;
+  limit?: number;
+}
+⋮----
+export interface GetFundingRatesReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract: string;
+  limit?: number;
+  from?: number;
+  to?: number;
+}
+⋮----
+export interface GetLiquidationHistoryReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract?: string;
+  from?: number;
+  to?: number;
+  limit?: number;
+}
+⋮----
+export interface GetRiskLimitTiersReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract: string;
+  limit?: number;
+  offset?: number;
+}
+⋮----
+export interface GetRiskLimitTableReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  table_id: string;
+}
+⋮----
+export interface GetFuturesAccountBookReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract?: string;
+  limit?: number;
+  offset?: number;
+  from?: number;
+  to?: number;
+  type?:
+    | 'dnw'
+    | 'pnl'
+    | 'fee'
+    | 'refr'
+    | 'fund'
+    | 'point_dnw'
+    | 'point_fee'
+    | 'point_refr'
+    | 'bonus_offset';
+}
+⋮----
+export interface GetFuturesPositionsReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  holding?: boolean;
+  limit?: number;
+  offset?: number;
+  position_side?: string; // v4.105.3: Add position_side parameter for hedge mode support
+  hedge_mode?: boolean; // v4.104.3: Add hedge_mode parameter
+}
+⋮----
+position_side?: string; // v4.105.3: Add position_side parameter for hedge mode support
+hedge_mode?: boolean; // v4.104.3: Add hedge_mode parameter
+⋮----
+export interface UpdateDualModePositionMarginReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract: string;
+  change: string;
+  dual_side: 'dual_long' | 'dual_short';
+}
+⋮----
+export interface UpdateDualModePositionLeverageReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract: string;
+  leverage: string;
+  cross_leverage_limit?: string;
+}
+⋮----
+export interface SubmitFuturesOrderReq {
+  xGateExptime?: number;
+  settle: 'btc' | 'usdt' | 'usd';
+  contract: string;
+  size: number;
+  iceberg?: number;
+  price?: string;
+  close?: boolean;
+  reduce_only?: boolean;
+  tif?: string;
+  text?: string;
+  auto_size?: string;
+  stp_act?: string;
+}
+⋮----
+export interface GetFuturesOrdersReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract?: string;
+  status: string;
+  limit?: number;
+  offset?: number;
+  last_id?: string;
+}
+⋮----
+export interface DeleteAllFuturesOrdersReq {
+  xGateExptime?: number;
+  settle: 'btc' | 'usdt' | 'usd';
+  contract: string;
+  side?: string;
+}
+⋮----
+export interface GetFuturesOrdersByTimeRangeReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract?: string;
+  from?: number;
+  to?: number;
+  limit?: number;
+  offset?: number;
+}
+⋮----
+export interface UpdateFuturesOrderReq {
+  xGateExptime?: number;
+  settle: 'btc' | 'usdt' | 'usd';
+  order_id: string;
+  size?: number;
+  price?: string;
+  amend_text?: string;
+}
+⋮----
+export interface GetFuturesTradingHistoryReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract?: string;
+  order?: number;
+  limit?: number;
+  offset?: number;
+  last_id?: string;
+}
+⋮----
+export interface GetFuturesTradingHistoryByTimeRangeReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract?: string;
+  from?: number;
+  to?: number;
+  limit?: number;
+  offset?: number;
+  role?: 'maker' | 'taker';
+}
+⋮----
+export interface GetFuturesPositionHistoryReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract?: string;
+  limit?: number;
+  offset?: number;
+  from?: number;
+  to?: number;
+  side?: 'long' | 'short';
+  pnl?: string;
+}
+⋮----
+export interface GetFuturesLiquidationHistoryReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract?: string;
+  limit?: number;
+  at?: number;
+}
+⋮----
+export interface SubmitFuturesTriggeredOrderReq {
+  initial: {
+    contract: string;
+    size?: number;
+    price?: string;
+    close?: boolean;
+    tif?: 'gtc' | 'ioc';
+    text?: string;
+    reduce_only?: boolean;
+    auto_size?: string;
+  };
+  trigger: {
+    strategy_type?: 0 | 1;
+    price_type?: 0 | 1 | 2;
+    price?: string;
+    rule?: 1 | 2;
+    expiration?: number;
+  };
+  order_type?:
+    | 'close-long-order'
+    | 'close-short-order'
+    | 'close-long-position'
+    | 'close-short-position'
+    | 'plan-close-long-position'
+    | 'plan-close-short-position';
+  settle: 'btc' | 'usdt' | 'usd';
+}
+⋮----
+export interface GetFuturesAutoOrdersReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  status: 'open' | 'finished';
+  contract?: string;
+  limit?: number;
+  offset?: number;
+}
+⋮----
+/**
+ * Modify contract order parameters
+ */
+export interface BatchAmendOrderReq {
+  order_id?: number; // Order id, order_id and text must contain at least one
+  text?: string; // User-defined order text, at least one of order_id and text must be passed
+  size?: number; // The new order size, including the executed order size
+  price?: string; // New order price
+  amend_text?: string; // Custom info during amending order
+}
+⋮----
+order_id?: number; // Order id, order_id and text must contain at least one
+text?: string; // User-defined order text, at least one of order_id and text must be passed
+size?: number; // The new order size, including the executed order size
+price?: string; // New order price
+amend_text?: string; // Custom info during amending order
+⋮----
+// v4.105.8: New GET /futures/{settle}/position_close_history endpoint request
+export interface GetFuturesPositionCloseHistoryReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract?: string;
+  limit?: number;
+  offset?: number;
+  from?: number;
+  to?: number;
+}
+⋮----
+// v4.104.6: New GET /futures/{settle}/insurance endpoint request
+export interface GetFuturesInsuranceReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  limit?: number;
+}
+
+================
 File: src/types/request/unified.ts
 ================
 export interface SubmitUnifiedBorrowOrRepayReq {
@@ -3173,6 +3701,18 @@ export interface GetUnifiedHistoryLendingRateReq {
   page?: number;
   limit?: number;
 }
+⋮----
+export interface SubmitUnifiedLoanRepayReq {
+  currency: string;
+  amount: string;
+  currency_pair?: string;
+}
+⋮----
+export interface SetUnifiedCollateralCurrenciesReq {
+  collateral_type?: 0 | 1;
+  enable_list?: string[];
+  disable_list?: string[];
+}
 
 ================
 File: src/types/request/wallet.ts
@@ -3192,6 +3732,7 @@ export interface SubmitTransferReq {
   amount: string;
   currency_pair?: string;
   settle?: string;
+  client_order_id?: string;
 }
 ⋮----
 export interface GetMainSubTransfersReq {
@@ -3244,43 +3785,171 @@ export interface SubmitMainSubTransferReq {
 }
 
 ================
-File: src/types/response/account.ts
+File: src/types/response/delivery.ts
 ================
 /**==========================================================================================================================
- * ACCOUNT
+ * DELIVERY
  * ==========================================================================================================================
  */
 ⋮----
-export interface AccountDetail {
-  user_id: number;
-  ip_whitelist: string[];
-  currency_pairs: string[];
-  key: {
-    mode: number;
-  };
-  tier: number;
-  copy_trading_role: number;
+export interface DeliveryOrderBook {
+  id?: number;
+  current: number;
+  update: number;
+  asks: { p: string; s: number }[];
+  bids: { p: string; s: number }[];
 }
 ⋮----
-export interface AccountRateLimit {
-  type: string;
-  tier: string;
-  ratio: string;
-  main_ratio: string;
-  updated_at: string;
-}
-⋮----
-export interface StpGroup {
+export interface DeliveryTrade {
   id: number;
-  name: string;
-  creator_id: number;
   create_time: number;
+  create_time_ms: number;
+  contract: string;
+  size: number;
+  price: string;
+  is_internal?: boolean;
 }
 ⋮----
-export interface StpGroupUser {
-  user_id: number;
-  stp_id: number;
+export interface DeliveryCandle {
+  t: number;
+  v?: number;
+  c: string;
+  h: string;
+  l: string;
+  o: string;
+}
+⋮----
+export interface DeliveryTicker {
+  contract: string;
+  last: string;
+  change_percentage: string;
+  total_size: string;
+  low_24h: string;
+  high_24h: string;
+  volume_24h: string;
+  volume_24h_btc?: string;
+  volume_24h_usd?: string;
+  volume_24h_base: string;
+  volume_24h_quote: string;
+  volume_24h_settle: string;
+  mark_price: string;
+  funding_rate: string;
+  funding_rate_indicative: string;
+  index_price: string;
+  quanto_base_rate?: string;
+  basis_rate: string;
+  basis_value: string;
+  lowest_ask: string;
+  highest_bid: string;
+}
+⋮----
+export interface DeliveryAccount {
+  total: string;
+  unrealised_pnl: string;
+  position_margin: string;
+  order_margin: string;
+  available: string;
+  point: string;
+  currency: string;
+  in_dual_mode: boolean;
+  enable_credit: boolean;
+  position_initial_margin: string;
+  maintenance_margin: string;
+  bonus: string;
+  enable_evolved_classic: boolean;
+  cross_order_margin: string;
+  cross_initial_margin: string;
+  cross_maintenance_margin: string;
+  cross_unrealised_pnl: string;
+  cross_available: string;
+  isolated_position_margin: string;
+  history: {
+    dnw: string;
+    pnl: string;
+    fee: string;
+    refr: string;
+    fund: string;
+    point_dnw: string;
+    point_fee: string;
+    point_refr: string;
+    bonus_dnw: string;
+    bonus_offset: string;
+  };
+  enable_tiered_mm: boolean;
+}
+⋮----
+export interface DeliveryBook {
+  time: number;
+  change: string;
+  balance: string;
+  type:
+    | 'dnw'
+    | 'pnl'
+    | 'fee'
+    | 'refr'
+    | 'fund'
+    | 'point_dnw'
+    | 'point_fee'
+    | 'point_refr'
+    | 'bonus_offset';
+  text: string;
+  contract?: string;
+  trade_id?: string;
+}
+⋮----
+export interface DeliveryTradingHistoryRecord {
+  id: number;
   create_time: number;
+  contract: string;
+  order_id: string;
+  size: number;
+  price: string;
+  role: 'taker' | 'maker';
+  text: string;
+  fee: string;
+  point_fee: string;
+}
+⋮----
+export interface DeliveryClosedPosition {
+  time: number;
+  contract: string;
+  side: 'long' | 'short';
+  pnl: string;
+  pnl_pnl: string;
+  pnl_fund: string;
+  pnl_fee: string;
+  text: string;
+  max_size: string;
+  first_open_time: number;
+  long_price: string;
+  short_price: string;
+}
+⋮----
+export interface DeliveryLiquidationHistoryRecord {
+  time: number;
+  contract: string;
+  leverage?: string;
+  size: number;
+  margin?: string;
+  entry_price?: string;
+  liq_price?: string;
+  mark_price?: string;
+  order_id?: number;
+  order_price: string;
+  fill_price: string;
+  left: number;
+}
+⋮----
+export interface DeliverySettlementHistoryRecord {
+  time: number;
+  contract: string;
+  leverage: string;
+  size: number;
+  margin: string;
+  entry_price: string;
+  settle_price: string;
+  profit: string;
+  fee: string;
 }
 
 ================
@@ -3574,223 +4243,6 @@ export interface PartnerTransaction {
 }
 
 ================
-File: src/types/response/wallet.ts
-================
-export interface CurrencyChain {
-  chain: string;
-  name_cn: string;
-  name_en: string;
-  contract_address: string;
-  is_disabled: number;
-  is_deposit_disabled: number;
-  is_withdraw_disabled: number;
-  decimal: string;
-}
-⋮----
-export interface CreateDepositAddressResp {
-  currency: string;
-  address: string;
-  multichain_addresses: {
-    chain: string;
-    address: string;
-    payment_id: string;
-    payment_name: string;
-    obtain_failed: number;
-  }[];
-}
-⋮----
-export interface SubAccountTransferRecord {
-  currency: string;
-  sub_account: string;
-  direction: 'to' | 'from';
-  amount: string;
-  uid: string;
-  client_order_id: string;
-  timest: string;
-  source: string;
-  sub_account_type: 'spot' | 'futures' | 'cross_margin' | 'delivery';
-}
-⋮----
-export interface WithdrawalStatus {
-  currency: string;
-  name: string;
-  name_cn: string;
-  deposit: string;
-  withdraw_percent: string;
-  withdraw_fix: string;
-  withdraw_day_limit: string;
-  withdraw_amount_mini: string;
-  withdraw_day_limit_remain: string;
-  withdraw_eachtime_limit: string;
-  withdraw_fix_on_chains: { [key: string]: string };
-  withdraw_percent_on_chains: { [key: string]: string };
-}
-⋮----
-export interface SubAccountMarginBalance {
-  currency_pair: string;
-  locked: boolean;
-  risk: string;
-  base: {
-    currency: string;
-    available: string;
-    locked: string;
-    borrowed: string;
-    interest: string;
-  };
-  quote: {
-    currency: string;
-    available: string;
-    locked: string;
-    borrowed: string;
-    interest: string;
-  };
-}
-⋮----
-export interface SubAccountFuturesBalancesResp {
-  uid: string;
-  available: {
-    [key: string]: {
-      total: string;
-      unrealised_pnl: string;
-      position_margin: string;
-      order_margin: string;
-      available: string;
-      point: string;
-      currency: string;
-      in_dual_mode: boolean;
-      enable_credit: boolean;
-      position_initial_margin: string;
-      maintenance_margin: string;
-      bonus: string;
-      enable_evolved_classic: boolean;
-      cross_order_margin: string;
-      cross_initial_margin: string;
-      cross_maintenance_margin: string;
-      cross_unrealised_pnl: string;
-      cross_available: string;
-      isolated_position_margin: string;
-      history: {
-        dnw: string;
-        pnl: string;
-        fee: string;
-        refr: string;
-        fund: string;
-        point_dnw: string;
-        point_fee: string;
-        point_refr: string;
-        bonus_dnw: string;
-        bonus_offset: string;
-      };
-    };
-  };
-}
-⋮----
-export interface SubAccountCrossMarginBalancesResp {
-  uid: string;
-  available: {
-    user_id: number;
-    locked: boolean;
-    balances: {
-      [key: string]: {
-        available: string;
-        freeze: string;
-        borrowed: string;
-        interest: string;
-      };
-    };
-    total: string;
-    borrowed: string;
-    borrowed_net: string;
-    net: string;
-    leverage: string;
-    interest: string;
-    risk: string;
-    total_initial_margin: string;
-    total_margin_balance: string;
-    total_maintenance_margin: string;
-    total_initial_margin_rate: string;
-    total_maintenance_margin_rate: string;
-    total_available_margin: string;
-  };
-}
-⋮----
-export interface SavedAddress {
-  currency: string;
-  chain: string;
-  address: string;
-  name: string;
-  tag: string;
-  verified: string;
-}
-⋮----
-export interface TradingFees {
-  user_id: number;
-  taker_fee: string;
-  maker_fee: string;
-  gt_discount: boolean;
-  gt_taker_fee: string;
-  gt_maker_fee: string;
-  loan_fee: string;
-  point_type: string;
-  futures_taker_fee: string;
-  futures_maker_fee: string;
-  delivery_taker_fee: string;
-  delivery_maker_fee: string;
-  debit_fee: number;
-}
-⋮----
-export interface GetBalancesResp {
-  total: {
-    amount: string;
-    currency: string;
-    unrealised_pnl?: string;
-    borrowed?: string;
-  };
-  details: {
-    [key: string]: {
-      amount: string;
-      currency: string;
-      unrealised_pnl?: string;
-      borrowed?: string;
-    };
-  };
-}
-⋮----
-export interface SmallBalanceRecord {
-  currency: string;
-  available_balance: string;
-  estimated_as_btc: string;
-  convertible_to_gt: string;
-}
-⋮----
-export interface SmallBalanceHistoryRecord {
-  id: string;
-  currency: string;
-  amount: string;
-  gt_amount: string;
-  create_time: number;
-}
-⋮----
-export interface PushOrder {
-  id: number;
-  push_uid: number;
-  receive_uid: number;
-  currency: string;
-  amount: string;
-  create_time: number;
-  status:
-    | 'CREATING'
-    | 'PENDING'
-    | 'CANCELLING'
-    | 'CANCELLED'
-    | 'REFUSING'
-    | 'REFUSED'
-    | 'RECEIVING'
-    | 'RECEIVED';
-  message: string;
-}
-
-================
 File: src/index.ts
 ================
 // Request Types
@@ -3800,6 +4252,46 @@ File: src/index.ts
 // Websockets Types
 ⋮----
 // Shared Types
+
+================
+File: .gitignore
+================
+!.gitkeep
+.DS_STORE
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+pids
+*.pid
+*.seed
+*.pid.lock
+node_modules/
+.npm
+.eslintcache
+.node_repl_history
+*.tgz
+.yarn-integrity
+.env
+.env.test
+.cache
+bundleReport.html
+.history/
+dist
+coverage
+localtest.sh
+repomix.sh
+
+ws-private-spot-wsapi-performance.ts
+ws-private-perp-futures-wsapi-readonly.ts
+privatetest.ts
+
+privaterepotracker
+restClientRegex.ts
+
+testfile.ts
 
 ================
 File: .nvmrc
@@ -3952,599 +4444,6 @@ async function start()
 //   });
 
 ================
-File: src/lib/websocket/websocket-util.ts
-================
-import WebSocket from 'isomorphic-ws';
-⋮----
-import { WSAPIRequest } from '../../types/websockets/requests.js';
-import {
-  FuturesWSAPITopic,
-  SpotWSAPITopic,
-} from '../../types/websockets/wsAPI.js';
-⋮----
-/**
- * Should be one WS key per unique URL. Some URLs may need a suffix.
- */
-⋮----
-/**
-   * Spot & Margin
-   * https://www.gate.io/docs/developers/apiv4/ws/en/
-   */
-⋮----
-/**
-   * Perpetual futures (USDT)
-   * https://www.gate.io/docs/developers/futures/ws/en/#gate-io-futures-websocket-v4
-   */
-⋮----
-/**
-   * Perpetual futures (BTC)
-   * https://www.gate.io/docs/developers/futures/ws/en/#gate-io-futures-websocket-v4
-   */
-⋮----
-/**
-   * Delivery Futures (USDT)
-   * https://www.gate.io/docs/developers/delivery/ws/en/
-   */
-⋮----
-/**
-   * Delivery Futures (BTC)
-   * https://www.gate.io/docs/developers/delivery/ws/en/
-   */
-⋮----
-/**
-   * Options
-   * https://www.gate.io/docs/developers/options/ws/en/
-   */
-⋮----
-/**
-   * Announcements V4
-   * https://www.gate.io/docs/developers/options/ws/en/
-   */
-⋮----
-/** This is used to differentiate between each of the available websocket streams */
-export type WsKey = (typeof WS_KEY_MAP)[keyof typeof WS_KEY_MAP];
-⋮----
-export type FuturesWsKey =
-  | typeof WS_KEY_MAP.perpFuturesUSDTV4
-  | typeof WS_KEY_MAP.perpFuturesBTCV4
-  | typeof WS_KEY_MAP.deliveryFuturesUSDTV4
-  | typeof WS_KEY_MAP.deliveryFuturesBTCV4;
-⋮----
-export type WsMarket = 'all';
-⋮----
-/**
- * Normalised internal format for a request (subscribe/unsubscribe/etc) on a topic, with optional parameters.
- *
- * - Topic: the topic this event is for
- * - Payload: the parameters to include, optional. E.g. auth requires key + sign. Some topics allow configurable parameters.
- */
-export interface WsTopicRequest<
-  TWSTopic extends string = string,
-  TWSPayload = any,
-> {
-  topic: TWSTopic;
-  payload?: TWSPayload;
-}
-⋮----
-/**
- * Conveniently allow users to request a topic either as string topics or objects (containing string topic + params)
- */
-export type WsTopicRequestOrStringTopic<
-  TWSTopic extends string,
-  TWSPayload = any,
-> = WsTopicRequest<TWSTopic, TWSPayload> | string;
-⋮----
-/**
- * Some exchanges have two livenet environments, some have test environments, some dont. This allows easy flexibility for different exchanges.
- * Examples:
- *  - One livenet and one testnet: NetworkMap<'livenet' | 'testnet'>
- *  - One livenet, sometimes two, one testnet: NetworkMap<'livenet' | 'testnet', 'livenet2'>
- *  - Only one livenet, no other networks: NetworkMap<'livenet'>
- */
-type NetworkMap<
-  TRequiredKeys extends string,
-  TOptionalKeys extends string | undefined = undefined,
-> = Record<TRequiredKeys, string> &
-  (TOptionalKeys extends string
-    ? Record<TOptionalKeys, string | undefined>
-    : Record<TRequiredKeys, string>);
-⋮----
-export function neverGuard(x: never, msg: string): Error
-⋮----
-/**
- * WS API promises are stored using a primary key. This key is constructed using
- * properties found in every request & reply.
- */
-export function getPromiseRefForWSAPIRequest(
-  requestEvent: WSAPIRequest,
-): string
-⋮----
-export function getPrivateSpotTopics(): string[]
-⋮----
-// Consumeable channels for spot
-⋮----
-// WebSocket API for spot
-⋮----
-export function getPrivateFuturesTopics(): string[]
-⋮----
-// These are the same for perps vs delivery futures
-⋮----
-export function getPrivateOptionsTopics(): string[]
-⋮----
-/**
- * ws.terminate() is undefined in browsers.
- * This only works in node.js, not in browsers.
- * Does nothing if `ws` is undefined. Does nothing in browsers.
- */
-export function safeTerminateWs(
-  ws?: WebSocket | any,
-  fallbackToClose?: boolean,
-): boolean
-
-================
-File: src/types/response/delivery.ts
-================
-/**==========================================================================================================================
- * DELIVERY
- * ==========================================================================================================================
- */
-⋮----
-export interface DeliveryOrderBook {
-  id?: number;
-  current: number;
-  update: number;
-  asks: { p: string; s: number }[];
-  bids: { p: string; s: number }[];
-}
-⋮----
-export interface DeliveryTrade {
-  id: number;
-  create_time: number;
-  create_time_ms: number;
-  contract: string;
-  size: number;
-  price: string;
-  is_internal?: boolean;
-}
-⋮----
-export interface DeliveryCandle {
-  t: number;
-  v?: number;
-  c: string;
-  h: string;
-  l: string;
-  o: string;
-}
-⋮----
-export interface DeliveryTicker {
-  contract: string;
-  last: string;
-  change_percentage: string;
-  total_size: string;
-  low_24h: string;
-  high_24h: string;
-  volume_24h: string;
-  volume_24h_btc?: string;
-  volume_24h_usd?: string;
-  volume_24h_base: string;
-  volume_24h_quote: string;
-  volume_24h_settle: string;
-  mark_price: string;
-  funding_rate: string;
-  funding_rate_indicative: string;
-  index_price: string;
-  quanto_base_rate?: string;
-  basis_rate: string;
-  basis_value: string;
-  lowest_ask: string;
-  highest_bid: string;
-}
-⋮----
-export interface DeliveryAccount {
-  total: string;
-  unrealised_pnl: string;
-  position_margin: string;
-  order_margin: string;
-  available: string;
-  point: string;
-  currency: string;
-  in_dual_mode: boolean;
-  enable_credit: boolean;
-  position_initial_margin: string;
-  maintenance_margin: string;
-  bonus: string;
-  enable_evolved_classic: boolean;
-  cross_order_margin: string;
-  cross_initial_margin: string;
-  cross_maintenance_margin: string;
-  cross_unrealised_pnl: string;
-  cross_available: string;
-  isolated_position_margin: string;
-  history: {
-    dnw: string;
-    pnl: string;
-    fee: string;
-    refr: string;
-    fund: string;
-    point_dnw: string;
-    point_fee: string;
-    point_refr: string;
-    bonus_dnw: string;
-    bonus_offset: string;
-  };
-  enable_tiered_mm: boolean;
-}
-⋮----
-export interface DeliveryBook {
-  time: number;
-  change: string;
-  balance: string;
-  type:
-    | 'dnw'
-    | 'pnl'
-    | 'fee'
-    | 'refr'
-    | 'fund'
-    | 'point_dnw'
-    | 'point_fee'
-    | 'point_refr'
-    | 'bonus_offset';
-  text: string;
-  contract?: string;
-  trade_id?: string;
-}
-⋮----
-export interface DeliveryTradingHistoryRecord {
-  id: number;
-  create_time: number;
-  contract: string;
-  order_id: string;
-  size: number;
-  price: string;
-  role: 'taker' | 'maker';
-  text: string;
-  fee: string;
-  point_fee: string;
-}
-⋮----
-export interface DeliveryClosedPosition {
-  time: number;
-  contract: string;
-  side: 'long' | 'short';
-  pnl: string;
-  pnl_pnl: string;
-  pnl_fund: string;
-  pnl_fee: string;
-  text: string;
-  max_size: string;
-  first_open_time: number;
-  long_price: string;
-  short_price: string;
-}
-⋮----
-export interface DeliveryLiquidationHistoryRecord {
-  time: number;
-  contract: string;
-  leverage?: string;
-  size: number;
-  margin?: string;
-  entry_price?: string;
-  liq_price?: string;
-  mark_price?: string;
-  order_id?: number;
-  order_price: string;
-  fill_price: string;
-  left: number;
-}
-⋮----
-export interface DeliverySettlementHistoryRecord {
-  time: number;
-  contract: string;
-  leverage: string;
-  size: number;
-  margin: string;
-  entry_price: string;
-  settle_price: string;
-  profit: string;
-  fee: string;
-}
-
-================
-File: .eslintrc.cjs
-================
-// 'no-unused-vars': ['warn'],
-
-================
-File: .gitignore
-================
-!.gitkeep
-.DS_STORE
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-pids
-*.pid
-*.seed
-*.pid.lock
-node_modules/
-.npm
-.eslintcache
-.node_repl_history
-*.tgz
-.yarn-integrity
-.env
-.env.test
-.cache
-bundleReport.html
-.history/
-dist
-coverage
-localtest.sh
-repomix.sh
-
-ws-private-spot-wsapi-performance.ts
-ws-private-perp-futures-wsapi-readonly.ts
-privatetest.ts
-
-privaterepotracker
-restClientRegex.ts
-
-testfile.ts
-
-================
-File: src/types/request/futures.ts
-================
-/**==========================================================================================================================
- * FUTURES
- * ==========================================================================================================================
- */
-⋮----
-export interface GetFuturesOrderBookReq {
-  settle: 'btc' | 'usdt' | 'usd';
-  contract: string;
-  interval?: string;
-  limit?: number;
-  with_id?: boolean;
-}
-⋮----
-export interface GetFuturesTradesReq {
-  settle: 'btc' | 'usdt' | 'usd';
-  contract: string;
-  limit?: number;
-  offset?: number;
-  last_id?: string;
-  from?: number;
-  to?: number;
-}
-⋮----
-export interface GetFuturesCandlesReq {
-  settle: 'btc' | 'usdt' | 'usd';
-  contract: string;
-  from?: number;
-  to?: number;
-  limit?: number;
-  interval?: string;
-}
-⋮----
-export interface GetFuturesStatsReq {
-  settle: 'btc' | 'usdt' | 'usd';
-  contract: string;
-  from?: number;
-  interval?: string;
-  limit?: number;
-}
-⋮----
-export interface GetFundingRatesReq {
-  settle: 'btc' | 'usdt' | 'usd';
-  contract: string;
-  limit?: number;
-  from?: number;
-  to?: number;
-}
-⋮----
-export interface GetLiquidationHistoryReq {
-  settle: 'btc' | 'usdt' | 'usd';
-  contract?: string;
-  from?: number;
-  to?: number;
-  limit?: number;
-}
-⋮----
-export interface GetRiskLimitTiersReq {
-  settle: 'btc' | 'usdt' | 'usd';
-  contract: string;
-  limit?: number;
-  offset?: number;
-}
-⋮----
-export interface GetRiskLimitTableReq {
-  settle: 'btc' | 'usdt' | 'usd';
-  table_id: string;
-}
-⋮----
-export interface GetFuturesAccountBookReq {
-  settle: 'btc' | 'usdt' | 'usd';
-  contract?: string;
-  limit?: number;
-  offset?: number;
-  from?: number;
-  to?: number;
-  type?:
-    | 'dnw'
-    | 'pnl'
-    | 'fee'
-    | 'refr'
-    | 'fund'
-    | 'point_dnw'
-    | 'point_fee'
-    | 'point_refr'
-    | 'bonus_offset';
-}
-⋮----
-export interface GetFuturesPositionsReq {
-  settle: 'btc' | 'usdt' | 'usd';
-  holding?: boolean;
-  limit?: number;
-  offset?: number;
-}
-⋮----
-export interface UpdateDualModePositionMarginReq {
-  settle: 'btc' | 'usdt' | 'usd';
-  contract: string;
-  change: string;
-  dual_side: 'dual_long' | 'dual_short';
-}
-⋮----
-export interface UpdateDualModePositionLeverageReq {
-  settle: 'btc' | 'usdt' | 'usd';
-  contract: string;
-  leverage: string;
-  cross_leverage_limit?: string;
-}
-⋮----
-export interface SubmitFuturesOrderReq {
-  xGateExptime?: number;
-  settle: 'btc' | 'usdt' | 'usd';
-  contract: string;
-  size: number;
-  iceberg?: number;
-  price?: string;
-  close?: boolean;
-  reduce_only?: boolean;
-  tif?: string;
-  text?: string;
-  auto_size?: string;
-  stp_act?: string;
-}
-⋮----
-export interface GetFuturesOrdersReq {
-  settle: 'btc' | 'usdt' | 'usd';
-  contract?: string;
-  status: string;
-  limit?: number;
-  offset?: number;
-  last_id?: string;
-}
-⋮----
-export interface DeleteAllFuturesOrdersReq {
-  xGateExptime?: number;
-  settle: 'btc' | 'usdt' | 'usd';
-  contract: string;
-  side?: string;
-}
-⋮----
-export interface GetFuturesOrdersByTimeRangeReq {
-  settle: 'btc' | 'usdt' | 'usd';
-  contract?: string;
-  from?: number;
-  to?: number;
-  limit?: number;
-  offset?: number;
-}
-⋮----
-export interface UpdateFuturesOrderReq {
-  xGateExptime?: number;
-  settle: 'btc' | 'usdt' | 'usd';
-  order_id: string;
-  size?: number;
-  price?: string;
-  amend_text?: string;
-}
-⋮----
-export interface GetFuturesTradingHistoryReq {
-  settle: 'btc' | 'usdt' | 'usd';
-  contract?: string;
-  order?: number;
-  limit?: number;
-  offset?: number;
-  last_id?: string;
-}
-⋮----
-export interface GetFuturesTradingHistoryByTimeRangeReq {
-  settle: 'btc' | 'usdt' | 'usd';
-  contract?: string;
-  from?: number;
-  to?: number;
-  limit?: number;
-  offset?: number;
-  role?: 'maker' | 'taker';
-}
-⋮----
-export interface GetFuturesPositionHistoryReq {
-  settle: 'btc' | 'usdt' | 'usd';
-  contract?: string;
-  limit?: number;
-  offset?: number;
-  from?: number;
-  to?: number;
-  side?: 'long' | 'short';
-  pnl?: string;
-}
-⋮----
-export interface GetFuturesLiquidationHistoryReq {
-  settle: 'btc' | 'usdt' | 'usd';
-  contract?: string;
-  limit?: number;
-  at?: number;
-}
-⋮----
-export interface SubmitFuturesTriggeredOrderReq {
-  initial: {
-    contract: string;
-    size?: number;
-    price?: string;
-    close?: boolean;
-    tif?: 'gtc' | 'ioc';
-    text?: string;
-    reduce_only?: boolean;
-    auto_size?: string;
-  };
-  trigger: {
-    strategy_type?: 0 | 1;
-    price_type?: 0 | 1 | 2;
-    price?: string;
-    rule?: 1 | 2;
-    expiration?: number;
-  };
-  order_type?:
-    | 'close-long-order'
-    | 'close-short-order'
-    | 'close-long-position'
-    | 'close-short-position'
-    | 'plan-close-long-position'
-    | 'plan-close-short-position';
-  settle: 'btc' | 'usdt' | 'usd';
-}
-⋮----
-export interface GetFuturesAutoOrdersReq {
-  settle: 'btc' | 'usdt' | 'usd';
-  status: 'open' | 'finished';
-  contract?: string;
-  limit?: number;
-  offset?: number;
-}
-⋮----
-/**
- * Modify contract order parameters
- */
-export interface BatchAmendOrderReq {
-  order_id?: number; // Order id, order_id and text must contain at least one
-  text?: string; // User-defined order text, at least one of order_id and text must be passed
-  size?: number; // The new order size, including the executed order size
-  price?: string; // New order price
-  amend_text?: string; // Custom info during amending order
-}
-⋮----
-order_id?: number; // Order id, order_id and text must contain at least one
-text?: string; // User-defined order text, at least one of order_id and text must be passed
-size?: number; // The new order size, including the executed order size
-price?: string; // New order price
-amend_text?: string; // Custom info during amending order
-
-================
 File: src/types/response/unified.ts
 ================
 export interface UnifiedAccountInfo {
@@ -4571,6 +4470,8 @@ export interface UnifiedAccountInfo {
       mmr: string;
       margin_balance: string;
       available_margin: string;
+      imr?: string;
+      enabled_collateral?: boolean;
     };
   };
   total: string;
@@ -4587,6 +4488,15 @@ export interface UnifiedAccountInfo {
   leverage: string;
   spot_order_loss: string;
   spot_hedge: boolean;
+  margin_mode?: string;
+  total_balance?: string;
+  cross_leverage?: string;
+  portfolio_margin?: string;
+  risk_level?: string;
+  is_all_collateral?: boolean;
+  borrow_amount?: string;
+  cross_margin_leverage?: string;
+  use_funding?: boolean;
 }
 ⋮----
 export interface UnifiedLoan {
@@ -4715,6 +4625,145 @@ export interface PortfolioMarginCalculation {
     }[];
   }[];
 }
+⋮----
+export interface UnifiedCollateralCurrenciesResp {
+  is_success: boolean;
+}
+
+================
+File: .eslintrc.cjs
+================
+// 'no-unused-vars': ['warn'],
+
+================
+File: src/lib/websocket/websocket-util.ts
+================
+import WebSocket from 'isomorphic-ws';
+⋮----
+import { WSAPIRequest } from '../../types/websockets/requests.js';
+import {
+  FuturesWSAPITopic,
+  SpotWSAPITopic,
+} from '../../types/websockets/wsAPI.js';
+⋮----
+/**
+ * Should be one WS key per unique URL. Some URLs may need a suffix.
+ */
+⋮----
+/**
+   * Spot & Margin
+   * https://www.gate.io/docs/developers/apiv4/ws/en/
+   */
+⋮----
+/**
+   * Perpetual futures (USDT)
+   * https://www.gate.io/docs/developers/futures/ws/en/#gate-io-futures-websocket-v4
+   */
+⋮----
+/**
+   * Perpetual futures (BTC)
+   * https://www.gate.io/docs/developers/futures/ws/en/#gate-io-futures-websocket-v4
+   */
+⋮----
+/**
+   * Delivery Futures (USDT)
+   * https://www.gate.io/docs/developers/delivery/ws/en/
+   */
+⋮----
+/**
+   * Delivery Futures (BTC)
+   * https://www.gate.io/docs/developers/delivery/ws/en/
+   */
+⋮----
+/**
+   * Options
+   * https://www.gate.io/docs/developers/options/ws/en/
+   */
+⋮----
+/**
+   * Announcements V4
+   * https://www.gate.io/docs/developers/options/ws/en/
+   */
+⋮----
+/** This is used to differentiate between each of the available websocket streams */
+export type WsKey = (typeof WS_KEY_MAP)[keyof typeof WS_KEY_MAP];
+⋮----
+export type FuturesWsKey =
+  | typeof WS_KEY_MAP.perpFuturesUSDTV4
+  | typeof WS_KEY_MAP.perpFuturesBTCV4
+  | typeof WS_KEY_MAP.deliveryFuturesUSDTV4
+  | typeof WS_KEY_MAP.deliveryFuturesBTCV4;
+⋮----
+export type WsMarket = 'all';
+⋮----
+/**
+ * Normalised internal format for a request (subscribe/unsubscribe/etc) on a topic, with optional parameters.
+ *
+ * - Topic: the topic this event is for
+ * - Payload: the parameters to include, optional. E.g. auth requires key + sign. Some topics allow configurable parameters.
+ */
+export interface WsTopicRequest<
+  TWSTopic extends string = string,
+  TWSPayload = any,
+> {
+  topic: TWSTopic;
+  payload?: TWSPayload;
+}
+⋮----
+/**
+ * Conveniently allow users to request a topic either as string topics or objects (containing string topic + params)
+ */
+export type WsTopicRequestOrStringTopic<
+  TWSTopic extends string,
+  TWSPayload = any,
+> = WsTopicRequest<TWSTopic, TWSPayload> | string;
+⋮----
+/**
+ * Some exchanges have two livenet environments, some have test environments, some dont. This allows easy flexibility for different exchanges.
+ * Examples:
+ *  - One livenet and one testnet: NetworkMap<'livenet' | 'testnet'>
+ *  - One livenet, sometimes two, one testnet: NetworkMap<'livenet' | 'testnet', 'livenet2'>
+ *  - Only one livenet, no other networks: NetworkMap<'livenet'>
+ */
+type NetworkMap<
+  TRequiredKeys extends string,
+  TOptionalKeys extends string | undefined = undefined,
+> = Record<TRequiredKeys, string> &
+  (TOptionalKeys extends string
+    ? Record<TOptionalKeys, string | undefined>
+    : Record<TRequiredKeys, string>);
+⋮----
+export function neverGuard(x: never, msg: string): Error
+⋮----
+/**
+ * WS API promises are stored using a primary key. This key is constructed using
+ * properties found in every request & reply.
+ */
+export function getPromiseRefForWSAPIRequest(
+  requestEvent: WSAPIRequest,
+): string
+⋮----
+export function getPrivateSpotTopics(): string[]
+⋮----
+// Consumeable channels for spot
+⋮----
+// WebSocket API for spot
+⋮----
+export function getPrivateFuturesTopics(): string[]
+⋮----
+// These are the same for perps vs delivery futures
+⋮----
+export function getPrivateOptionsTopics(): string[]
+⋮----
+/**
+ * ws.terminate() is undefined in browsers.
+ * This only works in node.js, not in browsers.
+ * Does nothing if `ws` is undefined. Does nothing in browsers.
+ */
+export function safeTerminateWs(
+  ws?: WebSocket | any,
+  fallbackToClose?: boolean,
+): boolean
 
 ================
 File: src/types/shared.ts
@@ -4995,6 +5044,953 @@ private async buildRequest(
     params?: ParamsInQueryBodyOrHeader,
     isPublicApi?: boolean,
 ): Promise<AxiosRequestConfig>
+
+================
+File: src/types/request/spot.ts
+================
+/**==========================================================================================================================
+ * SPOT
+ * ==========================================================================================================================
+ */
+⋮----
+export interface GetSpotOrderBookReq {
+  currency_pair: string;
+  interval?: string;
+  limit?: number;
+  with_id?: boolean;
+}
+⋮----
+export interface GetSpotTradesReq {
+  currency_pair: string;
+  limit?: number;
+  last_id?: string;
+  reverse?: boolean;
+  from?: number;
+  to?: number;
+  page?: number;
+}
+⋮----
+export interface GetSpotCandlesReq {
+  currency_pair: string;
+  limit?: number;
+  from?: number;
+  to?: number;
+  interval?:
+    | '1s'
+    | '10s'
+    | '1m'
+    | '5m'
+    | '15m'
+    | '30m'
+    | '1h'
+    | '4h'
+    | '8h'
+    | '1d'
+    | '7d'
+    | '30d';
+}
+⋮----
+export interface GetSpotAccountBookReq {
+  currency?: string;
+  from?: number;
+  to?: number;
+  page?: number;
+  limit?: number;
+  type?: string;
+  code?: string;
+}
+⋮----
+export interface SubmitSpotClosePosCrossDisabledReq {
+  text?: string;
+  currency_pair: string;
+  amount: string;
+  price: string;
+  action_mode?: 'ACK' | 'RESULT' | 'FULL';
+}
+⋮----
+export interface GetSpotOrdersReq {
+  currency_pair: string;
+  status: 'open' | 'finished';
+  page?: number;
+  limit?: number;
+  account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
+  from?: number;
+  to?: number;
+  side?: 'buy' | 'sell';
+}
+⋮----
+export interface CancelSpotBatchOrdersReq {
+  currency_pair: string;
+  id: string;
+  account?: 'cross_margin';
+  action_mode?: 'ACK' | 'RESULT' | 'FULL';
+}
+⋮----
+export interface DeleteSpotOrderReq {
+  order_id: string;
+  currency_pair: string;
+  account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
+  action_mode?: 'ACK' | 'RESULT' | 'FULL';
+  xGateExptime?: number;
+}
+⋮----
+export interface GetSpotOrderReq {
+  order_id: string;
+  currency_pair: string;
+  account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
+}
+⋮----
+export interface GetSpotTradingHistoryReq {
+  currency_pair?: string;
+  limit?: number;
+  page?: number;
+  order_id?: string;
+  account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
+  from?: number;
+  to?: number;
+}
+⋮----
+export interface UpdateSpotBatchOrdersReq {
+  order_id?: string;
+  currency_pair?: string;
+  amount?: string;
+  price?: string;
+  amend_text?: string;
+}
+⋮----
+export interface GetSpotInsuranceHistoryReq {
+  business: 'margin' | 'unified';
+  currency: string;
+  from: number;
+  to: number;
+  page?: number;
+  limit?: number;
+}
+⋮----
+export interface GetSpotAutoOrdersReq {
+  status: 'open' | 'finished';
+  market?: string;
+  account?: 'normal' | 'margin' | 'cross_margin' | 'unified';
+  limit?: number;
+  offset?: number;
+}
+⋮----
+export interface SubmitSpotOrderReq {
+  xGateExptime?: number;
+  side: 'buy' | 'sell';
+  amount: string;
+  text?: string;
+  currency_pair: string;
+  type?: 'limit' | 'market';
+  account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
+  price?: string;
+  time_in_force?: 'gtc' | 'ioc' | 'poc' | 'fok';
+  iceberg?: string;
+  auto_borrow?: boolean;
+  auto_repay?: boolean;
+  stp_act?: string;
+  action_mode?: string;
+  stop_loss?: string;
+  take_profit?: string;
+  post_only?: boolean;
+}
+⋮----
+export interface UpdateSpotOrderReq {
+  xGateExptime?: number;
+  order_id: string;
+  currency_pair: string;
+  account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
+  amount?: string;
+  price?: string;
+  amend_text?: string;
+  action_mode?: 'ACK' | 'RESULT' | 'FULL';
+}
+
+================
+File: src/types/response/futures.ts
+================
+/**==========================================================================================================================
+ * FUTURES
+ * ==========================================================================================================================
+ */
+⋮----
+export interface FuturesOrderBook {
+  id?: number;
+  current: number;
+  update: number;
+  asks: { p: string; s: number }[];
+  bids: { p: string; s: number }[];
+}
+⋮----
+export interface FuturesTrade {
+  id: number;
+  create_time: number;
+  create_time_ms: number;
+  contract: string;
+  size: number;
+  price: string;
+  is_internal?: boolean;
+}
+⋮----
+export interface FuturesCandle {
+  t: number;
+  v?: number;
+  c: string;
+  h: string;
+  l: string;
+  o: string;
+  sum: string;
+}
+⋮----
+export interface PremiumIndexKLine {
+  t: number;
+  c: string;
+  h: string;
+  l: string;
+  o: string;
+}
+⋮----
+export interface FuturesTicker {
+  contract: string;
+  last: string;
+  change_percentage: string;
+  total_size: string;
+  low_24h: string;
+  high_24h: string;
+  volume_24h: string;
+  volume_24h_btc?: string;
+  volume_24h_usd?: string;
+  volume_24h_base: string;
+  volume_24h_quote: string;
+  volume_24h_settle: string;
+  mark_price: string;
+  funding_rate: string;
+  funding_rate_indicative: string;
+  index_price: string;
+  quanto_base_rate?: string;
+  basis_rate: string;
+  basis_value: string;
+  lowest_ask: string;
+  highest_bid: string;
+  lowest_size: string;
+  highest_size: string;
+}
+⋮----
+export interface FuturesStats {
+  time: number;
+  lsr_taker: number;
+  lsr_account: number;
+  long_liq_size: number;
+  long_liq_amount: number;
+  long_liq_usd: number;
+  short_liq_size: number;
+  short_liq_amount: number;
+  short_liq_usd: number;
+  open_interest: number;
+  open_interest_usd: number;
+  top_lsr_account: number;
+  top_lsr_size: number;
+}
+⋮----
+export interface IndexConstituents {
+  index: string;
+  constituents: {
+    exchange: string;
+    symbols: string[];
+  }[];
+}
+⋮----
+export interface LiquidationHistoryRecord {
+  time: number;
+  contract: string;
+  size: number;
+  order_size: number;
+  order_price: string;
+  fill_price: string;
+  left: number;
+}
+⋮----
+export interface RiskLimitTier {
+  tier: number;
+  risk_limit: string;
+  initial_rate: string;
+  maintenance_rate: string;
+  leverage_max: string;
+  contract: string;
+}
+⋮----
+export interface FuturesAccount {
+  total: string;
+  unrealised_pnl: string;
+  position_margin: string;
+  order_margin: string;
+  available: string;
+  point: string;
+  currency: string;
+  in_dual_mode: boolean;
+  enable_credit: boolean;
+  position_initial_margin: string;
+  maintenance_margin: string;
+  bonus: string;
+  enable_evolved_classic: boolean;
+  cross_order_margin: string;
+  cross_initial_margin: string;
+  cross_maintenance_margin: string;
+  cross_unrealised_pnl: string;
+  cross_available: string;
+  cross_margin_balance: string;
+  cross_mmr: string;
+  cross_imr: string;
+  isolated_position_margin: string;
+  enable_new_dual_mode: boolean;
+  margin_mode: number;
+  history: {
+    dnw: string;
+    pnl: string;
+    fee: string;
+    refr: string;
+    fund: string;
+    point_dnw: string;
+    point_fee: string;
+    point_refr: string;
+    bonus_dnw: string;
+    bonus_offset: string;
+  };
+  enable_tiered_mm: boolean;
+  funding_balance?: string;
+}
+⋮----
+export interface FuturesAccountBookRecord {
+  time: number;
+  change: string;
+  balance: string;
+  type: string;
+  text: string;
+  contract?: string;
+  trade_id: string;
+  id: string;
+}
+⋮----
+export interface FuturesOrder {
+  id?: number;
+  user?: number;
+  create_time?: number;
+  finish_time?: number;
+  finish_as?:
+    | 'filled'
+    | 'cancelled'
+    | 'liquidated'
+    | 'ioc'
+    | 'auto_deleveraged'
+    | 'reduce_only'
+    | 'position_closed'
+    | 'stp';
+  status?: 'open' | 'finished';
+  contract: string;
+  size: number;
+  iceberg?: number;
+  price?: string;
+  close?: boolean;
+  is_close?: boolean;
+  reduce_only?: boolean;
+  is_reduce_only?: boolean;
+  is_liq?: boolean;
+  tif?: 'gtc' | 'ioc' | 'poc' | 'fok';
+  left?: number;
+  fill_price?: string;
+  text?: string;
+  tkfr?: string;
+  mkfr?: string;
+  refu?: number;
+  auto_size?: 'close_long' | 'close_short';
+  stp_id?: number;
+  stp_act?: 'cn' | 'co' | 'cb' | '-';
+  amend_text?: string;
+  biz_info?: string;
+}
+⋮----
+export interface FuturesPosition {
+  user?: number;
+  contract?: string;
+  size?: number;
+  leverage?: string;
+  risk_limit?: string;
+  leverage_max?: string;
+  maintenance_rate?: string;
+  value?: string;
+  margin?: string;
+  entry_price?: string;
+  liq_price?: string;
+  liquidation_price?: string; // v4.105.7: Add liquidation_price field for better risk management
+  mark_price?: string;
+  initial_margin?: string;
+  maintenance_margin?: string;
+  unrealised_pnl?: string;
+  realised_pnl?: string;
+  pnl_pnl?: string;
+  pnl_fund?: string;
+  pnl_fee?: string;
+  history_pnl?: string;
+  last_close_pnl?: string;
+  realised_point?: string;
+  history_point?: string;
+  adl_ranking?: number;
+  pending_orders?: number;
+  close_order?: {
+    id?: number;
+    price?: string;
+    is_liq?: boolean;
+  } | null;
+  mode?: 'single' | 'dual_long' | 'dual_short';
+  cross_leverage_limit?: string;
+  update_time?: number;
+  update_id?: number;
+  open_time?: number;
+  settlement_currency?: string; // v4.105.9: Add settlement_currency field for multi-settlement support
+  isolated_margin?: string; // v4.104.6: Add isolated_margin field
+}
+⋮----
+liquidation_price?: string; // v4.105.7: Add liquidation_price field for better risk management
+⋮----
+settlement_currency?: string; // v4.105.9: Add settlement_currency field for multi-settlement support
+isolated_margin?: string; // v4.104.6: Add isolated_margin field
+⋮----
+export interface FuturesTradingHistoryRecord {
+  id: number;
+  create_time: number;
+  contract: string;
+  order_id: string;
+  size: number;
+  price: string;
+  role: 'taker' | 'maker';
+  text: string;
+  fee: string;
+  point_fee: string;
+  close_size: number;
+}
+⋮----
+export interface FuturesPositionHistoryRecord {
+  time: number;
+  contract: string;
+  side: 'long' | 'short';
+  pnl: string;
+  pnl_pnl: string;
+  pnl_fund: string;
+  pnl_fee: string;
+  text: string;
+  max_size: string;
+  first_open_time: number;
+  long_price: string;
+  short_price: string;
+  accum_size: string;
+}
+⋮----
+export interface FuturesLiquidationHistoryRecord {
+  time: number;
+  contract: string;
+  leverage: string;
+  size: number;
+  margin: string;
+  entry_price: string;
+  liq_price: string;
+  mark_price: string;
+  order_id: number;
+  order_price: string;
+  fill_price: string;
+  left: number;
+}
+export interface FuturesAutoDeleveragingHistoryRecord {
+  time: number;
+  user: number;
+  order_id: number;
+  contract: string;
+  leverage: string;
+  cross_leverage_limit: string;
+  entry_price: string;
+  fill_price: string;
+  trade_size: number;
+  position_size: number;
+}
+⋮----
+export interface DeleteFuturesBatchOrdersResp {
+  user_id: number;
+  id: string;
+  succeeded: boolean;
+  message: string;
+}
+⋮----
+export interface FuturesContract {
+  name?: string;
+  type?: 'inverse' | 'direct';
+  quanto_multiplier?: string;
+  leverage_min?: string;
+  leverage_max?: string;
+  maintenance_rate?: string;
+  mark_type?: 'internal' | 'index';
+  mark_price?: string;
+  index_price?: string;
+  last_price?: string;
+  maker_fee_rate?: string;
+  taker_fee_rate?: string;
+  order_price_round?: string;
+  mark_price_round?: string;
+  funding_rate?: string;
+  funding_interval?: number;
+  funding_next_apply?: number;
+  risk_limit_base?: string;
+  risk_limit_step?: string;
+  risk_limit_max?: string;
+  order_size_min?: number;
+  order_size_max?: number;
+  order_price_deviate?: string;
+  ref_discount_rate?: string;
+  ref_rebate_rate?: string;
+  orderbook_id?: number;
+  trade_id?: number;
+  trade_size?: number;
+  position_size?: number;
+  config_change_time?: number;
+  in_delisting?: boolean;
+  orders_limit?: number;
+  enable_bonus?: boolean;
+  enable_credit?: boolean;
+  create_time?: number;
+  funding_cap_ratio?: string;
+}
+⋮----
+export interface FuturesPriceTriggeredOrder {
+  initial: {
+    contract: string;
+    size?: number;
+    price?: string;
+    close?: boolean;
+    tif?: 'gtc' | 'ioc';
+    text?: string;
+    reduce_only?: boolean;
+    auto_size?: string;
+    is_reduce_only?: boolean;
+    is_close?: boolean;
+  };
+  trigger: {
+    strategy_type?: 0 | 1;
+    price_type?: 0 | 1 | 2;
+    price?: string;
+    rule?: 1 | 2;
+    expiration?: number;
+  };
+  id?: number;
+  user?: number;
+  create_time?: number;
+  finish_time?: number;
+  trade_id?: number;
+  status?: 'open' | 'finished' | 'inactive' | 'invalid';
+  finish_as?: 'cancelled' | 'succeeded' | 'failed' | 'expired';
+  reason?: string;
+  order_type?:
+    | 'close-long-order'
+    | 'close-short-order'
+    | 'close-long-position'
+    | 'close-short-position'
+    | 'plan-close-long-position'
+    | 'plan-close-short-position';
+  me_order_id?: number;
+}
+⋮----
+export interface FuturesDeliveryContract {
+  name?: string;
+  underlying?: string;
+  cycle?: 'WEEKLY' | 'BI-WEEKLY' | 'QUARTERLY' | 'BI-QUARTERLY';
+  type?: 'inverse' | 'direct';
+  quanto_multiplier?: string;
+  leverage_min?: string;
+  leverage_max?: string;
+  maintenance_rate?: string;
+  mark_type?: 'internal' | 'index';
+  mark_price?: string;
+  index_price?: string;
+  last_price?: string;
+  maker_fee_rate?: string;
+  taker_fee_rate?: string;
+  order_price_round?: string;
+  mark_price_round?: string;
+  basis_rate?: string;
+  basis_value?: string;
+  basis_impact_value?: string;
+  settle_price?: string;
+  settle_price_interval?: number;
+  settle_price_duration?: number;
+  expire_time?: number;
+  risk_limit_base?: string;
+  risk_limit_step?: string;
+  risk_limit_max?: string;
+  order_size_min?: number;
+  order_size_max?: number;
+  order_price_deviate?: string;
+  ref_discount_rate?: string;
+  ref_rebate_rate?: string;
+  orderbook_id?: number;
+  trade_id?: number;
+  trade_size?: number;
+  position_size?: number;
+  config_change_time?: number;
+  in_delisting?: boolean;
+  orders_limit?: number;
+}
+⋮----
+export interface BatchAmendOrderResp {
+  succeeded: boolean;
+  label?: string;
+  detail?: string;
+  id: number;
+  user: number;
+  create_time: number;
+  finish_time?: number;
+  finish_as?:
+    | 'filled'
+    | 'cancelled'
+    | 'liquidated'
+    | 'ioc'
+    | 'auto_deleveraged'
+    | 'reduce_only'
+    | 'position_closed'
+    | 'reduce_out'
+    | 'stp';
+  status: 'open' | 'finished';
+  contract: string;
+  size: number;
+  iceberg: number;
+  price: string;
+  is_close: boolean;
+  is_reduce_only: boolean;
+  is_liq: boolean;
+  tif: 'gtc' | 'ioc' | 'poc' | 'fok';
+  left: number;
+  fill_price: string;
+  text: string;
+  tkfr: string;
+  mkfr: string;
+  refu: number;
+  stp_act: 'co' | 'cn' | 'cb' | '-';
+  stp_id: number;
+}
+⋮----
+/**
+ * @deprecated - Use FuturesAccount instead
+ */
+export interface UpdateFuturesDualModeResp {
+  total: string;
+  unrealised_pnl: string;
+  position_margin: string;
+  order_margin: string;
+  available: string;
+  point: string;
+  currency: string;
+  in_dual_mode: boolean;
+  enable_credit: boolean;
+  position_initial_margin: string;
+  maintenance_margin: string;
+  bonus: string;
+  enable_evolved_classic: boolean;
+  history: {
+    dnw: string;
+    pnl: string;
+    fee: string;
+    refr: string;
+    fund: string;
+    point_dnw: string;
+    point_fee: string;
+    point_refr: string;
+    bonus_dnw: string;
+    bonus_offset: string;
+  };
+}
+⋮----
+export interface RiskLimitTableTier {
+  tier: number;
+  risk_limit: string;
+  initial_rate: string;
+  maintenance_rate: string;
+  leverage_max: string;
+  deduction: string;
+}
+⋮----
+// v4.104.6: New GET /futures/{settle}/insurance endpoint types
+export interface FuturesInsuranceHistory {
+  t: number;
+  b: string;
+}
+
+================
+File: src/types/response/spot.ts
+================
+/**==========================================================================================================================
+ * SPOT
+ * ==========================================================================================================================
+ */
+export interface SpotCurrencyChain {
+  name: string;
+  addr?: string;
+  withdraw_disabled: boolean;
+  withdraw_delayed: boolean;
+  deposit_disabled: boolean;
+}
+⋮----
+export interface SpotCurrency {
+  currency: string;
+  name: string;
+  delisted: boolean;
+  withdraw_disabled: boolean;
+  withdraw_delayed: boolean;
+  deposit_disabled: boolean;
+  trade_disabled: boolean;
+  chain: string;
+  chains: SpotCurrencyChain[];
+}
+⋮----
+export interface SpotTicker {
+  currency_pair: string;
+  last: string;
+  lowest_ask: string;
+  lowest_size: string;
+  highest_bid: string;
+  highest_size: string;
+  change_percentage: string;
+  change_utc0: string;
+  change_utc8: string;
+  base_volume: string;
+  quote_volume: string;
+  high_24h: string;
+  low_24h: string;
+  etf_net_value: string;
+  etf_pre_net_value: string | null;
+  etf_pre_timestamp: number | null;
+  etf_leverage: string | null;
+}
+⋮----
+export interface SpotOrderBook {
+  id?: number;
+  current: number;
+  update: number;
+  asks: [string, string][];
+  bids: [string, string][];
+}
+⋮----
+export interface SpotTrade {
+  id: string;
+  create_time: string;
+  create_time_ms: string;
+  currency_pair: string;
+  side: 'buy' | 'sell';
+  role: 'taker' | 'maker';
+  amount: string;
+  price: string;
+  order_id: string;
+  fee: string;
+  fee_currency: string;
+  point_fee: string;
+  gt_fee: string;
+  amend_text: string;
+  sequence_id: string;
+  text: string;
+}
+⋮----
+export type SpotCandle = [
+  string, // Unix timestamp with second precision
+  string, // Trading volume in quote currency
+  string, // Closing price
+  string, // Highest price
+  string, // Lowest price
+  string, // Opening price
+  string, // Trading volume in base currency
+  boolean, // Whether the window is closed
+];
+⋮----
+string, // Unix timestamp with second precision
+string, // Trading volume in quote currency
+string, // Closing price
+string, // Highest price
+string, // Lowest price
+string, // Opening price
+string, // Trading volume in base currency
+boolean, // Whether the window is closed
+⋮----
+export interface SpotFeeRates {
+  user_id: number;
+  taker_fee: string;
+  maker_fee: string;
+  gt_discount: boolean;
+  gt_taker_fee: string;
+  gt_maker_fee: string;
+  loan_fee: string;
+  point_type: string;
+  currency_pair: string;
+  debit_fee: number;
+}
+⋮----
+export interface SpotAccount {
+  currency: string;
+  available: string;
+  locked: string;
+  update_id: number;
+  refresh_time: number;
+  last_update_time?: number;
+  trading_fee_rate?: string;
+}
+⋮----
+export interface SpotAccountBook {
+  id: string;
+  time: number;
+  currency: string;
+  change: string;
+  balance: string;
+  type: string;
+  code: string;
+  text: string;
+}
+⋮----
+export interface SubmitSpotBatchOrdersResp {
+  order_id: string;
+  amend_text: string;
+  text: string;
+  succeeded: boolean;
+  label: string;
+  message: string;
+  id: string;
+  create_time: string;
+  update_time: string;
+  create_time_ms: number;
+  update_time_ms: number;
+  status: 'open' | 'closed' | 'cancelled';
+  currency_pair: string;
+  type: 'limit' | 'market';
+  account: 'spot' | 'margin' | 'cross_margin' | 'unified';
+  side: 'buy' | 'sell';
+  amount: string;
+  price: string;
+  time_in_force: 'gtc' | 'ioc' | 'poc' | 'fok';
+  iceberg: string;
+  auto_repay: boolean;
+  left: string;
+  filled_amount: string;
+  fill_price: string;
+  filled_total: string;
+  avg_deal_price: string;
+  fee: string;
+  fee_currency: string;
+  point_fee: string;
+  gt_fee: string;
+  gt_discount: boolean;
+  rebated_fee: string;
+  rebated_fee_currency: string;
+  stp_id: number;
+  stp_act: 'cn' | 'co' | 'cb' | '-';
+  finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
+}
+⋮----
+export interface SpotOrder {
+  id?: string;
+  text?: string;
+  amend_text?: string;
+  create_time?: string;
+  update_time?: string;
+  create_time_ms?: number;
+  update_time_ms?: number;
+  status?: 'open' | 'closed' | 'cancelled';
+  currency_pair: string;
+  type?: 'limit' | 'market';
+  account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
+  side: 'buy' | 'sell';
+  amount: string;
+  price?: string;
+  time_in_force?: 'gtc' | 'ioc' | 'poc' | 'fok';
+  iceberg?: string;
+  auto_borrow?: boolean;
+  auto_repay?: boolean;
+  left?: string;
+  filled_amount?: string;
+  fill_price?: string;
+  filled_total?: string;
+  avg_deal_price?: string;
+  fee?: string;
+  fee_currency?: string;
+  point_fee?: string;
+  gt_fee?: string;
+  gt_maker_fee?: string;
+  gt_taker_fee?: string;
+  gt_discount?: boolean;
+  rebated_fee?: string;
+  rebated_fee_currency?: string;
+  stp_id?: number;
+  stp_act?: 'cn' | 'co' | 'cb' | '-';
+  finish_as?: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
+  action_mode?: 'ACK' | 'RESULT' | 'FULL';
+}
+⋮----
+export interface SpotInsuranceHistory {
+  currency: string;
+  balance: string;
+  time: number;
+}
+⋮----
+export interface SpotPriceTriggeredOrder {
+  trigger: {
+    price: string;
+    rule: '>=' | '<=';
+    expiration: number;
+  };
+  put: {
+    type?: 'limit' | 'market';
+    side: 'buy' | 'sell';
+    price: string;
+    amount: string;
+    account: 'normal' | 'margin' | 'cross_margin';
+    time_in_force?: 'gtc' | 'ioc';
+    text?: string;
+  };
+  id?: number;
+  user?: number;
+  market: string;
+  ctime?: number;
+  ftime?: number;
+  fired_order_id?: number;
+  status?: 'open' | 'cancelled' | 'finish' | 'failed' | 'expired';
+  reason?: string;
+}
+⋮----
+export interface GetSpotOpenOrdersResp {
+  currency_pair: string;
+  total: number;
+  orders: SpotOrder[];
+}
+⋮----
+export interface DeleteSpotBatchOrdersResp {
+  currency_pair: string;
+  id: string;
+  succeeded: boolean;
+  label: string;
+  message: string;
+  account: string;
+  text: string;
+}
+⋮----
+export interface SpotHistoricTradeRecord {
+  id: string;
+  create_time: string;
+  create_time_ms: string;
+  currency_pair: string;
+  side: 'buy' | 'sell';
+  role: 'taker' | 'maker';
+  amount: string;
+  price: string;
+  order_id: string;
+  fee: string;
+  fee_currency: string;
+  point_fee: string;
+  gt_fee: string;
+  amend_text: string;
+  sequence_id: string;
+  text: string;
+}
 
 ================
 File: src/types/websockets/wsAPI.ts
@@ -5455,432 +6451,260 @@ async function start()
 // FUTURES ORDER STATUS - Get status of a specific futures order
 
 ================
-File: src/types/request/spot.ts
+File: src/WebsocketAPIClient.ts
 ================
-/**==========================================================================================================================
- * SPOT
- * ==========================================================================================================================
+import { DefaultLogger } from './lib/logger.js';
+import { WS_KEY_MAP } from './lib/websocket/websocket-util.js';
+import { WSClientConfigurableOptions } from './types/websockets/client.js';
+import {
+  WSAPIFuturesOrder,
+  WSAPIFuturesOrderAmendReq,
+  WSAPIFuturesOrderBatchPlaceRespItem,
+  WSAPIFuturesOrderCancelCPReq,
+  WSAPIFuturesOrderCancelIdsRespItem,
+  WSAPIFuturesOrderCancelReq,
+  WSAPIFuturesOrderListReq,
+  WSAPIFuturesOrderPlaceReq,
+  WSAPIFuturesOrderStatusReq,
+  WSAPIResponse,
+  WSAPISpotOrder,
+  WSAPISpotOrderAmendReq,
+  WSAPISpotOrderCancelCPReq,
+  WSAPISpotOrderCancelIdsReq,
+  WSAPISpotOrderCancelIdsRespItem,
+  WSAPISpotOrderCancelReq,
+  WSAPISpotOrderListReq,
+  WSAPISpotOrderPlaceReq,
+  WSAPISpotOrderStatusReq,
+  WSAPIWsKey,
+} from './types/websockets/wsAPI.js';
+import { WebsocketClient } from './WebsocketClient.js';
+⋮----
+/**
+ * Configurable options specific to only the REST-like WebsocketAPIClient
  */
-⋮----
-export interface GetSpotOrderBookReq {
-  currency_pair: string;
-  interval?: string;
-  limit?: number;
-  with_id?: boolean;
+export interface WSAPIClientConfigurableOptions {
+  /**
+   * Default: true
+   *
+   * Attach default event listeners, which will console log any high level
+   * events (opened/reconnecting/reconnected/etc).
+   *
+   * If you disable this, you should set your own event listeners
+   * on the embedded WS Client `wsApiClient.getWSClient().on(....)`.
+   */
+  attachEventListeners: boolean;
 }
 ⋮----
-export interface GetSpotTradesReq {
-  currency_pair: string;
-  limit?: number;
-  last_id?: string;
-  reverse?: boolean;
-  from?: number;
-  to?: number;
-  page?: number;
-}
+/**
+   * Default: true
+   *
+   * Attach default event listeners, which will console log any high level
+   * events (opened/reconnecting/reconnected/etc).
+   *
+   * If you disable this, you should set your own event listeners
+   * on the embedded WS Client `wsApiClient.getWSClient().on(....)`.
+   */
 ⋮----
-export interface GetSpotCandlesReq {
-  currency_pair: string;
-  limit?: number;
-  from?: number;
-  to?: number;
-  interval?:
-    | '1s'
-    | '10s'
-    | '1m'
-    | '5m'
-    | '15m'
-    | '30m'
-    | '1h'
-    | '4h'
-    | '8h'
-    | '1d'
-    | '7d'
-    | '30d';
-}
-⋮----
-export interface GetSpotAccountBookReq {
-  currency?: string;
-  from?: number;
-  to?: number;
-  page?: number;
-  limit?: number;
-  type?: string;
-  code?: string;
-}
-⋮----
-export interface SubmitSpotClosePosCrossDisabledReq {
-  text?: string;
-  currency_pair: string;
-  amount: string;
-  price: string;
-  action_mode?: 'ACK' | 'RESULT' | 'FULL';
-}
-⋮----
-export interface GetSpotOrdersReq {
-  currency_pair: string;
-  status: 'open' | 'finished';
-  page?: number;
-  limit?: number;
-  account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
-  from?: number;
-  to?: number;
-  side?: 'buy' | 'sell';
-}
-⋮----
-export interface CancelSpotBatchOrdersReq {
-  currency_pair: string;
-  id: string;
-  account?: 'cross_margin';
-  action_mode?: 'ACK' | 'RESULT' | 'FULL';
-}
-⋮----
-export interface DeleteSpotOrderReq {
-  order_id: string;
-  currency_pair: string;
-  account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
-  action_mode?: 'ACK' | 'RESULT' | 'FULL';
-  xGateExptime?: number;
-}
-⋮----
-export interface GetSpotOrderReq {
-  order_id: string;
-  currency_pair: string;
-  account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
-}
-⋮----
-export interface GetSpotTradingHistoryReq {
-  currency_pair?: string;
-  limit?: number;
-  page?: number;
-  order_id?: string;
-  account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
-  from?: number;
-  to?: number;
-}
-⋮----
-export interface UpdateSpotBatchOrdersReq {
-  order_id?: string;
-  currency_pair?: string;
-  amount?: string;
-  price?: string;
-  amend_text?: string;
-}
-⋮----
-export interface GetSpotInsuranceHistoryReq {
-  business: 'margin' | 'unified';
-  currency: string;
-  from: number;
-  to: number;
-  page?: number;
-  limit?: number;
-}
-⋮----
-export interface GetSpotAutoOrdersReq {
-  status: 'open' | 'finished';
-  market?: string;
-  account?: 'normal' | 'margin' | 'cross_margin' | 'unified';
-  limit?: number;
-  offset?: number;
-}
-⋮----
-export interface SubmitSpotOrderReq {
-  xGateExptime?: number;
-  side: 'buy' | 'sell';
-  amount: string;
-  text?: string;
-  currency_pair: string;
-  type?: 'limit' | 'market';
-  account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
-  price?: string;
-  time_in_force?: 'gtc' | 'ioc' | 'poc' | 'fok';
-  iceberg?: string;
-  auto_borrow?: boolean;
-  auto_repay?: boolean;
-  stp_act?: string;
-  action_mode?: string;
-}
-⋮----
-export interface UpdateSpotOrderReq {
-  xGateExptime?: number;
-  order_id: string;
-  currency_pair: string;
-  account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
-  amount?: string;
-  price?: string;
-  amend_text?: string;
-  action_mode?: 'ACK' | 'RESULT' | 'FULL';
-}
-
-================
-File: src/types/response/spot.ts
-================
-/**==========================================================================================================================
- * SPOT
- * ==========================================================================================================================
+/**
+ * This is a minimal Websocket API wrapper around the WebsocketClient.
+ *
+ * Some methods support passing in a custom "wsKey". This is a reference to which WS connection should
+ * be used to transmit that message. This is only useful if you wish to use an alternative wss
+ * domain that is supported by the SDK.
+ *
+ * Note: To use testnet, don't set the wsKey - use `testnet: true` in
+ * the constructor instead.
+ *
+ * Note: You can also directly use the sendWSAPIRequest() method to make WS API calls, but some
+ * may find the below methods slightly more intuitive.
+ *
+ * Refer to the WS API promises example for a more detailed example on using sendWSAPIRequest() directly:
+ * https://github.com/tiagosiebler/gateio-api/blob/master/examples/ws-private-spot-wsapi.ts#L119
  */
-export interface SpotCurrencyChain {
-  name: string;
-  addr?: string;
-  withdraw_disabled: boolean;
-  withdraw_delayed: boolean;
-  deposit_disabled: boolean;
-}
+export class WebsocketAPIClient
 ⋮----
-export interface SpotCurrency {
-  currency: string;
-  name: string;
-  delisted: boolean;
-  withdraw_disabled: boolean;
-  withdraw_delayed: boolean;
-  deposit_disabled: boolean;
-  trade_disabled: boolean;
-  chain: string;
-  chains: SpotCurrencyChain[];
-}
+constructor(
+    options?: WSClientConfigurableOptions &
+      Partial<WSAPIClientConfigurableOptions>,
+    logger?: DefaultLogger,
+)
 ⋮----
-export interface SpotTicker {
-  currency_pair: string;
-  last: string;
-  lowest_ask: string;
-  lowest_size: string;
-  highest_bid: string;
-  highest_size: string;
-  change_percentage: string;
-  change_utc0: string;
-  change_utc8: string;
-  base_volume: string;
-  quote_volume: string;
-  high_24h: string;
-  low_24h: string;
-  etf_net_value: string;
-  etf_pre_net_value: string | null;
-  etf_pre_timestamp: number | null;
-  etf_leverage: string | null;
-}
+public getWSClient(): WebsocketClient
 ⋮----
-export interface SpotOrderBook {
-  id?: number;
-  current: number;
-  update: number;
-  asks: [string, string][];
-  bids: [string, string][];
-}
+public setTimeOffsetMs(newOffset: number): void
 ⋮----
-export interface SpotTrade {
-  id: string;
-  create_time: string;
-  create_time_ms: string;
-  currency_pair: string;
-  side: 'buy' | 'sell';
-  role: 'taker' | 'maker';
-  amount: string;
-  price: string;
-  order_id: string;
-  fee: string;
-  fee_currency: string;
-  point_fee: string;
-  gt_fee: string;
-  amend_text: string;
-  sequence_id: string;
-  text: string;
-}
+/*
+   *
+   * SPOT - Trading requests
+   *
+   */
 ⋮----
-export type SpotCandle = [
-  string, // Unix timestamp with second precision
-  string, // Trading volume in quote currency
-  string, // Closing price
-  string, // Highest price
-  string, // Lowest price
-  string, // Opening price
-  string, // Trading volume in base currency
-  boolean, // Whether the window is closed
-];
+/**
+   * Submit a spot order
+   */
+submitNewSpotOrder(
+    params: WSAPISpotOrderPlaceReq,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<WSAPISpotOrder>>
 ⋮----
-string, // Unix timestamp with second precision
-string, // Trading volume in quote currency
-string, // Closing price
-string, // Highest price
-string, // Lowest price
-string, // Opening price
-string, // Trading volume in base currency
-boolean, // Whether the window is closed
+/**
+   * Cancel a spot order
+   */
+cancelSpotOrder(
+    params: WSAPISpotOrderCancelReq,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<WSAPISpotOrder>>
 ⋮----
-export interface SpotFeeRates {
-  user_id: number;
-  taker_fee: string;
-  maker_fee: string;
-  gt_discount: boolean;
-  gt_taker_fee: string;
-  gt_maker_fee: string;
-  loan_fee: string;
-  point_type: string;
-  currency_pair: string;
-  debit_fee: number;
-}
+/**
+   * Cancel all spot orders with the given id list
+   */
+cancelSpotOrderById(
+    params: WSAPISpotOrderCancelIdsReq[],
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<WSAPISpotOrderCancelIdsRespItem[]>>
 ⋮----
-export interface SpotAccount {
-  currency: string;
-  available: string;
-  locked: string;
-  update_id: number;
-  refresh_time: number;
-}
+/**
+   * Cancel a spot order for a given symbol
+   */
+cancelSpotOrderForSymbol(
+    params: WSAPISpotOrderCancelCPReq,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<WSAPISpotOrder[]>>
 ⋮----
-export interface SpotAccountBook {
-  id: string;
-  time: number;
-  currency: string;
-  change: string;
-  balance: string;
-  type: string;
-  code: string;
-  text: string;
-}
+/**
+   * Update a spot order
+   */
+updateSpotOrder(
+    params: WSAPISpotOrderAmendReq,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<WSAPISpotOrder>>
 ⋮----
-export interface SubmitSpotBatchOrdersResp {
-  order_id: string;
-  amend_text: string;
-  text: string;
-  succeeded: boolean;
-  label: string;
-  message: string;
-  id: string;
-  create_time: string;
-  update_time: string;
-  create_time_ms: number;
-  update_time_ms: number;
-  status: 'open' | 'closed' | 'cancelled';
-  currency_pair: string;
-  type: 'limit' | 'market';
-  account: 'spot' | 'margin' | 'cross_margin' | 'unified';
-  side: 'buy' | 'sell';
-  amount: string;
-  price: string;
-  time_in_force: 'gtc' | 'ioc' | 'poc' | 'fok';
-  iceberg: string;
-  auto_repay: boolean;
-  left: string;
-  filled_amount: string;
-  fill_price: string;
-  filled_total: string;
-  avg_deal_price: string;
-  fee: string;
-  fee_currency: string;
-  point_fee: string;
-  gt_fee: string;
-  gt_discount: boolean;
-  rebated_fee: string;
-  rebated_fee_currency: string;
-  stp_id: number;
-  stp_act: 'cn' | 'co' | 'cb' | '-';
-  finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
-}
+/**
+   * Get the status of a spot order
+   */
+getSpotOrderStatus(
+    params: WSAPISpotOrderStatusReq,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<WSAPISpotOrder>>
 ⋮----
-export interface SpotOrder {
-  id?: string;
-  text?: string;
-  amend_text?: string;
-  create_time?: string;
-  update_time?: string;
-  create_time_ms?: number;
-  update_time_ms?: number;
-  status?: 'open' | 'closed' | 'cancelled';
-  currency_pair: string;
-  type?: 'limit' | 'market';
-  account?: 'spot' | 'margin' | 'cross_margin' | 'unified';
-  side: 'buy' | 'sell';
-  amount: string;
-  price?: string;
-  time_in_force?: 'gtc' | 'ioc' | 'poc' | 'fok';
-  iceberg?: string;
-  auto_borrow?: boolean;
-  auto_repay?: boolean;
-  left?: string;
-  filled_amount?: string;
-  fill_price?: string;
-  filled_total?: string;
-  avg_deal_price?: string;
-  fee?: string;
-  fee_currency?: string;
-  point_fee?: string;
-  gt_fee?: string;
-  gt_maker_fee?: string;
-  gt_taker_fee?: string;
-  gt_discount?: boolean;
-  rebated_fee?: string;
-  rebated_fee_currency?: string;
-  stp_id?: number;
-  stp_act?: 'cn' | 'co' | 'cb' | '-';
-  finish_as?: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
-  action_mode?: 'ACK' | 'RESULT' | 'FULL';
-}
+/**
+   * Get all spot orders
+   */
+getSpotOrders(
+    params: WSAPISpotOrderListReq,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<WSAPISpotOrder[]>>
 ⋮----
-export interface SpotInsuranceHistory {
-  currency: string;
-  balance: string;
-  time: number;
-}
+/*
+   *
+   * Futures - Trading requests
+   *
+   */
 ⋮----
-export interface SpotPriceTriggeredOrder {
-  trigger: {
-    price: string;
-    rule: '>=' | '<=';
-    expiration: number;
-  };
-  put: {
-    type?: 'limit' | 'market';
-    side: 'buy' | 'sell';
-    price: string;
-    amount: string;
-    account: 'normal' | 'margin' | 'cross_margin';
-    time_in_force?: 'gtc' | 'ioc';
-    text?: string;
-  };
-  id?: number;
-  user?: number;
-  market: string;
-  ctime?: number;
-  ftime?: number;
-  fired_order_id?: number;
-  status?: 'open' | 'cancelled' | 'finish' | 'failed' | 'expired';
-  reason?: string;
-}
+/**
+   * Submit a futures order.
+   *
+   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
+   */
+submitNewFuturesOrder(
+    params: WSAPIFuturesOrderPlaceReq,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<WSAPIFuturesOrder>>
 ⋮----
-export interface GetSpotOpenOrdersResp {
-  currency_pair: string;
-  total: number;
-  orders: SpotOrder[];
-}
+/**
+   * Submit a batch of futures orders
+   *
+   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
+   */
+submitNewFuturesBatchOrder(
+    params: WSAPIFuturesOrderPlaceReq[],
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<WSAPIFuturesOrderBatchPlaceRespItem[]>>
 ⋮----
-export interface DeleteSpotBatchOrdersResp {
-  currency_pair: string;
-  id: string;
-  succeeded: boolean;
-  label: string;
-  message: string;
-  account: string;
-  text: string;
-}
+/**
+   * Cancel a futures order
+   *
+   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
+   */
+cancelFuturesOrder(
+    params: WSAPIFuturesOrderCancelReq,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<WSAPIFuturesOrder>>
 ⋮----
-export interface SpotHistoricTradeRecord {
-  id: string;
-  create_time: string;
-  create_time_ms: string;
-  currency_pair: string;
-  side: 'buy' | 'sell';
-  role: 'taker' | 'maker';
-  amount: string;
-  price: string;
-  order_id: string;
-  fee: string;
-  fee_currency: string;
-  point_fee: string;
-  gt_fee: string;
-  amend_text: string;
-  sequence_id: string;
-  text: string;
-}
+/**
+   * Cancel futures orders by id list
+   *
+   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
+   */
+cancelFuturesOrderById(
+    params: string[],
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<WSAPIFuturesOrderCancelIdsRespItem[]>>
+⋮----
+/**
+   * Cancel all open futures orders
+   *
+   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
+   */
+cancelFuturesAllOpenOrders(
+    params: WSAPIFuturesOrderCancelCPReq,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<WSAPIFuturesOrder[]>>
+⋮----
+/**
+   * Update a futures order
+   *
+   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
+   */
+updateFuturesOrder(
+    params: WSAPIFuturesOrderAmendReq,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<WSAPIFuturesOrder>>
+⋮----
+/**
+   * Get all futures orders
+   *
+   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
+   */
+getFuturesOrders(
+    params: WSAPIFuturesOrderListReq,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<WSAPIFuturesOrder[]>>
+⋮----
+/**
+   * Get futures order status
+   *
+   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
+   */
+getFuturesOrderStatus(
+    params: WSAPIFuturesOrderStatusReq,
+    wsKey?: WSAPIWsKey,
+): Promise<WSAPIResponse<WSAPIFuturesOrder>>
+⋮----
+/**
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   * Private methods for handling some of the convenience/automation provided by the WS API Client
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   */
+⋮----
+private setupDefaultEventListeners()
+⋮----
+/**
+       * General event handlers for monitoring the WebsocketClient
+       */
 
 ================
 File: src/lib/BaseWSClient.ts
@@ -6316,761 +7140,6 @@ public async assertIsAuthenticated(wsKey: TWSKey): Promise<unknown>
 // this.logger.trace('assertIsAuthenticated(): ok');
 ⋮----
 // Start authentication, it should automatically store/return a promise.
-
-================
-File: src/types/response/futures.ts
-================
-/**==========================================================================================================================
- * FUTURES
- * ==========================================================================================================================
- */
-⋮----
-export interface FuturesOrderBook {
-  id?: number;
-  current: number;
-  update: number;
-  asks: { p: string; s: number }[];
-  bids: { p: string; s: number }[];
-}
-⋮----
-export interface FuturesTrade {
-  id: number;
-  create_time: number;
-  create_time_ms: number;
-  contract: string;
-  size: number;
-  price: string;
-  is_internal?: boolean;
-}
-⋮----
-export interface FuturesCandle {
-  t: number;
-  v?: number;
-  c: string;
-  h: string;
-  l: string;
-  o: string;
-  sum: string;
-}
-⋮----
-export interface PremiumIndexKLine {
-  t: number;
-  c: string;
-  h: string;
-  l: string;
-  o: string;
-}
-⋮----
-export interface FuturesTicker {
-  contract: string;
-  last: string;
-  change_percentage: string;
-  total_size: string;
-  low_24h: string;
-  high_24h: string;
-  volume_24h: string;
-  volume_24h_btc?: string;
-  volume_24h_usd?: string;
-  volume_24h_base: string;
-  volume_24h_quote: string;
-  volume_24h_settle: string;
-  mark_price: string;
-  funding_rate: string;
-  funding_rate_indicative: string;
-  index_price: string;
-  quanto_base_rate?: string;
-  basis_rate: string;
-  basis_value: string;
-  lowest_ask: string;
-  highest_bid: string;
-  lowest_size: string;
-  highest_size: string;
-}
-⋮----
-export interface FuturesStats {
-  time: number;
-  lsr_taker: number;
-  lsr_account: number;
-  long_liq_size: number;
-  long_liq_amount: number;
-  long_liq_usd: number;
-  short_liq_size: number;
-  short_liq_amount: number;
-  short_liq_usd: number;
-  open_interest: number;
-  open_interest_usd: number;
-  top_lsr_account: number;
-  top_lsr_size: number;
-}
-⋮----
-export interface IndexConstituents {
-  index: string;
-  constituents: {
-    exchange: string;
-    symbols: string[];
-  }[];
-}
-⋮----
-export interface LiquidationHistoryRecord {
-  time: number;
-  contract: string;
-  size: number;
-  order_size: number;
-  order_price: string;
-  fill_price: string;
-  left: number;
-}
-⋮----
-export interface RiskLimitTier {
-  tier: number;
-  risk_limit: string;
-  initial_rate: string;
-  maintenance_rate: string;
-  leverage_max: string;
-  contract: string;
-}
-⋮----
-export interface FuturesAccount {
-  total: string;
-  unrealised_pnl: string;
-  position_margin: string;
-  order_margin: string;
-  available: string;
-  point: string;
-  currency: string;
-  in_dual_mode: boolean;
-  enable_credit: boolean;
-  position_initial_margin: string;
-  maintenance_margin: string;
-  bonus: string;
-  enable_evolved_classic: boolean;
-  cross_order_margin: string;
-  cross_initial_margin: string;
-  cross_maintenance_margin: string;
-  cross_unrealised_pnl: string;
-  cross_available: string;
-  cross_margin_balance: string;
-  cross_mmr: string;
-  cross_imr: string;
-  isolated_position_margin: string;
-  enable_new_dual_mode: boolean;
-  margin_mode: number;
-  history: {
-    dnw: string;
-    pnl: string;
-    fee: string;
-    refr: string;
-    fund: string;
-    point_dnw: string;
-    point_fee: string;
-    point_refr: string;
-    bonus_dnw: string;
-    bonus_offset: string;
-  };
-  enable_tiered_mm: boolean;
-}
-⋮----
-export interface FuturesAccountBookRecord {
-  time: number;
-  change: string;
-  balance: string;
-  type: string;
-  text: string;
-  contract?: string;
-  trade_id: string;
-  id: string;
-}
-⋮----
-export interface FuturesOrder {
-  id?: number;
-  user?: number;
-  create_time?: number;
-  finish_time?: number;
-  finish_as?:
-    | 'filled'
-    | 'cancelled'
-    | 'liquidated'
-    | 'ioc'
-    | 'auto_deleveraged'
-    | 'reduce_only'
-    | 'position_closed'
-    | 'stp';
-  status?: 'open' | 'finished';
-  contract: string;
-  size: number;
-  iceberg?: number;
-  price?: string;
-  close?: boolean;
-  is_close?: boolean;
-  reduce_only?: boolean;
-  is_reduce_only?: boolean;
-  is_liq?: boolean;
-  tif?: 'gtc' | 'ioc' | 'poc' | 'fok';
-  left?: number;
-  fill_price?: string;
-  text?: string;
-  tkfr?: string;
-  mkfr?: string;
-  refu?: number;
-  auto_size?: 'close_long' | 'close_short';
-  stp_id?: number;
-  stp_act?: 'cn' | 'co' | 'cb' | '-';
-  amend_text?: string;
-  biz_info?: string;
-}
-⋮----
-export interface FuturesPosition {
-  user?: number;
-  contract?: string;
-  size?: number;
-  leverage?: string;
-  risk_limit?: string;
-  leverage_max?: string;
-  maintenance_rate?: string;
-  value?: string;
-  margin?: string;
-  entry_price?: string;
-  liq_price?: string;
-  mark_price?: string;
-  initial_margin?: string;
-  maintenance_margin?: string;
-  unrealised_pnl?: string;
-  realised_pnl?: string;
-  pnl_pnl?: string;
-  pnl_fund?: string;
-  pnl_fee?: string;
-  history_pnl?: string;
-  last_close_pnl?: string;
-  realised_point?: string;
-  history_point?: string;
-  adl_ranking?: number;
-  pending_orders?: number;
-  close_order?: {
-    id?: number;
-    price?: string;
-    is_liq?: boolean;
-  } | null;
-  mode?: 'single' | 'dual_long' | 'dual_short';
-  cross_leverage_limit?: string;
-  update_time?: number;
-  update_id?: number;
-  open_time?: number;
-}
-⋮----
-export interface FuturesTradingHistoryRecord {
-  id: number;
-  create_time: number;
-  contract: string;
-  order_id: string;
-  size: number;
-  price: string;
-  role: 'taker' | 'maker';
-  text: string;
-  fee: string;
-  point_fee: string;
-  close_size: number;
-}
-⋮----
-export interface FuturesPositionHistoryRecord {
-  time: number;
-  contract: string;
-  side: 'long' | 'short';
-  pnl: string;
-  pnl_pnl: string;
-  pnl_fund: string;
-  pnl_fee: string;
-  text: string;
-  max_size: string;
-  first_open_time: number;
-  long_price: string;
-  short_price: string;
-  accum_size: string;
-}
-⋮----
-export interface FuturesLiquidationHistoryRecord {
-  time: number;
-  contract: string;
-  leverage: string;
-  size: number;
-  margin: string;
-  entry_price: string;
-  liq_price: string;
-  mark_price: string;
-  order_id: number;
-  order_price: string;
-  fill_price: string;
-  left: number;
-}
-export interface FuturesAutoDeleveragingHistoryRecord {
-  time: number;
-  user: number;
-  order_id: number;
-  contract: string;
-  leverage: string;
-  cross_leverage_limit: string;
-  entry_price: string;
-  fill_price: string;
-  trade_size: number;
-  position_size: number;
-}
-⋮----
-export interface DeleteFuturesBatchOrdersResp {
-  user_id: number;
-  id: string;
-  succeeded: boolean;
-  message: string;
-}
-⋮----
-export interface FuturesContract {
-  name?: string;
-  type?: 'inverse' | 'direct';
-  quanto_multiplier?: string;
-  leverage_min?: string;
-  leverage_max?: string;
-  maintenance_rate?: string;
-  mark_type?: 'internal' | 'index';
-  mark_price?: string;
-  index_price?: string;
-  last_price?: string;
-  maker_fee_rate?: string;
-  taker_fee_rate?: string;
-  order_price_round?: string;
-  mark_price_round?: string;
-  funding_rate?: string;
-  funding_interval?: number;
-  funding_next_apply?: number;
-  risk_limit_base?: string;
-  risk_limit_step?: string;
-  risk_limit_max?: string;
-  order_size_min?: number;
-  order_size_max?: number;
-  order_price_deviate?: string;
-  ref_discount_rate?: string;
-  ref_rebate_rate?: string;
-  orderbook_id?: number;
-  trade_id?: number;
-  trade_size?: number;
-  position_size?: number;
-  config_change_time?: number;
-  in_delisting?: boolean;
-  orders_limit?: number;
-  enable_bonus?: boolean;
-  enable_credit?: boolean;
-  create_time?: number;
-  funding_cap_ratio?: string;
-}
-⋮----
-export interface FuturesPriceTriggeredOrder {
-  initial: {
-    contract: string;
-    size?: number;
-    price?: string;
-    close?: boolean;
-    tif?: 'gtc' | 'ioc';
-    text?: string;
-    reduce_only?: boolean;
-    auto_size?: string;
-    is_reduce_only?: boolean;
-    is_close?: boolean;
-  };
-  trigger: {
-    strategy_type?: 0 | 1;
-    price_type?: 0 | 1 | 2;
-    price?: string;
-    rule?: 1 | 2;
-    expiration?: number;
-  };
-  id?: number;
-  user?: number;
-  create_time?: number;
-  finish_time?: number;
-  trade_id?: number;
-  status?: 'open' | 'finished' | 'inactive' | 'invalid';
-  finish_as?: 'cancelled' | 'succeeded' | 'failed' | 'expired';
-  reason?: string;
-  order_type?:
-    | 'close-long-order'
-    | 'close-short-order'
-    | 'close-long-position'
-    | 'close-short-position'
-    | 'plan-close-long-position'
-    | 'plan-close-short-position';
-  me_order_id?: number;
-}
-⋮----
-export interface FuturesDeliveryContract {
-  name?: string;
-  underlying?: string;
-  cycle?: 'WEEKLY' | 'BI-WEEKLY' | 'QUARTERLY' | 'BI-QUARTERLY';
-  type?: 'inverse' | 'direct';
-  quanto_multiplier?: string;
-  leverage_min?: string;
-  leverage_max?: string;
-  maintenance_rate?: string;
-  mark_type?: 'internal' | 'index';
-  mark_price?: string;
-  index_price?: string;
-  last_price?: string;
-  maker_fee_rate?: string;
-  taker_fee_rate?: string;
-  order_price_round?: string;
-  mark_price_round?: string;
-  basis_rate?: string;
-  basis_value?: string;
-  basis_impact_value?: string;
-  settle_price?: string;
-  settle_price_interval?: number;
-  settle_price_duration?: number;
-  expire_time?: number;
-  risk_limit_base?: string;
-  risk_limit_step?: string;
-  risk_limit_max?: string;
-  order_size_min?: number;
-  order_size_max?: number;
-  order_price_deviate?: string;
-  ref_discount_rate?: string;
-  ref_rebate_rate?: string;
-  orderbook_id?: number;
-  trade_id?: number;
-  trade_size?: number;
-  position_size?: number;
-  config_change_time?: number;
-  in_delisting?: boolean;
-  orders_limit?: number;
-}
-⋮----
-export interface BatchAmendOrderResp {
-  succeeded: boolean;
-  label?: string;
-  detail?: string;
-  id: number;
-  user: number;
-  create_time: number;
-  finish_time?: number;
-  finish_as?:
-    | 'filled'
-    | 'cancelled'
-    | 'liquidated'
-    | 'ioc'
-    | 'auto_deleveraged'
-    | 'reduce_only'
-    | 'position_closed'
-    | 'reduce_out'
-    | 'stp';
-  status: 'open' | 'finished';
-  contract: string;
-  size: number;
-  iceberg: number;
-  price: string;
-  is_close: boolean;
-  is_reduce_only: boolean;
-  is_liq: boolean;
-  tif: 'gtc' | 'ioc' | 'poc' | 'fok';
-  left: number;
-  fill_price: string;
-  text: string;
-  tkfr: string;
-  mkfr: string;
-  refu: number;
-  stp_act: 'co' | 'cn' | 'cb' | '-';
-  stp_id: number;
-}
-⋮----
-/**
- * @deprecated - Use FuturesAccount instead
- */
-export interface UpdateFuturesDualModeResp {
-  total: string;
-  unrealised_pnl: string;
-  position_margin: string;
-  order_margin: string;
-  available: string;
-  point: string;
-  currency: string;
-  in_dual_mode: boolean;
-  enable_credit: boolean;
-  position_initial_margin: string;
-  maintenance_margin: string;
-  bonus: string;
-  enable_evolved_classic: boolean;
-  history: {
-    dnw: string;
-    pnl: string;
-    fee: string;
-    refr: string;
-    fund: string;
-    point_dnw: string;
-    point_fee: string;
-    point_refr: string;
-    bonus_dnw: string;
-    bonus_offset: string;
-  };
-}
-⋮----
-export interface RiskLimitTableTier {
-  tier: number;
-  risk_limit: string;
-  initial_rate: string;
-  maintenance_rate: string;
-  leverage_max: string;
-  deduction: string;
-}
-
-================
-File: src/WebsocketAPIClient.ts
-================
-import { DefaultLogger } from './lib/logger.js';
-import { WS_KEY_MAP } from './lib/websocket/websocket-util.js';
-import { WSClientConfigurableOptions } from './types/websockets/client.js';
-import {
-  WSAPIFuturesOrder,
-  WSAPIFuturesOrderAmendReq,
-  WSAPIFuturesOrderBatchPlaceRespItem,
-  WSAPIFuturesOrderCancelCPReq,
-  WSAPIFuturesOrderCancelIdsRespItem,
-  WSAPIFuturesOrderCancelReq,
-  WSAPIFuturesOrderListReq,
-  WSAPIFuturesOrderPlaceReq,
-  WSAPIFuturesOrderStatusReq,
-  WSAPIResponse,
-  WSAPISpotOrder,
-  WSAPISpotOrderAmendReq,
-  WSAPISpotOrderCancelCPReq,
-  WSAPISpotOrderCancelIdsReq,
-  WSAPISpotOrderCancelIdsRespItem,
-  WSAPISpotOrderCancelReq,
-  WSAPISpotOrderListReq,
-  WSAPISpotOrderPlaceReq,
-  WSAPISpotOrderStatusReq,
-  WSAPIWsKey,
-} from './types/websockets/wsAPI.js';
-import { WebsocketClient } from './WebsocketClient.js';
-⋮----
-/**
- * Configurable options specific to only the REST-like WebsocketAPIClient
- */
-export interface WSAPIClientConfigurableOptions {
-  /**
-   * Default: true
-   *
-   * Attach default event listeners, which will console log any high level
-   * events (opened/reconnecting/reconnected/etc).
-   *
-   * If you disable this, you should set your own event listeners
-   * on the embedded WS Client `wsApiClient.getWSClient().on(....)`.
-   */
-  attachEventListeners: boolean;
-}
-⋮----
-/**
-   * Default: true
-   *
-   * Attach default event listeners, which will console log any high level
-   * events (opened/reconnecting/reconnected/etc).
-   *
-   * If you disable this, you should set your own event listeners
-   * on the embedded WS Client `wsApiClient.getWSClient().on(....)`.
-   */
-⋮----
-/**
- * This is a minimal Websocket API wrapper around the WebsocketClient.
- *
- * Some methods support passing in a custom "wsKey". This is a reference to which WS connection should
- * be used to transmit that message. This is only useful if you wish to use an alternative wss
- * domain that is supported by the SDK.
- *
- * Note: To use testnet, don't set the wsKey - use `testnet: true` in
- * the constructor instead.
- *
- * Note: You can also directly use the sendWSAPIRequest() method to make WS API calls, but some
- * may find the below methods slightly more intuitive.
- *
- * Refer to the WS API promises example for a more detailed example on using sendWSAPIRequest() directly:
- * https://github.com/tiagosiebler/gateio-api/blob/master/examples/ws-private-spot-wsapi.ts#L119
- */
-export class WebsocketAPIClient
-⋮----
-constructor(
-    options?: WSClientConfigurableOptions &
-      Partial<WSAPIClientConfigurableOptions>,
-    logger?: DefaultLogger,
-)
-⋮----
-public getWSClient(): WebsocketClient
-⋮----
-public setTimeOffsetMs(newOffset: number): void
-⋮----
-/*
-   *
-   * SPOT - Trading requests
-   *
-   */
-⋮----
-/**
-   * Submit a spot order
-   */
-submitNewSpotOrder(
-    params: WSAPISpotOrderPlaceReq,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<WSAPISpotOrder>>
-⋮----
-/**
-   * Cancel a spot order
-   */
-cancelSpotOrder(
-    params: WSAPISpotOrderCancelReq,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<WSAPISpotOrder>>
-⋮----
-/**
-   * Cancel all spot orders with the given id list
-   */
-cancelSpotOrderById(
-    params: WSAPISpotOrderCancelIdsReq[],
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<WSAPISpotOrderCancelIdsRespItem[]>>
-⋮----
-/**
-   * Cancel a spot order for a given symbol
-   */
-cancelSpotOrderForSymbol(
-    params: WSAPISpotOrderCancelCPReq,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<WSAPISpotOrder[]>>
-⋮----
-/**
-   * Update a spot order
-   */
-updateSpotOrder(
-    params: WSAPISpotOrderAmendReq,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<WSAPISpotOrder>>
-⋮----
-/**
-   * Get the status of a spot order
-   */
-getSpotOrderStatus(
-    params: WSAPISpotOrderStatusReq,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<WSAPISpotOrder>>
-⋮----
-/**
-   * Get all spot orders
-   */
-getSpotOrders(
-    params: WSAPISpotOrderListReq,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<WSAPISpotOrder[]>>
-⋮----
-/*
-   *
-   * Futures - Trading requests
-   *
-   */
-⋮----
-/**
-   * Submit a futures order.
-   *
-   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
-   */
-submitNewFuturesOrder(
-    params: WSAPIFuturesOrderPlaceReq,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<WSAPIFuturesOrder>>
-⋮----
-/**
-   * Submit a batch of futures orders
-   *
-   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
-   */
-submitNewFuturesBatchOrder(
-    params: WSAPIFuturesOrderPlaceReq[],
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<WSAPIFuturesOrderBatchPlaceRespItem[]>>
-⋮----
-/**
-   * Cancel a futures order
-   *
-   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
-   */
-cancelFuturesOrder(
-    params: WSAPIFuturesOrderCancelReq,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<WSAPIFuturesOrder>>
-⋮----
-/**
-   * Cancel futures orders by id list
-   *
-   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
-   */
-cancelFuturesOrderById(
-    params: string[],
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<WSAPIFuturesOrderCancelIdsRespItem[]>>
-⋮----
-/**
-   * Cancel all open futures orders
-   *
-   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
-   */
-cancelFuturesAllOpenOrders(
-    params: WSAPIFuturesOrderCancelCPReq,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<WSAPIFuturesOrder[]>>
-⋮----
-/**
-   * Update a futures order
-   *
-   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
-   */
-updateFuturesOrder(
-    params: WSAPIFuturesOrderAmendReq,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<WSAPIFuturesOrder>>
-⋮----
-/**
-   * Get all futures orders
-   *
-   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
-   */
-getFuturesOrders(
-    params: WSAPIFuturesOrderListReq,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<WSAPIFuturesOrder[]>>
-⋮----
-/**
-   * Get futures order status
-   *
-   * Note: without a wsKey, this defaults to the perpFuturesUSDTV4 connection
-   */
-getFuturesOrderStatus(
-    params: WSAPIFuturesOrderStatusReq,
-    wsKey?: WSAPIWsKey,
-): Promise<WSAPIResponse<WSAPIFuturesOrder>>
-⋮----
-/**
-   *
-   *
-   *
-   *
-   *
-   *
-   *
-   * Private methods for handling some of the convenience/automation provided by the WS API Client
-   *
-   *
-   *
-   *
-   *
-   *
-   *
-   */
-⋮----
-private setupDefaultEventListeners()
-⋮----
-/**
-       * General event handlers for monitoring the WebsocketClient
-       */
 
 ================
 File: README.md
@@ -7557,303 +7626,6 @@ Contributions are encouraged, I will review any incoming pull requests. See the 
 <!-- template_star_history_end -->
 
 ================
-File: src/WebsocketClient.ts
-================
-import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
-import { neverGuard } from './lib/misc-util.js';
-import { CHANNEL_ID, MessageEventLike } from './lib/requestUtils.js';
-import {
-  SignAlgorithm,
-  SignEncodeMethod,
-  signMessage,
-} from './lib/webCryptoAPI.js';
-import {
-  getPrivateFuturesTopics,
-  getPrivateOptionsTopics,
-  getPrivateSpotTopics,
-  getPromiseRefForWSAPIRequest,
-  WS_BASE_URL_MAP,
-  WS_KEY_MAP,
-  WsKey,
-  WsMarket,
-  WsTopicRequest,
-} from './lib/websocket/websocket-util.js';
-import { WSConnectedResult } from './lib/websocket/WsStore.types.js';
-import {
-  WSAPIRequest,
-  WsOperation,
-  WsRequestOperationGate,
-  WsRequestPing,
-} from './types/websockets/requests.js';
-import {
-  WsAPITopicRequestParamMap,
-  WsAPITopicResponseMap,
-  WSAPIWsKey,
-  WsAPIWsKeyTopicMap,
-} from './types/websockets/wsAPI.js';
-⋮----
-export interface WSAPIRequestFlags {
-  /** If true, will skip auth requirement for WS API connection */
-  authIsOptional?: boolean | undefined;
-}
-⋮----
-/** If true, will skip auth requirement for WS API connection */
-⋮----
-/**
- * WS topics are always a string for gate. Some exchanges use complex objects
- */
-export type WsTopic = string;
-⋮----
-export class WebsocketClient extends BaseWebsocketClient<WsKey>
-⋮----
-/**
-   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library.
-   *
-   * Returns array of promises that individually resolve when each connection is successfully opened.
-   */
-public connectAll(): Promise<WSConnectedResult | undefined>[]
-⋮----
-/**
-   * Ensures the WS API connection is active and ready.
-   *
-   * You do not need to call this, but if you call this before making any WS API requests,
-   * it can accelerate the first request (by preparing the connection in advance).
-   */
-public connectWSAPI(wsKey: WSAPIWsKey, skipAuth?: boolean): Promise<unknown>
-⋮----
-/** This call automatically ensures the connection is active AND authenticated before resolving */
-⋮----
-/**
-   * Request subscription to one or more topics. Pass topics as either an array of strings, or array of objects (if the topic has parameters).
-   * Objects should be formatted as {topic: string, params: object}.
-   *
-   * - Subscriptions are automatically routed to the correct websocket connection.
-   * - Authentication/connection is automatic.
-   * - Resubscribe after network issues is automatic.
-   *
-   * Call `unsubscribe(topics)` to remove topics
-   */
-public subscribe(
-    requests:
-      | (WsTopicRequest<WsTopic> | WsTopic)
-      | (WsTopicRequest<WsTopic> | WsTopic)[],
-    wsKey: WsKey,
-)
-⋮----
-/**
-   * Unsubscribe from one or more topics. Similar to subscribe() but in reverse.
-   *
-   * - Requests are automatically routed to the correct websocket connection.
-   * - These topics will be removed from the topic cache, so they won't be subscribed to again.
-   */
-public unsubscribe(
-    requests:
-      | (WsTopicRequest<WsTopic> | WsTopic)
-      | (WsTopicRequest<WsTopic> | WsTopic)[],
-    wsKey: WsKey,
-)
-⋮----
-/**
-   * WS API Methods - similar to the REST API, but via WebSockets
-   */
-⋮----
-/**
-   * Send a Websocket API event on a connection. Returns a promise that resolves on reply.
-   *
-   * Returned promise is rejected if an exception is detected in the reply OR the connection disconnects for any reason (even if automatic reconnect will happen).
-   *
-   * After a fresh connection, you should always send a login request first.
-   *
-   * If you authenticated once and you're reconnected later (e.g. connection temporarily lost), the SDK will by default automatically:
-   * - Detect you were authenticated to the WS API before
-   * - Try to re-authenticate (up to 5 times, in case something (bad timestamp) goes wrong)
-   * - If it succeeds, it will emit the 'authenticated' event.
-   * - If it fails and gives up, it will emit an 'exception' event (type: 'wsapi.auth', reason: detailed text).
-   *
-   * You can turn off the automatic re-auth WS API logic using `reauthWSAPIOnReconnect: false` in the WSClient config.
-   *
-   * @param wsKey - The connection this event is for (e.g. "spotV4" | "perpFuturesUSDTV4" | "perpFuturesBTCV4" | "deliveryFuturesUSDTV4" | "deliveryFuturesBTCV4" | "optionsV4")
-   * @param channel - The channel this event is for (e.g. "spot.login" to authenticate)
-   * @param params - Any request parameters for the payload (contents of req_param in the docs). Signature generation is automatic, only send parameters such as order ID as per the docs.
-   * @returns Promise - tries to resolve with async WS API response. Rejects if disconnected or exception is seen in async WS API response
-   */
-⋮----
-// This overload allows the caller to omit the 3rd param, if it isn't required (e.g. for the login call)
-async sendWSAPIRequest<
-    TWSKey extends keyof WsAPIWsKeyTopicMap,
-    TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
-    TWSParams extends
-      WsAPITopicRequestParamMap[TWSChannel] = WsAPITopicRequestParamMap[TWSChannel],
-    TWSAPIResponse extends
-      | WsAPITopicResponseMap[TWSChannel]
-      | object = WsAPITopicResponseMap[TWSChannel],
-  >(
-    wsKey: TWSKey,
-    channel: TWSChannel,
-    params?: TWSParams extends void | never ? undefined : TWSParams,
-    requestFlags?: WSAPIRequestFlags,
-  ): Promise<TWSAPIResponse>;
-⋮----
-async sendWSAPIRequest<
-    TWSKey extends keyof WsAPIWsKeyTopicMap = keyof WsAPIWsKeyTopicMap,
-    TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
-    TWSParams extends
-      WsAPITopicRequestParamMap[TWSChannel] = WsAPITopicRequestParamMap[TWSChannel],
-    TWSAPIResponse = object,
-  >(
-    wsKey: TWSKey,
-    channel: TWSChannel,
-    params: TWSParams & { signRequest?: boolean },
-    requestFlags?: WSAPIRequestFlags,
-): Promise<any>
-⋮----
-// Some commands don't require authentication.
-⋮----
-// this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey})...');
-⋮----
-// this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey}) ok');
-⋮----
-// id: timeInSeconds,
-⋮----
-/**
-     * Some WS API requests require a timestamp to be included. assertIsConnected and assertIsAuthenticated
-     * can introduce a small delay before the actual request is sent, if not connected before that request is
-     * made. This can lead to a curious race condition, where the request timestamp is before
-     * the "authorizedSince" timestamp - as such, binance does not recognise the session as already authenticated.
-     *
-     * The below mechanism measures any delay introduced from the assert calls, and if the request includes a timestamp,
-     * it offsets that timestamp by the delay.
-     */
-⋮----
-// Sign request
-⋮----
-// Store deferred promise
-⋮----
-// Enrich returned promise with request context for easier debugging
-⋮----
-// throw e;
-⋮----
-// Send event
-⋮----
-// Return deferred promise, so caller can await this call
-⋮----
-/**
-   *
-   * Internal methods - not intended for public use
-   *
-   */
-⋮----
-protected getWsUrl(wsKey: WsKey): string
-⋮----
-protected sendPingEvent(wsKey: WsKey)
-⋮----
-protected sendPongEvent(wsKey: WsKey)
-⋮----
-// Send a protocol layer pong
-⋮----
-// NOT IN USE for gate.io, pings for gate are protocol layer pings
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-protected isWsPing(_msg: any): boolean
-⋮----
-protected isWsPong(msg: any): boolean
-⋮----
-/**
-   * Parse incoming events into categories, before emitting to the user
-   */
-protected resolveEmittableEvents(
-    wsKey: WsKey,
-    event: MessageEventLike,
-): EmittableEvent[]
-⋮----
-// WS API Exception
-⋮----
-// WS API Success
-⋮----
-// Most events use "event: 'update'" for topic updates
-// The legacy "futures.order_book" topic uses "all" for this field
-// 'futures.obu' is used for the orderbook v2 event. Oddly in a different structure than the other topics.
-⋮----
-// These are request/reply pattern events (e.g. after subscribing to topics or authenticating)
-⋮----
-// Request/reply pattern for authentication success
-⋮----
-/**
-   * Determines if a topic is for a private channel, using a hardcoded list of strings
-   */
-protected isPrivateTopicRequest(
-    request: WsTopicRequest<string>,
-    wsKey: WsKey,
-): boolean
-⋮----
-// No private announcements channels
-⋮----
-/**
-   * Not in use for gate.io
-   */
-⋮----
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-protected getWsMarketForWsKey(_wsKey: WsKey): WsMarket
-⋮----
-/**
-   * Not in use for gate.io
-   */
-protected getPrivateWSKeys(): WsKey[]
-⋮----
-protected isAuthOnConnectWsKey(wsKey: WsKey): boolean
-⋮----
-/** Force subscription requests to be sent in smaller batches, if a number is returned */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-protected getMaxTopicsPerSubscribeEvent(_wsKey: WsKey): number | null
-⋮----
-/**
-   * Map one or more topics into fully prepared "subscribe request" events (already stringified and ready to send)
-   */
-protected async getWsOperationEventsForTopics(
-    topics: WsTopicRequest<string>[],
-    wsKey: WsKey,
-    operation: WsOperation,
-): Promise<string[]>
-⋮----
-// console.log(new Date(), `called getWsSubscribeEventsForTopics()`, topics);
-// console.trace();
-⋮----
-// Events that are ready to send (usually stringified JSON)
-⋮----
-/**
-   * @returns one or more correctly structured request events for performing a operations over WS. This can vary per exchange spec.
-   */
-private async getWsRequestEvents(
-    market: WsMarket,
-    operation: WsOperation,
-    requests: WsTopicRequest<string>[],
-    wsKey: WsKey,
-): Promise<WsRequestOperationGate<WsTopic>[]>
-⋮----
-// If private topic request, build auth part for request
-⋮----
-// No key or secret, push event as failed
-⋮----
-private async signMessage(
-    paramsStr: string,
-    secret: string,
-    method: 'hex' | 'base64',
-    algorithm: SignAlgorithm,
-): Promise<string>
-⋮----
-protected async getWsAuthRequestEvent(wsKey: WsKey): Promise<object>
-⋮----
-// id: timeInSeconds,
-⋮----
-/**
-   *
-   * @param requestEvent
-   * @returns A signed updated WS API request object, ready to be sent
-   */
-private async signWSAPIRequest<TRequestParams = object>(
-    requestEvent: WSAPIRequest<TRequestParams>,
-): Promise<WSAPIRequest<TRequestParams>>
-
-================
 File: src/RestClient.ts
 ================
 import { AxiosRequestConfig } from 'axios';
@@ -7907,10 +7679,12 @@ import {
   GetFuturesAccountBookReq,
   GetFuturesAutoOrdersReq,
   GetFuturesCandlesReq,
+  GetFuturesInsuranceReq,
   GetFuturesLiquidationHistoryReq,
   GetFuturesOrderBookReq,
   GetFuturesOrdersByTimeRangeReq,
   GetFuturesOrdersReq,
+  GetFuturesPositionCloseHistoryReq,
   GetFuturesPositionHistoryReq,
   GetFuturesPositionsReq,
   GetFuturesStatsReq,
@@ -7999,6 +7773,7 @@ import {
   PortfolioMarginCalculatorReq,
   SetUnifiedAccountModeReq,
   SubmitUnifiedBorrowOrRepayReq,
+  SubmitUnifiedLoanRepayReq,
 } from './types/request/unified.js';
 import {
   GetMainSubTransfersReq,
@@ -8061,6 +7836,7 @@ import {
   FuturesCandle,
   FuturesContract,
   FuturesDeliveryContract,
+  FuturesInsuranceHistory,
   FuturesLiquidationHistoryRecord,
   FuturesOrder,
   FuturesOrderBook,
@@ -8840,6 +8616,8 @@ getUnifiedLoanCurrencies(params?: {
 getHistoricalLendingRates(
     params: GetUnifiedHistoryLendingRateReq,
 ): Promise<UnifiedHistoryLendingRate>
+⋮----
+submitUnifiedLoanRepay(params: SubmitUnifiedLoanRepayReq): Promise<any>
 ⋮----
 /**==========================================================================================================================
    * SPOT
@@ -10274,6 +10052,14 @@ cancelFuturesPriceTriggeredOrder(params: {
     order_id: string;
 }): Promise<FuturesPriceTriggeredOrder>
 ⋮----
+getFuturesPositionCloseHistory(
+    params: GetFuturesPositionCloseHistoryReq,
+): Promise<FuturesPositionHistoryRecord[]>
+⋮----
+getFuturesInsuranceHistory(
+    params: GetFuturesInsuranceReq,
+): Promise<FuturesInsuranceHistory[]>
+⋮----
 /**==========================================================================================================================
    * DELIVERY
    * ==========================================================================================================================
@@ -11527,11 +11313,308 @@ getUserSubordinateRelationships(params: {
 user_id_list: string; // Comma-separated list of user IDs (max 100)
 
 ================
+File: src/WebsocketClient.ts
+================
+import { BaseWebsocketClient, EmittableEvent } from './lib/BaseWSClient.js';
+import { neverGuard } from './lib/misc-util.js';
+import { CHANNEL_ID, MessageEventLike } from './lib/requestUtils.js';
+import {
+  SignAlgorithm,
+  SignEncodeMethod,
+  signMessage,
+} from './lib/webCryptoAPI.js';
+import {
+  getPrivateFuturesTopics,
+  getPrivateOptionsTopics,
+  getPrivateSpotTopics,
+  getPromiseRefForWSAPIRequest,
+  WS_BASE_URL_MAP,
+  WS_KEY_MAP,
+  WsKey,
+  WsMarket,
+  WsTopicRequest,
+} from './lib/websocket/websocket-util.js';
+import { WSConnectedResult } from './lib/websocket/WsStore.types.js';
+import {
+  WSAPIRequest,
+  WsOperation,
+  WsRequestOperationGate,
+  WsRequestPing,
+} from './types/websockets/requests.js';
+import {
+  WsAPITopicRequestParamMap,
+  WsAPITopicResponseMap,
+  WSAPIWsKey,
+  WsAPIWsKeyTopicMap,
+} from './types/websockets/wsAPI.js';
+⋮----
+export interface WSAPIRequestFlags {
+  /** If true, will skip auth requirement for WS API connection */
+  authIsOptional?: boolean | undefined;
+}
+⋮----
+/** If true, will skip auth requirement for WS API connection */
+⋮----
+/**
+ * WS topics are always a string for gate. Some exchanges use complex objects
+ */
+export type WsTopic = string;
+⋮----
+export class WebsocketClient extends BaseWebsocketClient<WsKey>
+⋮----
+/**
+   * Request connection of all dependent (public & private) websockets, instead of waiting for automatic connection by library.
+   *
+   * Returns array of promises that individually resolve when each connection is successfully opened.
+   */
+public connectAll(): Promise<WSConnectedResult | undefined>[]
+⋮----
+/**
+   * Ensures the WS API connection is active and ready.
+   *
+   * You do not need to call this, but if you call this before making any WS API requests,
+   * it can accelerate the first request (by preparing the connection in advance).
+   */
+public connectWSAPI(wsKey: WSAPIWsKey, skipAuth?: boolean): Promise<unknown>
+⋮----
+/** This call automatically ensures the connection is active AND authenticated before resolving */
+⋮----
+/**
+   * Request subscription to one or more topics. Pass topics as either an array of strings, or array of objects (if the topic has parameters).
+   * Objects should be formatted as {topic: string, params: object}.
+   *
+   * - Subscriptions are automatically routed to the correct websocket connection.
+   * - Authentication/connection is automatic.
+   * - Resubscribe after network issues is automatic.
+   *
+   * Call `unsubscribe(topics)` to remove topics
+   */
+public subscribe(
+    requests:
+      | (WsTopicRequest<WsTopic> | WsTopic)
+      | (WsTopicRequest<WsTopic> | WsTopic)[],
+    wsKey: WsKey,
+)
+⋮----
+/**
+   * Unsubscribe from one or more topics. Similar to subscribe() but in reverse.
+   *
+   * - Requests are automatically routed to the correct websocket connection.
+   * - These topics will be removed from the topic cache, so they won't be subscribed to again.
+   */
+public unsubscribe(
+    requests:
+      | (WsTopicRequest<WsTopic> | WsTopic)
+      | (WsTopicRequest<WsTopic> | WsTopic)[],
+    wsKey: WsKey,
+)
+⋮----
+/**
+   * WS API Methods - similar to the REST API, but via WebSockets
+   */
+⋮----
+/**
+   * Send a Websocket API event on a connection. Returns a promise that resolves on reply.
+   *
+   * Returned promise is rejected if an exception is detected in the reply OR the connection disconnects for any reason (even if automatic reconnect will happen).
+   *
+   * After a fresh connection, you should always send a login request first.
+   *
+   * If you authenticated once and you're reconnected later (e.g. connection temporarily lost), the SDK will by default automatically:
+   * - Detect you were authenticated to the WS API before
+   * - Try to re-authenticate (up to 5 times, in case something (bad timestamp) goes wrong)
+   * - If it succeeds, it will emit the 'authenticated' event.
+   * - If it fails and gives up, it will emit an 'exception' event (type: 'wsapi.auth', reason: detailed text).
+   *
+   * You can turn off the automatic re-auth WS API logic using `reauthWSAPIOnReconnect: false` in the WSClient config.
+   *
+   * @param wsKey - The connection this event is for (e.g. "spotV4" | "perpFuturesUSDTV4" | "perpFuturesBTCV4" | "deliveryFuturesUSDTV4" | "deliveryFuturesBTCV4" | "optionsV4")
+   * @param channel - The channel this event is for (e.g. "spot.login" to authenticate)
+   * @param params - Any request parameters for the payload (contents of req_param in the docs). Signature generation is automatic, only send parameters such as order ID as per the docs.
+   * @returns Promise - tries to resolve with async WS API response. Rejects if disconnected or exception is seen in async WS API response
+   */
+⋮----
+// This overload allows the caller to omit the 3rd param, if it isn't required (e.g. for the login call)
+async sendWSAPIRequest<
+    TWSKey extends keyof WsAPIWsKeyTopicMap,
+    TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
+    TWSParams extends
+      WsAPITopicRequestParamMap[TWSChannel] = WsAPITopicRequestParamMap[TWSChannel],
+    TWSAPIResponse extends
+      | WsAPITopicResponseMap[TWSChannel]
+      | object = WsAPITopicResponseMap[TWSChannel],
+  >(
+    wsKey: TWSKey,
+    channel: TWSChannel,
+    params?: TWSParams extends void | never ? undefined : TWSParams,
+    requestFlags?: WSAPIRequestFlags,
+  ): Promise<TWSAPIResponse>;
+⋮----
+async sendWSAPIRequest<
+    TWSKey extends keyof WsAPIWsKeyTopicMap = keyof WsAPIWsKeyTopicMap,
+    TWSChannel extends WsAPIWsKeyTopicMap[TWSKey] = WsAPIWsKeyTopicMap[TWSKey],
+    TWSParams extends
+      WsAPITopicRequestParamMap[TWSChannel] = WsAPITopicRequestParamMap[TWSChannel],
+    TWSAPIResponse = object,
+  >(
+    wsKey: TWSKey,
+    channel: TWSChannel,
+    params: TWSParams & { signRequest?: boolean },
+    requestFlags?: WSAPIRequestFlags,
+): Promise<any>
+⋮----
+// Some commands don't require authentication.
+⋮----
+// this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey})...');
+⋮----
+// this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey}) ok');
+⋮----
+// id: timeInSeconds,
+⋮----
+/**
+     * Some WS API requests require a timestamp to be included. assertIsConnected and assertIsAuthenticated
+     * can introduce a small delay before the actual request is sent, if not connected before that request is
+     * made. This can lead to a curious race condition, where the request timestamp is before
+     * the "authorizedSince" timestamp - as such, binance does not recognise the session as already authenticated.
+     *
+     * The below mechanism measures any delay introduced from the assert calls, and if the request includes a timestamp,
+     * it offsets that timestamp by the delay.
+     */
+⋮----
+// Sign request
+⋮----
+// Store deferred promise
+⋮----
+// Enrich returned promise with request context for easier debugging
+⋮----
+// throw e;
+⋮----
+// Send event
+⋮----
+// Return deferred promise, so caller can await this call
+⋮----
+/**
+   *
+   * Internal methods - not intended for public use
+   *
+   */
+⋮----
+protected getWsUrl(wsKey: WsKey): string
+⋮----
+protected sendPingEvent(wsKey: WsKey)
+⋮----
+protected sendPongEvent(wsKey: WsKey)
+⋮----
+// Send a protocol layer pong
+⋮----
+// NOT IN USE for gate.io, pings for gate are protocol layer pings
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+protected isWsPing(_msg: any): boolean
+⋮----
+protected isWsPong(msg: any): boolean
+⋮----
+/**
+   * Parse incoming events into categories, before emitting to the user
+   */
+protected resolveEmittableEvents(
+    wsKey: WsKey,
+    event: MessageEventLike,
+): EmittableEvent[]
+⋮----
+// WS API Exception
+⋮----
+// WS API Success
+⋮----
+// Most events use "event: 'update'" for topic updates
+// The legacy "futures.order_book" topic uses "all" for this field
+// 'futures.obu' is used for the orderbook v2 event. Oddly in a different structure than the other topics.
+⋮----
+// These are request/reply pattern events (e.g. after subscribing to topics or authenticating)
+⋮----
+// Request/reply pattern for authentication success
+⋮----
+/**
+   * Determines if a topic is for a private channel, using a hardcoded list of strings
+   */
+protected isPrivateTopicRequest(
+    request: WsTopicRequest<string>,
+    wsKey: WsKey,
+): boolean
+⋮----
+// No private announcements channels
+⋮----
+/**
+   * Not in use for gate.io
+   */
+⋮----
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+protected getWsMarketForWsKey(_wsKey: WsKey): WsMarket
+⋮----
+/**
+   * Not in use for gate.io
+   */
+protected getPrivateWSKeys(): WsKey[]
+⋮----
+protected isAuthOnConnectWsKey(wsKey: WsKey): boolean
+⋮----
+/** Force subscription requests to be sent in smaller batches, if a number is returned */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+protected getMaxTopicsPerSubscribeEvent(_wsKey: WsKey): number | null
+⋮----
+/**
+   * Map one or more topics into fully prepared "subscribe request" events (already stringified and ready to send)
+   */
+protected async getWsOperationEventsForTopics(
+    topics: WsTopicRequest<string>[],
+    wsKey: WsKey,
+    operation: WsOperation,
+): Promise<string[]>
+⋮----
+// console.log(new Date(), `called getWsSubscribeEventsForTopics()`, topics);
+// console.trace();
+⋮----
+// Events that are ready to send (usually stringified JSON)
+⋮----
+/**
+   * @returns one or more correctly structured request events for performing a operations over WS. This can vary per exchange spec.
+   */
+private async getWsRequestEvents(
+    market: WsMarket,
+    operation: WsOperation,
+    requests: WsTopicRequest<string>[],
+    wsKey: WsKey,
+): Promise<WsRequestOperationGate<WsTopic>[]>
+⋮----
+// If private topic request, build auth part for request
+⋮----
+// No key or secret, push event as failed
+⋮----
+private async signMessage(
+    paramsStr: string,
+    secret: string,
+    method: 'hex' | 'base64',
+    algorithm: SignAlgorithm,
+): Promise<string>
+⋮----
+protected async getWsAuthRequestEvent(wsKey: WsKey): Promise<object>
+⋮----
+// id: timeInSeconds,
+⋮----
+/**
+   *
+   * @param requestEvent
+   * @returns A signed updated WS API request object, ready to be sent
+   */
+private async signWSAPIRequest<TRequestParams = object>(
+    requestEvent: WSAPIRequest<TRequestParams>,
+): Promise<WSAPIRequest<TRequestParams>>
+
+================
 File: package.json
 ================
 {
   "name": "gateio-api",
-  "version": "1.2.7",
+  "version": "1.2.10",
   "description": "Complete & Robust Node.js SDK for Gate.com's REST APIs, WebSockets & WebSocket APIs, with TypeScript declarations.",
   "scripts": {
     "clean": "rm -rf dist/*",
@@ -11559,9 +11642,9 @@ File: package.json
     "Jerko J (https://github.com/JJ-Cro)"
   ],
   "dependencies": {
-    "axios": "^1.6.6",
+    "axios": "^1.12.2",
     "isomorphic-ws": "^4.0.1",
-    "ws": "^8.16.0"
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
@@ -11622,6 +11705,7 @@ File: package.json
   },
   "homepage": "https://github.com/tiagosiebler/gateio-api#readme"
 }
+
 
 
 

@@ -49,10 +49,12 @@ import {
   GetFuturesAccountBookReq,
   GetFuturesAutoOrdersReq,
   GetFuturesCandlesReq,
+  GetFuturesInsuranceReq,
   GetFuturesLiquidationHistoryReq,
   GetFuturesOrderBookReq,
   GetFuturesOrdersByTimeRangeReq,
   GetFuturesOrdersReq,
+  GetFuturesPositionCloseHistoryReq,
   GetFuturesPositionHistoryReq,
   GetFuturesPositionsReq,
   GetFuturesStatsReq,
@@ -141,6 +143,7 @@ import {
   PortfolioMarginCalculatorReq,
   SetUnifiedAccountModeReq,
   SubmitUnifiedBorrowOrRepayReq,
+  SubmitUnifiedLoanRepayReq,
 } from './types/request/unified.js';
 import {
   GetMainSubTransfersReq,
@@ -203,6 +206,7 @@ import {
   FuturesCandle,
   FuturesContract,
   FuturesDeliveryContract,
+  FuturesInsuranceHistory,
   FuturesLiquidationHistoryRecord,
   FuturesOrder,
   FuturesOrderBook,
@@ -1158,6 +1162,10 @@ export class RestClient extends BaseRestClient {
     params: GetUnifiedHistoryLendingRateReq,
   ): Promise<UnifiedHistoryLendingRate> {
     return this.getPrivate('/unified/history_loan_rate', params);
+  }
+
+  submitUnifiedLoanRepay(params: SubmitUnifiedLoanRepayReq): Promise<any> {
+    return this.postPrivate('/unified/loans/repay', { body: params });
   }
 
   /**==========================================================================================================================
@@ -3027,6 +3035,21 @@ export class RestClient extends BaseRestClient {
     return this.deletePrivate(
       `/futures/${params.settle}/price_orders/${params.order_id}`,
     );
+  }
+
+  getFuturesPositionCloseHistory(
+    params: GetFuturesPositionCloseHistoryReq,
+  ): Promise<FuturesPositionHistoryRecord[]> {
+    return this.getPrivate(
+      `/futures/${params.settle}/position_close_history`,
+      params,
+    );
+  }
+
+  getFuturesInsuranceHistory(
+    params: GetFuturesInsuranceReq,
+  ): Promise<FuturesInsuranceHistory[]> {
+    return this.getPrivate(`/futures/${params.settle}/insurance`, params);
   }
 
   /**==========================================================================================================================

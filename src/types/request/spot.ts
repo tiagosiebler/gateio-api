@@ -140,6 +140,9 @@ export interface SubmitSpotOrderReq {
   auto_repay?: boolean;
   stp_act?: string;
   action_mode?: string;
+  stop_loss?: string;
+  take_profit?: string;
+  post_only?: boolean;
 }
 
 export interface UpdateSpotOrderReq {

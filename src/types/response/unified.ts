@@ -22,6 +22,8 @@ export interface UnifiedAccountInfo {
       mmr: string;
       margin_balance: string;
       available_margin: string;
+      imr?: string;
+      enabled_collateral?: boolean;
     };
   };
   total: string;
@@ -38,6 +40,15 @@ export interface UnifiedAccountInfo {
   leverage: string;
   spot_order_loss: string;
   spot_hedge: boolean;
+  margin_mode?: string;
+  total_balance?: string;
+  cross_leverage?: string;
+  portfolio_margin?: string;
+  risk_level?: string;
+  is_all_collateral?: boolean;
+  borrow_amount?: string;
+  cross_margin_leverage?: string;
+  use_funding?: boolean;
 }
 
 export interface UnifiedLoan {
@@ -165,4 +176,8 @@ export interface PortfolioMarginCalculation {
       vega: string;
     }[];
   }[];
+}
+
+export interface UnifiedCollateralCurrenciesResp {
+  is_success: boolean;
 }

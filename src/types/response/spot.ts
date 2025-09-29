@@ -99,6 +99,8 @@ export interface SpotAccount {
   locked: string;
   update_id: number;
   refresh_time: number;
+  last_update_time?: number;
+  trading_fee_rate?: string;
 }
 
 export interface SpotAccountBook {

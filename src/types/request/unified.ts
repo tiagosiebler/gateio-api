@@ -77,3 +77,15 @@ export interface GetUnifiedHistoryLendingRateReq {
   page?: number;
   limit?: number;
 }
+
+export interface SubmitUnifiedLoanRepayReq {
+  currency: string;
+  amount: string;
+  currency_pair?: string;
+}
+
+export interface SetUnifiedCollateralCurrenciesReq {
+  collateral_type?: 0 | 1;
+  enable_list?: string[];
+  disable_list?: string[];
+}
