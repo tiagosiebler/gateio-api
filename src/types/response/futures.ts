@@ -146,6 +146,7 @@ export interface FuturesAccount {
     bonus_offset: string;
   };
   enable_tiered_mm: boolean;
+  funding_balance?: string;
 }
 
 export interface FuturesAccountBookRecord {
@@ -209,6 +210,7 @@ export interface FuturesPosition {
   margin?: string;
   entry_price?: string;
   liq_price?: string;
+  liquidation_price?: string; // v4.105.7: Add liquidation_price field for better risk management
   mark_price?: string;
   initial_margin?: string;
   maintenance_margin?: string;
@@ -233,6 +235,8 @@ export interface FuturesPosition {
   update_time?: number;
   update_id?: number;
   open_time?: number;
+  settlement_currency?: string; // v4.105.9: Add settlement_currency field for multi-settlement support
+  isolated_margin?: string; // v4.104.6: Add isolated_margin field
 }
 
 export interface FuturesTradingHistoryRecord {
@@ -492,4 +496,10 @@ export interface RiskLimitTableTier {
   maintenance_rate: string;
   leverage_max: string;
   deduction: string;
+}
+
+// v4.104.6: New GET /futures/{settle}/insurance endpoint types
+export interface FuturesInsuranceHistory {
+  t: number;
+  b: string;
 }

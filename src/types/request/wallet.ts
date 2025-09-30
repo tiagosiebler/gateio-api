@@ -13,6 +13,7 @@ export interface SubmitTransferReq {
   amount: string;
   currency_pair?: string;
   settle?: string;
+  client_order_id?: string;
 }
 
 export interface GetMainSubTransfersReq {
