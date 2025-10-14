@@ -55,12 +55,17 @@ describe('REST PRIVATE', () => {
             details: expect.any(Object),
             total: expect.any(Object),
           });
-        } catch (e) {
-          console.error(
-            `Request failed for test: "${expect.getState().currentTestName}"`,
-            e,
-          );
-          throw e;
+        } catch (e: any) {
+          // If sign successful, we'll see a warning about not being in unified account mode
+          // else, we'll see a sign error
+          const authSuccessMatchError = 'Please open the Unified Account';
+          if (e.body?.message !== authSuccessMatchError) {
+            console.error(
+              `Request failed for test: "${expect.getState().currentTestName}"`,
+              e,
+            );
+          }
+          expect(e.body?.message).toStrictEqual(authSuccessMatchError);
         }
       });
     });
