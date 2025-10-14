@@ -372,7 +372,7 @@ export abstract class BaseRestClient {
 
     // It's possible to override the recv window on a per rquest level
     const strictParamValidation = this.options.strictParamValidation;
-    const encodeQueryStringValues = true;
+    const encodeQueryStringValues = false;
 
     if (signMethod === 'gateV4') {
       const signEncoding: SignEncodeMethod = 'hex';
