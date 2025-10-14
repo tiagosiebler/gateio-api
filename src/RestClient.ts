@@ -958,6 +958,12 @@ export class RestClient extends BaseRestClient {
     return this.getPrivate('/unified/transferables', params);
   }
 
+  getUnifiedBatchMaxBorrowable(params: { currencies: string[] }): Promise<any> {
+    return this.getPrivate('/unified/batch_borrowable', {
+      currencies: params.currencies.join(','),
+    });
+  }
+
   /**
    * Borrow or repay
    *

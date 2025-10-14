@@ -43,6 +43,26 @@ describe('REST PRIVATE', () => {
           total: expect.any(Object),
         });
       });
+
+      test('with comma', async () => {
+        try {
+          const res = await rest.getUnifiedBatchMaxBorrowable({
+            currencies: ['BTC', 'GT'],
+          });
+
+          // console.log('res with', res);
+          expect(res).toMatchObject({
+            details: expect.any(Object),
+            total: expect.any(Object),
+          });
+        } catch (e) {
+          console.error(
+            `Request failed for test: "${expect.getState().currentTestName}"`,
+            e,
+          );
+          throw e;
+        }
+      });
     });
 
     describe('POST requests', () => {
@@ -76,7 +96,7 @@ describe('REST PRIVATE', () => {
               e,
             );
           }
-          expect(e.body.message).toStrictEqual(authSuccessMatchError);
+          expect(e.body?.message).toStrictEqual(authSuccessMatchError);
         }
       });
 
@@ -87,14 +107,14 @@ describe('REST PRIVATE', () => {
             contract: 'BTC_USDT',
             leverage: '1',
           });
-          console.log('res "${expect.getState().currentTestName}"', res);
+          // console.log(`res "${expect.getState().currentTestName}"`, res);
           expect(res).toMatchObject({
-            whatever: true,
+            value: '0',
           });
         } catch (e: any) {
           const authSuccessMatchError =
             'please transfer funds first to create futures account';
-          if (e.body.message !== authSuccessMatchError) {
+          if (e.body?.message !== authSuccessMatchError) {
             console.error(
               `Request failed for test: "${expect.getState().currentTestName}"`,
               e,
