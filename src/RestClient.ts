@@ -69,6 +69,7 @@ import {
   UpdateDualModePositionLeverageReq,
   UpdateDualModePositionMarginReq,
   UpdateFuturesOrderReq,
+  UpdateFuturesPriceTriggeredOrderReq,
 } from './types/request/futures.js';
 import {
   GetCrossMarginAccountHistoryReq,
@@ -158,6 +159,7 @@ import {
 import { SubmitWithdrawalReq } from './types/request/withdrawal.js';
 import {
   AccountDetail,
+  AccountMainKey,
   AccountRateLimit,
   StpGroup,
   StpGroupUser,
@@ -315,6 +317,7 @@ import {
 import {
   CreateDepositAddressResp,
   CurrencyChain,
+  DepositRecord,
   GetBalancesResp,
   PushOrder,
   SavedAddress,
@@ -460,7 +463,7 @@ export class RestClient extends BaseRestClient {
    * Cancel withdrawal with specified ID
    *
    * @param params Parameters containing the withdrawal ID
-   * @returns Promise<Withdraw>
+   * @returns Promise<WithdrawalRecord>
    */
   cancelWithdrawal(params: {
     withdrawal_id: string;
@@ -477,7 +480,7 @@ export class RestClient extends BaseRestClient {
    * List chains supported for specified currency
    *
    * @param params Parameters containing the currency name
-   * @returns Promise< GetCurrencyChainsResp[][]>
+   * @returns Promise<CurrencyChain[]>
    */
   getCurrencyChains(params: { currency: string }): Promise<CurrencyChain[]> {
     return this.get('/wallet/currency_chains', params);
@@ -515,11 +518,11 @@ export class RestClient extends BaseRestClient {
    * Record time range cannot exceed 30 days
    *
    * @param params Parameters for filtering deposit records
-   * @returns Promise<Withdraw[]>
+   * @returns Promise<DepositRecord[]>
    */
   getDepositRecords(
     params?: GetWithdrawalDepositRecordsReq,
-  ): Promise<WithdrawalRecord[]> {
+  ): Promise<DepositRecord[]> {
     return this.getPrivate('/wallet/deposits', params);
   }
 
@@ -605,7 +608,7 @@ export class RestClient extends BaseRestClient {
    * Retrieve withdrawal status
    *
    * @param params Parameters for retrieving withdrawal status
-   * @returns Promise<GetWithdrawalStatusResp[]>
+   * @returns Promise<WithdrawalStatus[]>
    */
   getWithdrawalStatus(params?: {
     currency?: string;
@@ -898,9 +901,8 @@ export class RestClient extends BaseRestClient {
    * Get unified account information
    *
    * The assets of each currency in the account will be adjusted according to their liquidity, defined by corresponding adjustment coefficients, and then uniformly converted to USD to calculate the total asset value and position value of the account.
-   *
    * @param params Parameters for retrieving unified account information
-   * @returns Promise<GetUnifiedAccountInfoResp>
+   * @returns Promise<UnifiedAccountInfo>
    */
   getUnifiedAccountInfo(params?: {
     currency?: string;
@@ -3043,6 +3045,21 @@ export class RestClient extends BaseRestClient {
     );
   }
 
+  /**
+   * Update a single price-triggered order
+   *
+   * @param params Parameters for updating a price-triggered order
+   * @returns Promise<{ id: number }>
+   */
+  updateFuturesPriceTriggeredOrder(
+    params: UpdateFuturesPriceTriggeredOrderReq,
+  ): Promise<{ id: number }> {
+    const { settle, order_id, ...body } = params;
+    return this.putPrivate(`/futures/${settle}/price_orders/${order_id}`, {
+      body: body,
+    });
+  }
+
   getFuturesPositionCloseHistory(
     params: GetFuturesPositionCloseHistoryReq,
   ): Promise<FuturesPositionHistoryRecord[]> {
@@ -4257,9 +4274,8 @@ export class RestClient extends BaseRestClient {
    */
 
   /**
-   * ETH2 swap
-   *
-   * @param params Parameters for ETH2 swap
+   * ETH swap (formerly ETH2 swap)
+   * @param params Parameters for ETH swap (1 - ETH to GTETH, 2 - GTETH to ETH)
    * @returns Promise<any>
    */
   submitEth2Swap(params: { side: '1' | '2'; amount: string }): Promise<any> {
@@ -4267,9 +4283,7 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
-   * Get ETH2 historical rate of return data
-   *
-   * Returns the ETH earnings rate record for the last 31 days
+   * Get GTETH historical rate of return data (formerly ETH2)
    *
    * @returns Promise<Array<{date_time: number, date: string, rate: string}>>
    */
@@ -4487,6 +4501,15 @@ export class RestClient extends BaseRestClient {
    */
   getGTDeduction(): Promise<{ enabled: boolean }> {
     return this.getPrivate('/account/debit_fee');
+  }
+
+  /**
+   * Query all main account API key information
+   *
+   * @returns Promise<AccountMainKey[]>
+   */
+  getAccountMainKeys(): Promise<AccountMainKey[]> {
+    return this.getPrivate('/account/main_keys');
   }
 
   /**==========================================================================================================================

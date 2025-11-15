@@ -198,7 +198,7 @@ export interface SubmitFuturesTriggeredOrderReq {
   initial: {
     contract: string;
     size?: number;
-    price?: string;
+    price: string; // Required: Order price. Set to 0 to use market price
     close?: boolean;
     tif?: 'gtc' | 'ioc';
     text?: string;
@@ -208,8 +208,8 @@ export interface SubmitFuturesTriggeredOrderReq {
   trigger: {
     strategy_type?: 0 | 1;
     price_type?: 0 | 1 | 2;
-    price?: string;
-    rule?: 1 | 2;
+    price: string; // Required: Price value for price trigger
+    rule: 1 | 2; // Required: Price Condition Type (1: >=, 2: <=)
     expiration?: number;
   };
   order_type?:
@@ -255,4 +255,15 @@ export interface GetFuturesPositionCloseHistoryReq {
 export interface GetFuturesInsuranceReq {
   settle: 'btc' | 'usdt' | 'usd';
   limit?: number;
+}
+
+export interface UpdateFuturesPriceTriggeredOrderReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  order_id: string;
+  contract?: string;
+  size?: number;
+  price?: string;
+  trigger_price?: string;
+  price_type?: 0 | 1 | 2; // 0 - Latest trade price, 1 - Mark price, 2 - Index price
+  auto_size?: string; // Not required in single position mode
 }

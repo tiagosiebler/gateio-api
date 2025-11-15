@@ -9,6 +9,26 @@ export interface CurrencyChain {
   decimal: string;
 }
 
+export interface DepositRecord {
+  id: string;
+  txid: string;
+  timestamp: string;
+  amount: string;
+  currency: string;
+  address: string;
+  memo?: string;
+  status:
+    | 'BLOCKED' // Deposit Blocked
+    | 'DEP_CREDITED' // Deposit Credited, Withdrawal Pending Unlock
+    | 'DONE' // Funds Credited to Spot Account
+    | 'INVALID' // Invalid Transaction
+    | 'MANUAL' // Manual Review Required
+    | 'PEND' // Processing
+    | 'REVIEW' // Under Compliance Review
+    | 'TRACK'; // Tracking Block Confirmations, Pending Spot Account Credit
+  chain: string;
+}
+
 export interface CreateDepositAddressResp {
   currency: string;
   address: string;
