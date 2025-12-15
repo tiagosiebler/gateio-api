@@ -161,7 +161,6 @@ export abstract class BaseRestClient {
       headers: {
         'Content-Type': 'application/json',
         'X-Gate-Channel-Id': CHANNEL_ID,
-        'X-Gate-Size-Decimal': '1', // v4.106.0: Ensure the server correctly handles size fields
         locale: 'en-US',
       },
     };
