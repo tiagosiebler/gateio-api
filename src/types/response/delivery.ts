@@ -18,7 +18,7 @@ export interface DeliveryTrade {
   contract: string;
   size: number;
   price: string;
-  is_internal?: boolean;
+  is_internal?: boolean; // Deprecated
 }
 
 export interface DeliveryCandle {
@@ -47,7 +47,7 @@ export interface DeliveryTicker {
   funding_rate: string;
   funding_rate_indicative: string;
   index_price: string;
-  quanto_base_rate?: string;
+  quanto_base_rate?: string; // Deprecated
   basis_rate: string;
   basis_value: string;
   lowest_ask: string;
@@ -55,25 +55,28 @@ export interface DeliveryTicker {
 }
 
 export interface DeliveryAccount {
-  total: string;
+  total: string; // Balance, only applicable to classic contract account
   unrealised_pnl: string;
-  position_margin: string;
-  order_margin: string;
+  position_margin?: string; // Deprecated
+  order_margin: string; // Initial margin for all pending orders
   available: string;
   point: string;
   currency: string;
   in_dual_mode: boolean;
+  position_mode?: string; // Position mode: single - one-way, dual - dual-side, split - sub-positions (in_dual_mode is deprecated)
   enable_credit: boolean;
   position_initial_margin: string;
   maintenance_margin: string;
   bonus: string;
-  enable_evolved_classic: boolean;
+  enable_evolved_classic?: boolean; // Deprecated
   cross_order_margin: string;
   cross_initial_margin: string;
   cross_maintenance_margin: string;
   cross_unrealised_pnl: string;
   cross_available: string;
   isolated_position_margin: string;
+  enable_new_dual_mode?: boolean; // Deprecated
+  margin_mode?: number; // 0: classic delivery account; 1: Multi-Currency Margin Mode; 2: Portfolio Margin Mode; 3: Single-Currency Margin Mode
   history: {
     dnw: string;
     pnl: string;

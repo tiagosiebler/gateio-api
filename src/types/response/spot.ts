@@ -82,8 +82,8 @@ export type SpotCandle = [
 
 export interface SpotFeeRates {
   user_id: number;
-  taker_fee: string;
-  maker_fee: string;
+  taker_fee: string; // For spot trading
+  maker_fee: string; // For spot trading
   gt_discount: boolean;
   gt_taker_fee: string;
   gt_maker_fee: string;
@@ -256,4 +256,5 @@ export interface SpotHistoricTradeRecord {
   amend_text: string;
   sequence_id: string;
   text: string;
+  deal?: string; // v4.105.29: Total Executed Value
 }

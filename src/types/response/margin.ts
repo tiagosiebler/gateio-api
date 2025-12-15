@@ -103,11 +103,11 @@ export interface CrossMarginMorrowLoanRecord {
 
 export interface MarginUserAccount {
   currency_pair: string;
-  account_type: string;
+  account_type: string; // Description updated to remove "risk" option
   leverage: string;
   locked: boolean;
-  risk?: string;
-  mmr?: string;
+  risk?: string; // Deprecated
+  mmr?: string; // Refined description
   base: {
     currency: string;
     available: string;

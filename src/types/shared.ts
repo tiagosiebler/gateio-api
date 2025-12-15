@@ -32,4 +32,6 @@ export interface CurrencyPair {
   type: string;
   delisting_time?: number;
   trade_url?: string;
+  up_rate?: string; // v4.106.4: Maximum price increase percentage
+  down_rate?: string; // v4.106.4: Maximum price decrease percentage
 }
