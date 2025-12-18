@@ -15,8 +15,8 @@ export interface UnifiedAccountInfo {
       spot_in_use: string;
       funding: string;
       funding_version: string;
-      cross_balance: string;
-      iso_balance: string;
+      cross_balance: string; // Full margin balance is valid in single currency margin mode, and is 0 in other modes such as cross currency margin/combined margin mode
+      iso_balance: string; // Isolated Margin Balance applies to Single-Currency Margin Mode and Cross-Currency Margin Mode, and is 0 in other modes such as Portfolio Margin Mode
       im: string;
       mm: string;
       mmr: string;
@@ -38,7 +38,8 @@ export interface UnifiedAccountInfo {
   unified_account_total_liab: string;
   unified_account_total_equity: string;
   leverage: string;
-  spot_order_loss: string;
+  spot_order_loss: string; // Spot Pending Order Loss, in USDT, effective only in Cross-Currency Margin Mode and Portfolio Margin Mode
+  options_order_loss?: string; // v4.105.29: Option Pending Order Loss, in USDT, effective only in Portfolio Margin Mode
   spot_hedge: boolean;
   margin_mode?: string;
   total_balance?: string;

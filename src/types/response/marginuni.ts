@@ -14,7 +14,7 @@ export interface MarginUNILoan {
   currency: string;
   currency_pair: string;
   amount: string;
-  type: string;
+  type: string; // Lending type, margin indicates margin borrowing
   create_time: number;
   update_time: number;
 }
@@ -33,7 +33,7 @@ export interface MarginUNIInterestRecord {
   actual_rate: string;
   interest: string;
   status: number;
-  type: string;
+  type: string; // Lending type, margin indicates margin borrowing
   create_time: number;
 }
 

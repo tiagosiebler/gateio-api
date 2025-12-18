@@ -18,7 +18,7 @@ export interface FuturesTrade {
   contract: string;
   size: number;
   price: string;
-  is_internal?: boolean;
+  is_internal?: boolean; // Deprecated
 }
 
 export interface FuturesCandle {
@@ -56,7 +56,7 @@ export interface FuturesTicker {
   funding_rate: string;
   funding_rate_indicative: string;
   index_price: string;
-  quanto_base_rate?: string;
+  quanto_base_rate?: string; // Deprecated
   basis_rate: string;
   basis_value: string;
   lowest_ask: string;
@@ -103,25 +103,26 @@ export interface RiskLimitTier {
   tier: number;
   risk_limit: string;
   initial_rate: string;
-  maintenance_rate: string;
+  maintenance_rate: string; // First-tier maintenance margin rate requirement
   leverage_max: string;
   contract: string;
 }
 
 export interface FuturesAccount {
-  total: string;
+  total: string; // Balance, only applicable to classic contract account
   unrealised_pnl: string;
-  position_margin: string;
-  order_margin: string;
+  position_margin?: string; // Deprecated
+  order_margin: string; // Initial margin for all pending orders
   available: string;
   point: string;
   currency: string;
   in_dual_mode: boolean;
+  position_mode?: string; // Position mode: single - one-way, dual - dual-side, split - sub-positions (in_dual_mode is deprecated)
   enable_credit: boolean;
   position_initial_margin: string;
   maintenance_margin: string;
   bonus: string;
-  enable_evolved_classic: boolean;
+  enable_evolved_classic?: boolean; // Deprecated
   cross_order_margin: string;
   cross_initial_margin: string;
   cross_maintenance_margin: string;
@@ -131,8 +132,8 @@ export interface FuturesAccount {
   cross_mmr: string;
   cross_imr: string;
   isolated_position_margin: string;
-  enable_new_dual_mode: boolean;
-  margin_mode: number;
+  enable_new_dual_mode?: boolean; // Deprecated
+  margin_mode: number; // 0: classic future account or Classic Spot Margin Mode of unified account; 1: Multi-Currency Margin Mode; 2: Portfolio Margin Mode; 3: Single-Currency Margin Mode
   history: {
     dnw: string;
     pnl: string;
@@ -202,24 +203,24 @@ export interface FuturesPosition {
   user?: number;
   contract?: string;
   size?: number;
-  leverage?: string;
+  leverage?: string; // Isolated margin leverage, 0 indicates cross margin mode
   risk_limit?: string;
-  leverage_max?: string;
-  maintenance_rate?: string;
+  leverage_max?: string; // Max leverage based on current position size
+  maintenance_rate?: string; // Tiered maintenance margin rate calculation
   value?: string;
   margin?: string;
   entry_price?: string;
-  liq_price?: string;
+  liq_price?: string; // Estimated liquidation price for reference only
   liquidation_price?: string; // v4.105.7: Add liquidation_price field for better risk management
   mark_price?: string;
-  initial_margin?: string;
-  maintenance_margin?: string;
+  initial_margin?: string; // Expanded scope description
+  maintenance_margin?: string; // Expanded scope description
   unrealised_pnl?: string;
-  realised_pnl?: string;
-  pnl_pnl?: string;
-  pnl_fund?: string;
-  pnl_fee?: string;
-  history_pnl?: string;
+  realised_pnl?: string; // Detailed breakdown including settlement, funding fees, and trading fees
+  pnl_pnl?: string; // Settlement P&L
+  pnl_fund?: string; // Funding fee P&L
+  pnl_fee?: string; // Total trading fees
+  history_pnl?: string; // All historical settlement P&L
   last_close_pnl?: string;
   realised_point?: string;
   history_point?: string;
@@ -231,12 +232,13 @@ export interface FuturesPosition {
     is_liq?: boolean;
   } | null;
   mode?: 'single' | 'dual_long' | 'dual_short';
-  cross_leverage_limit?: string;
+  cross_leverage_limit?: string; // Simplified description
   update_time?: number;
   update_id?: number;
   open_time?: number;
   settlement_currency?: string; // v4.105.9: Add settlement_currency field for multi-settlement support
   isolated_margin?: string; // v4.104.6: Add isolated_margin field
+  pid?: number; // v4.106.0: Sub-position ID
 }
 
 export interface FuturesTradingHistoryRecord {
@@ -288,8 +290,8 @@ export interface FuturesAutoDeleveragingHistoryRecord {
   user: number;
   order_id: number;
   contract: string;
-  leverage: string;
-  cross_leverage_limit: string;
+  leverage: string; // Clarified for better understanding of margin modes
+  cross_leverage_limit: string; // Clarified for better understanding of margin modes
   entry_price: string;
   fill_price: string;
   trade_size: number;
@@ -306,18 +308,18 @@ export interface DeleteFuturesBatchOrdersResp {
 export interface FuturesContract {
   name?: string;
   type?: 'inverse' | 'direct';
-  quanto_multiplier?: string;
+  quanto_multiplier?: string; // Conceptually renamed to "contract multiplier"
   leverage_min?: string;
   leverage_max?: string;
-  maintenance_rate?: string;
-  mark_type?: 'internal' | 'index';
+  maintenance_rate?: string; // First-tier maintenance margin rate requirement
+  mark_type?: 'internal' | 'index'; // Deprecated
   mark_price?: string;
   index_price?: string;
   last_price?: string;
   maker_fee_rate?: string;
   taker_fee_rate?: string;
   order_price_round?: string;
-  mark_price_round?: string;
+  mark_price_round?: string; // Minimum unit of mark price
   funding_rate?: string;
   funding_interval?: number;
   funding_next_apply?: number;
@@ -339,7 +341,8 @@ export interface FuturesContract {
   enable_bonus?: boolean;
   enable_credit?: boolean;
   create_time?: number;
-  funding_cap_ratio?: string;
+  funding_cap_ratio?: string; // Deprecated
+  funding_rate_limit?: string; // v4.106.4: Funding rate cap value
 }
 
 export interface FuturesPriceTriggeredOrder {
@@ -385,18 +388,18 @@ export interface FuturesDeliveryContract {
   underlying?: string;
   cycle?: 'WEEKLY' | 'BI-WEEKLY' | 'QUARTERLY' | 'BI-QUARTERLY';
   type?: 'inverse' | 'direct';
-  quanto_multiplier?: string;
+  quanto_multiplier?: string; // Conceptually renamed to "contract multiplier"
   leverage_min?: string;
   leverage_max?: string;
-  maintenance_rate?: string;
-  mark_type?: 'internal' | 'index';
+  maintenance_rate?: string; // First-tier maintenance margin rate requirement
+  mark_type?: 'internal' | 'index'; // Deprecated
   mark_price?: string;
   index_price?: string;
   last_price?: string;
   maker_fee_rate?: string;
   taker_fee_rate?: string;
   order_price_round?: string;
-  mark_price_round?: string;
+  mark_price_round?: string; // Minimum unit of mark price
   basis_rate?: string;
   basis_value?: string;
   basis_impact_value?: string;
@@ -493,7 +496,7 @@ export interface RiskLimitTableTier {
   tier: number;
   risk_limit: string;
   initial_rate: string;
-  maintenance_rate: string;
+  maintenance_rate: string; // First-tier maintenance margin rate requirement
   leverage_max: string;
   deduction: string;
 }

@@ -756,6 +756,15 @@ export class RestClient extends BaseRestClient {
     return this.getPrivate('/wallet/push', params);
   }
 
+  /**
+   * Retrieve the list of low-liquidity or low-cap tokens
+   *
+   * @returns Promise<string[]>
+   */
+  getLowCapExchangeList(): Promise<string[]> {
+    return this.getPrivate('/wallet/getLowCapExchangeList');
+  }
+
   /**==========================================================================================================================
    * SUBACCOUNT
    * ==========================================================================================================================
@@ -819,6 +828,8 @@ export class RestClient extends BaseRestClient {
 
   /**
    * Update API key of the sub-account
+   *
+   * Note: This interface cannot modify the mode account type attribute
    *
    * @param params Parameters for updating API key of the sub-account
    * @returns Promise<any>
@@ -901,6 +912,9 @@ export class RestClient extends BaseRestClient {
    * Get unified account information
    *
    * The assets of each currency in the account will be adjusted according to their liquidity, defined by corresponding adjustment coefficients, and then uniformly converted to USD to calculate the total asset value and position value of the account.
+   *
+   * For specific formulas, please refer to Margin Formula
+   *
    * @param params Parameters for retrieving unified account information
    * @returns Promise<UnifiedAccountInfo>
    */
@@ -1543,9 +1557,16 @@ export class RestClient extends BaseRestClient {
   /**
    * List personal trading history
    *
-   * Spot, portfolio and margin trades are queried by default. If cross margin trades are needed, account must be set to cross_margin.
+   * By default query of transaction records for spot, unified account and warehouse-by-site leverage accounts.
    *
-   * You can also set from and/or to to query by time range. If you don't specify from and/or to parameters, only the last 7 days of data will be returned. The range of from and to is not allowed to exceed 30 days. Time range parameters are handled as order finish time.
+   * The history within a specified time range can be queried by specifying from or (and) to.
+   *
+   * If no time parameters are specified, only data for the last 7 days can be obtained.
+   * If only any parameter of from or to is specified, only 7-day data from the start (or end) of the specified time is returned.
+   * The range not allowed to exceed 30 days.
+   * The parameters of the time range filter are processed according to the order end time.
+   *
+   * The maximum number of pages when searching data using limit&page paging function is 100,0, that is, limit * (page - 1) <= 100,0.
    *
    * @param params Parameters for listing personal trading history
    * @returns Promise<GetSpotTradingHistoryResp[]>
@@ -2425,6 +2446,8 @@ export class RestClient extends BaseRestClient {
   /**
    * Query futures account
    *
+   * Query account information for classic future account and unified account
+   *
    * @param params Parameters for querying futures account
    * @returns Promise<GetFuturesAccountResp>
    */
@@ -2465,6 +2488,8 @@ export class RestClient extends BaseRestClient {
   /**
    * Get single position
    *
+   * Clarifies dual-position query method when holding both long and short positions in the same contract market
+   *
    * @param params Parameters for retrieving a single position
    * @returns Promise<Position>
    */
@@ -2479,6 +2504,8 @@ export class RestClient extends BaseRestClient {
 
   /**
    * Update position margin
+   *
+   * Under the new risk limit rules, the position limit is related to the leverage you set; a lower leverage will result in a higher position limit. Please use the leverage adjustment api to adjust the position limit.
    *
    * @param params Parameters for updating position margin
    * @returns Promise<Position>
@@ -2497,6 +2524,17 @@ export class RestClient extends BaseRestClient {
   /**
    * Update position leverage
    *
+   * Position Mode Switching Rules:
+   * - leverage ≠ 0: Isolated Margin Mode (Regardless of whether cross_leverage_limit is filled, this parameter will be ignored)
+   * - leverage = 0: Cross Margin Mode (Use cross_leverage_limit to set the leverage multiple)
+   *
+   * Examples:
+   * - Set isolated margin with 10x leverage: leverage=10
+   * - Set cross margin with 10x leverage: leverage=0&cross_leverage_limit=10
+   * - leverage=5&cross_leverage_limit=10 → Result: Isolated margin with 5x leverage (cross_leverage_limit is ignored)
+   *
+   * Warning: Incorrect settings may cause unexpected position mode switching, affecting risk management.
+   *
    * @param params Parameters for updating position leverage
    * @returns Promise<Position>
    */
@@ -2505,6 +2543,7 @@ export class RestClient extends BaseRestClient {
     contract: string;
     leverage: string;
     cross_leverage_limit?: string;
+    pid?: number; // Product ID
   }): Promise<FuturesPosition> {
     const { settle, contract, ...query } = params;
     return this.postPrivate(
@@ -2618,6 +2657,14 @@ export class RestClient extends BaseRestClient {
    *
    * @param params Parameters for updating position risk limit in dual mode
    * @returns Promise<Position[]>
+   */
+  /**
+   * Update position risk limit in dual mode
+   *
+   * See risk limit rules for more information
+   *
+   * @param params Parameters for updating position risk limit in dual mode
+   * @returns Promise<FuturesPosition[]>
    */
   updateDualModePositionRiskLimit(params: {
     settle: 'btc' | 'usdt' | 'usd';
@@ -3649,6 +3696,8 @@ export class RestClient extends BaseRestClient {
 
   /**
    * List options account
+   *
+   * Indicates support for querying both classic options accounts and unified accounts
    *
    * @returns Promise<GetOptionsAccountResp>
    */
