@@ -1,3 +1,6 @@
+import type { ClientRequestArgs } from 'http';
+import WebSocket from 'isomorphic-ws';
+
 /**
  * Event args for subscribing/unsubscribing
  */
@@ -35,6 +38,11 @@ export interface WSClientConfigurableOptions {
   requestOptions?: {};
 
   wsUrl?: string;
+
+  wsOptions?: {
+    protocols?: string[];
+    agent?: any;
+  } & Partial<WebSocket.ClientOptions | ClientRequestArgs>;
 
   /**
    * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
