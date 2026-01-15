@@ -63,6 +63,8 @@ Updated & performant JavaScript & Node.js SDK for the Gate.com (gate.io) REST AP
       - [Event Driven API](#event-driven-api)
       - [REST-like API](#rest-like-api)
 - [Customise Logging](#customise-logging)
+- [Browser/Frontend Usage](#browserfrontend-usage)
+  - [Webpack](#webpack)
 - [LLMs & AI](#use-with-llms--ai)
 - [Used By](#used-by)
 - [Contributions & Thanks](#contributions--thanks)
@@ -432,6 +434,18 @@ DefaultLogger.silly = () => {};
 
 const ws = new WebsocketClient({ key: 'xxx', secret: 'yyy' }, DefaultLogger);
 ```
+
+## Browser/Frontend Usage
+
+### Webpack
+
+Build a bundle using webpack:
+
+- `npm install`
+- `npm run build`
+- `npm run pack`
+
+The bundle can be found in `dist/`. Altough usage should be largely consistent, smaller differences will exist. Documentation is still TODO.
 
 ## Use with LLMs & AI
 
