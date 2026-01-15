@@ -45,4 +45,4 @@ function generateConfig(name) {
   return config;
 }
 
-module.exports = generateConfig('gateioapi');
+module.exports = generateConfig('gateapi');
