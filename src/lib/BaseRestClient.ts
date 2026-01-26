@@ -540,8 +540,11 @@ export abstract class BaseRestClient {
       Timestamp: signResult.timestamp,
     };
 
-    const urlWithQueryParams =
-      options.url + '?' + signResult.queryParamsWithSign;
+    const urlSuffix = signResult.queryParamsWithSign
+      ? '?' + signResult.queryParamsWithSign
+      : '';
+
+    const urlWithQueryParams = options.url + urlSuffix;
 
     if (method === 'GET' || !params?.body) {
       return {
