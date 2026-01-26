@@ -5015,7 +5015,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise with cancellation confirmation
    */
   cancelCrossExOrder(order_id: string): Promise<CancelCrossExOrderResp> {
-    return this.deletePrivate(`/crossex/orders/${order_id}`, { body: {} });
+    return this.deletePrivate(`/crossex/orders/${order_id}`);
   }
 
   /**
