@@ -8,12 +8,51 @@ import {
 import { RestClientOptions } from './lib/requestUtils.js';
 import { CreateStpGroupReq } from './types/request/account.js';
 import {
+  CreateAlphaOrderReq,
+  CreateAlphaQuoteReq,
+  GetAlphaAccountBookReq,
+  GetAlphaCurrenciesReq,
+  GetAlphaOrderReq,
+  GetAlphaOrdersReq,
+  GetAlphaTickersReq,
+} from './types/request/alpha.js';
+import {
   GetLoanCollateralRecordsReq,
   GetLoanOrdersReq,
   GetLoanRepaymentHistoryReq,
   SubmitLoanOrderReq,
   UpdateLoanCollateralReq,
 } from './types/request/collateralLoan.js';
+import {
+  CloseCrossExPositionReq,
+  CreateCrossExConvertOrderReq,
+  CreateCrossExConvertQuoteReq,
+  CreateCrossExOrderReq,
+  CreateCrossExTransferReq,
+  GetCrossExAccountBookReq,
+  GetCrossExAccountsReq,
+  GetCrossExAdlRankReq,
+  GetCrossExCoinDiscountRateReq,
+  GetCrossExHistoryMarginInterestsReq,
+  GetCrossExHistoryMarginPositionsReq,
+  GetCrossExHistoryOrdersReq,
+  GetCrossExHistoryPositionsReq,
+  GetCrossExHistoryTradesReq,
+  GetCrossExInterestRateReq,
+  GetCrossExMarginPositionLeverageReq,
+  GetCrossExMarginPositionsReq,
+  GetCrossExOpenOrdersReq,
+  GetCrossExPositionLeverageReq,
+  GetCrossExPositionsReq,
+  GetCrossExRiskLimitsReq,
+  GetCrossExSymbolsReq,
+  GetCrossExTransferCoinsReq,
+  GetCrossExTransferHistoryReq,
+  ModifyCrossExOrderReq,
+  SetCrossExMarginPositionLeverageReq,
+  SetCrossExPositionLeverageReq,
+  UpdateCrossExAccountReq,
+} from './types/request/crossex.js';
 import {
   GetDeliveryAutoOrdersReq,
   GetDeliveryBookReq,
@@ -107,6 +146,16 @@ import {
   SubmitOptionsOrderReq,
 } from './types/request/options.js';
 import {
+  CancelOTCOrderReq,
+  CreateOTCFiatOrderReq,
+  CreateOTCQuoteReq,
+  CreateOTCStablecoinOrderReq,
+  GetOTCFiatOrderDetailReq,
+  GetOTCFiatOrderListReq,
+  GetOTCStablecoinOrderListReq,
+  MarkOTCOrderAsPaidReq,
+} from './types/request/otc.js';
+import {
   GetAgencyCommissionHistoryReq,
   GetAgencyTransactionHistoryReq,
   GetBrokerCommissionHistoryReq,
@@ -165,11 +214,50 @@ import {
   StpGroupUser,
 } from './types/response/account.js';
 import {
+  AlphaAccount,
+  AlphaAccountBook,
+  AlphaCurrency,
+  AlphaOrder,
+  AlphaTicker,
+  CreateAlphaOrderResp,
+  CreateAlphaQuoteResp,
+} from './types/response/alpha.js';
+import {
   LoanCollateralRatio,
   LoanCollateralRecord,
   LoanOrder,
   LoanRepaymentHistoryRecord,
 } from './types/response/collateralloan.js';
+import {
+  CancelCrossExOrderResp,
+  CloseCrossExPositionResp,
+  CreateCrossExConvertQuoteResp,
+  CreateCrossExOrderResp,
+  CreateCrossExTransferResp,
+  CrossExAccount,
+  CrossExAccountBook,
+  CrossExAdlRank,
+  CrossExCoinDiscountRate,
+  CrossExFeeRate,
+  CrossExHistoryMarginInterest,
+  CrossExHistoryMarginPosition,
+  CrossExHistoryPosition,
+  CrossExHistoryTrade,
+  CrossExInterestRate,
+  CrossExMarginPosition,
+  CrossExMarginPositionLeverage,
+  CrossExOrder,
+  CrossExPosition,
+  CrossExPositionLeverage,
+  CrossExRiskLimit,
+  CrossExSymbol,
+  CrossExTransferCoin,
+  CrossExTransferHistory,
+  ModifyCrossExOrderResp,
+  SetCrossExMarginPositionLeverageResp,
+  SetCrossExPositionLeverageResp,
+  UpdateCrossExAccountResp,
+} from './types/response/crossex.js';
 import {
   DeliveryAccount,
   DeliveryBook,
@@ -269,6 +357,17 @@ import {
   OptionsUserSettlement,
   SubmitOptionsOrderResp,
 } from './types/response/options.js';
+import {
+  CancelOTCOrderResp,
+  CreateOTCFiatOrderResp,
+  CreateOTCQuoteResp,
+  CreateOTCStablecoinOrderResp,
+  GetOTCFiatOrderDetailResp,
+  GetOTCFiatOrderListResp,
+  GetOTCStablecoinOrderListResp,
+  GetOTCUserDefaultBankResp,
+  MarkOTCOrderAsPaidResp,
+} from './types/response/otc.js';
 import {
   AgencyCommissionHistoryRecord,
   AgencyTransactionHistoryRecord,
@@ -4694,5 +4793,659 @@ export class RestClient extends BaseRestClient {
     }[];
   }> {
     return this.getPrivate('/rebate/user/sub_relation', params);
+  }
+
+  /**==========================================================================================================================
+   * OTC
+   * ==========================================================================================================================
+   */
+
+  /**
+   * Fiat and stablecoin quote
+   *
+   * Create fiat and stablecoin quotes, supporting both PAY and GET directions
+   *
+   * @param params Quote parameters
+   * @returns Promise with quote details including rate, amounts, and quote_token
+   */
+  createOTCQuote(params: CreateOTCQuoteReq): Promise<CreateOTCQuoteResp> {
+    return this.postPrivate('/otc/quote', { body: params });
+  }
+
+  /**
+   * Create fiat order
+   *
+   * Create a fiat order, supporting BUY for on-ramp and SELL for off-ramp
+   *
+   * @param params Fiat order parameters
+   * @returns Promise with order creation confirmation
+   */
+  createOTCFiatOrder(
+    params: CreateOTCFiatOrderReq,
+  ): Promise<CreateOTCFiatOrderResp> {
+    return this.postPrivate('/otc/order/create', { body: params });
+  }
+
+  /**
+   * Create stablecoin order
+   *
+   * Create stablecoin order
+   *
+   * @param params Stablecoin order parameters
+   * @returns Promise with order creation confirmation
+   */
+  createOTCStablecoinOrder(
+    params: CreateOTCStablecoinOrderReq,
+  ): Promise<CreateOTCStablecoinOrderResp> {
+    return this.postPrivate('/otc/stable_coin/order/create', { body: params });
+  }
+
+  /**
+   * Get user's default bank account information
+   *
+   * Get user's default bank account information for order placement
+   *
+   * @returns Promise with default bank account details
+   */
+  getOTCUserDefaultBank(): Promise<GetOTCUserDefaultBankResp> {
+    return this.getPrivate('/otc/get_user_def_bank');
+  }
+
+  /**
+   * Mark fiat order as paid
+   *
+   * Mark fiat order as paid
+   *
+   * @param params Parameters with order_id
+   * @returns Promise with confirmation
+   */
+  markOTCOrderAsPaid(
+    params: MarkOTCOrderAsPaidReq,
+  ): Promise<MarkOTCOrderAsPaidResp> {
+    return this.postPrivate('/otc/order/paid', { body: params });
+  }
+
+  /**
+   * Fiat order cancellation
+   *
+   * Cancel fiat order
+   *
+   * @param params Parameters with order_id
+   * @returns Promise with cancellation confirmation
+   */
+  cancelOTCOrder(params: CancelOTCOrderReq): Promise<CancelOTCOrderResp> {
+    return this.postPrivate('/otc/order/cancel', { query: params });
+  }
+
+  /**
+   * Fiat order list
+   *
+   * Query the fiat order list with filters such as type, currency, time range, and status
+   *
+   * @param params Filter parameters for fiat order list
+   * @returns Promise with paginated fiat order list
+   */
+  getOTCFiatOrderList(
+    params?: GetOTCFiatOrderListReq,
+  ): Promise<GetOTCFiatOrderListResp> {
+    return this.getPrivate('/otc/order/list', params);
+  }
+
+  /**
+   * Stablecoin order list
+   *
+   * Query stablecoin order list with filtering by currency, time range, status, etc.
+   *
+   * @param params Filter parameters for stablecoin order list
+   * @returns Promise with paginated stablecoin order list
+   */
+  getOTCStablecoinOrderList(
+    params?: GetOTCStablecoinOrderListReq,
+  ): Promise<GetOTCStablecoinOrderListResp> {
+    return this.getPrivate('/otc/stable_coin/order/list', params);
+  }
+
+  /**
+   * Fiat order details
+   *
+   * Query fiat order details
+   *
+   * @param params Parameters with order_id
+   * @returns Promise with fiat order details
+   */
+  getOTCFiatOrderDetail(
+    params: GetOTCFiatOrderDetailReq,
+  ): Promise<GetOTCFiatOrderDetailResp> {
+    return this.getPrivate('/otc/order/detail', params);
+  }
+
+  /**==========================================================================================================================
+   * CROSSEX
+   * ==========================================================================================================================
+   */
+
+  /**
+   * Query Trading Pair Information
+   *
+   * Query trading pair information for cross-exchange trading
+   *
+   * @param params Optional parameters to filter symbols
+   * @returns Promise with array of symbol information
+   */
+  getCrossExSymbols(params?: GetCrossExSymbolsReq): Promise<CrossExSymbol[]> {
+    return this.get('/crossex/rule/symbols', params);
+  }
+
+  /**
+   * Query Risk Limit Information
+   *
+   * Query risk limit information for futures/margin trading pairs
+   *
+   * @param params Parameters with required symbols
+   * @returns Promise with array of risk limit information
+   */
+  getCrossExRiskLimits(
+    params: GetCrossExRiskLimitsReq,
+  ): Promise<CrossExRiskLimit[]> {
+    return this.get('/crossex/rule/risk_limits', params);
+  }
+
+  /**
+   * Query Supported Transfer Currencies
+   *
+   * Query supported transfer currencies for cross-exchange
+   *
+   * @param params Optional currency filter
+   * @returns Promise with array of transfer coin information
+   */
+  getCrossExTransferCoins(
+    params?: GetCrossExTransferCoinsReq,
+  ): Promise<CrossExTransferCoin[]> {
+    return this.get('/crossex/transfers/coin', params);
+  }
+
+  /**
+   * Fund Transfer
+   *
+   * Transfer funds between accounts. Rate limit: 10 requests per 10 seconds
+   *
+   * @param params Transfer parameters
+   * @returns Promise with transfer confirmation
+   */
+  createCrossExTransfer(
+    params: CreateCrossExTransferReq,
+  ): Promise<CreateCrossExTransferResp> {
+    return this.postPrivate('/crossex/transfers', { body: params });
+  }
+
+  /**
+   * Query Fund Transfer History
+   *
+   * Query fund transfer history. Rate Limit: 200 requests per 10 seconds
+   *
+   * @param params Optional filter parameters
+   * @returns Promise with array of transfer history records
+   */
+  getCrossExTransferHistory(
+    params?: GetCrossExTransferHistoryReq,
+  ): Promise<CrossExTransferHistory[]> {
+    return this.getPrivate('/crossex/transfers', params);
+  }
+
+  /**
+   * Create an order
+   *
+   * Create an order for cross-exchange trading. Rate Limit: 100 requests per 10 seconds
+   *
+   * @param params Order parameters
+   * @returns Promise with order creation response
+   */
+  createCrossExOrder(
+    params: CreateCrossExOrderReq,
+  ): Promise<CreateCrossExOrderResp> {
+    return this.postPrivate('/crossex/orders', { body: params });
+  }
+
+  /**
+   * Cancel Order
+   *
+   * Cancel an order. Rate Limit: 100 requests per 10 seconds
+   *
+   * @param order_id Order ID or Text for Cancel Order
+   * @returns Promise with cancellation confirmation
+   */
+  cancelCrossExOrder(order_id: string): Promise<CancelCrossExOrderResp> {
+    return this.deletePrivate(`/crossex/orders/${order_id}`);
+  }
+
+  /**
+   * Modify Order
+   *
+   * Modify an existing order. Rate Limit: 100 requests per 10 seconds
+   *
+   * @param order_id Order ID or Text for Modify Order
+   * @param params Modification parameters
+   * @returns Promise with modification confirmation
+   */
+  modifyCrossExOrder(
+    order_id: string,
+    params: ModifyCrossExOrderReq,
+  ): Promise<ModifyCrossExOrderResp> {
+    return this.putPrivate(`/crossex/orders/${order_id}`, { body: params });
+  }
+
+  /**
+   * Query order details
+   *
+   * Query order details by order ID or custom text. Rate Limit: 200 requests per 10 seconds
+   *
+   * @param order_id Order ID or custom text
+   * @returns Promise with order details
+   */
+  getCrossExOrder(order_id: string): Promise<CrossExOrder> {
+    return this.getPrivate(`/crossex/orders/${order_id}`);
+  }
+
+  /**
+   * Flash Swap Inquiry
+   *
+   * Create a flash swap quote. Rate Limit: 100 requests per day
+   *
+   * @param params Quote parameters
+   * @returns Promise with quote details
+   */
+  createCrossExConvertQuote(
+    params: CreateCrossExConvertQuoteReq,
+  ): Promise<CreateCrossExConvertQuoteResp> {
+    return this.postPrivate('/crossex/convert/quote', { body: params });
+  }
+
+  /**
+   * Flash Swap Transaction
+   *
+   * Execute a flash swap transaction. Rate limit: 10 requests per 10 seconds
+   *
+   * @param params Parameters with quote_id
+   * @returns Promise with transaction confirmation
+   */
+  createCrossExConvertOrder(params: CreateCrossExConvertOrderReq): Promise<{}> {
+    return this.postPrivate('/crossex/convert/orders', { body: params });
+  }
+
+  /**
+   * Modify Account Contract Position Mode and Account Mode
+   *
+   * Modify account settings. Rate Limit: 100 requests per 60 seconds
+   *
+   * @param params Account modification parameters
+   * @returns Promise with update confirmation
+   */
+  updateCrossExAccount(
+    params: UpdateCrossExAccountReq,
+  ): Promise<UpdateCrossExAccountResp> {
+    return this.putPrivate('/crossex/accounts', { body: params });
+  }
+
+  /**
+   * Query Account Assets
+   *
+   * Query account assets and balances. Rate Limit: 200 requests per 10 seconds
+   *
+   * @param params Optional exchange_type filter
+   * @returns Promise with account information
+   */
+  getCrossExAccounts(params?: GetCrossExAccountsReq): Promise<CrossExAccount> {
+    return this.getPrivate('/crossex/accounts', params);
+  }
+
+  /**
+   * Modify Contract Trading Pair Leverage Multiplier
+   *
+   * Modify leverage for contract trading pair. Rate Limit: 100 requests per 10 seconds
+   *
+   * @param params Leverage modification parameters
+   * @returns Promise with leverage update confirmation
+   */
+  setCrossExPositionLeverage(
+    params: SetCrossExPositionLeverageReq,
+  ): Promise<SetCrossExPositionLeverageResp> {
+    return this.postPrivate('/crossex/positions/leverage', { body: params });
+  }
+
+  /**
+   * Query Contract Trading Pair Leverage Multiplier
+   *
+   * Query leverage for contract trading pairs. Rate Limit: 200 requests per 10 seconds
+   *
+   * @param params Optional symbols filter
+   * @returns Promise with array of leverage information
+   */
+  getCrossExPositionLeverage(
+    params?: GetCrossExPositionLeverageReq,
+  ): Promise<CrossExPositionLeverage[]> {
+    return this.getPrivate('/crossex/positions/leverage', params);
+  }
+
+  /**
+   * Modify Leveraged Trading Pair Leverage Multiplier
+   *
+   * Modify leverage for margin trading pair. Rate Limit: 100 requests per 10 seconds
+   *
+   * @param params Leverage modification parameters
+   * @returns Promise with leverage update confirmation
+   */
+  setCrossExMarginPositionLeverage(
+    params: SetCrossExMarginPositionLeverageReq,
+  ): Promise<SetCrossExMarginPositionLeverageResp> {
+    return this.postPrivate('/crossex/margin_positions/leverage', {
+      body: params,
+    });
+  }
+
+  /**
+   * Query Leveraged Trading Pair Leverage Multiplier
+   *
+   * Query leverage for margin trading pairs. Rate Limit: 200 requests per 10 seconds
+   *
+   * @param params Optional symbols filter
+   * @returns Promise with array of leverage information
+   */
+  getCrossExMarginPositionLeverage(
+    params?: GetCrossExMarginPositionLeverageReq,
+  ): Promise<CrossExMarginPositionLeverage[]> {
+    return this.getPrivate('/crossex/margin_positions/leverage', params);
+  }
+
+  /**
+   * Full Close Position
+   *
+   * Fully close a position. Rate Limit: 100 requests per day
+   *
+   * @param params Position close parameters
+   * @returns Promise with close position confirmation
+   */
+  closeCrossExPosition(
+    params: CloseCrossExPositionReq,
+  ): Promise<CloseCrossExPositionResp> {
+    return this.deletePrivate('/crossex/position', { body: params });
+  }
+
+  /**
+   * Query margin asset interest rates
+   *
+   * Query interest rates for margin assets. Rate Limit: 200 requests per 10 seconds
+   *
+   * @param params Optional filter parameters
+   * @returns Promise with array of interest rates
+   */
+  getCrossExInterestRate(
+    params?: GetCrossExInterestRateReq,
+  ): Promise<CrossExInterestRate[]> {
+    return this.getPrivate('/crossex/interest_rate', params);
+  }
+
+  /**
+   * Query User Fee Rates
+   *
+   * Query user fee rates. Rate Limit: 200 requests per 10 seconds
+   *
+   * @returns Promise with fee rate information
+   */
+  getCrossExFeeRate(): Promise<CrossExFeeRate> {
+    return this.getPrivate('/crossex/fee');
+  }
+
+  /**
+   * Query Contract Positions
+   *
+   * Query contract positions. Rate Limit: 200 requests per 10 seconds
+   *
+   * @param params Optional filter parameters
+   * @returns Promise with array of positions
+   */
+  getCrossExPositions(
+    params?: GetCrossExPositionsReq,
+  ): Promise<CrossExPosition[]> {
+    return this.getPrivate('/crossex/positions', params);
+  }
+
+  /**
+   * Query Leveraged Positions
+   *
+   * Query margin/leveraged positions. Rate Limit: 200 requests per 10 seconds
+   *
+   * @param params Optional filter parameters
+   * @returns Promise with array of margin positions
+   */
+  getCrossExMarginPositions(
+    params?: GetCrossExMarginPositionsReq,
+  ): Promise<CrossExMarginPosition[]> {
+    return this.getPrivate('/crossex/margin_positions', params);
+  }
+
+  /**
+   * Query ADL Position Reduction Ranking
+   *
+   * Query ADL position reduction ranking. Rate Limit: 200 requests per 10 seconds
+   *
+   * @param params Parameters with required symbol
+   * @returns Promise with array of ADL rankings
+   */
+  getCrossExAdlRank(params: GetCrossExAdlRankReq): Promise<CrossExAdlRank[]> {
+    return this.getPrivate('/crossex/adl_rank', params);
+  }
+
+  /**
+   * Query All Current Open Orders
+   *
+   * Query all current open orders. Rate Limit: 200 requests per 10 seconds
+   *
+   * @param params Optional filter parameters
+   * @returns Promise with array of open orders
+   */
+  getCrossExOpenOrders(
+    params?: GetCrossExOpenOrdersReq,
+  ): Promise<CrossExOrder[]> {
+    return this.getPrivate('/crossex/open_orders', params);
+  }
+
+  /**
+   * Query order history
+   *
+   * Query historical orders. Rate Limit: 200 requests per 10 seconds
+   *
+   * @param params Optional filter parameters
+   * @returns Promise with array of historical orders
+   */
+  getCrossExHistoryOrders(
+    params?: GetCrossExHistoryOrdersReq,
+  ): Promise<CrossExOrder[]> {
+    return this.getPrivate('/crossex/history_orders', params);
+  }
+
+  /**
+   * Query Contract Position History
+   *
+   * Query contract position history. Rate Limit: 200 requests per 10 seconds
+   *
+   * @param params Optional filter parameters
+   * @returns Promise with array of historical positions
+   */
+  getCrossExHistoryPositions(
+    params?: GetCrossExHistoryPositionsReq,
+  ): Promise<CrossExHistoryPosition[]> {
+    return this.getPrivate('/crossex/history_positions', params);
+  }
+
+  /**
+   * Query Leveraged Position History
+   *
+   * Query margin position history. Rate Limit: 200 requests per 10 seconds
+   *
+   * @param params Optional filter parameters
+   * @returns Promise with array of historical margin positions
+   */
+  getCrossExHistoryMarginPositions(
+    params?: GetCrossExHistoryMarginPositionsReq,
+  ): Promise<CrossExHistoryMarginPosition[]> {
+    return this.getPrivate('/crossex/history_margin_positions', params);
+  }
+
+  /**
+   * Query Leveraged Interest Deduction History
+   *
+   * Query margin interest deduction history. Rate Limit: 200 requests per 10 seconds
+   *
+   * @param params Optional filter parameters
+   * @returns Promise with array of interest deduction records
+   */
+  getCrossExHistoryMarginInterests(
+    params?: GetCrossExHistoryMarginInterestsReq,
+  ): Promise<CrossExHistoryMarginInterest[]> {
+    return this.getPrivate('/crossex/history_margin_interests', params);
+  }
+
+  /**
+   * Query filled history
+   *
+   * Query trade execution history. Rate Limit: 200 requests per 10 seconds
+   *
+   * @param params Optional filter parameters
+   * @returns Promise with array of trade records
+   */
+  getCrossExHistoryTrades(
+    params?: GetCrossExHistoryTradesReq,
+  ): Promise<CrossExHistoryTrade[]> {
+    return this.getPrivate('/crossex/history_trades', params);
+  }
+
+  /**
+   * Query Account Asset Change History
+   *
+   * Query account balance change history. Rate Limit: 200 requests per 10 seconds
+   *
+   * @param params Optional filter parameters
+   * @returns Promise with array of account book records
+   */
+  getCrossExAccountBook(
+    params?: GetCrossExAccountBookReq,
+  ): Promise<CrossExAccountBook[]> {
+    return this.getPrivate('/crossex/account_book', params);
+  }
+
+  /**
+   * Query currency discount rate
+   *
+   * Query currency discount rate (for margin currency in isolated exchange mode). Rate Limit: 200 requests per 10 seconds
+   *
+   * @param params Optional filter parameters
+   * @returns Promise with array of coin discount rates
+   */
+  getCrossExCoinDiscountRate(
+    params?: GetCrossExCoinDiscountRateReq,
+  ): Promise<CrossExCoinDiscountRate[]> {
+    return this.getPrivate('/crossex/coin_discount_rate', params);
+  }
+
+  /**==========================================================================================================================
+   * ALPHA
+   * ==========================================================================================================================
+   */
+
+  /**
+   * Query position assets
+   *
+   * Query alpha account position assets
+   *
+   * @returns Promise with array of account balances
+   */
+  getAlphaAccounts(): Promise<AlphaAccount[]> {
+    return this.getPrivate('/alpha/accounts');
+  }
+
+  /**
+   * Query asset transactions
+   *
+   * Query alpha account transaction history
+   *
+   * @param params Parameters with required from timestamp
+   * @returns Promise with array of transaction records
+   */
+  getAlphaAccountBook(
+    params: GetAlphaAccountBookReq,
+  ): Promise<AlphaAccountBook[]> {
+    return this.getPrivate('/alpha/account_book', params);
+  }
+
+  /**
+   * Alpha Quote API
+   *
+   * Get a quote for alpha trading. Quote is valid for 1 minute. Rate-limited at 10 requests per second per user.
+   *
+   * @param params Quote parameters
+   * @returns Promise with quote details
+   */
+  createAlphaQuote(params: CreateAlphaQuoteReq): Promise<CreateAlphaQuoteResp> {
+    return this.postPrivate('/alpha/quote', { body: params });
+  }
+
+  /**
+   * Alpha Order API
+   *
+   * Create an alpha order. Rate-limited at 5 requests per second per user.
+   *
+   * @param params Order parameters including quote_id
+   * @returns Promise with order details
+   */
+  createAlphaOrder(params: CreateAlphaOrderReq): Promise<CreateAlphaOrderResp> {
+    return this.postPrivate('/alpha/orders', { body: params });
+  }
+
+  /**
+   * Alpha Order List API
+   *
+   * Query alpha order list with filters
+   *
+   * @param params Filter parameters
+   * @returns Promise with array of orders
+   */
+  getAlphaOrders(params: GetAlphaOrdersReq): Promise<AlphaOrder[]> {
+    return this.getPrivate('/alpha/orders', params);
+  }
+
+  /**
+   * Alpha Single Order Query API
+   *
+   * Query a single alpha order by order ID
+   *
+   * @param params Parameters with order_id
+   * @returns Promise with order details
+   */
+  getAlphaOrder(params: GetAlphaOrderReq): Promise<AlphaOrder> {
+    return this.getPrivate('/alpha/order', params);
+  }
+
+  /**
+   * Query currency information
+   *
+   * Query alpha currency information. When currency is provided, returns specific currency info; otherwise returns paginated list.
+   *
+   * @param params Optional filter parameters
+   * @returns Promise with array of currency information
+   */
+  getAlphaCurrencies(params?: GetAlphaCurrenciesReq): Promise<AlphaCurrency[]> {
+    return this.get('/alpha/currencies', params);
+  }
+
+  /**
+   * Query currency ticker
+   *
+   * Query alpha currency ticker. When currency is provided, returns specific ticker; otherwise returns paginated list.
+   *
+   * @param params Optional filter parameters
+   * @returns Promise with array of ticker information
+   */
+  getAlphaTickers(params?: GetAlphaTickersReq): Promise<AlphaTicker[]> {
+    return this.get('/alpha/tickers', params);
   }
 }
