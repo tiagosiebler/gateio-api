@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { WebsocketClient, WsTopicRequest } from '../src/index.js';
+import { WebsocketClient, WsTopicRequest } from '../../src/index.js';
 // import { LogParams, WebsocketClient, WsTopicRequest } from 'gateio-api'; // normally you should install this module via npm: `npm install gateio-api`
 
 // const customLogger = {
@@ -97,7 +97,7 @@ async function start() {
     //   'spotV4',
     // );
   } catch (e) {
-    console.error(`Req error: `, e);
+    console.error('Req error: ', e);
   }
 }
 

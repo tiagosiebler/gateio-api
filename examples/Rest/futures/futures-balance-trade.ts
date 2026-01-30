@@ -8,7 +8,7 @@
  **/
 
 // Import the RestClient and WebsocketClient from the published version of this SDK, installed via NPM (npm install gateio-api)
-import { RestClient, WebsocketClient } from 'gateio-api';
+import { RestClient, WebsocketClient } from '../../../src/index.js';
 
 // Define the account object with API key and secret
 const account = {
@@ -68,7 +68,7 @@ async function subscribePrivateWs() {
 
     return true;
   } catch (e) {
-    console.error(`Req error: `, e);
+    console.error('Req error: ', e);
     throw e;
   }
 }
@@ -82,7 +82,7 @@ async function main() {
     const balances = await gateRestClient.getFuturesAccount({ settle: 'usdt' });
 
     // total usdt balance
-    const usdtBalance = Number(balances.total);
+    // const usdtBalance = Number(balances.total);
 
     // available usdt balance
     const availableBalance = Number(balances.available);

@@ -1,4 +1,4 @@
-import { WebsocketAPIClient, WS_KEY_MAP } from '../src/index.js';
+import { WebsocketAPIClient, WS_KEY_MAP } from '../../../src/index.js';
 // import { LogParams, WebsocketClient } from 'gateio-api'; // normally you should install this module via npm: `npm install gateio-api`
 
 const account = {
