@@ -1,4 +1,4 @@
-import { RestClient } from '../../src'; // For an easy demonstration, import from the src dir. Normally though, see below to import from the npm installed version instead.
+import { RestClient } from '../../../src/index.js'; // For an easy demonstration, import from the src dir. Normally though, see below to import from the npm installed version instead.
 // import { RestClient } from 'gateio-api'; // Import the RestClient from the published version of this SDK, installed via NPM (npm install gateio-api)
 
 // Define the account object with API key and secret
@@ -13,17 +13,20 @@ const gateRestClient = new RestClient({
   apiSecret: account.secret,
 });
 
-async function getSpotBalances() {
+async function getSpotCandles() {
   try {
     console.log('Using API keys:', account);
 
     // Fetch the spot account balances
-    const balances = await gateRestClient.getSpotAccounts();
+    const balances = await gateRestClient.getSpotCandles({
+      currency_pair: 'BTC_USDT',
+      interval: '1m',
+    });
     console.log('Response: ', balances); // Log the response to the console
   } catch (e) {
-    console.error(`Error in execution: `, e); // Log any errors that occur
+    console.error('Error in execution: ', e); // Log any errors that occur
   }
 }
 
 // Execute the function to get spot balances
-getSpotBalances();
+getSpotCandles();

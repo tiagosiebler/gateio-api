@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { LogParams, WebsocketClient } from '../src/index.js';
+import { LogParams, WebsocketClient } from '../../../src/index.js';
 // import { LogParams, WebsocketClient } from 'gateio-api'; // normally you should install this module via npm: `npm install gateio-api`
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const account = {
   key: process.env.API_KEY || 'apiKeyHere',
   secret: process.env.API_SECRET || 'apiSecretHere',
@@ -91,142 +92,130 @@ async function start() {
      */
 
     /**
-     * To authenticate, send an empty request to "futures.login". The SDK will handle all the parameters.
+     * No need to authenticate first - the SDK will automatically authenticate for you when you send your first request.
      *
-     * Optional - you can inject rich types to set the response type
-     *    const loginResult = await client.sendWSAPIRequest<WSAPIResponse<WSAPILoginResponse>>('perpFuturesUSDTV4', 'futures.login');
+     * Unless you want to prepare the connection before your first request, to speed up your first request.
      */
     console.log(new Date(), 'try authenticate');
-    const loginResult = await client.sendWSAPIRequest(
-      'perpFuturesUSDTV4',
-      'futures.login',
-    );
-
-    client.sendWSAPIRequest('perpFuturesUSDTV4', 'futures.login');
-    console.log(new Date(), 'authenticated!', loginResult);
+    await client.connectWSAPI('spotV4');
+    console.log(new Date(), 'authenticated!');
 
     /**
-     * For other channels, the 3rd parameter should have any parameters for the request (the payload).
+     * For other channels, the 3rd parameter should have any parameters for the request (the payload that goes in req_param in the docs).
+     *
+     * See WsAPIRequestsTopicMap for a topic->parameter map.
      *
      * Note that internal parameters such as "signature" etc are all handled automatically by the SDK.
-     *
      */
 
     /**
-     * Submit futures order
+     * Submit spot order
      */
 
-    console.log(new Date(), 'Sending futures order:');
-    const submitOrder = await client.sendWSAPIRequest(
-      'perpFuturesUSDTV4',
-      'futures.order_place',
+    console.log(new Date(), 'Submitting spot order!');
+    const newOrder = await client.sendWSAPIRequest(
+      'spotV4',
+      'spot.order_place',
       {
-        contract: 'BTC_USDT',
-        size: 20, // positive for long, negative for short
-        price: '0',
-        tif: 'ioc',
+        text: 't-my-custom-id',
+        currency_pair: 'BTC_USDT',
+        type: 'limit',
+        account: 'spot',
+        side: 'buy',
+        amount: '0.001',
+        price: '45000',
       },
     );
 
-    console.log(new Date(), 'Result: ', submitOrder);
+    console.log(new Date(), 'Result:', newOrder);
 
     /**
-     * Submit batch futures order
+     * Cancel spot order
      */
 
-    console.log(new Date(), 'Sending batch futures order!');
-    const submitBatchOrder = await client.sendWSAPIRequest(
-      'perpFuturesUSDTV4',
-      'futures.order_batch_place',
+    console.log(new Date(), 'Cancelling spot order!');
+    const cancelOrder = await client.sendWSAPIRequest(
+      'spotV4',
+      'spot.order_cancel',
+      {
+        order_id: 'yourOrderIdHere1',
+        currency_pair: 'BTC_USDT',
+      },
+    );
+
+    console.log(new Date(), 'Result:', cancelOrder);
+
+    /**
+     * Batch cancel spot order
+     */
+
+    console.log(new Date(), 'Cancelling spot orders!');
+    const cancelOrders = await client.sendWSAPIRequest(
+      'spotV4',
+      'spot.order_cancel_ids',
       [
         {
-          contract: 'ETH_USDT',
-          size: 10, // positive for long, negative for short
-          price: '0',
-          tif: 'ioc',
+          id: 'yourOrderIdHere1',
+          currency_pair: 'BTC_USDT',
         },
         {
-          contract: 'BTC_USDT',
-          size: 10, // positive for long, negative for short
-          price: '0',
-          tif: 'ioc',
+          id: 'yourOrderIdHere2',
+          currency_pair: 'ETH_USDT',
         },
       ],
     );
 
-    console.log(new Date(), 'Result: ', submitBatchOrder);
+    console.log(new Date(), 'Result:', cancelOrders);
 
     /**
-     * Cancel futures order
+     * Amend/Update spot order
      */
-    console.log(new Date(), 'Cancelling futures order!');
-    const cancelOrder = await client.sendWSAPIRequest(
-      'perpFuturesUSDTV4',
-      'futures.order_cancel',
-      { order_id: 'orderIDHere' },
-    );
 
-    console.log(new Date(), 'Result: ', cancelOrder);
-
-    /**
-     * Cancel all futures orders
-     */
-    console.log(new Date(), 'Cancelling all futures orders!');
-    const cancelAllOrders = await client.sendWSAPIRequest(
-      'perpFuturesUSDTV4',
-      'futures.order_cancel_cp',
-      { contract: 'BTC_USDT' },
-    );
-
-    console.log(new Date(), 'Result: ', cancelAllOrders);
-
-    /**
-     * Update/Amend Futures order
-     */
-    console.log(new Date(), 'Updating futures order!');
+    console.log(new Date(), 'Updating spot order!');
     const updateOrder = await client.sendWSAPIRequest(
-      'perpFuturesUSDTV4',
-      'futures.order_amend',
+      'spotV4',
+      'spot.order_amend',
       {
-        order_id: 'orderIdHere',
-        price: '31303.180000',
+        order_id: 'yourIdHere',
+        currency_pair: 'BTC_USDT',
+        price: '50000',
       },
     );
 
-    console.log(new Date(), 'Result: ', updateOrder);
+    console.log(new Date(), 'Result:', updateOrder);
 
     /**
-     * Get orders list
+     * Get spot order status
      */
 
-    console.log(new Date(), 'Getting futures orders!');
-    const getList = await client.sendWSAPIRequest(
-      'perpFuturesUSDTV4',
-      'futures.order_list',
+    console.log(new Date(), 'Getting order status');
+    const orderStatus = await client.sendWSAPIRequest(
+      'spotV4',
+      'spot.order_status',
       {
-        status: 'open',
-        contract: 'BTC_USDT',
+        order_id: '600995435390',
+        currency_pair: 'BTC_USDT',
       },
     );
 
-    console.log(new Date(), 'Result: ', getList);
+    console.log(new Date(), 'orderStatus result!', orderStatus);
 
     /**
-     * Get order status
+     * If you don't want to use await (and prefer the async event emitter), make sure to still include a catch block.
+     *
+     * The response will come async via the event emitter in the WS Client.
      */
 
-    console.log(new Date(), 'Getting order status!');
-    const getStatus = await client.sendWSAPIRequest(
-      'perpFuturesUSDTV4',
-      'futures.order_status',
-      {
-        order_id: '74046543',
-      },
-    );
-
-    console.log(new Date(), 'Result: ', getStatus);
+    // client
+    //   .sendWSAPIRequest('spotV4', 'spot.order_status', {
+    //     order_id: '600995435390',
+    //     currency_pair: 'BTC_USDT',
+    //   })
+    //   .catch((e) => {
+    //     console.error(`exception ws api call, get spot order status: `, e);
+    //   });
   } catch (e) {
-    console.error(`WS API Error: `, e);
+    console.error('WS API Error: ', e);
   }
 }
 
