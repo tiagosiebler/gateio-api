@@ -1,6 +1,6 @@
 {
   "name": "gateio-api",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Complete & Robust Node.js SDK for Gate.com's REST APIs, WebSockets & WebSocket APIs, with TypeScript declarations.",
   "scripts": {
     "clean": "rm -rf dist/*",
@@ -24,7 +24,7 @@
     "dist/*",
     "llms.txt"
   ],
-  "author": "Tiago Siebler (https://github.com/tiagosiebler)",
+  "author": "Tiago Siebler (https://siebly.io)",
   "contributors": [
     "Jerko J (https://github.com/JJ-Cro)"
   ],
