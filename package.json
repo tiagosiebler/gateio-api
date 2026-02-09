@@ -1,6 +1,6 @@
 {
   "name": "gateio-api",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Complete & Robust Node.js SDK for Gate.com's REST APIs, WebSockets & WebSocket APIs, with TypeScript declarations.",
   "scripts": {
     "clean": "rm -rf dist/*",
