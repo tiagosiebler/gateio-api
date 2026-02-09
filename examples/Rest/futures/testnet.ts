@@ -1,4 +1,4 @@
-import { RestClient } from '../../src'; // For an easy demonstration, import from the src dir. Normally though, see below to import from the npm installed version instead.
+import { RestClient } from '../../../src/index.js'; // For an easy demonstration, import from the src dir. Normally though, see below to import from the npm installed version instead.
 // import { RestClient } from 'gateio-api'; // Import the RestClient from the published version of this SDK, installed via NPM (npm install gateio-api)
 
 // Define the account object with API key and secret
@@ -11,6 +11,24 @@ const account = {
 const gateRestClient = new RestClient({
   apiKey: account.key,
   apiSecret: account.secret,
+  /**
+   * To use a different base URL, use the baseUrl key. The SDK uses the live environment by default:
+   * baseUrlKey: 'live',
+   *'https://api.gateio.ws/api/v4'
+   * But you can force it to use any of the available environments. Examples below.
+   */
+
+  /*
+   * Futures TestNet trading:
+   * 'https://fx-api-testnet.gateio.ws/api/v4'
+   */
+  baseUrlKey: 'futuresTestnet',
+
+  /**
+   * Futures live trading alternative (futures only):
+   * 'https://fx-api.gateio.ws/api/v4'
+   */
+  // baseUrlKey: 'futuresLiveAlternative'
 });
 
 async function submitFuturesOrder() {
@@ -28,7 +46,7 @@ async function submitFuturesOrder() {
 
     console.log('Response: ', result); // Log the response to the console
   } catch (e) {
-    console.error(`Error in execution: `, e); // Log any errors that occur
+    console.error('Error in execution: ', e); // Log any errors that occur
   }
 }
 

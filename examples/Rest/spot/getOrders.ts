@@ -1,4 +1,4 @@
-import { RestClient } from '../../src'; // For an easy demonstration, import from the src dir. Normally though, see below to import from the npm installed version instead.
+import { RestClient } from '../../../src/index.js'; // For an easy demonstration, import from the src dir. Normally though, see below to import from the npm installed version instead.
 // import { RestClient } from 'gateio-api'; // Import the RestClient from the published version of this SDK, installed via NPM (npm install gateio-api)
 
 // Define the account object with API key and secret
@@ -31,7 +31,7 @@ async function getSpotOrders() {
     });
     console.log('finishedOrders: ', finishedOrders); // Log the response to the console
   } catch (e) {
-    console.error(`Error in execution: `, e); // Log any errors that occur
+    console.error('Error in execution: ', e); // Log any errors that occur
   }
 }
 
