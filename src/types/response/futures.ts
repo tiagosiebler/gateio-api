@@ -320,29 +320,42 @@ export interface FuturesContract {
   taker_fee_rate?: string;
   order_price_round?: string;
   mark_price_round?: string; // Minimum unit of mark price
-  funding_rate?: string;
-  funding_interval?: number;
-  funding_next_apply?: number;
-  risk_limit_base?: string;
-  risk_limit_step?: string;
-  risk_limit_max?: string;
-  order_size_min?: number;
-  order_size_max?: number;
   order_price_deviate?: string;
   ref_discount_rate?: string;
   ref_rebate_rate?: string;
+  funding_rate?: string;
+  funding_rate_indicative?: string;
+  funding_interval?: number;
+  funding_next_apply?: number;
+  funding_offset?: number;
+  interest_rate?: string;
+  risk_limit_base?: string;
+  risk_limit_step?: string;
+  risk_limit_max?: string;
+  order_size_min?: string | number; // API returns string e.g. "1"
+  order_size_max?: string | number; // API returns string e.g. "1000000"
   orderbook_id?: number;
   trade_id?: number;
-  trade_size?: number;
-  position_size?: number;
+  trade_size?: string | number; // API returns string
+  position_size?: string | number; // API returns string
+  short_users?: number;
+  long_users?: number;
+  funding_impact_value?: string;
   config_change_time?: number;
   in_delisting?: boolean;
   orders_limit?: number;
   enable_bonus?: boolean;
   enable_credit?: boolean;
+  enable_decimal?: boolean; // If true, size can be decimal; else integer contracts
   create_time?: number;
+  launch_time?: number;
+  delisting_time?: number;
+  delisted_time?: number;
+  status?: string; // e.g. "trading"
   funding_cap_ratio?: string; // Deprecated
   funding_rate_limit?: string; // v4.106.4: Funding rate cap value
+  market_order_slip_ratio?: string;
+  market_order_size_max?: string;
 }
 
 export interface FuturesPriceTriggeredOrder {
