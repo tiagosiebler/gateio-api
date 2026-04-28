@@ -18,8 +18,8 @@ export interface GetCrossExTransferCoinsReq {
 export interface CreateCrossExTransferReq {
   coin: string; // Currency
   amount: string; // Transfer amount
-  from: string; // Transfer-in account: CROSSEX_BINANCE, CROSSEX_OKX, CROSSEX_GATE, CROSSEX, SPOT
-  to: string; // Transfer-out account: CROSSEX_BINANCE, CROSSEX_OKX, CROSSEX_GATE, CROSSEX, SPOT
+  from: string; // Transfer-in account: CROSSEX_BINANCE, CROSSEX_OKX, CROSSEX_GATE, CROSSEX_BYBIT, CROSSEX, SPOT
+  to: string; // Transfer-out account: CROSSEX_BINANCE, CROSSEX_OKX, CROSSEX_GATE, CROSSEX_BYBIT, CROSSEX, SPOT
   text?: string; // User-defined ID
 }
 
@@ -64,11 +64,11 @@ export interface CreateCrossExConvertOrderReq {
 export interface UpdateCrossExAccountReq {
   position_mode?: string; // Futures position mode (SINGLE/DUAL)
   account_mode?: string; // Account mode (CROSS_EXCHANGE/ISOLATED_EXCHANGE, default: CROSS_EXCHANGE)
-  exchange_type?: string; // Exchange (BINANCE/OKX/GATE/CROSSEX)
+  exchange_type?: string; // Exchange (BINANCE/OKX/GATE/BYBIT/CROSSEX)
 }
 
 export interface GetCrossExAccountsReq {
-  exchange_type?: string; // Exchange. Not required in cross-exchange mode; required in single-exchange mode (BINANCE/OKX/GATE)
+  exchange_type?: string; // Exchange. Not required in cross-exchange mode; required in single-exchange mode (BINANCE/OKX/GATE/BYBIT)
 }
 
 export interface SetCrossExPositionLeverageReq {
@@ -170,5 +170,5 @@ export interface GetCrossExAccountBookReq {
 
 export interface GetCrossExCoinDiscountRateReq {
   coin?: string;
-  exchange_type?: string; // OKX/GATE/BINANCE
+  exchange_type?: string; // OKX/GATE/BINANCE/BYBIT
 }

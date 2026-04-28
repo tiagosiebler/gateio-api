@@ -3,6 +3,7 @@ export interface WithdrawalRecord {
   txid: string;
   block_number: string;
   withdraw_order_id: string;
+  /** When `status` is DONE, withdrawal success time (not conditioned on `block_number`). */
   timestamp: string;
   amount: string;
   currency: string;
@@ -13,7 +14,7 @@ export interface WithdrawalRecord {
     | 'CANCEL' // Cancelled
     | 'CANCELPEND' // Withdrawal Cancellation Pending
     | 'DMOVE' // Pending Manual Review
-    | 'DONE' // Completed (Only considered truly on-chain when block_number > 0)
+    | 'DONE' // Completed
     | 'EXTPEND' // Sent and Waiting for Confirmation
     | 'FAIL' // On-Chain Failure Pending Confirmation
     | 'FVERIFY' // Facial Verification in Progress

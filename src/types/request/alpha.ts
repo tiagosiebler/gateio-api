@@ -28,9 +28,9 @@ export interface CreateAlphaOrderReq {
 }
 
 export interface GetAlphaOrdersReq {
-  currency: string; // Trading symbol
-  side: 'buy' | 'sell'; // Buy or sell orders
-  status: number; // Order Status (0: All, 1: Processing, 2: Successful, 3: Failed, 4: Cancelled, 5: Buy order placed but transfer not completed, 6: Order cancelled but transfer not completed)
+  currency?: string; // Trading symbol
+  side?: 'buy' | 'sell'; // Buy or sell orders
+  status?: number; // Order Status (0: All, 1: Processing, 2: Successful, 3: Failed, 4: Cancelled, 5: Buy order placed but transfer not completed, 6: Order cancelled but transfer not completed)
   from?: number; // Start time for order query
   to?: number; // End time for order query, defaults to current time if not specified
   limit?: number; // Maximum number of items returned. Default: 100, minimum: 1, maximum: 100

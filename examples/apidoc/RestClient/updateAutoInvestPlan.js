@@ -2,7 +2,7 @@ const { RestClient } = require('gateio-api');
 
   // This example shows how to call this Gate.io API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "gateio-api" for Gate.io exchange
   // This Gate.io API SDK is available on npm via "npm install gateio-api"
-  // ENDPOINT: /earn/staking/eth2/swap
+  // ENDPOINT: /earn/autoinvest/plans/update
   // METHOD: POST
   // PUBLIC: NO
 
@@ -11,7 +11,7 @@ const client = new RestClient({
   apiSecret: 'insert_api_secret_here',
 });
 
-client.submitEth2Swap(params)
+client.updateAutoInvestPlan(params)
   .then((response) => {
     console.log(response);
   })

@@ -20,6 +20,8 @@ export interface SpotCurrency {
   trade_disabled: boolean;
   chain: string;
   chains: SpotCurrencyChain[];
+  /** Asset categories (e.g. stocks, metals, indices, forex, commodities). */
+  category?: string[];
 }
 
 export interface SpotTicker {
@@ -150,7 +152,10 @@ export interface SubmitSpotBatchOrdersResp {
   rebated_fee_currency: string;
   stp_id: number;
   stp_act: 'cn' | 'co' | 'cb' | '-';
-  finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
+  /**
+   * Final state; **ioc** / **poc** reflect unfilled remainder cancelled by TIF (IOC vs post-only / maker).
+   */
+  finish_as: 'open' | 'filled' | 'cancelled' | 'ioc' | 'poc' | 'stp';
 }
 
 export interface SpotOrder {
@@ -188,7 +193,10 @@ export interface SpotOrder {
   rebated_fee_currency?: string;
   stp_id?: number;
   stp_act?: 'cn' | 'co' | 'cb' | '-';
-  finish_as?: 'open' | 'filled' | 'cancelled' | 'ioc' | 'stp';
+  /**
+   * Final state; **ioc** / **poc** reflect unfilled remainder cancelled by TIF (IOC vs post-only / maker).
+   */
+  finish_as?: 'open' | 'filled' | 'cancelled' | 'ioc' | 'poc' | 'stp';
   action_mode?: 'ACK' | 'RESULT' | 'FULL';
 }
 
@@ -210,7 +218,7 @@ export interface SpotPriceTriggeredOrder {
     price: string;
     amount: string;
     account: 'normal' | 'margin' | 'cross_margin';
-    time_in_force?: 'gtc' | 'ioc';
+    time_in_force: 'gtc' | 'ioc';
     text?: string;
   };
   id?: number;

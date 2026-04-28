@@ -2,7 +2,7 @@ const { RestClient } = require('gateio-api');
 
   // This example shows how to call this Gate.io API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "gateio-api" for Gate.io exchange
   // This Gate.io API SDK is available on npm via "npm install gateio-api"
-  // ENDPOINT: /tradfi/symbols/detail
+  // ENDPOINT: /rebate/partner/data/aggregated
   // METHOD: GET
   // PUBLIC: NO
 
@@ -11,7 +11,7 @@ const client = new RestClient({
   apiSecret: 'insert_api_secret_here',
 });
 
-client.getTradFiSymbolDetail(params)
+client.getPartnerAgentDataAggregated(params)
   .then((response) => {
     console.log(response);
   })

@@ -4,7 +4,7 @@ const { RestClient } = require('gateio-api');
   // This Gate.io API SDK is available on npm via "npm install gateio-api"
   // ENDPOINT: /tradfi/users/mt5-account
   // METHOD: GET
-  // PUBLIC: YES
+  // PUBLIC: NO
 
 const client = new RestClient({
   apiKey: 'insert_api_key_here',

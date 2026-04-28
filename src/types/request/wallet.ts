@@ -1,3 +1,10 @@
+/** GET /wallet/sub_account_balances */
+export interface GetSubAccountBalancesReq {
+  sub_uid?: string;
+  page?: number;
+  limit?: number;
+}
+
 export interface GetWithdrawalDepositRecordsReq {
   currency?: string;
   from?: number;

@@ -17,6 +17,18 @@ import {
   GetAlphaTickersReq,
 } from './types/request/alpha.js';
 import {
+  AddAutoInvestPlanPositionReq,
+  CreateAutoInvestPlanReq,
+  GetAutoInvestCoinsReq,
+  GetAutoInvestMinAmountReq,
+  GetAutoInvestOrdersReq,
+  GetAutoInvestPlanDetailReq,
+  GetAutoInvestPlanRecordsReq,
+  GetAutoInvestPlansReq,
+  StopAutoInvestPlanReq,
+  UpdateAutoInvestPlanReq,
+} from './types/request/autoinvest.js';
+import {
   CloseCrossExPositionReq,
   CreateCrossExConvertOrderReq,
   CreateCrossExConvertQuoteReq,
@@ -60,9 +72,19 @@ import {
   SubmitDeliveryFuturesOrderReq,
 } from './types/request/delivery.js';
 import {
-  GetStructuredProductListReq,
-  GetStructuredProductOrdersReq,
+  CreateEarnFixedTermLendReq,
+  EarnFixedTermPreRedeemReq,
+  GetDualInvestmentOrdersReq,
+  GetDualInvestmentPlansReq,
+  GetDualOrderRefundPreviewReq,
+  GetDualProjectRecommendReq,
+  GetEarnFixedTermHistoryReq,
+  GetEarnFixedTermLendsReq,
+  GetEarnFixedTermProductsByAssetReq,
+  GetEarnFixedTermProductsReq,
   PlaceDualInvestmentOrderParams,
+  SubmitDualOrderRefundParams,
+  UpdateDualOrderReinvestParams,
 } from './types/request/earn.js';
 import {
   GetLendingInterestRecordsReq,
@@ -85,6 +107,7 @@ import {
   GetFuturesAccountBookReq,
   GetFuturesAutoOrdersReq,
   GetFuturesCandlesReq,
+  GetFuturesContractLeverageReq,
   GetFuturesInsuranceReq,
   GetFuturesLiquidationHistoryReq,
   GetFuturesOrderBookReq,
@@ -135,6 +158,7 @@ import {
   UpdateMultiLoanReq,
 } from './types/request/multicollateralLoan.js';
 import {
+  AmendOptionsOrderReq,
   GetOptionsAccountChangeReq,
   GetOptionsCandlesReq,
   GetOptionsMySettlementsReq,
@@ -180,6 +204,7 @@ import {
   GetAgencyTransactionHistoryReq,
   GetBrokerCommissionHistoryReq,
   GetBrokerTransactionHistoryReq,
+  GetPartnerAgentDataAggregatedReq,
   GetPartnerSubordinateListReq,
   PartnerTransactionReq,
 } from './types/request/rebate.js';
@@ -231,6 +256,7 @@ import {
   GetMainSubTransfersReq,
   GetSavedAddressReq,
   GetSmallBalanceHistoryReq,
+  GetSubAccountBalancesReq,
   GetWithdrawalDepositRecordsReq,
   ListPushOrdersReq,
   SubmitMainSubTransferReq,
@@ -255,8 +281,19 @@ import {
   CreateAlphaQuoteResp,
 } from './types/response/alpha.js';
 import {
+  AutoInvestCoinItem,
+  AutoInvestConfigItem,
+  AutoInvestMinAmountResp,
+  AutoInvestOrderItem,
+  AutoInvestPlanDetail,
+  AutoInvestPlanExecutionRecordsPaginated,
+  AutoInvestPlansListResp,
+  CreateAutoInvestPlanResp,
+} from './types/response/autoinvest.js';
+import {
   CancelCrossExOrderResp,
   CloseCrossExPositionResp,
+  CreateCrossExConvertOrderResp,
   CreateCrossExConvertQuoteResp,
   CreateCrossExOrderResp,
   CreateCrossExTransferResp,
@@ -297,10 +334,16 @@ import {
   DeliveryTradingHistoryRecord,
 } from './types/response/delivery.js';
 import {
+  CreateEarnFixedTermLendResponse,
+  CreateEarnFixedTermPreRedeemResponse,
   DualInvestmentOrder,
   DualInvestmentProduct,
-  StructuredProduct,
-  StructuredProductOrder,
+  DualOrderRefundPreview,
+  DualProjectRecommend,
+  GetEarnFixedTermHistoryResponse,
+  GetEarnFixedTermLendsResponse,
+  GetEarnFixedTermProductsByAssetResponse,
+  GetEarnFixedTermProductsResponse,
 } from './types/response/earn.js';
 import {
   LendingCurrency,
@@ -322,11 +365,13 @@ import {
   FuturesAutoDeleveragingHistoryRecord,
   FuturesCandle,
   FuturesContract,
+  FuturesContractLeverageInfo,
   FuturesDeliveryContract,
   FuturesInsuranceHistory,
   FuturesLiquidationHistoryRecord,
   FuturesOrder,
   FuturesOrderBook,
+  FuturesOrderTimerange,
   FuturesPosition,
   FuturesPositionHistoryRecord,
   FuturesPriceTriggeredOrder,
@@ -341,6 +386,7 @@ import {
   RiskLimitTier,
   TrailChangeLog,
   TrailOrder,
+  TriggerOrderResponse,
 } from './types/response/futures.js';
 import {
   CrossMarginAccount,
@@ -415,6 +461,7 @@ import {
   BrokerCommissionHistoryRecord,
   BrokerTransactionHistoryRecord,
   PartnerCommission,
+  PartnerDataAggregatedResponse,
   PartnerSubordinate,
   PartnerTransaction,
 } from './types/response/rebate.js';
@@ -482,6 +529,7 @@ import {
   SavedAddress,
   SmallBalanceHistoryRecord,
   SmallBalanceRecord,
+  SubAccountBalance,
   SubAccountCrossMarginBalancesResp,
   SubAccountFuturesBalancesResp,
   SubAccountMarginBalance,
@@ -490,7 +538,7 @@ import {
   WithdrawalStatus,
 } from './types/response/wallet.js';
 import { WithdrawalRecord } from './types/response/withdrawal.js';
-import { CurrencyPair, FromToPageLimit } from './types/shared.js';
+import { CurrencyPair } from './types/shared.js';
 
 /**
  * Unified REST API client for all of Gate's REST APIs
@@ -779,17 +827,11 @@ export class RestClient extends BaseRestClient {
    * Retrieve sub account balances
    *
    * @param params Parameters for retrieving sub account balances
-   * @returns Promise<{
-        uid: string;
-        available: { [key: string]: string };
-      }[]>
+   * @returns Promise<SubAccountBalance[]>
    */
-  getSubBalance(params?: { sub_uid?: string }): Promise<
-    {
-      uid: string;
-      available: { [key: string]: string };
-    }[]
-  > {
+  getSubBalance(
+    params?: GetSubAccountBalancesReq,
+  ): Promise<SubAccountBalance[]> {
     return this.getPrivate('/wallet/sub_account_balances', params);
   }
 
@@ -2727,6 +2769,22 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
+   * Get leverage for a contract in split / dual-side mode (requires pos_margin_mode and dual_side).
+   *
+   * @param params settle, contract, pos_margin_mode, dual_side
+   * @returns Promise<FuturesContractLeverageInfo> — response field `Lever` is the leverage string
+   */
+  getFuturesContractLeverage(
+    params: GetFuturesContractLeverageReq,
+  ): Promise<FuturesContractLeverageInfo> {
+    const { settle, contract, ...query } = params;
+    return this.getPrivate(
+      `/futures/${settle}/get_leverage/${contract}`,
+      query,
+    );
+  }
+
+  /**
    * Update position by store mode
    *
    * @param params Parameters for updating position by store mode
@@ -2921,11 +2979,11 @@ export class RestClient extends BaseRestClient {
    * List Futures Orders By Time Range
    *
    * @param params Parameters for listing futures orders by time range
-   * @returns Promise<FuturesOrder[]>
+   * @returns Promise<FuturesOrderTimerange[]>
    */
   getFuturesOrdersByTimeRange(
     params: GetFuturesOrdersByTimeRangeReq,
-  ): Promise<FuturesOrder[]> {
+  ): Promise<FuturesOrderTimerange[]> {
     const { settle, ...query } = params;
     return this.getPrivate(`/futures/${settle}/orders_timerange`, query);
   }
@@ -2968,7 +3026,7 @@ export class RestClient extends BaseRestClient {
    * Zero-fill order cannot be retrieved for 10 minutes after cancellation.
    * Historical orders, by default, only data within the past 6 months is supported.
    *
-   * @param params Parameters for retrieving a single order
+   * @param params.order_id Exchange order id (numeric), **or** the order's custom client id from the `text` field — same path segment as in `GET /futures/{settle}/orders/{order_id}`.
    * @returns Promise<FuturesOrder>
    */
   getFuturesOrder(params: {
@@ -3198,11 +3256,11 @@ export class RestClient extends BaseRestClient {
    * Create a price-triggered order
    *
    * @param params Parameters for creating a price-triggered order
-   * @returns Promise<{ id: number }>
+   * @returns Promise<TriggerOrderResponse>
    */
   submitFuturesPriceTriggeredOrder(
     params: SubmitFuturesTriggeredOrderReq,
-  ): Promise<{ id: number }> {
+  ): Promise<TriggerOrderResponse> {
     const { settle, ...body } = params;
     return this.postPrivate(`/futures/${settle}/price_orders`, { body: body });
   }
@@ -3244,7 +3302,7 @@ export class RestClient extends BaseRestClient {
    */
   getFuturesPriceTriggeredOrder(params: {
     settle: 'btc' | 'usdt' | 'usd';
-    order_id: string;
+    order_id: number;
   }): Promise<FuturesPriceTriggeredOrder> {
     return this.getPrivate(
       `/futures/${params.settle}/price_orders/${params.order_id}`,
@@ -3259,7 +3317,7 @@ export class RestClient extends BaseRestClient {
    */
   cancelFuturesPriceTriggeredOrder(params: {
     settle: 'btc' | 'usdt' | 'usd';
-    order_id: string;
+    order_id: number;
   }): Promise<FuturesPriceTriggeredOrder> {
     return this.deletePrivate(
       `/futures/${params.settle}/price_orders/${params.order_id}`,
@@ -3270,11 +3328,11 @@ export class RestClient extends BaseRestClient {
    * Update a single price-triggered order
    *
    * @param params Parameters for updating a price-triggered order
-   * @returns Promise<{ id: number }>
+   * @returns Promise<TriggerOrderResponse>
    */
   updateFuturesPriceTriggeredOrder(
     params: UpdateFuturesPriceTriggeredOrderReq,
-  ): Promise<{ id: number }> {
+  ): Promise<TriggerOrderResponse> {
     const { settle, order_id, ...body } = params;
     return this.putPrivate(
       `/futures/${settle}/price_orders/amend/${order_id}`,
@@ -3747,11 +3805,11 @@ export class RestClient extends BaseRestClient {
    * Create a price-triggered order
    *
    * @param params Parameters for creating a price-triggered order
-   * @returns Promise<{ id: number }>
+   * @returns Promise<TriggerOrderResponse>
    */
   submitDeliveryTriggeredOrder(
     params: SubmitFuturesTriggeredOrderReq,
-  ): Promise<{ id: number }> {
+  ): Promise<TriggerOrderResponse> {
     const { settle, ...body } = params;
     return this.postPrivate(`/delivery/${settle}/price_orders`, {
       body: body,
@@ -4085,6 +4143,21 @@ export class RestClient extends BaseRestClient {
     order_id: number;
   }): Promise<SubmitOptionsOrderResp> {
     return this.getPrivate(`/options/orders/${params.order_id}`);
+  }
+
+  /**
+   * Amend an options order (modify price and/or size). Only orders with status `open` are supported.
+   *
+   * @param params order_id and amendment body (`contract` is required)
+   * @returns Promise<SubmitOptionsOrderResp>
+   */
+  amendOptionsOrder(
+    params: {
+      order_id: number;
+    } & AmendOptionsOrderReq,
+  ): Promise<SubmitOptionsOrderResp> {
+    const { order_id, ...body } = params;
+    return this.putPrivate(`/options/orders/${order_id}`, { body });
   }
 
   /**
@@ -4471,33 +4544,13 @@ export class RestClient extends BaseRestClient {
    */
 
   /**
-   * ETH swap (formerly ETH2 swap)
-   * @param params Parameters for ETH swap (1 - ETH to GTETH, 2 - GTETH to ETH)
-   * @returns Promise<any>
-   */
-  submitEth2Swap(params: { side: '1' | '2'; amount: string }): Promise<any> {
-    return this.postPrivate('/earn/staking/eth2/swap', { body: params });
-  }
-
-  /**
-   * Get GTETH historical rate of return data (formerly ETH2)
-   *
-   * @returns Promise<Array<{date_time: number, date: string, rate: string}>>
-   */
-  getEth2RateHistory(): Promise<
-    { date_time: number; date: string; rate: string }[]
-  > {
-    return this.getPrivate('/earn/staking/eth2/rate_records');
-  }
-
-  /**
    * Dual Investment product list
    *
    * @returns Promise<GetDualInvestmentProductsResp[]>
    */
-  getDualInvestmentProducts(params?: {
-    plan_id?: string;
-  }): Promise<DualInvestmentProduct[]> {
+  getDualInvestmentProducts(
+    params?: GetDualInvestmentPlansReq,
+  ): Promise<DualInvestmentProduct[]> {
     return this.get('/earn/dual/investment_plan', params);
   }
 
@@ -4507,7 +4560,7 @@ export class RestClient extends BaseRestClient {
    * @returns Promise<GetDualInvestmentOrdersResp[]>
    */
   getDualInvestmentOrders(
-    params?: FromToPageLimit,
+    params?: GetDualInvestmentOrdersReq,
   ): Promise<DualInvestmentOrder[]> {
     return this.getPrivate('/earn/dual/orders', params);
   }
@@ -4525,40 +4578,195 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
-   * Structured Product List
-   *
-   * @param params Parameters for listing structured products
-   * @returns Promise<GetStructuredProductListResp[]>
+   * Dual-currency early redemption preview
    */
-  getStructuredProducts(
-    params: GetStructuredProductListReq,
-  ): Promise<StructuredProduct[]> {
-    return this.get('/earn/structured/products', params);
+  getDualOrderRefundPreview(
+    params: GetDualOrderRefundPreviewReq,
+  ): Promise<DualOrderRefundPreview> {
+    return this.getPrivate('/earn/dual/order-refund-preview', params);
   }
 
   /**
-   * Structured Product Order List
-   *
-   * @param params Parameters for listing structured product orders
-   * @returns Promise<GetStructuredProductOrdersResp[]>
+   * Dual-currency order early redemption
    */
-  getStructuredProductOrders(
-    params?: GetStructuredProductOrdersReq,
-  ): Promise<StructuredProductOrder[]> {
-    return this.getPrivate('/earn/structured/orders', params);
+  submitDualOrderRefund(
+    params: SubmitDualOrderRefundParams,
+  ): Promise<DualInvestmentOrder> {
+    return this.postPrivate('/earn/dual/order-refund', { body: params });
   }
 
   /**
-   * Place Structured Product Order
-   *
-   * @param params Parameters for placing a structured product order
-   * @returns Promise<any>
+   * Update dual-currency order reinvest settings
    */
-  submitStructuredProductOrder(params: {
-    pid?: string;
-    amount?: string;
-  }): Promise<any> {
-    return this.postPrivate('/earn/structured/orders', { body: params });
+  updateDualOrderReinvest(
+    params: UpdateDualOrderReinvestParams,
+  ): Promise<unknown> {
+    return this.postPrivate('/earn/dual/modify-order-reinvest', {
+      body: params,
+    });
+  }
+
+  /**
+   * Dual-currency recommended projects
+   */
+  getDualProjectRecommend(
+    params?: GetDualProjectRecommendReq,
+  ): Promise<DualProjectRecommend[]> {
+    return this.getPrivate('/earn/dual/project-recommend', params);
+  }
+
+  /**
+   * List fixed-term earn products (public).
+   */
+  getEarnFixedTermProducts(
+    params: GetEarnFixedTermProductsReq,
+  ): Promise<GetEarnFixedTermProductsResponse> {
+    return this.get('/earn/fixed-term/product', params);
+  }
+
+  /**
+   * List fixed-term earn products for one asset (public).
+   */
+  getEarnFixedTermProductsByAsset(
+    asset: string,
+    params?: GetEarnFixedTermProductsByAssetReq,
+  ): Promise<GetEarnFixedTermProductsByAssetResponse> {
+    return this.get(`/earn/fixed-term/product/${asset}/list`, params);
+  }
+
+  /**
+   * Subscribe to a fixed-term earn product.
+   */
+  createEarnFixedTermLend(
+    params: CreateEarnFixedTermLendReq,
+  ): Promise<CreateEarnFixedTermLendResponse> {
+    return this.postPrivate('/earn/fixed-term/user/lend', { body: params });
+  }
+
+  /**
+   * List fixed-term earn subscriptions.
+   */
+  getEarnFixedTermLends(
+    params: GetEarnFixedTermLendsReq,
+  ): Promise<GetEarnFixedTermLendsResponse> {
+    return this.getPrivate('/earn/fixed-term/user/lend', params);
+  }
+
+  /**
+   * Early redeem a fixed-term earn order.
+   */
+  createEarnFixedTermPreRedeem(
+    params: EarnFixedTermPreRedeemReq,
+  ): Promise<CreateEarnFixedTermPreRedeemResponse> {
+    return this.postPrivate('/earn/fixed-term/user/pre-redeem', {
+      body: params,
+    });
+  }
+
+  /**
+   * Fixed-term earn subscription history.
+   */
+  getEarnFixedTermHistory(
+    params: GetEarnFixedTermHistoryReq,
+  ): Promise<GetEarnFixedTermHistoryResponse> {
+    return this.getPrivate('/earn/fixed-term/user/history', params);
+  }
+
+  /**
+   * Create auto invest plan
+   */
+  createAutoInvestPlan(
+    params: CreateAutoInvestPlanReq,
+  ): Promise<CreateAutoInvestPlanResp> {
+    return this.postPrivate('/earn/autoinvest/plans/create', { body: params });
+  }
+
+  /**
+   * Update auto invest plan
+   */
+  updateAutoInvestPlan(params: UpdateAutoInvestPlanReq): Promise<unknown> {
+    return this.postPrivate('/earn/autoinvest/plans/update', { body: params });
+  }
+
+  /**
+   * Stop auto invest plan
+   */
+  stopAutoInvestPlan(params: StopAutoInvestPlanReq): Promise<unknown> {
+    return this.postPrivate('/earn/autoinvest/plans/stop', { body: params });
+  }
+
+  /**
+   * Add position immediately (auto invest)
+   */
+  addAutoInvestPlanPosition(
+    params: AddAutoInvestPlanPositionReq,
+  ): Promise<unknown> {
+    return this.postPrivate('/earn/autoinvest/plans/add_position', {
+      body: params,
+    });
+  }
+
+  /**
+   * List currencies supporting auto invest
+   */
+  getAutoInvestCoins(
+    params?: GetAutoInvestCoinsReq,
+  ): Promise<AutoInvestCoinItem[]> {
+    return this.getPrivate('/earn/autoinvest/coins', params);
+  }
+
+  /**
+   * Get minimum investment amount for a portfolio
+   */
+  getAutoInvestMinAmount(
+    params: GetAutoInvestMinAmountReq,
+  ): Promise<AutoInvestMinAmountResp> {
+    return this.postPrivate('/earn/autoinvest/min_invest_amount', {
+      body: params,
+    });
+  }
+
+  /**
+   * List plan execution records
+   */
+  getAutoInvestPlanRecords(
+    params: GetAutoInvestPlanRecordsReq,
+  ): Promise<AutoInvestPlanExecutionRecordsPaginated> {
+    return this.getPrivate('/earn/autoinvest/plans/records', params);
+  }
+
+  /**
+   * List plan execution order details
+   */
+  getAutoInvestOrders(
+    params: GetAutoInvestOrdersReq,
+  ): Promise<AutoInvestOrderItem[]> {
+    return this.getPrivate('/earn/autoinvest/orders', params);
+  }
+
+  /**
+   * List investment currency configuration
+   */
+  getAutoInvestConfig(): Promise<AutoInvestConfigItem[]> {
+    return this.getPrivate('/earn/autoinvest/config');
+  }
+
+  /**
+   * Get auto invest plan details
+   */
+  getAutoInvestPlanDetail(
+    params: GetAutoInvestPlanDetailReq,
+  ): Promise<AutoInvestPlanDetail> {
+    return this.getPrivate('/earn/autoinvest/plans/detail', params);
+  }
+
+  /**
+   * List auto invest plans
+   */
+  getAutoInvestPlans(
+    params: GetAutoInvestPlansReq,
+  ): Promise<AutoInvestPlansListResp> {
+    return this.getPrivate('/earn/autoinvest/plans/list_info', params);
   }
 
   /**
@@ -4788,6 +4996,15 @@ export class RestClient extends BaseRestClient {
     list: PartnerSubordinate[];
   }> {
     return this.getPrivate('/rebate/partner/sub_list', params);
+  }
+
+  /**
+   * Aggregated partner agent statistics (rebate amount, volume, net fee, customer count; optional trading user count by business type).
+   */
+  getPartnerAgentDataAggregated(
+    params?: GetPartnerAgentDataAggregatedReq,
+  ): Promise<PartnerDataAggregatedResponse> {
+    return this.getPrivate('/rebate/partner/data/aggregated', params);
   }
 
   /**
@@ -5306,7 +5523,9 @@ export class RestClient extends BaseRestClient {
    * @param params Parameters with quote_id
    * @returns Promise with transaction confirmation
    */
-  createCrossExConvertOrder(params: CreateCrossExConvertOrderReq): Promise<{}> {
+  createCrossExConvertOrder(
+    params: CreateCrossExConvertOrderReq,
+  ): Promise<CreateCrossExConvertOrderResp> {
     return this.postPrivate('/crossex/convert/orders', { body: params });
   }
 
@@ -5427,9 +5646,9 @@ export class RestClient extends BaseRestClient {
    *
    * Query user fee rates. Rate Limit: 200 requests per 10 seconds
    *
-   * @returns Promise with fee rate information
+   * @returns Promise with fee rates per exchange
    */
-  getCrossExFeeRate(): Promise<CrossExFeeRate> {
+  getCrossExFeeRate(): Promise<CrossExFeeRate[]> {
     return this.getPrivate('/crossex/fee');
   }
 
@@ -5647,7 +5866,7 @@ export class RestClient extends BaseRestClient {
    * @param params Filter parameters
    * @returns Promise with array of orders
    */
-  getAlphaOrders(params: GetAlphaOrdersReq): Promise<AlphaOrder[]> {
+  getAlphaOrders(params?: GetAlphaOrdersReq): Promise<AlphaOrder[]> {
     return this.getPrivate('/alpha/orders', params);
   }
 
@@ -5690,7 +5909,7 @@ export class RestClient extends BaseRestClient {
   // ============ TradFi ============
 
   getTradFiMT5Account(): Promise<TradFiApiResp<TradFiMT5Account>> {
-    return this.get('/tradfi/users/mt5-account');
+    return this.getPrivate('/tradfi/users/mt5-account');
   }
 
   getTradFiSymbolCategories(): Promise<
@@ -5706,7 +5925,7 @@ export class RestClient extends BaseRestClient {
   getTradFiSymbolDetail(
     params: TradFiGetSymbolDetailParams,
   ): Promise<TradFiApiResp<TradFiListData<TradFiSymbolDetailItem>>> {
-    return this.get('/tradfi/symbols/detail', params);
+    return this.getPrivate('/tradfi/symbols/detail', params);
   }
 
   getTradFiKlines(

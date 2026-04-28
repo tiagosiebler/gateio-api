@@ -1,55 +1,57 @@
 export interface UnifiedAccountInfo {
+  mode: 'classic' | 'multi_currency' | 'portfolio' | 'single_currency'; // classic: Classic account; multi_currency: Multi-currency margin; portfolio: Portfolio margin; single_currency: Single-currency margin
   user_id: number;
   refresh_time: number;
-  locked: boolean;
+  locked: boolean; // Whether the account is locked; valid in cross-currency/combined margin mode, false in other modes such as single-currency margin
   balances: {
     [key: string]: {
-      available: string;
-      freeze: string;
-      borrowed: string;
-      negative_liab: string;
-      futures_pos_liab: string;
-      equity: string;
-      total_freeze: string;
-      total_liab: string;
-      spot_in_use: string;
-      funding: string;
-      funding_version: string;
-      cross_balance: string; // Full margin balance is valid in single currency margin mode, and is 0 in other modes such as cross currency margin/combined margin mode
-      iso_balance: string; // Isolated Margin Balance applies to Single-Currency Margin Mode and Cross-Currency Margin Mode, and is 0 in other modes such as Portfolio Margin Mode
-      im: string;
-      mm: string;
-      mmr: string;
-      margin_balance: string;
-      available_margin: string;
-      imr?: string;
-      enabled_collateral?: boolean;
+      available: string; // Cross available balance, after deducting futures isolated margin occupation and frozen amount (futures isolated occupation = futures isolated balance); effective in single-currency/multi-currency/portfolio margin mode
+      freeze: string; // Frozen amount; effective in single-currency/multi-currency/portfolio margin mode
+      borrowed: string; // Borrowed amount; valid in cross-currency/combined margin mode, 0 in other modes such as single-currency margin
+      negative_liab: string; // Negative balance borrowing; valid in cross-currency/combined margin mode, 0 in other modes such as single-currency margin
+      futures_pos_liab: string; // Contract opening position borrowing currency (abandoned, to be removed)
+      equity: string; // Currency equity amount (cross); effective in single-currency/multi-currency/portfolio margin mode
+      total_freeze: string; // Total frozen (deprecated, to be removed)
+      total_liab: string; // Total borrowed amount; valid in cross-currency/combined margin mode, 0 in other modes such as single-currency margin
+      spot_in_use: string; // Spot hedging amount; valid in combined (portfolio) margin mode, 0 in single-currency and cross-currency margin modes
+      funding: string; // Uniloan / Earn amount; effective when Earn is enabled as unified account margin
+      funding_version: string; // Funding version
+      cross_balance: string; // Full margin balance; valid in single-currency margin mode, 0 in cross-currency/combined margin mode
+      iso_balance: string; // Futures isolated balance; effective in single-currency and multi-currency margin mode, 0 in portfolio margin mode
+      im: string; // Cross initial margin; only effective for USDT in single-currency margin mode, 0 in multi-currency/portfolio margin mode
+      mm: string; // Cross maintenance margin; only effective for USDT in single-currency margin mode, 0 in multi-currency/portfolio margin mode
+      mmr: string; // Cross maintenance margin rate; only effective for USDT in single-currency margin mode, 0 in multi-currency/portfolio margin mode
+      margin_balance: string; // Cross margin balance; only effective for USDT in single-currency margin mode, 0 in multi-currency/portfolio margin mode
+      available_margin: string; // Cross available margin; only effective for USDT in single-currency margin mode, 0 in multi-currency/portfolio margin mode
+      imr?: string; // Cross initial margin rate; only effective for USDT in single-currency margin mode, 0 in multi-currency/portfolio margin mode
+      enabled_collateral?: boolean; // Currency enabled as margin: true — enabled, false — disabled
+      balance_version?: number; // Balance version number (int64)
     };
   };
-  total: string;
-  borrowed: string;
-  total_initial_margin: string;
-  total_margin_balance: string;
-  total_maintenance_margin: string;
-  total_initial_margin_rate: string;
-  total_maintenance_margin_rate: string;
-  total_available_margin: string;
-  unified_account_total: string;
-  unified_account_total_liab: string;
-  unified_account_total_equity: string;
-  leverage: string;
-  spot_order_loss: string; // Spot Pending Order Loss, in USDT, effective only in Cross-Currency Margin Mode and Portfolio Margin Mode
-  options_order_loss?: string; // v4.105.29: Option Pending Order Loss, in USDT, effective only in Portfolio Margin Mode
-  spot_hedge: boolean;
+  total: string; // Total account assets in USD: sum of (available + freeze) * price per currency (deprecated; use unified_account_total)
+  borrowed: string; // Total borrowed in USD: sum of borrowed * price (excluding point cards); valid in cross-currency/combined margin mode, 0 in single-currency margin mode
+  total_initial_margin: string; // Total initial margin (cross); effective in multi-currency/portfolio margin mode, 0 in single-currency margin mode
+  total_margin_balance: string; // Total margin balance (cross); effective in multi-currency/portfolio margin mode, 0 in single-currency margin mode
+  total_maintenance_margin: string; // Total maintenance margin (cross); effective in multi-currency/portfolio margin mode, 0 in single-currency margin mode
+  total_initial_margin_rate: string; // Total initial margin rate (cross); effective in multi-currency/portfolio margin mode, 0 in single-currency margin mode
+  total_maintenance_margin_rate: string; // Total maintenance margin rate (cross); effective in multi-currency/portfolio margin mode, 0 in single-currency margin mode
+  total_available_margin: string; // Available margin; valid in cross-currency/combined margin mode, 0 in single-currency margin mode
+  unified_account_total: string; // Total unified account assets: cross + isolated in single/multi-currency mode; cross only in portfolio margin mode
+  unified_account_total_liab: string; // Total unified borrowed (cross); effective in multi-currency/portfolio margin mode, 0 in single-currency margin mode
+  unified_account_total_equity: string; // Total unified equity: cross + isolated in single/multi-currency mode; cross only in portfolio margin mode
+  leverage: string; // Account leverage; effective in multi-currency/portfolio margin mode (deprecated; prefer GET /unified/leverage/user_currency_setting)
+  spot_order_loss: string; // Spot pending order loss (USDT); only in cross-currency and portfolio margin mode
+  options_order_loss?: string; // v4.105.29: Option pending order loss (USDT); only in portfolio margin mode
+  spot_hedge: boolean; // Spot hedging: true — enabled, false — disabled
   margin_mode?: string;
   total_balance?: string;
   cross_leverage?: string;
   portfolio_margin?: string;
   risk_level?: string;
-  is_all_collateral?: boolean;
+  is_all_collateral?: boolean; // Whether all currencies are used as margin: true — all as margin, false — not all
   borrow_amount?: string;
   cross_margin_leverage?: string;
-  use_funding?: boolean;
+  use_funding?: boolean; // Whether Earn funds are used as margin
 }
 
 export interface UnifiedLoan {

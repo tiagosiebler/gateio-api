@@ -9,6 +9,14 @@ export interface CurrencyChain {
   decimal: string;
 }
 
+/** GET /wallet/sub_account_balances item */
+export interface SubAccountBalance {
+  uid: string;
+  available: { [key: string]: string };
+  /** Locked amount per currency */
+  locking?: { [key: string]: string };
+}
+
 export interface DepositRecord {
   id: string;
   txid: string;
@@ -214,7 +222,7 @@ export interface SmallBalanceHistoryRecord {
 }
 
 export interface PushOrder {
-  id: number;
+  id: string;
   push_uid: number;
   receive_uid: number;
   currency: string;

@@ -26,6 +26,7 @@ export interface CrossExRiskLimitTier {
   leverage_max: string; // Maximum leverage
   maintenance_rate: string; // Maintenance margin rate
   tier: string; // Tier
+  quick_cal_amount: string; // Quick-calculation amount for this risk tier
 }
 
 export interface CrossExRiskLimit {
@@ -49,7 +50,7 @@ export interface CreateCrossExTransferResp {
 export interface CrossExTransferHistory {
   id: string; // Order ID
   text: string; // Client Custom ID
-  from_account_type: string; // Source from account (CROSSEX_BINANCE, CROSSEX_OKX, CROSSEX_GATE, CROSSEX, SPOT)
+  from_account_type: string; // Source from account (CROSSEX_BINANCE, CROSSEX_OKX, CROSSEX_GATE, CROSSEX_BYBIT, CROSSEX, SPOT)
   to_account_type: string;
   coin: string; // Currency
   amount: string; // Transfer amount, the amount requested for the transfer
@@ -116,10 +117,15 @@ export interface CreateCrossExConvertQuoteResp {
   price: string; // Price
 }
 
+export interface CreateCrossExConvertOrderResp {
+  order_id: string; // Order ID
+  text: string; // User-defined order ID text
+}
+
 export interface UpdateCrossExAccountResp {
   position_mode: string; // Requested futures position mode to modify (SINGLE/DUAL)
   account_mode: string; // Requested account mode to modify (CROSS_EXCHANGE/ISOLATED_EXCHANGE, default: CROSS_EXCHANGE)
-  exchange_type: string; // Requested exchange to modify (BINANCE/OKX/GATE/CROSSEX)
+  exchange_type: string; // Requested exchange to modify (BINANCE/OKX/GATE/BYBIT/CROSSEX)
 }
 
 export interface CrossExAccountAsset {
@@ -193,6 +199,7 @@ export interface CrossExSpecialFee {
 }
 
 export interface CrossExFeeRate {
+  exchange_type: string; // Exchange (e.g. BINANCE, OKX, GATE, BYBIT)
   spot_maker_fee: string; // spot Maker fee rate
   spot_taker_fee: string; // spot Taker fee rate
   future_maker_fee: string; // contract Maker fee rate
@@ -308,7 +315,7 @@ export interface CrossExHistoryMarginInterest {
   liability_coin: string; // Debt Currency
   interest: string; // Interest
   interest_rate: string; // interest rate
-  interest_type: string; // Interest deduction type (PERIODIC_POSITION: periodic position interest; PERIODIC_OPEN_ORDER: periodic open-order interest; IMMEDIATE_OPEN_ORDER: interest charged on order opening)
+  interest_type: string; // Interest deduction type (PERIODIC_POSITION: periodic position interest; PERIODIC_OPEN_ORDER: periodic open-order interest; PERIODIC_ISOLATED: hourly isolated debt interest; IMMEDIATE_OPEN_ORDER: interest charged on order opening)
   create_time: string; // Created time
   exchange_type: string; // Exchange
 }

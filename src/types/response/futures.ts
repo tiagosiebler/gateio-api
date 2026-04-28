@@ -171,11 +171,15 @@ export interface FuturesOrder {
   user?: number;
   create_time?: number;
   finish_time?: number;
+  /**
+   * Final state; **ioc** / **poc** reflect unfilled remainder cancelled by TIF (IOC vs post-only / maker).
+   */
   finish_as?:
     | 'filled'
     | 'cancelled'
     | 'liquidated'
     | 'ioc'
+    | 'poc'
     | 'auto_deleveraged'
     | 'reduce_only'
     | 'position_closed'
@@ -202,6 +206,34 @@ export interface FuturesOrder {
   stp_act?: 'cn' | 'co' | 'cb' | '-';
   amend_text?: string;
   biz_info?: string;
+  /** Read-only; order notional in settle currency (API response only; omit from order requests). */
+  order_value?: string;
+  /** Read-only; traded value (API response only; omit from order requests). */
+  trade_value?: string;
+}
+
+/** Item shape for `GET /futures/{settle}/orders_timerange` (differs from {@link FuturesOrder} in field types). */
+export interface FuturesOrderTimerange {
+  id?: number;
+  user?: number;
+  create_time?: number;
+  update_time?: string;
+  finish_time?: string;
+  contract: string;
+  size: string;
+  iceberg?: string;
+  is_close?: boolean;
+  is_reduce_only?: boolean;
+  is_liq?: boolean;
+  left?: string;
+  fill_price?: string;
+  tkfr?: string;
+  mkfr?: string;
+  refu?: number;
+  amend_text?: string;
+  pid?: number;
+  market_order_slip_ratio?: string;
+  pos_margin_mode?: string;
 }
 
 export interface FuturesPosition {
@@ -312,6 +344,8 @@ export interface DeleteFuturesBatchOrdersResp {
 
 export interface FuturesContract {
   name?: string;
+  /** Contract classification (e.g. stocks, metals, indices, forex, commodities). */
+  contract_type?: string;
   type?: 'inverse' | 'direct';
   quanto_multiplier?: string; // Conceptually renamed to "contract multiplier"
   leverage_min?: string;
@@ -333,6 +367,7 @@ export interface FuturesContract {
   funding_interval?: number;
   funding_next_apply?: number;
   funding_offset?: number;
+  /** Interest rate ratio (string); returned by GET /futures/{settle}/contracts and GET /futures/{settle}/contracts/{contract}. */
   interest_rate?: string;
   risk_limit_base?: string;
   risk_limit_step?: string;
@@ -364,6 +399,20 @@ export interface FuturesContract {
   market_order_size_max?: string;
 }
 
+/** GET /futures/{settle}/get_leverage/{contract} — API field name is `Lever` */
+export interface FuturesContractLeverageInfo {
+  Lever: string;
+}
+
+/** Create/amend response for futures price-trigger orders (`/futures/{settle}/price_orders`). */
+export interface TriggerOrderResponse {
+  id?: number;
+  /**
+   * Same order as numeric `id`, as decimal string (int64-safe in JS); prefer for display or string keys.
+   */
+  id_string?: string;
+}
+
 export interface FuturesPriceTriggeredOrder {
   initial: {
     contract: string;
@@ -384,7 +433,11 @@ export interface FuturesPriceTriggeredOrder {
     rule?: 1 | 2;
     expiration?: number;
   };
-  id?: number;
+  id?: number; // int64 price-triggered order id
+  /**
+   * Same order as numeric `id`, as decimal string (int64-safe in JS); prefer for display or string keys.
+   */
+  id_string?: string;
   user?: number;
   create_time?: number;
   finish_time?: number;
@@ -399,11 +452,13 @@ export interface FuturesPriceTriggeredOrder {
     | 'close-short-position'
     | 'plan-close-long-position'
     | 'plan-close-short-position';
-  me_order_id?: number;
+  me_order_id?: number; // int64
 }
 
 export interface FuturesDeliveryContract {
   name?: string;
+  /** Contract classification (e.g. stocks, metals, indices, forex, commodities). */
+  contract_type?: string;
   underlying?: string;
   cycle?: 'WEEKLY' | 'BI-WEEKLY' | 'QUARTERLY' | 'BI-QUARTERLY';
   type?: 'inverse' | 'direct';
@@ -451,11 +506,15 @@ export interface BatchAmendOrderResp {
   user: number;
   create_time: number;
   finish_time?: number;
+  /**
+   * Final state; **ioc** / **poc** reflect unfilled remainder cancelled by TIF (IOC vs post-only / maker).
+   */
   finish_as?:
     | 'filled'
     | 'cancelled'
     | 'liquidated'
     | 'ioc'
+    | 'poc'
     | 'auto_deleveraged'
     | 'reduce_only'
     | 'position_closed'

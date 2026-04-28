@@ -203,6 +203,8 @@ export interface SubmitFuturesTriggeredOrderReq {
   initial: {
     contract: string;
     size?: number;
+    /** Decimal contract size; if both `size` and `amount` are set, `amount` takes precedence */
+    amount?: string;
     price: string; // Required: Order price. Set to 0 to use market price
     close?: boolean;
     tif?: 'gtc' | 'ioc';
@@ -264,15 +266,25 @@ export interface GetFuturesInsuranceReq {
 
 export interface UpdateFuturesPriceTriggeredOrderReq {
   settle: 'btc' | 'usdt' | 'usd';
-  order_id: string;
+  order_id: number;
   contract?: string;
   size?: number;
+  /** Same semantics as `size` (decimal contract size) */
+  amount?: string;
   price?: string;
   /** When fully closing in single-position mode, set true */
   close?: boolean;
   trigger_price?: string;
   price_type?: 0 | 1 | 2; // 0 - Latest trade price, 1 - Mark price, 2 - Index price
   auto_size?: string; // Not required in single position mode
+}
+
+/** GET /futures/{settle}/get_leverage/{contract} — v4.106.43: pos_margin_mode and dual_side required */
+export interface GetFuturesContractLeverageReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract: string;
+  pos_margin_mode: 'isolated' | 'cross';
+  dual_side: 'dual_long' | 'dual_short';
 }
 
 /** Trail order (autoorder/v1/trail) request types */

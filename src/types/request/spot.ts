@@ -46,6 +46,10 @@ export interface GetSpotAccountBookReq {
   to?: number;
   page?: number;
   limit?: number;
+  /**
+   * BizType / business type filter. Sub-account transfer internal BizType values include
+   * 150215, 150216, 150217, 150218, 150219 (Subaccount Transfer); see Gate BizType reference.
+   */
   type?: string;
   code?: string;
 }

@@ -69,6 +69,12 @@ export interface SubmitOptionsOrderReq {
   text?: string;
 }
 
+export interface AmendOptionsOrderReq {
+  contract: string; // Options contract name
+  price: string; // Order price
+  size: number; // Order size
+}
+
 export interface GetOptionsOrdersReq {
   contract?: string;
   underlying?: string;

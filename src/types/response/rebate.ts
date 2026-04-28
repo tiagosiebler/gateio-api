@@ -14,7 +14,9 @@ export interface AgencyCommissionHistoryRecord {
   commission_time: number;
   user_id: number;
   group_name: string;
+  /** Rebate commission amount (not a generic trade notional). */
   commission_amount: string;
+  /** Asset of the rebate commission. */
   commission_asset: string;
   source: string;
 }
@@ -34,7 +36,7 @@ export interface BrokerCommissionHistoryRecord {
   fee: string;
   fee_asset: string;
   rebate_fee: string;
-  source: string;
+  source: string; // Rebate source, e.g. Spot, Futures, Options, Alpha, TradFi
   currency_pair: string;
   sub_broker_info: {
     user_id: number;
@@ -52,7 +54,7 @@ export interface BrokerTransactionHistoryRecord {
   currency_pair: string;
   amount: string;
   fee_asset: string;
-  source: string;
+  source: string; // Rebate source, e.g. Spot, Futures, Options, Alpha, TradFi
   sub_broker_info: {
     user_id: number;
     original_commission_rate: string;
@@ -65,7 +67,9 @@ export interface PartnerCommission {
   commission_time: number;
   user_id: number;
   group_name: string;
+  /** Rebate commission amount (not a generic trade notional). */
   commission_amount: string;
+  /** Asset of the rebate commission. */
   commission_asset: string;
   source: string;
 }
@@ -80,4 +84,24 @@ export interface PartnerTransaction {
   amount: string;
   amount_asset: string;
   source: string;
+}
+
+/** `data` object for GET /rebate/partner/data/aggregated */
+export interface PartnerDataAggregated {
+  rebate_amount: string;
+  trade_volume: string;
+  net_fee: string;
+  customer_count: number;
+  /** Only when querying all business types (`business_type=0`); may be null */
+  trading_user_count?: string | null;
+  time_range_desc: string;
+  business_type: number;
+  business_type_desc: string;
+}
+
+export interface PartnerDataAggregatedResponse {
+  code: number;
+  message: string;
+  data: PartnerDataAggregated;
+  timestamp: number;
 }
