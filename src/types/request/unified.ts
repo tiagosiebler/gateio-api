@@ -89,3 +89,8 @@ export interface SetUnifiedCollateralCurrenciesReq {
   enable_list?: string[];
   disable_list?: string[];
 }
+
+export interface CreateQuickRepaymentReq {
+  debt_currencies: string[];
+  available_currencies: string[];
+}

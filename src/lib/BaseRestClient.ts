@@ -58,6 +58,10 @@ type ParamsInQueryBodyOrHeader = {
   query?: object;
   body?: object;
   headers?: object;
+  /** Raw string hashed for Gate v4 signature (multipart uploads use empty string) */
+  signBodyPayload?: string;
+  /** multipart/form-data body; mutually exclusive with `body` */
+  multipart?: FormData;
 };
 
 /**
@@ -237,6 +241,21 @@ export abstract class BaseRestClient {
     return this._call('POST', endpoint, params, isPublicAPI);
   }
 
+  /** POST private endpoint with multipart/form-data (empty body hash for signing) */
+  protected postPrivateMultipart(
+    endpoint: string,
+    formData: FormData,
+    query?: object,
+  ) {
+    const isPublicAPI = false;
+    return this._call(
+      'POST',
+      endpoint,
+      { multipart: formData, signBodyPayload: '', query },
+      isPublicAPI,
+    );
+  }
+
   protected deletePrivate(
     endpoint: string,
     params?: ParamsInQueryBodyOrHeader,
@@ -392,9 +411,12 @@ export abstract class BaseRestClient {
           )
         : '';
 
-      const requestBodyToHash = res.originalParams?.body
-        ? JSON.stringify(res.originalParams?.body)
-        : '';
+      const requestBodyToHash =
+        res.originalParams?.signBodyPayload !== undefined
+          ? res.originalParams.signBodyPayload
+          : res.originalParams?.body
+            ? JSON.stringify(res.originalParams?.body)
+            : '';
 
       const hashedRequestBody = await hashMessage(
         requestBodyToHash,
@@ -545,6 +567,18 @@ export abstract class BaseRestClient {
       : '';
 
     const urlWithQueryParams = options.url + urlSuffix;
+
+    if (params?.multipart) {
+      return {
+        ...options,
+        headers: {
+          ...authHeaders,
+          ...options.headers,
+        },
+        url: params?.query ? urlWithQueryParams : options.url,
+        data: params.multipart,
+      };
+    }
 
     if (method === 'GET' || !params?.body) {
       return {

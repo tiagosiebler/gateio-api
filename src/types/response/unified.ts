@@ -184,3 +184,39 @@ export interface PortfolioMarginCalculation {
 export interface UnifiedCollateralCurrenciesResp {
   is_success: boolean;
 }
+
+export interface UnifiedQuickRepayDebtItem {
+  currency?: string;
+  debt_amount?: string;
+  estimated_usd?: string;
+  borrowed?: string;
+  neg_balance?: string;
+}
+
+export interface UnifiedQuickRepayAvailableItem {
+  currency?: string;
+  available?: string;
+  estimated_usd?: string;
+}
+
+export interface QuickEstimatedRepayment {
+  debt_currencies?: UnifiedQuickRepayDebtItem[];
+  available_currencies?: UnifiedQuickRepayAvailableItem[];
+}
+
+export interface QuickRepayRepaidInfo {
+  currency: string;
+  repaid: string;
+  left: string;
+}
+
+export interface QuickRepayUsedInfo {
+  currency: string;
+  used: string;
+}
+
+export interface QuickRepaymentResp {
+  order_id: string;
+  repaid_infos: QuickRepayRepaidInfo[];
+  used_infos: QuickRepayUsedInfo[];
+}

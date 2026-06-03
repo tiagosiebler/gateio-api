@@ -1,3 +1,7 @@
+import { GateMultipartFile } from '../../lib/multipartUtil.js';
+
+export type { GateMultipartFile } from '../../lib/multipartUtil.js';
+
 /**==========================================================================================================================
  * OTC
  * ==========================================================================================================================
@@ -22,7 +26,8 @@ export interface CreateOTCFiatOrderReq {
   fiat_amount: string; // Fiat amount
   promotion_code?: string; // Promotion code
   quote_token: string; // Parameter returned by the quote API
-  bank_id: string; // Bank card ID used for the order (retrieved via the default bank card API)
+  /** From GET /otc/bank/list; default card has is_default=1 */
+  bank_id: string;
 }
 
 export interface CreateOTCStablecoinOrderReq {
@@ -37,6 +42,9 @@ export interface CreateOTCStablecoinOrderReq {
 
 export interface MarkOTCOrderAsPaidReq {
   order_id: string; // Order ID
+  client_order_id?: string; // Client order ID (gateway/Inner Pay paths)
+  payment_receipt_file_key: string; // Required. Stored as file_key; jpg/jpeg/png/pdf; ≤4MB
+  payment_receipt?: string; // Alias compatible with payment_receipt_file_key
 }
 
 export interface CancelOTCOrderReq {
@@ -65,4 +73,43 @@ export interface GetOTCStablecoinOrderListReq {
 
 export interface GetOTCFiatOrderDetailReq {
   order_id: string; // Order ID
+}
+
+export interface OTCBankIdReq {
+  bank_id: string;
+}
+
+export interface GetOTCBankSupplementChecklistReq {
+  bank_id: string;
+}
+
+export interface CreateOTCBankReq {
+  bank_account_name: string;
+  bank_name: string;
+  bank_country: string;
+  bank_address: string;
+  iban: string;
+  swift: string;
+  remittance_line_number?: string;
+  agent_bank_name?: string;
+  agent_bank_swift?: string;
+  documentation_file: GateMultipartFile;
+}
+
+export interface SubmitOTCBankPersonalSupplementReq {
+  bank_id: string;
+  id_document_front: GateMultipartFile;
+  id_document_back: GateMultipartFile;
+  address_proof: GateMultipartFile;
+}
+
+export interface SubmitOTCBankEnterpriseSupplementReq {
+  bank_id: string;
+  certificate: GateMultipartFile;
+  share_holders: GateMultipartFile;
+  passport: GateMultipartFile;
+  share_holding_structure: GateMultipartFile;
+  uid?: string;
+  funds_statement?: GateMultipartFile;
+  additional?: GateMultipartFile;
 }

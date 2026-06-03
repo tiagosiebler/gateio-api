@@ -63,4 +63,6 @@ export interface TradFiGetPositionHistoryParams {
   end_time?: number;
   symbol?: string;
   position_dir?: 'Long' | 'Short';
+  page?: number;
+  page_size?: number;
 }
