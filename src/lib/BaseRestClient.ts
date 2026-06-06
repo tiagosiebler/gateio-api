@@ -58,8 +58,6 @@ type ParamsInQueryBodyOrHeader = {
   query?: object;
   body?: object;
   headers?: object;
-  /** Raw string hashed for Gate v4 signature (multipart uploads use empty string) */
-  signBodyPayload?: string;
   /** multipart/form-data body; mutually exclusive with `body` */
   multipart?: FormData;
 };
@@ -251,7 +249,7 @@ export abstract class BaseRestClient {
     return this._call(
       'POST',
       endpoint,
-      { multipart: formData, signBodyPayload: '', query },
+      { multipart: formData, query },
       isPublicAPI,
     );
   }
@@ -411,12 +409,11 @@ export abstract class BaseRestClient {
           )
         : '';
 
-      const requestBodyToHash =
-        res.originalParams?.signBodyPayload !== undefined
-          ? res.originalParams.signBodyPayload
-          : res.originalParams?.body
-            ? JSON.stringify(res.originalParams?.body)
-            : '';
+      const requestBodyToHash = res.originalParams?.multipart
+        ? ''
+        : res.originalParams?.body
+          ? JSON.stringify(res.originalParams.body)
+          : '';
 
       const hashedRequestBody = await hashMessage(
         requestBodyToHash,
