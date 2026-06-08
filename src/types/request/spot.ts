@@ -3,6 +3,15 @@
  * ==========================================================================================================================
  */
 
+/** Limit-order take-profit / stop-loss on create */
+export interface SpotOrderTPSL {
+  trigger_price: string;
+  order_price: string;
+}
+
+/** Limit-order take-profit / stop-loss on amend; `{}` cancels, `null` leaves unchanged */
+export type PatchSpotOrderTPSL = SpotOrderTPSL | {} | null;
+
 export interface GetSpotOrderBookReq {
   currency_pair: string;
   interval?: string;
@@ -110,6 +119,8 @@ export interface UpdateSpotBatchOrdersReq {
   amount?: string;
   price?: string;
   amend_text?: string;
+  stop_loss?: PatchSpotOrderTPSL;
+  stop_profit?: PatchSpotOrderTPSL;
 }
 
 export interface GetSpotInsuranceHistoryReq {
@@ -144,8 +155,8 @@ export interface SubmitSpotOrderReq {
   auto_repay?: boolean;
   stp_act?: string;
   action_mode?: string;
-  stop_loss?: string;
-  take_profit?: string;
+  stop_loss?: PatchSpotOrderTPSL;
+  stop_profit?: PatchSpotOrderTPSL;
   post_only?: boolean;
 }
 
@@ -158,4 +169,6 @@ export interface UpdateSpotOrderReq {
   price?: string;
   amend_text?: string;
   action_mode?: 'ACK' | 'RESULT' | 'FULL';
+  stop_loss?: PatchSpotOrderTPSL;
+  stop_profit?: PatchSpotOrderTPSL;
 }

@@ -3,6 +3,12 @@
  * ==========================================================================================================================
  */
 
+export interface OTCActionResp {
+  code: number;
+  message: string;
+  timestamp: number;
+}
+
 export interface CreateOTCQuoteResp {
   code: number;
   message: string;
@@ -18,54 +24,91 @@ export interface CreateOTCQuoteResp {
     side: string;
     order_type: string; // FIAT or STABLE
     quote_token: string; // Quote token required when placing an order
+    url?: string;
+    memo?: string;
+    has_signature?: string;
     validity_period?: string;
     ex_rate?: string;
     usdc_rate?: string;
+    is_need_file?: string;
+    gate_bank_id?: string;
+    gate_bank_name?: string;
     refresh_limit?: number;
     refresh_limit_msg?: string;
   };
   timestamp: number;
 }
 
-export interface CreateOTCFiatOrderResp {
-  code: number;
-  message: string;
-  timestamp: number;
-}
+export type CreateOTCFiatOrderResp = OTCActionResp;
 
 export interface CreateOTCStablecoinOrderResp {
   code: number;
   message: string;
 }
 
-export interface OTCBankInfo {
+export interface OTCBankListItem {
   id: string; // Bank ID (required for order placement)
   bank_account_name: string;
   bank_name: string;
-  bank_country: string;
-  bank_address: string;
-  bank_code: string;
-  branch_code: string;
+  bank_country?: string;
+  bank_address?: string;
+  bank_code?: string;
+  branch_code?: string;
+  iban?: string;
+  swift?: string;
+  remittance_line_number?: string;
+  agent_bank_name?: string;
+  agent_bank_swift?: string;
+  submit_time?: string;
+  update_time?: string;
+  status?: string;
+  documentation_file_type?: string;
+  memo?: string;
+  /** 1 = default bank card, 0 = not default */
+  is_default?: 0 | 1;
+  bank_id?: string;
+  documentation_file_key_url?: string;
 }
 
-export interface GetOTCUserDefaultBankResp {
+export interface GetOTCBankListResp {
   code: number;
   message: string;
-  data: OTCBankInfo;
+  data: {
+    lists: OTCBankListItem[];
+  };
   timestamp: number;
 }
 
-export interface MarkOTCOrderAsPaidResp {
+export interface CreateOTCBankResp {
   code: number;
   message: string;
-  timestamp: number;
+  data: {
+    bank_id: number;
+    status: number;
+  };
+  timestamp?: number;
 }
 
-export interface CancelOTCOrderResp {
+export interface OTCBankSupplementChecklistItem {
+  code: string;
+  zh?: string;
+  en?: string;
+  required: boolean;
+}
+
+export interface GetOTCBankSupplementChecklistResp {
   code: number;
   message: string;
-  timestamp: number;
+  data: {
+    user_type: 'personal' | 'enterprise';
+    items: OTCBankSupplementChecklistItem[];
+  };
+  timestamp?: number;
 }
+
+export type MarkOTCOrderAsPaidResp = OTCActionResp;
+
+export type CancelOTCOrderResp = OTCActionResp;
 
 export interface OTCFiatOrderListItem {
   time: string; // Current time
@@ -117,6 +160,8 @@ export interface OTCStablecoinOrderListItem {
   status: string; // PROCESSING: in progress / DONE: completed / FAILED: failed
   create_timest: number; // Timestamp
   create_time: string; // Created time
+  pay_icon?: string;
+  get_icon?: string;
 }
 
 export interface GetOTCStablecoinOrderListResp {

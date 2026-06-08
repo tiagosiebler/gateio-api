@@ -77,13 +77,23 @@ export interface FuturesStats {
   long_liq_size: number;
   long_liq_amount: number;
   long_liq_usd: number;
+  long_liq_usd_new?: number;
   short_liq_size: number;
   short_liq_amount: number;
   short_liq_usd: number;
+  short_liq_usd_new?: number;
   open_interest: number;
   open_interest_usd: number;
   top_lsr_account: number;
   top_lsr_size: number;
+  top_long_size?: number;
+  top_short_size?: number;
+  long_taker_size?: number;
+  short_taker_size?: number;
+  top_long_account?: number;
+  top_short_account?: number;
+  long_users?: number;
+  short_users?: number;
 }
 
 export interface IndexConstituents {
@@ -210,6 +220,10 @@ export interface FuturesOrder {
   order_value?: string;
   /** Read-only; traded value (API response only; omit from order requests). */
   trade_value?: string;
+  action_mode?: 'ACK' | 'RESULT' | 'FULL';
+  tpsl_tp_trigger_price?: string;
+  tpsl_sl_trigger_price?: string;
+  pos_margin_mode?: string;
 }
 
 /** Item shape for `GET /futures/{settle}/orders_timerange` (differs from {@link FuturesOrder} in field types). */
@@ -388,6 +402,8 @@ export interface FuturesContract {
   enable_credit?: boolean;
   /** When true, contract supports decimal contract size (size field can use decimal string). When false, size only supports integer type. */
   enable_decimal?: boolean;
+  /** Whether the newly listed contract uses the mark price circuit breaker */
+  enable_circuit_breaker?: boolean;
   create_time?: number;
   launch_time?: number;
   delisting_time?: number;
@@ -637,4 +653,62 @@ export interface TrailChangeLog {
   price_type?: number;
   price_offset?: string;
   is_create?: boolean;
+}
+
+export interface ChaseOrder {
+  id?: string;
+  user?: string;
+  contract?: string;
+  settle?: string;
+  amount?: string;
+  price_limit?: string;
+  reduce_only?: boolean;
+  text?: string;
+  create_time?: number;
+  finish_time?: number;
+  original_status?: number;
+  status?: string;
+  reason?: string;
+  fill_amount?: string;
+  average_fill_price?: string;
+  suborder_id?: string;
+  is_dual_mode?: boolean;
+  side_label?: string;
+  position_side_output?: string;
+  chase_price?: string;
+  interval_sec?: number;
+  updated_at?: number;
+  suborder_price?: string;
+  suborder_ongoing?: boolean;
+  suborder_finish_as?: string;
+  price_type?: number;
+  price_gap_type?: string;
+  price_gap_value?: string;
+  status_code?: string;
+  create_time_precise?: string;
+  finish_time_precise?: string;
+  pos_margin_mode?: string;
+  position_mode?: string;
+  leverage?: string;
+  error_label?: string;
+}
+
+export interface CreateChaseOrderResp {
+  id?: string;
+}
+
+export interface StopChaseOrderResp {
+  order?: ChaseOrder;
+}
+
+export interface StopAllChaseOrdersResp {
+  orders?: ChaseOrder[];
+}
+
+export interface GetChaseOrdersResp {
+  orders?: ChaseOrder[];
+}
+
+export interface GetChaseOrderDetailResp {
+  order?: ChaseOrder;
 }

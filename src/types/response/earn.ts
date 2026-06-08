@@ -10,6 +10,7 @@ export interface DualInvestmentProduct {
   exercise_currency: string;
   exercise_price: number;
   delivery_time: number;
+  min_amount?: string;
   min_copies: number;
   max_copies: number;
   /** @deprecated */

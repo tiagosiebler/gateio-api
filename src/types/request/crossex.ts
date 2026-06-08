@@ -18,8 +18,8 @@ export interface GetCrossExTransferCoinsReq {
 export interface CreateCrossExTransferReq {
   coin: string; // Currency
   amount: string; // Transfer amount
-  from: string; // Transfer-in account: CROSSEX_BINANCE, CROSSEX_OKX, CROSSEX_GATE, CROSSEX_BYBIT, CROSSEX, SPOT
-  to: string; // Transfer-out account: CROSSEX_BINANCE, CROSSEX_OKX, CROSSEX_GATE, CROSSEX_BYBIT, CROSSEX, SPOT
+  from: string; // CROSSEX_BINANCE, CROSSEX_OKX, CROSSEX_GATE, CROSSEX_BYBIT, CROSSEX_KRAKEN, CROSSEX, SPOT, etc.
+  to: string;
   text?: string; // User-defined ID
 }
 
@@ -125,6 +125,8 @@ export interface GetCrossExHistoryOrdersReq {
   symbol?: string;
   from?: number; // Start Millisecond Timestamp
   to?: number; // End Millisecond Timestamp
+  /** Comma-separated: COMMON, LIQ, REDUCE, ADL, SETTLEMENT */
+  attributes?: string;
 }
 
 export interface GetCrossExHistoryPositionsReq {

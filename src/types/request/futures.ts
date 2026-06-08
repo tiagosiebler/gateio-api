@@ -126,6 +126,10 @@ export interface SubmitFuturesOrderReq {
   text?: string;
   auto_size?: string;
   stp_act?: string;
+  action_mode?: 'ACK' | 'RESULT' | 'FULL';
+  tpsl_tp_trigger_price?: string;
+  tpsl_sl_trigger_price?: string;
+  pos_margin_mode?: 'isolated' | 'cross';
 }
 
 export interface GetFuturesOrdersReq {
@@ -142,6 +146,7 @@ export interface DeleteAllFuturesOrdersReq {
   settle: 'btc' | 'usdt' | 'usd';
   contract: string;
   side?: string;
+  action_mode?: 'ACK' | 'RESULT' | 'FULL';
 }
 
 export interface GetFuturesOrdersByTimeRangeReq {
@@ -266,7 +271,7 @@ export interface GetFuturesInsuranceReq {
 
 export interface UpdateFuturesPriceTriggeredOrderReq {
   settle: 'btc' | 'usdt' | 'usd';
-  order_id: number;
+  order_id: number | string;
   contract?: string;
   size?: number;
   /** Same semantics as `size` (decimal contract size) */
@@ -351,4 +356,53 @@ export interface GetTrailOrderChangeLogReq {
   id: number;
   page_num?: number;
   page_size?: number;
+}
+
+/** Chase limit order (autoorder/v1/chase) request types */
+export interface CreateChaseOrderReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract: string;
+  amount: string;
+  price_limit: string;
+  offset_limit?: string;
+  reduce_only?: boolean;
+  text?: string;
+  is_dual_mode?: boolean;
+  price_type?: number;
+  price_gap_type?: number;
+  price_gap_value?: string;
+  pos_margin_mode?: 'isolated' | 'cross' | string;
+  position_mode?: string;
+}
+
+export interface StopChaseOrderReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  id?: string;
+  text?: string;
+}
+
+export interface StopAllChaseOrdersReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract?: string;
+  pos_margin_mode?: 'isolated' | 'cross' | string;
+}
+
+export interface GetChaseOrdersReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  contract?: string;
+  is_finished?: boolean;
+  start_at?: number;
+  end_at?: number;
+  page_num?: number;
+  page_size?: number;
+  /** 1 ORDER_SORT_CREATED_AT, 2 ORDER_SORT_FINISHED_AT */
+  sort_by: 1 | 2;
+  hide_cancel?: boolean;
+  reduce_only?: 0 | 1 | 2;
+  side?: 0 | 1 | 2;
+}
+
+export interface GetChaseOrderDetailReq {
+  settle: 'btc' | 'usdt' | 'usd';
+  id: string;
 }

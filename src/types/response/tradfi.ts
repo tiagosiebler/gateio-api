@@ -10,6 +10,8 @@ export interface TradFiApiResp<T> {
 
 export interface TradFiListData<T> {
   list?: T[];
+  total?: number;
+  total_page?: number;
 }
 
 export interface TradFiMT5Account {

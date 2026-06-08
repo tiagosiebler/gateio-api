@@ -5,6 +5,10 @@ import {
   REST_CLIENT_TYPE_ENUM,
   RestClientType,
 } from './lib/BaseRestClient.js';
+import {
+  appendGateMultipartFields,
+  appendGateMultipartFile,
+} from './lib/multipartUtil.js';
 import { RestClientOptions } from './lib/requestUtils.js';
 import { CreateStpGroupReq } from './types/request/account.js';
 import {
@@ -101,8 +105,11 @@ import {
   BatchAmendOrderReq,
   BatchFundingRatesReq,
   BatchTerminateTrailOrdersReq,
+  CreateChaseOrderReq,
   CreateTrailOrderReq,
   DeleteAllFuturesOrdersReq,
+  GetChaseOrderDetailReq,
+  GetChaseOrdersReq,
   GetFundingRatesReq,
   GetFuturesAccountBookReq,
   GetFuturesAutoOrdersReq,
@@ -126,6 +133,8 @@ import {
   GetTrailOrderChangeLogReq,
   GetTrailOrderDetailReq,
   GetTrailOrderListReq,
+  StopAllChaseOrdersReq,
+  StopChaseOrderReq,
   SubmitFuturesOrderReq,
   SubmitFuturesTriggeredOrderReq,
   TerminateTrailOrderReq,
@@ -173,13 +182,18 @@ import {
 } from './types/request/options.js';
 import {
   CancelOTCOrderReq,
+  CreateOTCBankReq,
   CreateOTCFiatOrderReq,
   CreateOTCQuoteReq,
   CreateOTCStablecoinOrderReq,
+  GetOTCBankSupplementChecklistReq,
   GetOTCFiatOrderDetailReq,
   GetOTCFiatOrderListReq,
   GetOTCStablecoinOrderListReq,
   MarkOTCOrderAsPaidReq,
+  OTCBankIdReq,
+  SubmitOTCBankEnterpriseSupplementReq,
+  SubmitOTCBankPersonalSupplementReq,
 } from './types/request/otc.js';
 import {
   P2PMerchantAdsDetailReq,
@@ -243,6 +257,7 @@ import {
   TradFiModifyPositionReq,
 } from './types/request/tradfi.js';
 import {
+  CreateQuickRepaymentReq,
   GetUnifiedHistoryLendingRateReq,
   GetUnifiedInterestRecordsReq,
   GetUnifiedLoanRecordsReq,
@@ -359,6 +374,7 @@ import {
 import {
   BatchAmendOrderResp,
   BatchFundingRatesResponse,
+  CreateChaseOrderResp,
   DeleteFuturesBatchOrdersResp,
   FuturesAccount,
   FuturesAccountBookRecord,
@@ -379,11 +395,15 @@ import {
   FuturesTicker,
   FuturesTrade,
   FuturesTradingHistoryRecord,
+  GetChaseOrderDetailResp,
+  GetChaseOrdersResp,
   IndexConstituents,
   LiquidationHistoryRecord,
   PremiumIndexKLine,
   RiskLimitTableTier,
   RiskLimitTier,
+  StopAllChaseOrdersResp,
+  StopChaseOrderResp,
   TrailChangeLog,
   TrailOrder,
   TriggerOrderResponse,
@@ -434,14 +454,17 @@ import {
 } from './types/response/options.js';
 import {
   CancelOTCOrderResp,
+  CreateOTCBankResp,
   CreateOTCFiatOrderResp,
   CreateOTCQuoteResp,
   CreateOTCStablecoinOrderResp,
+  GetOTCBankListResp,
+  GetOTCBankSupplementChecklistResp,
   GetOTCFiatOrderDetailResp,
   GetOTCFiatOrderListResp,
   GetOTCStablecoinOrderListResp,
-  GetOTCUserDefaultBankResp,
   MarkOTCOrderAsPaidResp,
+  OTCActionResp,
 } from './types/response/otc.js';
 import {
   P2PMerchantAdsDetail,
@@ -510,6 +533,8 @@ import {
 import {
   MarginTier,
   PortfolioMarginCalculation,
+  QuickEstimatedRepayment,
+  QuickRepaymentResp,
   UnifiedAccountInfo,
   UnifiedCurrencyDiscountTiers,
   UnifiedHistoryLendingRate,
@@ -1389,6 +1414,22 @@ export class RestClient extends BaseRestClient {
 
   submitUnifiedLoanRepay(params: SubmitUnifiedLoanRepayReq): Promise<any> {
     return this.postPrivate('/unified/loans/repay', { body: params });
+  }
+
+  /**
+   * Get estimated quick repayment data (unified account, cross-currency or portfolio margin mode)
+   */
+  getEstimatedQuickRepayment(): Promise<QuickEstimatedRepayment> {
+    return this.getPrivate('/unified/estimated_quick_repayment');
+  }
+
+  /**
+   * Execute quick repayment
+   */
+  createQuickRepayment(
+    params: CreateQuickRepaymentReq,
+  ): Promise<QuickRepaymentResp> {
+    return this.postPrivate('/unified/quick_repayment', { body: params });
   }
 
   /**==========================================================================================================================
@@ -3050,14 +3091,16 @@ export class RestClient extends BaseRestClient {
     xGateExptime?: number;
     settle: 'btc' | 'usdt' | 'usd';
     order_id: string;
+    action_mode?: 'ACK' | 'RESULT' | 'FULL';
   }): Promise<FuturesOrder> {
-    const { xGateExptime, settle, order_id } = params;
+    const { xGateExptime, settle, order_id, action_mode } = params;
     const headers = xGateExptime
       ? { 'x-gate-exptime': xGateExptime }
       : undefined;
 
     return this.deletePrivate(`/futures/${settle}/orders/${order_id}`, {
       headers: headers,
+      query: action_mode !== undefined ? { action_mode } : undefined,
     });
   }
 
@@ -3333,13 +3376,10 @@ export class RestClient extends BaseRestClient {
   updateFuturesPriceTriggeredOrder(
     params: UpdateFuturesPriceTriggeredOrderReq,
   ): Promise<TriggerOrderResponse> {
-    const { settle, order_id, ...body } = params;
-    return this.putPrivate(
-      `/futures/${settle}/price_orders/amend/${order_id}`,
-      {
-        body: body,
-      },
-    );
+    const { settle, ...body } = params;
+    return this.putPrivate(`/futures/${settle}/price_orders/amend`, {
+      body: body,
+    });
   }
 
   /**
@@ -3446,6 +3486,58 @@ export class RestClient extends BaseRestClient {
       `/futures/${settle}/autoorder/v1/trail/change_log`,
       query,
     );
+  }
+
+  /**
+   * Create a chase limit order
+   */
+  createChaseOrder(params: CreateChaseOrderReq): Promise<CreateChaseOrderResp> {
+    const { settle, ...body } = params;
+    return this.postPrivate(`/futures/${settle}/autoorder/v1/chase/create`, {
+      body,
+    });
+  }
+
+  /**
+   * Stop a chase order
+   */
+  stopChaseOrder(params: StopChaseOrderReq): Promise<StopChaseOrderResp> {
+    const { settle, ...body } = params;
+    return this.postPrivate(`/futures/${settle}/autoorder/v1/chase/stop`, {
+      body,
+    });
+  }
+
+  /**
+   * Stop chase orders in batch
+   */
+  stopAllChaseOrders(
+    params: StopAllChaseOrdersReq,
+  ): Promise<StopAllChaseOrdersResp> {
+    const { settle, ...body } = params;
+    return this.postPrivate(`/futures/${settle}/autoorder/v1/chase/stop_all`, {
+      body,
+    });
+  }
+
+  /**
+   * List chase orders
+   */
+  getChaseOrders(params: GetChaseOrdersReq): Promise<GetChaseOrdersResp> {
+    const { settle, ...query } = params;
+    return this.getPrivate(`/futures/${settle}/autoorder/v1/chase/list`, query);
+  }
+
+  /**
+   * Get chase order detail
+   */
+  getChaseOrderDetail(
+    params: GetChaseOrderDetailReq,
+  ): Promise<GetChaseOrderDetailResp> {
+    const { settle, id } = params;
+    return this.getPrivate(`/futures/${settle}/autoorder/v1/chase/detail`, {
+      id,
+    });
   }
 
   getFuturesPositionCloseHistory(
@@ -5104,14 +5196,101 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
-   * Get user's default bank account information
-   *
-   * Get user's default bank account information for order placement
-   *
-   * @returns Promise with default bank account details
+   * Get user bank card list (use is_default=1 for default card)
    */
-  getOTCUserDefaultBank(): Promise<GetOTCUserDefaultBankResp> {
-    return this.getPrivate('/otc/get_user_def_bank');
+  getOTCBankList(): Promise<GetOTCBankListResp> {
+    return this.getPrivate('/otc/bank/list');
+  }
+
+  /**
+   * Get user bank card list (Inner-aligned alias of getOTCBankList)
+   */
+  getOTCBankListLegacy(): Promise<GetOTCBankListResp> {
+    return this.getPrivate('/otc/bank_list');
+  }
+
+  /**
+   * Create / bind a bank card (multipart/form-data)
+   */
+  createOTCBank(params: CreateOTCBankReq): Promise<CreateOTCBankResp> {
+    const { documentation_file, ...fields } = params;
+    const form = new FormData();
+    appendGateMultipartFields(form, fields);
+    appendGateMultipartFile(form, 'documentation_file', documentation_file);
+    return this.postPrivateMultipart('/otc/bank/create', form);
+  }
+
+  /**
+   * Delete a bank card
+   */
+  deleteOTCBank(params: OTCBankIdReq): Promise<OTCActionResp> {
+    return this.postPrivate('/otc/bank/delete', { body: params });
+  }
+
+  /**
+   * Set default bank card
+   */
+  setDefaultOTCBank(params: OTCBankIdReq): Promise<OTCActionResp> {
+    return this.postPrivate('/otc/bank/set_default', { body: params });
+  }
+
+  /**
+   * Bank card supplement checklist
+   */
+  getOTCBankSupplementChecklist(
+    params: GetOTCBankSupplementChecklistReq,
+  ): Promise<GetOTCBankSupplementChecklistResp> {
+    return this.getPrivate('/otc/bank/bank_supplement_checklist', params);
+  }
+
+  /**
+   * Submit personal bank card supplement materials (multipart/form-data)
+   */
+  submitOTCBankPersonalSupplement(
+    params: SubmitOTCBankPersonalSupplementReq,
+  ): Promise<OTCActionResp> {
+    const { bank_id, id_document_front, id_document_back, address_proof } =
+      params;
+    const form = new FormData();
+    form.append('bank_id', bank_id);
+    appendGateMultipartFile(form, 'id_document_front', id_document_front);
+    appendGateMultipartFile(form, 'id_document_back', id_document_back);
+    appendGateMultipartFile(form, 'address_proof', address_proof);
+    return this.postPrivateMultipart(
+      '/otc/bank/personal/bank_supplement',
+      form,
+    );
+  }
+
+  /**
+   * Submit enterprise bank card supplement materials (multipart/form-data)
+   */
+  submitOTCBankEnterpriseSupplement(
+    params: SubmitOTCBankEnterpriseSupplementReq,
+  ): Promise<OTCActionResp> {
+    const form = new FormData();
+    if (params.uid !== undefined) {
+      form.append('uid', params.uid);
+    }
+    form.append('bank_id', params.bank_id);
+    appendGateMultipartFile(form, 'certificate', params.certificate);
+    appendGateMultipartFile(form, 'share_holders', params.share_holders);
+    appendGateMultipartFile(form, 'passport', params.passport);
+    appendGateMultipartFile(
+      form,
+      'share_holding_structure',
+      params.share_holding_structure,
+    );
+    if (params.funds_statement) {
+      appendGateMultipartFile(form, 'funds_statement', params.funds_statement);
+    }
+    if (params.additional) {
+      appendGateMultipartFile(form, 'additional', params.additional);
+    }
+    return this.postPrivateMultipart(
+      '/otc/bank/enterprise/bank_supplement',
+      form,
+    );
   }
 
   /**

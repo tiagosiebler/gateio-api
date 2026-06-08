@@ -2,6 +2,16 @@
  * SPOT
  * ==========================================================================================================================
  */
+
+/** Limit-order take-profit / stop-loss on order responses (not re-exported; use request types for submits) */
+interface SpotOrderTPSL {
+  trigger_price: string;
+  order_price: string;
+}
+
+/** `{}` cancels TP/SL; `null` leaves unchanged */
+type PatchSpotOrderTPSL = SpotOrderTPSL | {} | null;
+
 export interface SpotCurrencyChain {
   name: string;
   addr?: string;
@@ -198,6 +208,8 @@ export interface SpotOrder {
    */
   finish_as?: 'open' | 'filled' | 'cancelled' | 'ioc' | 'poc' | 'stp';
   action_mode?: 'ACK' | 'RESULT' | 'FULL';
+  stop_loss?: PatchSpotOrderTPSL;
+  stop_profit?: PatchSpotOrderTPSL;
 }
 
 export interface SpotInsuranceHistory {

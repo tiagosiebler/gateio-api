@@ -84,7 +84,7 @@ export interface CrossExOrder {
   symbol: string; // Currency pair
   side: string; // direction
   type: string; // type
-  attribute: string; // Attribute COMMON: Normal Order, LIQ: Liquidation Takeover Order, REDUCE: Liquidation Reduce Order, ADL: Auto-Reduce
+  attribute: string; // COMMON, LIQ, REDUCE, ADL, SETTLEMENT
   exchange_type: string; // Exchange
   business_type: string; // Business Type
   qty: string; // Base Currency Quantity
