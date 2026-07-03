@@ -94,3 +94,8 @@ export interface CreateQuickRepaymentReq {
   debt_currencies: string[];
   available_currencies: string[];
 }
+
+/** POST /unified/delta_neutral — v4.106.97 */
+export interface SetUnifiedDeltaNeutralReq {
+  enabled: boolean;
+}

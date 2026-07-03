@@ -131,7 +131,8 @@ export interface OTCFiatOrderListItem {
   };
   crypto_amount: string; // Stablecoin amount
   rate: string; // Exchange rate
-  transfer_remark: string; // Remark
+  transfer_remark: string; // Remark; empty when reference_code is set (v4.106.95)
+  reference_code?: string; // v4.106.95: Unique bank transfer reference code for SGB deposit buy orders
   gate_bank_account_iban: string; // Bank account
   promotion_code: string; // Promotion code
 }
@@ -185,7 +186,8 @@ export interface OTCFiatOrderDetail {
   crypto_currency: string; // Stablecoin
   crypto_amount: string; // Stablecoin amount
   rate: string; // Exchange rate
-  transfer_remark: string; // Remark
+  transfer_remark: string; // Remark; empty when reference_code is set (v4.106.95)
+  reference_code?: string; // v4.106.95: Unique bank transfer reference code for SGB deposit buy orders
   status: string; // Status
   db_status: string;
   create_time: string; // Created time
