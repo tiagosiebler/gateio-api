@@ -1,10 +1,12 @@
-const { RestClient } = require('gateio-api');
+import { RestClient } from 'gateio-api';
+// or, if require is preferred:
+// const { RestClient } = require('gateio-api');
 
-  // This example shows how to call this Gate.io API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "gateio-api" for Gate.io exchange
-  // This Gate.io API SDK is available on npm via "npm install gateio-api"
-  // ENDPOINT: /earn/fixed-term/user/pre-redeem
-  // METHOD: POST
-  // PUBLIC: NO
+// This example shows how to call this Gate.io API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "gateio-api" for Gate.io exchange
+// This Gate.io API SDK is available on npm via "npm install gateio-api"
+// ENDPOINT: /earn/fixed-term/user/pre-redeem
+// METHOD: POST
+// PUBLIC: NO
 
 const client = new RestClient({
   apiKey: 'insert_api_key_here',

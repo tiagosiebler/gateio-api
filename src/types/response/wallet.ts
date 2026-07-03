@@ -35,6 +35,8 @@ export interface DepositRecord {
     | 'REVIEW' // Under Compliance Review
     | 'TRACK'; // Tracking Block Confirmations, Pending Spot Account Credit
   chain: string;
+  refund_status?: // v4.106.95: Blocked deposit refund status
+  'REFUNDING' | 'REFUNDED' | 'REFUND_FAILED' | 'REJECTED';
 }
 
 export interface CreateDepositAddressResp {
