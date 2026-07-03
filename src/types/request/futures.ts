@@ -93,6 +93,7 @@ export interface GetFuturesAccountBookReq {
 export interface GetFuturesPositionsReq {
   settle: 'btc' | 'usdt' | 'usd';
   holding?: boolean;
+  limit?: number; // deprecated, use positions_limit instead
   positions_limit?: number; // v4.106.104: Replaces limit; omit to return full list, explicit values capped at 1-100
   offset?: number;
   position_side?: string; // v4.105.3: Add position_side parameter for hedge mode support
