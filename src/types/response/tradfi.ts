@@ -220,3 +220,16 @@ export interface TradFiPositionHistoryItem {
     fee?: string;
   };
 }
+
+/** GET /tradfi/orders/log/{log_id} — v4.106.94 */
+export interface TradFiOrderLog {
+  order_id?: number;
+  log_id?: number;
+  symbol?: string;
+  price_type?: 'market' | 'trigger';
+  state?: number;
+  side?: number;
+  volume?: string;
+  price?: string;
+  [key: string]: unknown;
+}

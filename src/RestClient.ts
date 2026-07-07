@@ -211,6 +211,7 @@ import {
   P2PMerchantMyAdsListReq,
   P2PMerchantPlaceBizPushOrderReq,
   P2PMerchantSendChatMessageReq,
+  P2PMerchantSetMerchantWorkHoursReq,
   P2PMerchantUploadChatFileReq,
 } from './types/request/p2pMerchant.js';
 import {
@@ -264,6 +265,7 @@ import {
   GetUnifiedLoansReq,
   PortfolioMarginCalculatorReq,
   SetUnifiedAccountModeReq,
+  SetUnifiedDeltaNeutralReq,
   SubmitUnifiedBorrowOrRepayReq,
   SubmitUnifiedLoanRepayReq,
 } from './types/request/unified.js';
@@ -523,6 +525,7 @@ import {
   TradFiMT5Account,
   TradFiOrderHistoryItem,
   TradFiOrderItem,
+  TradFiOrderLog,
   TradFiPositionHistoryItem,
   TradFiPositionItem,
   TradFiSymbolDetailItem,
@@ -531,6 +534,7 @@ import {
   TradFiTransactionListData,
 } from './types/response/tradfi.js';
 import {
+  DeltaNeutralEnabled,
   MarginTier,
   PortfolioMarginCalculation,
   QuickEstimatedRepayment,
@@ -1430,6 +1434,24 @@ export class RestClient extends BaseRestClient {
     params: CreateQuickRepaymentReq,
   ): Promise<QuickRepaymentResp> {
     return this.postPrivate('/unified/quick_repayment', { body: params });
+  }
+
+  /**
+   * Set Delta-neutral strategy mode (v4.106.97)
+   *
+   * Requires VIP level >= 4 and cross-currency margin mode.
+   */
+  setUnifiedDeltaNeutral(
+    params: SetUnifiedDeltaNeutralReq,
+  ): Promise<DeltaNeutralEnabled> {
+    return this.postPrivate('/unified/delta_neutral', { body: params });
+  }
+
+  /**
+   * Query Delta-neutral strategy mode setting (v4.106.97)
+   */
+  getUnifiedDeltaNeutral(): Promise<DeltaNeutralEnabled> {
+    return this.getPrivate('/unified/delta_neutral');
   }
 
   /**==========================================================================================================================
@@ -5399,6 +5421,28 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
+   * Query spot account balance for P2P merchant (v4.106.103)
+   *
+   * Guide entry — uses Spot API GET /spot/accounts.
+   */
+  getP2PMerchantSpotBalance(params?: {
+    currency?: string;
+  }): Promise<SpotAccount[]> {
+    return this.getSpotAccounts(params);
+  }
+
+  /**
+   * Set merchant working status and custom working hours (v4.106.96)
+   */
+  setP2PMerchantWorkHours(
+    params: P2PMerchantSetMerchantWorkHoursReq,
+  ): Promise<P2PMerchantApiResp<{ work_status: number }>> {
+    return this.postPrivate('/p2p/merchant/account/set_merchant_work_hours', {
+      body: params,
+    });
+  }
+
+  /**
    * Get pending orders
    */
   getP2PMerchantPendingTransactionList(
@@ -6193,5 +6237,14 @@ export class RestClient extends BaseRestClient {
     params?: TradFiGetPositionHistoryParams,
   ): Promise<TradFiApiResp<TradFiListData<TradFiPositionHistoryItem>>> {
     return this.getPrivate('/tradfi/positions/history', params);
+  }
+
+  /**
+   * Query order details by log_id from order placement (v4.106.94)
+   */
+  getTradFiOrderLog(params: {
+    log_id: number | string;
+  }): Promise<TradFiApiResp<TradFiOrderLog>> {
+    return this.getPrivate(`/tradfi/orders/log/${params.log_id}`);
   }
 }

@@ -32,10 +32,11 @@ export interface GetMainSubTransfersReq {
 }
 
 export interface GetSavedAddressReq {
-  currency: string;
+  currency?: string; // v4.106.94: Optional filter by currency
   chain?: string;
   limit?: string;
   page?: number;
+  verified?: string; // v4.106.94: 1 verification-free, 0 normal, empty for no filter
 }
 
 export interface GetSmallBalanceHistoryReq {

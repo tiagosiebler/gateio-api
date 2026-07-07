@@ -220,3 +220,8 @@ export interface QuickRepaymentResp {
   repaid_infos: QuickRepayRepaidInfo[];
   used_infos: QuickRepayUsedInfo[];
 }
+
+/** GET/POST /unified/delta_neutral — v4.106.97 */
+export interface DeltaNeutralEnabled {
+  enabled: boolean;
+}

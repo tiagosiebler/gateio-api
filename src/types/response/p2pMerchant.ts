@@ -123,6 +123,13 @@ export interface P2PMerchantAdsDetail {
   amount?: string;
   min_amount?: string;
   max_amount?: string;
+  fiat_min_amount?: string; // v4.106.102: Min fiat amount per order
+  fiat_max_amount?: string; // v4.106.102: Max fiat amount per order
+  minFiatAmount?: string; // v4.106.102
+  maxFiatAmount?: string; // v4.106.102
+  limitBasis?: string; // v4.106.102: 0 by crypto quantity, 1 by fiat amount
+  limitBasisText?: string; // v4.106.102
+  polymarket_limit?: string; // v4.106.102
   total?: string;
   orderid?: number;
   timestamp?: number;
@@ -141,6 +148,10 @@ export interface P2PMerchantMyAdsListItem {
   status?: string;
   currencyType?: string;
   want_type?: string;
+  fiat_min_amount?: string; // v4.106.102
+  fiat_max_amount?: string; // v4.106.102
+  limit_basis?: string; // v4.106.103
+  limit_basis_text?: string; // v4.106.103
   [key: string]: unknown;
 }
 
@@ -157,6 +168,12 @@ export interface P2PMerchantAdsListItem {
   max_single_trans_amount?: string;
   min_single_trans_amount?: string;
   nick_name?: string;
+  surplus_amount?: string; // v4.106.103: Remaining tradable crypto quantity
+  trade_methods?: string[]; // v4.106.103: Supported payment methods list
+  fiat_min_amount?: string; // v4.106.103
+  fiat_max_amount?: string; // v4.106.103
+  limit_basis?: string; // v4.106.103
+  limit_basis_text?: string; // v4.106.103
 }
 
 export interface P2PMerchantChatMessage {
@@ -173,6 +190,29 @@ export interface P2PMerchantChatMessage {
   width?: string;
   height?: string;
   msg_obj?: Record<string, unknown>;
+  risk_type?: number; // v4.106.96: 1 off-platform traffic diversion risk
+  toast_msg?: string; // v4.106.96
+  [key: string]: unknown;
+}
+
+/** v4.106.96: Risk control response when place_biz_push_order hits off-platform diversion check */
+export interface P2PMerchantPlaceOrderRiskData {
+  risk_code?: string;
+  risk_event?: {
+    type?: string;
+    title?: string;
+    msg?: string;
+    action?: string;
+    content_risk_type?: string;
+    trade_tips?: string;
+    auto_reply?: string;
+  };
+}
+
+/** v4.106.96: send_chat_message risk fields in data */
+export interface P2PMerchantSendChatMessageData {
+  risk_type?: number;
+  toast_msg?: string;
   [key: string]: unknown;
 }
 

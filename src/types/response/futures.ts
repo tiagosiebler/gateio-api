@@ -223,6 +223,8 @@ export interface FuturesOrder {
   action_mode?: 'ACK' | 'RESULT' | 'FULL';
   tpsl_tp_trigger_price?: string;
   tpsl_sl_trigger_price?: string;
+  tpsl_tp_bbo_type?: string; // v4.106.93: BBO price type for take-profit leg
+  tpsl_sl_bbo_type?: string; // v4.106.93: BBO price type for stop-loss leg
   pos_margin_mode?: string;
 }
 
@@ -290,6 +292,9 @@ export interface FuturesPosition {
   settlement_currency?: string; // v4.105.9: Add settlement_currency field for multi-settlement support
   isolated_margin?: string; // v4.104.6: Add isolated_margin field
   pid?: number; // v4.106.0: Sub-position ID
+  hedge_status?: 'partial_hedged' | 'full_hedged'; // v4.106.97: Delta-neutral hedging status
+  hedged_size?: string; // v4.106.97: Hedged size under Delta-neutral strategy
+  unhedged_size?: string; // v4.106.97: Unhedged size under Delta-neutral strategy
 }
 
 export interface FuturesTradingHistoryRecord {
