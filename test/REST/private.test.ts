@@ -94,14 +94,17 @@ describe('REST PRIVATE', () => {
             whatever: true,
           });
         } catch (e: any) {
-          const authSuccessMatchError = 'Invalid sub_account_from';
-          if (e.body.message !== authSuccessMatchError) {
+          const authSuccessMatchErrors = [
+            'Invalid sub_account_from',
+            'Invalid request parameter `sub_account_from` value: notReal1',
+          ];
+          if (!authSuccessMatchErrors.includes(e.body?.message)) {
             console.error(
               `Request failed for test: "${expect.getState().currentTestName}"`,
               e,
             );
           }
-          expect(e.body?.message).toStrictEqual(authSuccessMatchError);
+          expect(authSuccessMatchErrors).toContain(e.body?.message);
         }
       });
 
