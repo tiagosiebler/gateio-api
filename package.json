@@ -1,6 +1,6 @@
 {
   "name": "gateio-api",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Complete & Robust Node.js SDK for Gate.com's REST APIs, WebSockets & WebSocket APIs, with TypeScript declarations.",
   "scripts": {
     "clean": "rm -rf dist/*",
@@ -29,14 +29,14 @@
     "Jerko J (https://github.com/JJ-Cro)"
   ],
   "dependencies": {
+    "@types/ws": "^8.18.1",
     "axios": "^1.13.2",
     "isomorphic-ws": "^4.0.1",
-    "ws": "^8.18.3"
+    "ws": "8.21.1"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "@types/node": "^22.10.2",
-    "@types/ws": "^8.5.10",
     "@typescript-eslint/eslint-plugin": "^8.18.0",
     "@typescript-eslint/parser": "^8.18.0",
     "eslint": "^8.29.0",
@@ -49,7 +49,6 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
     "webpack": "^5.0.0",
-    "webpack-bundle-analyzer": "^5.1.1",
     "webpack-cli": "^4.0.0"
   },
   "keywords": [
