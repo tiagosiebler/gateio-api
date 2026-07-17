@@ -42,7 +42,10 @@ export interface WSClientConfigurableOptions {
   wsOptions?: {
     protocols?: string[];
     agent?: any;
-  } & Partial<WebSocket.ClientOptions | ClientRequestArgs>;
+  } & (
+    | Omit<Partial<WebSocket.ClientOptions>, 'agent'>
+    | Omit<Partial<ClientRequestArgs>, 'agent'>
+  );
 
   /**
    * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
